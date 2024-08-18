@@ -1,6 +1,8 @@
 # AMUVEFO-sigec-php
 
 A "simple" n "general" catalogue-portfolio for a photo club
+also in italian: see LEGGIMI.md
+
 
 ## Half italian half english
 
