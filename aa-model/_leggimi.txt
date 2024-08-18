@@ -1,0 +1,74 @@
+# cartella /aa-model
+
+Contiene la parte che si occupa di gestire la base dati
+il modello 
+le operazioni sono generalmente CRUD crea leggi aggiorna cancella 
+queste operazioni non vengono richiamate direttamente ma 
+sono richiamate dai cosiddetti controller che hanno "la logica"
+a loro volta i controller sono richiamati da moduli o 
+pulsanti presenti nelle pagine mostrate a video, 
+video -> VIEW 
+dati  -> MODEL 
+tra i dati e le View -> CONTROLLER
+questi tre funzionano come strati accoppiati uno all'altro 
+però VIEW conosce solo CONTROLLER 
+però MODEL è usato solo da CONTROLLER 
+
+Le funzioni che sono in /aa-database che riguardano tabelle ed elenchi 
+devono passare in questa cartella [fatto] 
+
+## Elenco tabelle
+
+. abilitazioni_elenco (abilitazioni_pagine)
+  di sistema, pagine o pagine+funzione con abbinato
+  il livello di abilitazione necessario
+. album +
+. album_dettagli
+  colonna portante dell'archivio sono gli album in cui sono
+  raccolte una o più opere, di un solo autore o
+  di una sola manifestazione o che hanno comunque una o più
+  cose in comune
+. autori_elenco (autori)
+  di sistema, elenco del cognomi e nomi degli autori
+  separato dal vocabolario chiavi-valori, sono aggiunte colonne
+  su eventuali biografie in athesis o siti terzi
+. chiavi_elenco (chiavi)
+  di sistema, fornisce un elenco di chiavi per le mappe
+  e anche per questa tabella ci sono delle schede
+  informative dedicate alle chiavi
+. chiavi_valori_vocabolario (vocabolari)
+  di sistema, per alcune chiavi vige un insieme di valori validi
+  limitato, che è elencato qui
+. consultatori_calendario (calendario_accessi)
+  sistema, all'inizio l'archivio era consultabile solo
+  in sede, quindi non pubblico. recentemente si è
+  cambiata idea, trovandosi di fronte a un
+  archivio online. Quindi in questo calendario saranno
+  inseriti i nominativi di chi deve richiedere delle
+  copie ad alta risoluzione
+. fotografie +
+. fotografie_dettagli
+  fotografie legate agli album
+. richieste_elenco (richieste)
+  di sistema, in questa tabella vengono raccolti i click
+  che i consultatori fanno su album, fotografie, video
+  mostrati ai minimi termini, per accedere alle versioni
+  in alta risoluzione.
+. scansioni_cartelle (inizio_lavori)
+  di sistema, questa tabella "prende in carico" le cartelle
+  che sono segnalate per andare a esaminarle e poi caricare
+  una seconda tabella. Questo sistema può poi anche lavorare
+  in automatico "quello che è rimasto in sospeso", partendo
+  da una cartella - radice e inoltrandosi man mano nelle
+  sottocartelle che questa contiene, fino ad esaurimento lista.
+. scansioni_disco (lavori)
+  di sistema, questa tabella viene caricata in automatico
+  selezionando cartelle e sottocartelle, file fotografici
+  e video tralasciando altri file come Thumbs.db oppure
+  i vari .DS_Store seminati nelle cartelle dai sistemi operativi
+  A partire da questa tabella vengono caricate le sei
+  tabelle-colonna del museo: album, fotografie, video e
+  le loro dettagli.
+. video +
+. video_dettagli
+  video presenti in album

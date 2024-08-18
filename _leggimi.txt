@@ -1,0 +1,9 @@
+nome cartella: "/"
+descrizione: >
+  Questa cartella è la base di archivio.athesis77.it
+  il quale contiene:
+  - wordpress manuale d'uso di archivio in /man 
+  - wordpress robe tecniche informatiche in /tech
+  - i file e le cartelle di archivio i cui contenuti
+    sono presentati in forma di sito per la parte 
+    gerarchica ma hanno anche una ricerca. 

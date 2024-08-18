@@ -1,0 +1,12 @@
+In questa cartella 
+
+In questa cartella i file con suffisso -controller si occupano
+di fare operazioni su una o più tabelle.
+I file con un verbo all'inizio invece si occupano di fare 
+una sola cosa; se la loro funzione è già stata
+riportata all'interno di almeno un controller 
+vanno accantonati e poi eliminati.
+i file con prefisso was (passato del verbo essere in inglese)
+son accantonati in attesa di essere cancellati,
+potrebbero avere cose interessanti da recuperare 
+ma non sono in uso a nessuno.

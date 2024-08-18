@@ -1,0 +1,6 @@
+nome cartella: "aa-log"
+descrizione: >
+  Questa cartella registra man mano le funzioni del sistema
+  in cartelle e file periodicamente archiviabili
+  Sono registrazioni tecniche di cosa succede all'interno 
+  destinate agli sviluppatori per analisi post-evento

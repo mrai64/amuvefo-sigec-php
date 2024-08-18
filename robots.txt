@@ -1,0 +1,17 @@
+# Blocca per googlebot le cartelle archivio 
+User-agent: Googlebot
+User-agent: Google
+Disallow: /1AUTORI/
+Disallow: /2AUTOF/
+Disallow: /3FONDI/
+Disallow: /4LIBRI/
+Disallow: /5LOCA/
+Disallow: /6LOCA/
+Disallow: /7DATI/
+Disallow: /8SCUOLA/
+Disallow: /9TERRI/
+Disallow: /10VIDEO/
+
+# consente l'accesso a tutto il resto 
+User-agent: * 
+Allow: /

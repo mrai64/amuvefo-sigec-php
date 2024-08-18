@@ -1,0 +1,1229 @@
+<?php
+/**
+ * FOTOGRAFIE controller
+ * 
+ * Si occupa delle funzioni che riguardano la tabella fotografie 
+ * e fotografie_dettagli 
+ * 
+ * - carica_fotografie_da_scansioni_disco        $scansioni_id 
+ *   legge scansioni_disco scrive album scrive fotografie 
+ * - carica_fotografie_da_album                  $album_id
+ *   legge scansioni_disco scrive album scrive fotografie 
+ * 
+ * - leggi_fotografie_per_id 
+ *   presenta pagina della fotografia 
+ * - carica_richiesta_fotografie_per_id
+ *   scrive richiesta in richieste 
+ * - leggi_fotografia_precedente
+ *   nella pagina fotografia va a cercare la fotografia precedente 
+ * - leggi_fotografia_seguente 
+ *   nella pagina fotografia va a cercare la fotografia seguente
+ * 
+ * - aggiungi_dettaglio_fotografia
+ *   presenta pagina per inserire dettaglio 
+ *   aggiunge dettaglio da modulo per inserire dettaglio 
+ * - modifica_dettaglio_fotografia
+ *   presenta pagina per modificare dettaglio 
+ * - aggiorna_dettaglio_fotografia
+ *   aggiorna dettaglio da modulo modifica dettaglio 
+ * - elimina_dettaglio_fotografia
+ *   cancellazione non fisica del dettaglio 
+ * 
+ * - carico_dettaglio
+ *   viene richiamata da carica_dettagli_da_fotografia
+ * - carica_dettagli_da_fotografia            $fotografie_id
+ *   rintraccia il file ed estrae dei dettagli in automatico
+ *   da inserire in fotografie_dettagli
+ *   se l'immagine è jpg e di misura superiore a 800 x 800 px
+ *   la ridimensiona
+ * 
+ */
+if (!defined('ABSPATH')){
+	include_once('../_config.php');
+}
+include_once(ABSPATH . 'aa-model/database-handler-oop.php');
+include_once(ABSPATH . 'aa-model/fotografie-oop.php');
+include_once(ABSPATH . 'aa-model/scansioni-disco-oop.php');
+include_once(ABSPATH . 'aa-controller/controller-base.php');
+include_once(ABSPATH . 'aa-controller/carica-dettaglio-libreria.php');
+include_once(ABSPATH . 'aa-model/richieste-oop.php');
+include_once(ABSPATH . 'aa-model/album-dettagli-oop.php');
+
+
+
+/**
+ * CREATE - aggiungi 
+ * Fotografie 
+ * 
+ * Legge scansioni_disco scrive fotografie 
+ * 
+ * @param  int   $scansioni_id 
+ * @return array 'ok' + 'message' | 'error' + 'message' 
+ */
+function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : array {
+	$dbh    = New DatabaseHandler();
+	$scan_h = New ScansioniDisco($dbh);
+	$alb_h  = New Album($dbh);
+	$foto_h = New Fotografie($dbh);
+	
+	// verifica id in scansioni_disco 
+	$campi=[];
+	$campi['query'] = 'SELECT * FROM ' . ScansioniDisco::nome_tabella 
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id = :record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id'] = $scansioni_id;
+	$ret_scan = $scan_h->leggi($campi);
+	if ( isset($ret_scan['error']) || $ret_scan['numero'] == 0){
+		$ret = [
+			'error' => true,
+			'message' => 'Non è stato trovato in scansioni_disco il record ' 
+			. $scansioni_id 
+			. ' ' . (isset($ret_scan['message'])?$ret_scan['message']:'')
+		];
+		echo '<pre>Fotografie non inserite'."\n";
+		echo var_dump($ret);
+		return $ret;
+	}
+	$scansione_disco = $ret_scan['data'][0];
+	//dbg echo 'scansione_disco'."\n";
+	//dbg echo var_dump($scansione_disco);
+	// album 
+	$campi=[];
+	$campi['query'] = 'SELECT * FROM ' . Album::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id_in_scansioni_disco = :record_id_in_scansioni_disco ';
+	$campi['record_cancellabile_dal']      = $dbh->get_datetime_forever();
+	$campi['record_id_in_scansioni_disco'] = $scansioni_id;
+	$ret_alb = $alb_h->leggi($campi);
+	if ( isset($ret_alb['error']) || $ret_alb['numero'] == 0){
+		$ret = [
+			'error' => true,
+			'message' => 'Non è stato trovato un album legato a scansioni_disco ' 
+			. $scansioni_id 
+			. ' ' . (isset($ret_scan['message'])?$ret_scan['message']:'')
+		];
+		echo '<pre>Fotografie non inserite '."\n";
+		echo var_dump($ret);
+		return $ret;
+	}
+	$album = $ret_alb['data'][0];
+	//dbg echo 'album'."\n";
+	//dbg echo var_dump($album);
+	
+	// Elenco da scansioni_disco di fotografie e video (no, i video no)
+	$campi=[];
+	$campi['query']='SELECT * FROM ' . ScansioniDisco::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND livello1 = :livello1  AND livello2 = :livello2 '
+	. ' AND livello3 = :livello3  AND livello4 = :livello4 '
+	. ' AND livello5 = :livello5  AND livello6 = :livello6 '
+	. " AND nome_file <> '/' "
+	. " AND estensione in ('jpg','jpeg','tif') "
+	. ' ORDER BY nome_file ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['livello1'] = $scansione_disco['livello1'];
+	$campi['livello2'] = $scansione_disco['livello2'];
+	$campi['livello3'] = $scansione_disco['livello3'];
+	$campi['livello4'] = $scansione_disco['livello4'];
+	$campi['livello5'] = $scansione_disco['livello5'];
+	$campi['livello6'] = $scansione_disco['livello6'];
+	$ret_scan = [];
+	$ret_scan = $scan_h->leggi($campi);
+	//dbg   echo 'album'."\n";
+	//dbg   echo var_dump($ret_scan);
+	if ( isset($ret_scan['error']) || $ret_scan['numero'] == 0 ){
+		return $ret_scan;    
+	}
+	$fotografia=[];
+	$fotografia['record_id_in_album']     = $album['record_id'];
+	$fotografia['disco']                  = $album['disco'];
+	$ret=[];
+	$ret['ok'] = true;
+	$ret['numero'] = 0;
+	$ret['data'] = [];
+	for ($i=0; $i < count($ret_scan['data']); $i++) { 
+		//dbg echo 'fotografie'."\n";
+		$fotografia['titolo_fotografia'] = $ret_scan['data'][$i]['nome_file'];
+		$fotografia['percorso_completo'] = $album['percorso_completo'].$fotografia['titolo_fotografia'];
+		//dbg echo 'titolo_fotografia: ' . $fotografia['titolo_fotografia']."\n";
+		$fotografia['record_id_in_scansioni_disco'] = $ret_scan['data'][$i]['record_id'];
+		$ret_foto = $foto_h->aggiungi($fotografia);
+		//dbg echo var_dump($ret_foto);
+		if (isset($ret_foto['ok'])){
+			$ret['numero']++;
+			$ret['data'][] = $fotografia['titolo_fotografia'];
+		}
+	}
+	return $ret; 
+} // carica_fotografie_da_scansioni_disco_con_id
+
+/**
+ * test 
+ * https://archivio.athesis77.it/aa-controller/fotografie-controller.php?id=66&test=carica_fotografie_da_scansioni_disco_con_id
+ * 
+ */
+if (isset($_GET['test']) && 
+		isset($_GET['id'])   && 
+		$_GET['test'] == 'carica_fotografie_da_scansioni_disco_con_id'){
+	echo '<pre>debug on'."\n";
+	$ret = carica_fotografie_da_scansioni_disco_con_id($_GET['id']);
+	echo 'fine'."\n";
+}
+
+
+/**
+ * CREATE - aggiungi 
+ * Legge album scrive fotografie 
+ * 
+ * Parte da un album registrato in scansioni_disco 
+ * aggiorna album in album
+ * aggiorna fotografie in fotografie 
+ */
+function carica_fotografie_da_album(int $album_id =0 ) : array {
+	$dbh    = New DatabaseHandler();
+	$alb_h  = New Album($dbh);
+	$foto_h = New Fotografie($dbh);
+	$scan_h = New ScansioniDisco($dbh);
+
+	if ($album_id == 0 ){
+		// prende il primo "da fare" 
+		$campi=[];
+		$campi['query']= 'SELECT * FROM ' . Album::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+		. ' AND stato_lavori = :stato_lavori '
+		. ' ORDER BY record_id ';
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$campi['stato_lavori'] = Album::stato_da_fare;
+
+	} else {
+		// verifica album_id
+		$campi=[];
+		$campi['query']= 'SELECT * FROM ' . Album::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+		. ' AND record_id = :record_id';
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$campi['record_id']               = $album_id;
+	}
+	$ret_alb = $alb_h->leggi($campi);
+	//dbg echo "\n".'ricerca album '."\n";
+	//dbg echo var_dump($ret_alb);
+	//dbg echo "\n". 'Campi : ' . serialize($campi) . "\n"; 
+	if (isset($ret_alb['error'])){
+		$ret = [
+			'error' => true,
+			'message' => 'Non è stato trovato un album da inserire.'
+			. ' campi: ' . serialize($campi) 
+			. ' ' . $ret_alb['error']
+		];
+		return $ret;
+	}
+	if ($ret_alb['numero'] == 0){
+		$ret = [
+			'ok' => true,
+			'message' => 'Non è stato trovato un album da inserire.'
+			. ' campi: ' . serialize($campi) 
+		];
+		return $ret;
+	}
+	$album    = $ret_alb['data'][0];
+	$album_id = $album['record_id'];
+	
+	// album caricato in scansioni_disco 
+	$campi=[];
+	$campi['query'] = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id = :record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id']               = $album['record_id_in_scansioni_disco'];
+	$ret_scan = $scan_h->leggi($campi);
+
+	// echo "\n".'scansioni_disco'."\n";
+	// echo var_dump($ret_scan);
+
+	if (isset($ret_scan['error']) || $ret_scan['numero']== 0){
+		$ret = [
+			'ok' => true,
+			'message' => 'Non è stato trovato un album in scansioni_disco.'
+			. ' ' . $ret_scan['error']
+			. ' campi: ' . serialize($campi) 
+		];
+		return $ret;
+	}
+	$album_in_scansioni = $ret_scan['data'][0];
+
+	// loop delle fotografie con 
+	$campi=[];
+	$campi['query']= 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND livello1 = :livello1    AND livello2 = :livello2 '
+	. ' AND livello3 = :livello3    AND livello4 = :livello4 '
+	. ' AND livello5 = :livello5    AND livello6 = :livello6 '
+	. " AND nome_file <> '/' "
+	. " AND estensione IN ('jpg', 'jpeg', 'tif') "
+	. ' ORDER BY record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['livello1'] = $album_in_scansioni['livello1'];
+	$campi['livello2'] = $album_in_scansioni['livello2'];
+	$campi['livello3'] = $album_in_scansioni['livello3'];
+	$campi['livello4'] = $album_in_scansioni['livello4'];
+	$campi['livello5'] = $album_in_scansioni['livello5'];
+	$campi['livello6'] = $album_in_scansioni['livello6'];
+	$ret_scan=[];
+	$ret_scan=$scan_h->leggi($campi);
+	if (isset($ret_scan['error'])){
+		$ret = [
+			'error' => true,
+			'message' => __FUNCTION__ . ' ' . __LINE__
+			. '<br>' . $ret_scan['error']
+			. '<br>campi: ' . serialize($campi) 
+		];
+		return $ret;
+	}
+	if ($ret_scan['numero'] == 0){
+		$ret = [
+			'ok' => true,
+			'message' => "Non ci sono fotografie per l'album in scansioni_disco. "
+			. ' campi: ' . serialize($campi) 
+		];
+		return $ret;
+	}
+
+	// vai di loop 
+	$fotografie_in_scansioni=$ret_scan['data']; 	
+	$new_foto=[];
+	$new_foto['disco']             =$album_in_scansioni['disco'];
+	$new_foto['record_id_in_album']=$album_in_scansioni['record_id'];
+	$ret=[];
+	$ret['numero']=0;
+	$ret['data']=[];
+	for ($i=0; $i < count($fotografie_in_scansioni); $i++) { 
+		# code...
+		$new_foto['titolo_fotografia'] = $fotografie_in_scansioni[$i]['nome_file'];
+		$new_foto['percorso_completo'] = $album['percorso_completo'] . $fotografie_in_scansioni[$i]['nome_file'];
+		$new_foto['record_id_in_scansioni_disco'] = $fotografie_in_scansioni[$i]['record_id'];
+		$ret_new = $foto_h->aggiungi($new_foto);
+		// echo "\n".'<hr>';
+		// echo var_dump($ret_new);
+		if (isset($ret_new['ok'])){
+			$ret['numero']++;
+			$ret['data'][]=$ret_new['numero'] .' '.$new_foto['titolo_fotografia'];
+		}
+	} // for(fotografie_in_scansioni_disco)
+	// echo "\n".'<hr>';
+	$ret['ok'] = true;
+	return $ret;
+}
+
+/**
+ * test 
+ * https://archivio.athesis77.it/aa-controller/fotografie-controller.php?id=17&test=carica_fotografie_da_album
+ * 
+ */
+if (isset($_GET['test']) && 
+		isset($_GET['id'])   && 
+		$_GET['test'] == 'carica_fotografie_da_album'){
+	echo '<pre>debug on'."\n";
+	$ret = carica_fotografie_da_album($_GET['id']);
+	echo var_dump($ret);
+	echo "\n".'fine'."\n";
+}
+
+
+
+
+
+/**
+ * LEGGI 
+ */
+include_once(ABSPATH . 'aa-model/fotografie-dettagli-oop.php');
+
+function leggi_fotografie_per_id( int $fotografie_id){
+	$dbh    = New DatabaseHandler();
+	$foto_h = New Fotografie($dbh);
+	$fdet_h = New FotografieDettagli($dbh); 
+
+	// 
+	$foto_h->set_record_id($fotografie_id); // fa anche validazione
+	$campi=[];
+	$campi['query']= 'SELECT * FROM ' . Fotografie::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id = :record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id']               = $foto_h->get_record_id();
+	$ret_foto = $foto_h->leggi($campi);
+	if (isset($ret_foto['error']) || $ret_foto['numero'] == 0){
+		echo '<pre style="color: red;">Fotografia non trovata</pre>';
+		echo var_dump($ret_foto);
+		exit(0);
+	}
+	$fotografia      = $ret_foto['data'][0]; // è sempre un array
+	// questo sistema fornisce sia una indicazione del "dove'è" che un nome del file dell'immagine 
+	// $fotografia_src  = urldecode($fotografia['percorso_completo']);
+	
+	// questo sistema converte il file in un flusso dati che viene dichiarato immagine ed è privo di nome file
+	// anche salvandolo si dovranno rinominare tutti i file e organizzarli a mano. E ce ne sono per dei TeraByte.
+	// Per limitare il carico macchina, si potrebbe già salvare un file "sidecar" con estensione .b64
+	// dove si trova l'immagine
+	$fotografia_src  = str_replace('//' , '/' , ABSPATH.$fotografia['percorso_completo']);
+	$fotografia_src  = 'data:image/jpeg;base64,'.base64_encode(file_get_contents($fotografia_src));
+	
+	// questo sistema crea una immagine in memoria e la libera dei dati exif 
+	// nota: non funziona
+	// $fotografia_src  = str_replace('//' , '/' , ABSPATH.$fotografia['percorso_completo']);
+	// $fotografia_img  = imagecreatefromjpeg($fotografia_src);
+	// $fotografia_img  = imageinterlace($fotografia_img, false);
+	// $fotografia_src  = 'data:image/jfif;base64,'.base64_encode($fotografia_img);
+	
+	$torna_all_album = URLBASE . 'album.php/leggi/'           . $fotografia['record_id_in_album'];
+	$foto_precedente = URLBASE . 'fotografie.php/precedente/' . $fotografia['record_id'];
+	$foto_seguente   = URLBASE . 'fotografie.php/seguente/'   . $fotografia['record_id'];
+	// siete in ... 
+	$siete_in = $fotografia['percorso_completo'];
+	$siete_in = dirname($siete_in);
+	$siete_in = str_replace('/', ' / ', $siete_in);
+	
+	if (isset($_COOKIE['abilitazione']) && $_COOKIE['abilitazione'] > SOLALETTURA ){
+		$richiesta_originali = URLBASE . 'fotografie.php/richiesta/' . $fotografia['record_id'] 
+		. '?return_to=' . urlencode($_SERVER['REQUEST_URI']); // TODO vedi /01-scansioni-disco_richiesta.php come esempio
+		
+		$aggiungi_dettaglio  = URLBASE . 'fotografie.php/carica_dettagli/' . $fotografia['record_id'];
+	} else {
+		$richiesta_originali = '#solalettura';
+		$aggiungi_dettaglio  = '#solalettura';
+	}
+	
+	// dettagli 
+	$campi=[];
+	$campi['query'] = 'SELECT * FROM fotografie_dettagli '
+	. 'WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. 'AND record_id_padre = :record_id_padre '
+	. 'ORDER BY chiave, record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id_padre']         = $foto_h->get_record_id();
+	$ret_dett = $fdet_h->leggi($campi);
+	$dettagli = (isset($ret_dett['numero']) && $ret_dett['numero'] > 0) ? $ret_dett['data'] : [];
+
+	// e via si mostra
+	require_once(ABSPATH.'aa-view/foto-view.php');
+	exit(0); // e fine
+} // leggi_fotografie_per_id()
+
+
+/**
+ * test 
+ * 1. https://archivio.athesis77.it/aa-controller/fotografie-controller.php?id=1111&test=leggi_fotografie_per_id
+ * atteso: 'fotografia non trovata' (almeno per un po')
+ * 
+ * 2. https://archivio.athesis77.it/aa-controller/fotografie-controller.php?id=20&test=leggi_fotografie_per_id
+ * atteso: trova la fotografia 
+ *  
+ */
+if (isset($_GET['test']) && 
+		isset($_GET['id'])   && 
+		$_GET['test'] == 'leggi_fotografie_per_id'){
+	//dbg echo '<pre style="max-width:50rem;">'."\n";
+	//dbg echo 'test leggi_fotografie_per_id'."\n";
+	leggi_fotografie_per_id($_GET['id']);
+	//dbg echo 'fine'."\n";
+}
+
+/**
+ * 
+ * @param  int  $fotografie_id 
+ * @return bool richiesta inserita 
+ * TODO return ret array 'ok' + message | 'error' + message 
+ */
+function carica_richiesta_fotografie_per_id( int $fotografie_id) : bool {
+	$dbh    = New DatabaseHandler();
+	$foto_h = New Fotografie($dbh);
+	$ric_h  = New Richieste($dbh);
+
+	// 
+	$foto_h->set_record_id($fotografie_id); // fa anche validazione
+	$campi=[];
+	$campi['query']= 'SELECT * from fotografie '
+	. 'WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. 'AND record_id = :record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id']               = $foto_h->get_record_id();
+	$ret_foto = $foto_h->leggi($campi);
+	if (isset($ret_foto['error']) || $ret_foto['numero'] == 0){
+		echo '<pre style="color: red;">Fotografia non trovata</pre>';
+		exit(0);
+	}
+	$fotografia = $ret_foto['data'][0]; // è sempre un array
+
+
+	if ($_COOKIE['abilitazione'] <= SOLALETTURA ){
+		$_SESSION['messaggio'] = 'Operazione non consentita';
+		return false;
+	}
+
+	$campi=[];
+	$campi['record_id_in_consultatori_calendario'] = $_COOKIE['id_calendario'];
+	$campi['oggetto_richiesta']     = 'fotografie';
+	$campi['record_id_richiesta']   = $fotografia['record_id'];
+	$ret_ric = $ric_h->aggiungi($campi);
+	if (isset($ret_ric['error'])){
+		$_SESSION['messaggio'] = 'Richiesta non inserita '
+		. 'per errore ' . $ret_ric['message'];
+		return false;
+	}  
+
+	$_SESSION['messaggio'] = 'Richiesta inserita di questa foto per '. $_COOKIE['consultatore'];
+	return true;
+} // carica_richiesta_fotografie_per_id
+
+
+/**
+ * test 
+ * 1. https://archivio.athesis77.it/aa-controller/fotografie-controller.php?id=3&test=carica_richiesta_fotografie_per_id
+ * 
+ */
+if (isset($_GET['test']) && 
+		isset($_GET['id'])   && 
+		$_GET['test'] == 'carica_richiesta_fotografie_per_id'){
+	//dbg 
+	echo '<pre style="max-width:50rem;">'."\n";
+	//dbg 
+	echo 'test carica_richiesta_fotografie_per_id'."\n";
+	carica_richiesta_fotografie_per_id($_GET['id']);
+	echo $_SESSION['messaggio'];
+	//dbg echo 'fine'."\n";
+}
+
+
+/**
+ * PRECEDENTE
+ */
+
+/**
+ * Se la foto è la prima dell'album resta la foto di partenza 
+ * 
+ * @param  int $fotografie_id 
+ * @return int $fotografia_precedente | fotografie_id 
+ */
+ function leggi_fotografia_precedente( int $fotografie_id) : int {
+	$dbh    = New DatabaseHandler();
+	$foto_h = New Fotografie($dbh);
+
+	$campi=[];
+	$campi['query'] = 'SELECT * from fotografie '
+	. 'WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. 'AND record_id = :record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id']      = $fotografie_id;
+	//dbg echo var_dump($campi);
+	$ret_foto = $foto_h->leggi($campi);
+	if (isset($ret_foto['error']) || $ret_foto['numero'] == 0){
+		return $fotografie_id;
+	}
+	//dbg echo '<hr>';
+	//dbg echo var_dump($ret_foto);
+	$fotografia=$ret_foto['data'][0];
+	
+	// l'ordinamento è quello in uso nella funzione 
+	// leggi_album_per_id dentro album-controller.php 
+	$campi=[];
+	$campi['query'] = 'SELECT * FROM fotografie '
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id_in_album = :record_id_in_album '
+	. ' AND titolo_fotografia  < :titolo_fotografia '
+	. ' ORDER BY titolo_fotografia DESC, record_id DESC ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id_in_album']      = $fotografia['record_id_in_album'];
+	$campi['titolo_fotografia']       = $fotografia['titolo_fotografia'];
+	$ret_foto=[];
+	$ret_foto = $foto_h->leggi($campi);
+	//dbg echo '<hr>';
+	//dbg echo var_dump($ret_foto);
+	if (isset($ret_foto['error']) || $ret_foto['numero'] == 0){
+		return $fotografie_id;
+	}
+	$precedente=$ret_foto['data'][0];
+	return $precedente['record_id'];
+} // leggi_fotografia_precedente
+
+
+/**
+ * SEGUENTE
+ */
+
+/**
+ * Se la foto è l'ultima dell'album, resta la foto di partenza 
+ * 
+ * @param  int $fotografie_id 
+ * @return int $fotografia_seguente 
+ */
+function leggi_fotografia_seguente( int $fotografie_id ) : int {
+	$dbh    = New DatabaseHandler();
+	$foto_h = New Fotografie($dbh);
+
+	$campi=[];
+	$campi['query'] = 'SELECT * from fotografie '
+	. 'WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. 'AND record_id = :record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id']      = $fotografie_id;
+	//dbg echo var_dump($campi);
+	$ret_foto = $foto_h->leggi($campi);
+	if (isset($ret_foto['error']) || $ret_foto['numero'] == 0){
+		return $fotografie_id;
+	}
+	//dbg echo '<hr>';
+	//dbg echo var_dump($ret_foto);
+	$fotografia=$ret_foto['data'][0];
+
+	// l'ordinamento è quello in uso nella funzione 
+	// leggi_album_per_id dentro album-controller.php 
+	$campi=[];
+	$campi['query'] = 'SELECT * FROM fotografie '
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id_in_album = :record_id_in_album '
+	. ' AND titolo_fotografia  > :titolo_fotografia '
+	. ' ORDER BY titolo_fotografia ASC, record_id ASC ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id_in_album']      = $fotografia['record_id_in_album'];
+	$campi['titolo_fotografia']       = $fotografia['titolo_fotografia'];
+	$ret_foto=[];
+	$ret_foto = $foto_h->leggi($campi);
+	if (isset($ret_foto['error']) || $ret_foto['numero'] == 0){
+		return $fotografie_id;
+	}
+	$seguente = $ret_foto['data'][0];
+	return $seguente['record_id']; 
+} // leggi_fotografia_seguente
+
+
+/**
+ * MODIFICA_DETTAGLIO 
+ */
+/**
+ * @param  int   $dettaglio_id 
+ * Espone il modulo per modificare il dettaglio 
+ */
+function modifica_dettaglio_fotografia( int $dettaglio_id ){
+	$dbh    = New DatabaseHandler();
+	$fdet_h = New FotografieDettagli($dbh); 
+	
+	$campi=[];
+	$campi['query'] = 'SELECT * from fotografie_dettagli '
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id = :record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id'] = $dettaglio_id;
+	$ret_det = $fdet_h->leggi($campi);
+	if ( isset($ret_det['error']) || $ret_det['numero'] == 0){
+		$ret = [
+			'error' => true, 
+			'message' => __FILE__ . ' ' . __FUNCTION__ 
+			. ' Non è stato possibile modificare il dettaglio '
+			. ' per ' . $ret_det['error']
+			. ' campi: ' . serialize($campi)
+		];
+		echo var_dump($ret);
+		exit(0);
+	}
+	$dettaglio = $ret_det['data'][0];
+	$leggi_fotografia   = URLBASE . 'fotografie.php/leggi/'.$dettaglio['record_id_padre'];
+	$aggiorna_dettaglio = URLBASE . 'fotografie.php/aggiorna_dettaglio/'.$dettaglio['record_id'];
+	$record_id     = $dettaglio['record_id'];
+	$fotografie_id = $dettaglio['record_id_padre'];
+
+	require_once( ABSPATH . 'aa-view/dettaglio-foto-modifica-view.php');
+	exit(0); 
+} // modifica_dettaglio_fotografia
+
+/**
+ * @param  int $dettaglio_id + $_POST
+ * 
+ */
+function aggiorna_dettaglio_fotografia(int $dettaglio_id){
+	$dbh    = New DatabaseHandler();
+	$fdet_h = New FotografieDettagli($dbh); 
+
+	if ( !isset($_POST['aggiorna_dettaglio']) || 
+			 !isset($_POST['fotografie_id']) || 
+			 !isset($_POST['record_id']) ){
+				$ret = [
+					'error' => true, 
+					'message' => __FILE__ . ' ' . __FUNCTION__ 
+					. ' Non è stato possibile modificare il dettaglio '
+					. ' post: ' . serialize($_POST)
+				];
+				echo var_dump($ret);
+				exit(0);
+	}
+
+	$campi['query'] = 'SELECT * from fotografie_dettagli '
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id = :record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id'] = $dettaglio_id;
+	$ret_det = $fdet_h->leggi($campi);
+	if ( isset($ret_det['error']) || $ret_det['numero'] == 0){
+		$ret = [
+			'error' => true, 
+			'message' => __FILE__ . ' ' . __FUNCTION__ 
+			. ' Non è stato possibile modificare il dettaglio '
+			. ' per ' . $ret_det['error']
+			. ' campi: ' . serialize($campi)
+		];
+		echo var_dump($ret);
+		exit(0);
+	}
+	$dettaglio = $ret_det['data'][0];
+	$fdet_h->set_valore($_POST['valore']); 
+
+	$campi=[];
+	$campi['update'] = 'UPDATE fotografie_dettagli '
+	. ' SET valore = :valore '
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id = :record_id ';
+	$campi['valore']                  = $fdet_h->get_valore();
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id']               = $dettaglio_id;
+	$ret_mod = $fdet_h->modifica($campi);
+	if ( isset($ret_det['error']) || $ret_det['numero'] == 0){
+		$ret = [
+			'error' => true, 
+			'message' => __FILE__ . ' ' . __FUNCTION__ 
+			. ' Non è stato possibile modificare il dettaglio '
+			. ' per ' . $ret_det['error']
+			. ' campi: ' . serialize($campi)
+		];
+		echo var_dump($ret);
+		exit(0);
+	}
+	// torniamo alla scheda fotografia
+	leggi_fotografie_per_id($dettaglio['record_id_padre']);
+	exit(0);
+} // aggiorna_dettaglio_fotografia
+
+
+/**
+ * @param  int  $dettaglio_id 
+ * @return void 
+ */
+function elimina_dettaglio_fotografia( int $dettaglio_id){
+	$dbh    = New DatabaseHandler();
+	$fdet_h = New FotografieDettagli($dbh); 
+	
+	$campi=[];
+	$campi['query'] = 'SELECT * from fotografie_dettagli '
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id = :record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id'] = $dettaglio_id;
+	$ret_det = $fdet_h->leggi($campi);
+	if ( isset($ret_det['error']) || $ret_det['numero'] == 0){
+		$ret = [
+			'error' => true, 
+			'message' => __FILE__ . ' ' . __FUNCTION__ 
+			. ' Non è stato possibile modificare il dettaglio '
+			. ' per ' . $ret_det['error']
+			. ' campi: ' . serialize($campi)
+		];
+		echo var_dump($ret);
+		exit(0);
+	}
+	$dettaglio = $ret_det['data'][0];
+
+	$campi=[];
+	$campi['update'] = 'UPDATE fotografie_dettagli '
+	. ' SET record_cancellabile_dal = :record_cancellabile_dal  '
+	. ' WHERE record_id = :record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_now();
+	$campi['record_id']               = $dettaglio_id;
+	$ret_mod = $fdet_h->modifica($campi);
+	if ( isset($ret_det['error']) || $ret_det['numero'] == 0){
+		$ret = [
+			'error' => true, 
+			'message' => __FILE__ . ' ' . __FUNCTION__ 
+			. ' Non è stato possibile modificare il dettaglio '
+			. ' per ' . $ret_det['error']
+			. ' campi: ' . serialize($campi)
+		];
+		echo var_dump($ret);
+		exit(0);
+	}
+	// torniamo alla scheda fotografia 
+	leggi_fotografie_per_id($dettaglio['record_id_padre']);
+	exit(0);  
+} // elimina_dettaglio_fotografia()
+
+
+include_once(ABSPATH . 'aa-model/chiavi-oop.php');
+/**
+ * CREATE - aggiungi 
+ * Aggiunge dettaglio da modulo via _POST 
+ * @param   int $fotografia_id + $_POST
+ * 
+ */
+function aggiungi_dettaglio_fotografia(int $fotografia_id){
+	$dbh    = New DatabaseHandler();
+	$foto_h = New Fotografie($dbh);
+	$fdet_h = New FotografieDettagli($dbh);
+	$chi_h  = New Chiavi($dbh);
+
+	$campi=[];
+	$campi['query'] = 'SELECT * FROM fotografie ' // TODO foto_h::tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id = :record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id'] = $fotografia_id;
+	$ret_foto = $foto_h->leggi($campi);
+	if (isset($ret_foto['error']) || $ret_foto['numero'] == 0){
+		$ret = '<h2>Errore</h2>'
+		. '<p>Non è stato possibile rintracciare la fotografia</p>'
+		. '<pre>campi: ' . serialize($campi);
+		http_response_code(404);
+		echo $ret;
+		exit(1);
+	}
+	$fotografia=$ret_foto['data'][0];
+	$option_list_chiave = $chi_h->get_chiavi_option_list();
+	$option_list_chiave = str_replace("\t", '                  ', $option_list_chiave);
+
+	// Manca $_POST - presento modulo 
+	if (!isset($_POST['aggiungi_dettaglio'])) {    
+		$_SESSION['messaggio'] = "Aggiungi il dettaglio chiave+valore scegliendo la chiave tra quelle "
+		. "disponibili, consulta il manuale in caso di dubbi.";
+		$leggi_fotografia = URLBASE.'fotografie.php/leggi/'.$fotografia['record_id'];
+		$aggiungi_dettaglio = URLBASE.'fotografie.php/aggiungi_dettaglio/'.$fotografia['record_id'];
+		require_once( ABSPATH . 'aa-view/dettaglio-foto-aggiungi-view.php');
+		exit(0); 
+	}
+
+	// inserimento 
+	$fdet_h->set_record_id_padre($fotografia_id);
+	$fdet_h->set_chiave($_POST['chiave']);
+	$fdet_h->set_valore($_POST['valore']);
+
+	$campi=[];
+	$campi['record_id_padre'] = $fdet_h->get_record_id_padre();
+	$campi['chiave'] = $fdet_h->get_chiave();
+	$campi['valore'] = $fdet_h->get_valore();
+
+	$ret_det = $fdet_h->aggiungi($campi);
+	if (isset($ret_det['error'])){
+		$_SESSION['messaggio'] = "Non è stato possibile aggiungere il dettaglio.<br><pre>".$ret_det['message'].'</pre>';
+		$leggi_fotografia = URLBASE.'fotografie.php/leggi/'.$fotografia['record_id'];
+		$aggiungi_dettaglio = URLBASE.'fotografie.php/aggiungi_dettaglio/'.$fotografia['record_id'];
+		require_once( ABSPATH . 'aa-view/dettaglio-foto-aggiungi-view.php');
+		exit(0); 
+	}
+	// inserito 
+	// torniamo alla scheda fotografia 
+	leggi_fotografie_per_id($fotografia_id);
+	exit(0);  
+} // aggiungi_dettaglio_fotografia
+
+
+/**
+ * CREATE - aggiungi
+ * 3 parametri per eseguire un compito ripetitivo 
+ * chiamare FotografieDettagli->aggiungi()
+ * @param  int    $fotografia_id 
+ * @param  string $chiave
+ * @param  string $valore 
+ * @return array  $ret  
+ */
+function carico_dettaglio(int $fotografia_id, string $chiave, string $valore) : array {
+	$dbh    = New DatabaseHandler(); // verificare se funziona global 
+	$fdet_h = New FotografieDettagli($dbh); 
+	global $aggiunti;
+
+	$fdet_h->set_record_id_padre($fotografia_id);
+	$fdet_h->set_chiave($chiave);
+	$fdet_h->set_valore($valore);
+	$campi=[];
+	$campi['record_id_padre']=$fdet_h->get_record_id_padre();
+	$campi['chiave']=$fdet_h->get_chiave();
+	$campi['valore']=$fdet_h->get_valore();
+	$ret_det = $fdet_h->aggiungi($campi);
+	if (isset($ret_det['error'])){
+		$ret = '<h2>Errore</h2>'
+		. '<p>Non è stato possibile aggiungere un dettaglio<br>'
+		. 'errore: ' . $ret_det['message'] . '<br>'
+		. 'campi: ' . serialize($campi) .'</p>';
+		echo $ret;
+	} else {
+		$aggiunti[]= $campi['chiave'].': '.$campi['valore'];
+	}
+	return $ret_det;
+} // carico_dettaglio 
+
+/**
+ * Questa funzione carica i dettagli man mano che vengono individuati 
+ * l'alternativa può essere raccogliere tutti i dettagli ed eseguire 
+ * un loop di insert con eventuale rollBack
+ * 
+ * Esegue un ridimensionamento distruttivo a 800 px lato lungo 
+ * 
+ * @param  int  $fotografie_id 
+ * @return void | echo html messages 
+ * 
+ * @see https://exiftool.org/TagNames/EXIF.html
+ * 
+ *  @see https://www.php.net/manual/en/function.iptcparse.php
+ * 
+ * 
+ *  '2#005'=>'DocumentTitle',
+ *  '2#010'=>'Urgency',
+ *  '2#015'=>'Category',
+ *  '2#020'=>'Subcategories',
+ *  '2#025'=>'Keywords', 
+ *  '2#040'=>'SpecialInstructions',
+ *  '2#055'=>'CreationDate',
+ *  '2#080'=>'AuthorByline',
+ *  '2#085'=>'AuthorTitle',
+ *  '2#090'=>'City',
+ *  '2#095'=>'State',
+ *  '2#101'=>'Country',
+ *  '2#103'=>'OTR',
+ *  '2#105'=>'Headline',
+ *  '2#110'=>'Source',
+ *  '2#115'=>'PhotoSource',
+ *  '2#116'=>'Copyright',
+ *  '2#120'=>'Caption',
+ *  '2#122'=>'CaptionWriter'
+ *  
+ *  Keywords:
+ *  $iptc["2#025"][n];   (there is a list of keywords)
+ *  
+ *  Caption Writer:
+ *  $iptc["2#122"][0];
+ *
+ *  Possono essere codificati UTF8 
+ */
+function carica_dettagli_da_fotografia(int $fotografia_id ) {
+	$dbh    = New DatabaseHandler();
+	$foto_h = New Fotografie($dbh);
+	$fdet_h = New FotografieDettagli($dbh); 
+	$aggiunti=[];
+	$larghezza=0;
+	$altezza=0;
+
+	if ($fotografia_id == 0 ){
+		// cerca una non lavorata 
+		$campi=[];
+		$campi['query'] = 'SELECT * FROM ' . Fotografie::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+		. ' AND stato_lavori = :stato_lavori '
+		. ' LIMIT 1 ';
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$campi['stato_lavori'] = Fotografie::stato_da_fare;
+
+	} else {
+		// cerca se la fotografia_id è in tabella fotografie
+		$foto_h->set_record_id($fotografia_id);
+		$campi=[];
+		$campi['query']='SELECT * FROM ' . Fotografie::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+		. ' AND record_id = :record_id ';
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$campi['record_id'] = $foto_h->get_record_id(); 		
+	}	
+	$ret_foto = $foto_h->leggi($campi);
+	// echo var_dump($ret_foto);
+	if (isset($ret_foto['error'])){
+		$ret = '<h2>Errore</h2>' 
+		. '<p>Non è stato possibile rintracciare la fotografia</p>'
+		. '<pre>campi: ' . serialize($campi)
+		. '<br>' .(isset($ret_foto['message'])?$ret_foto['message']:'');
+		http_response_code(404);
+		echo $ret;
+		exit(1);
+	}
+	if ($ret_foto['numero'] == 0 ){
+		$ret = '<h2>Errore</h2>' 
+		. '<p>Non è stato possibile rintracciare la fotografia</p>';
+		http_response_code(404);
+		echo $ret;
+		exit(1);
+	}
+	$fotografia=$ret_foto['data'][0];
+	$fotografia_id=$fotografia['record_id'];
+	$foto_file = $fotografia['percorso_completo'];
+	$foto_file = str_replace('//', '/', ABSPATH.$foto_file);
+	echo 'id:' . $fotografia_id. ' file: ' . $foto_file;
+	$ret_stato = $foto_h->set_stato_lavori_in_fotografie($fotografia_id, Fotografie::stato_in_corso);
+	if (isset($ret_stato['error'])){
+		$ret = '<h2>Errore</h2>'
+		. '<p>Non è stato possibile cambiare stato_lavori alla fotografia ['. $fotografia_id .']</p>'
+		. '<p>Per: ' . $ret_stato['message'];
+		echo $ret;
+	}
+
+	if (!is_file($foto_file)){
+		$ret_stato = $foto_h->set_stato_lavori_in_fotografie($fotografia_id, Fotografie::stato_completati);
+		if (isset($ret_stato['error'])){
+			$ret = '<h2>Errore</h2>'
+			. '<p>Non è stato possibile cambiare stato_lavori alla fotografia ['. $fotografia_id .']</p>'
+			. '<p>Per: ' . $ret_stato['message'];
+			echo $ret;
+		}
+
+		$ret = '<h2>Errore</h2>'
+		. '<p>Non è stato possibile leggere la fotografia ['. $foto_file .']</p>'
+		. '<p>campi: ' . serialize($campi) . '</p>';
+		http_response_code(404);
+		echo $ret;
+		exit(1);
+	}
+
+	$ultimo_punto = strrpos($foto_file, '.');
+	$estensione   = substr($foto_file, ($ultimo_punto + 1), 6);
+	$estensione   = strtolower($estensione);
+
+	if (!in_array($estensione, ['jpg','jpeg', 'tif', 'tiff'])){
+		$ret = '<h2>Errore</h2>'
+		. '<p>La fotografia non è in un formato che contiene dati exif ['. $foto_file .']</p>';
+		echo $ret;
+	}
+
+	// cerca se in fotografie_dettagli ci sono già dettagli dedicati exif 
+	$campi=[];
+	$campi['query']= 'SELECT * FROM '. FotografieDettagli::nome_tabella 
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id_padre = :record_id_padre '
+	. ' ORDER BY chiave, record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id_padre']         = $foto_h->get_record_id(); 
+	$ret_det = $fdet_h->leggi($campi);
+	if (isset($ret_det['error'])){
+		// cambio stato al record 
+		$ret_stato = $foto_h->set_stato_lavori_in_fotografie($fotografia_id, Fotografie::stato_completati);
+		if (isset($ret_stato['error'])){
+			$ret = '<h2>Errore</h2>'
+			. '<p>Non è stato possibile cambiare stato_lavori alla fotografia ['. $fotografia_id .']</p>'
+			. '<p>Per: ' . $ret_stato['message'];
+			echo $ret;
+		}
+
+		// ret_det error
+		$ret = '<h2>Errore</h2>'
+		. '<p>Cercando dettagli exif già registrati si è verificato '
+		. 'un errore, chi ci capisce è bravo</p>'
+		. '<p>' . $ret_det['message'] . '<br>'
+		. 'campi: ' . serialize($campi) . '</p>';
+		http_response_code(404);
+		echo $ret;
+		exit(1);
+	}
+	if ($ret_det['numero'] > 0){
+		echo '<h3>Avviso</h3>';
+		echo '<p>Saranno aggiunti dettagli ai dettagli già presenti.</p>';
+	}
+
+	// considerazioni sui dati exif - incrociate 
+	// exif FILE FileName - escluso già presente nei dati 
+	$exif = exif_read_data($foto_file, null, true, false );
+	if ($exif === false){
+		$ret = '<h2>Errore</h2>'
+		. '<p>Cercando dettagli exif nel file si è verificato '
+		. 'un errore, ma non si sa quale.</p>';
+		echo $ret;
+		// proseguo per dati su file dal nome file 
+	}
+	echo '<br>Sono stati rintracciati dati exif';
+	echo var_dump($exif);
+
+	// Marca e modello: sono scansioni?
+	if (isset($exif['IFD0']['Make']) && 
+			isset($exif['IFD0']['Model'])){
+		$marca = $exif['IFD0']['Make'];
+		$modello = $exif['IFD0']['Model'];
+		echo "\n".'Marca: '. $marca . ' Modello: ' . $modello.'<br>'; 
+		// scanner Athesis 
+		if ($marca   == 'Nikon' && 
+				$modello == 'Nikon SUPER COOLSCAN 5000 ED'){
+			// scansioni
+			$ret_det = carico_dettaglio( $fotografia_id, 'materia/tecnica', 'diapositiva/pellicola');
+			$ret_det = carico_dettaglio( $fotografia_id, 'dimensione/unita-di-misura', 'mm');
+			$ret_det = carico_dettaglio( $fotografia_id, 'dimensione/altezza-larghezza', '24 x 36');
+		}
+	} // $exif['IFD0']['Make'] 
+
+	// sequenza di dettagli exif 
+	if (isset($exif['COMPUTED'])){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/unita-di-misura', 'px');
+		$altezza   = $exif['COMPUTED']['Height'];
+		$larghezza = $exif['COMPUTED']['Width'];
+		// TODO scaglioni 800px 1080px 1440px 1920px 2500px 3000px 4000px 6000px
+		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/altezza-larghezza', $altezza . ' x ' . $larghezza);		
+	} // exif
+	
+	// data scansione, spesso
+	if (isset($exif['EXIF']['DateTimeOriginal'])){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'data/evento', $exif['EXIF']['DateTimeOriginal']);
+	} // $exif['EXIF']['DateTimeOriginal']
+	
+	if (isset($exif['FILE']['FileDateTime'])){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'data/evento', date('Y-m-d H:i:s', $exif['FILE']['FileDateTime']));
+	} // $exif['FILE']['FileDateTime']
+	
+	if (isset($exif['IFD0']['Copyright'])){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'nome/diritti', $exif['IFD0']['Copyright']);
+	} // $exif['IFD0']['Copyright']
+	
+	/*
+	 * Fine dati EXIF 
+	 */
+	echo '<br>Fine esame dati exif';
+	
+	// nome file 	
+	$ultima_barra = strrpos($foto_file, '/', 1);
+	$nome_file    = trim(substr($foto_file, ($ultima_barra + 1)));
+	$album_id     = $fotografia['record_id_in_album'];
+	$adet_h       = New AlbumDettagli($dbh);
+	
+	echo '<br>inizio esame data/evento';
+	// dati da nome file se nome standard:
+	// aaaa mm gg luogo soggetto contatore
+	
+	// data/evento 
+	$data_evento = get_data_evento($nome_file);
+	echo '<br>data_evento: ::'.$data_evento .'::'; 
+	if ($data_evento>''){
+		$data_evento_album= '';
+		//verificare se è già presente nell'album 
+		$campi=[];
+		$campi['query']='SELECT * FROM album_dettagli '
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+		. ' AND record_id_padre = :record_id_padre '
+		. ' AND chiave = :chiave ';
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$campi['record_id_padre']         = $album_id;
+		$campi['chiave']                  = 'data/evento';
+		$ret_adet = $adet_h->leggi($campi);
+		if (isset($ret_adet['error'])){
+			$ret = 'Non è stato trovato un dettaglio album legato a data/evento ' 
+			. "per l'errore: " . $ret_adet['error'];
+			echo $ret;
+		} elseif ($ret_adet['numero']>0) {
+			$data_evento_album = $ret_adet['data'][0]['valore'];
+			$ret = 'È stato trovato un dettaglio album legato a data/evento ' 
+			. "per l'album: " . $data_evento_album;
+			echo $ret;
+		}
+		if ($data_evento != $data_evento_album){
+			$ret_det   = carico_dettaglio( $fotografia_id, 'data/evento', $data_evento);
+		}
+		// sfilo 
+		$nome_file = str_replace($data_evento, '', $nome_file);
+		if (str_contains($data_evento, ' DP')){
+			$data_evento = str_replace(' DP', '', $data_evento);
+			$nome_file = str_replace($data_evento, '', $nome_file);
+		}
+		if (str_contains($data_evento, '-')){
+			$data_evento = str_replace('-', ' ', $data_evento);
+			$nome_file = str_replace($data_evento, '', $nome_file);
+		}
+		$nome_file = trim($nome_file);
+		echo "Per effetto dell'inserimento di data/elenco, ora nomefile è: " .$nome_file.'<br>';
+	} // data/evento 
+	echo '<br>Fine esame data/evento';
+	
+	// luogo/comune 
+	$luogo = get_luogo($nome_file);
+	if ($luogo>''){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'luogo/comune', $luogo);
+		// sfilo 
+		$nome_file = str_replace($luogo, '', $nome_file);
+		$nome_file = trim($nome_file);
+		echo "Per effetto dell'inserimento di luogo/comune, ora nomefile è: " .$nome_file.'<br>';
+	} // luogo/comune 
+	echo '<br>Fine esame luogo/comune';
+	
+	
+	// codice/autore/athesis
+	$sigla_autore = get_autore_sigla_6($nome_file);
+	if ($sigla_autore>''){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'codice/autore/athesis', $sigla_autore);
+		// sfilo 
+		$nome_file = str_replace($sigla_autore, '', $nome_file);
+		$nome_file = trim($nome_file);
+		echo "Per effetto dell'inserimento di codice/autore/athesis, ora nomefile è: " .$nome_file.'<br>';
+	} // codice/autore/sigla 
+	echo '<br>Fine esame codice/autore/sigla';
+	
+	
+	// sfilettato nome_file quello che resta al centro  
+	// nome/manifestazione-soggetto
+	$ret_det=carico_dettaglio( $fotografia_id, 'nome/manifestazione-soggetto', $nome_file);
+	
+	// cambio stato al record 
+	$ret_stato = $foto_h->set_stato_lavori_in_fotografie($fotografia_id, Fotografie::stato_completati);
+	if (isset($ret_stato['error'])){
+		$ret = '<h2>Errore</h2>'
+		. '<p>Non è stato possibile cambiare stato_lavori alla fotografia ['. $fotografia_id .']</p>'
+		. '<p>Per: ' . $ret_stato['message'];
+		echo $ret;
+	}
+
+	// ridimensionamento distruttivo a 800 px lato lungo
+	if (in_array($estensione, ['jpg','jpeg'])){
+		$img=imagecreatefromjpeg($foto_file);
+		$img_size=getimagesize($foto_file, $image_inner);
+		$larghezza=$img_size[0];
+		$altezza  =$img_size[1];
+		if ( $larghezza>800 || $altezza>800){
+			if ($larghezza >= $altezza){
+				$img_ridotta=imagescale($img, 800); // altezza in proporzione
+			} else{
+				$larghezza = (int) ((800 * $larghezza) / $altezza );
+				$img_ridotta=imagescale($img, $larghezza); 
+			}
+			imagejpeg($img_ridotta, $foto_file);
+			imagedestroy($img_ridotta);
+		}
+	}
+	if (in_array($estensione, ['tiff', 'tif'])){
+		$img= new Imagick($foto_file);
+		$larghezza=$img->getimageWidth();
+		$altezza  =$img->getImageHeigth();
+		if ( $larghezza>800 || $altezza>800){
+			if ($larghezza >= $altezza){
+				$img->scaleImage(800, 0); // altezza in proporzione
+			} else{
+				$img->scaleImage(0, 800); // altezza in proporzione
+			}
+			$img->setImageFormat('jpeg');
+			$img->setImageCompressionQuality(95);
+			file_put_contents($foto_file, $img);
+		}
+		$img->clear();
+	}
+	
+	// riepilogo 
+	if (count($aggiunti)){
+		echo '<hr><h4>Aggiunti alla fotografia ' . count($aggiunti) . ' record.</h4>';
+		echo '<p style="font-family:monospace;">';
+		for ($i=0; $i < count($aggiunti); $i++) { 
+			# code...
+			echo $aggiunti[$i].'<br>';
+		}	
+		echo '</p>';
+	}
+
+} // carica_dettagli_da_fotografia()
+
+/**
+ * test
+ * 1. https://archivio.athesis77.it/aa-controller/fotografie-controller.php?id=1111&test=carica_dettagli_da_fotografia
+ * atteso : non è stato possibile rintracciare la fotografia 
+ * 
+ * 2. https://archivio.athesis77.it/aa-controller/fotografie-controller.php?id=0&test=carica_dettagli_da_fotografia
+ * atteso: rintraccia la prima fotografia ed elavbora quella
+ */
+if ( isset($_GET['test']) && 
+     $_GET['test'] == 'carica_dettagli_da_fotografia' && 
+     isset($_GET['id']) && 
+     is_numeric($_GET['id'])){
+	echo 'debug on <br>'."\n";
+	carica_dettagli_da_fotografia($_GET['id']);
+	exit(0);
+}
