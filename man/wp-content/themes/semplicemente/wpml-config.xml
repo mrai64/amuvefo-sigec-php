@@ -1,0 +1,7 @@
+<wpml-config>
+	<admin-texts>
+		<key name="semplicemente_theme_options_mobilemenu_text"/>
+		<key name="semplicemente_theme_options_readmoretext"/>
+		<key name="semplicemente_theme_options_copyrighttext"/>
+	</admin-texts>
+</wpml-config>

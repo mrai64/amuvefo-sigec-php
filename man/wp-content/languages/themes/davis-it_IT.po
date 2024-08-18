@@ -1,0 +1,115 @@
+# Translation of Themes - Davis in Italian
+# This file is distributed under the same license as the Themes - Davis package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2022-08-04 16:32:30+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.0.0-alpha.11\n"
+"Language: it\n"
+"Project-Id-Version: Themes - Davis\n"
+
+#. Description of the theme
+#, gp-priority: high
+msgid "Davis is a teeny-tiny WordPress theme that can be used a starter theme or a really lightweight blog theme. It consists of three PHP files and weighs in at just 36 KB, excluding screenshot.png. It features the aside post format, Block Editor support, featured images, and a responsive design. Demo: https://andersnoren.se/themes/davis/"
+msgstr "Davis è un piccolo tema WordPress che può essere utilizzato come tema iniziale o per un blog davvero leggero. È composto da tre file PHP e pesa solo 36 KB, escluso screenshot.png. Presenta il formato articoli digressione, il supporto per l'editor a blocchi, le immagini in evidenza e un design responsive. Demo: https://andersnoren.se/themes/davis/"
+
+#. Theme Name of the theme
+#, gp-priority: high
+msgid "Davis"
+msgstr "Davis"
+
+#: functions.php:88
+msgid "White"
+msgstr "Bianco"
+
+#: functions.php:83
+msgid "Black"
+msgstr "Nero"
+
+#. Translators: %s = The search query
+#: index.php:57
+msgctxt "%s = The search query"
+msgid "%s result was found."
+msgid_plural "%s results were found."
+msgstr[0] "%s: risultato trovato."
+msgstr[1] "%s risultati trovati."
+
+#. Translators: %s = The search query
+#: index.php:56
+msgctxt "%s = The search query"
+msgid "Search Results: &ldquo;%s&rdquo;"
+msgstr "Risultati della ricerca: &ldquo;%s&rdquo;"
+
+#: index.php:25
+msgid "Skip to the main menu"
+msgstr "Passa al menu principale"
+
+#: index.php:24
+msgid "Skip to the content"
+msgstr "Salta al contenuto"
+
+#: index.php:175
+msgid "Theme by"
+msgstr "Tema di"
+
+#: index.php:167
+msgid "Older posts"
+msgstr "Articoli meno recenti"
+
+#: index.php:166
+msgid "Newer posts"
+msgstr "Articoli più recenti"
+
+#: index.php:158
+msgid "Sorry, the page you requested cannot be found."
+msgstr "Impossibile trovare la pagina richiesta."
+
+#: index.php:135
+msgid "In"
+msgstr "In"
+
+#: index.php:129
+msgid "Sticky"
+msgstr "In evidenza"
+
+#: index.php:125
+msgid "Comments off"
+msgstr "Commenti disabilitati"
+
+#: index.php:125
+msgid "1 Comment"
+msgstr "1 commento"
+
+#: index.php:125
+msgid "Add Comment"
+msgstr "Aggiungi commento"
+
+#: index.php:29
+msgid "Menu"
+msgstr "Menu"
+
+#: functions.php:27
+msgid "Primary Menu"
+msgstr "Menu principale"
+
+#: comments.php:5 index.php:125
+msgid "Comments"
+msgstr "Commenti"
+
+#. Theme URI of the theme
+#, gp-priority: low
+msgid "https://andersnoren.se/themes/davis-wordpress-theme/"
+msgstr "https://andersnoren.se/themes/davis-wordpress-theme/"
+
+#. Author URI of the theme
+#, gp-priority: low
+msgid "https://andersnoren.se"
+msgstr "https://andersnoren.se"
+
+#. Author of the theme
+#, gp-priority: low
+msgid "Anders Norén"
+msgstr "Anders Norén"

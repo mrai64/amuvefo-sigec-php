@@ -1,0 +1,640 @@
+# Translation of Themes - Semplicemente in Italian
+# This file is distributed under the same license as the Themes - Semplicemente package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2023-06-25 13:27:12+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.0.0-alpha.11\n"
+"Language: it\n"
+"Project-Id-Version: Themes - Semplicemente\n"
+
+#. Description of the theme
+#, gp-priority: high
+msgid "Simple and Clean WordPress Theme created by CrestaProject.com. Compatible with Gutenberg. Live demo https://crestaproject.com/demo/semplicemente/"
+msgstr "Tema WordPress semplice e pulito creato da CrestaProject.com. Compatibile con Gutenberg. Demo live su https://crestaproject.com/demo/semplicemente/"
+
+#. Theme Name of the theme
+#: inc/admin/semplicemente-admin-page.php:299
+#, gp-priority: high
+msgid "Semplicemente"
+msgstr "Semplicemente"
+
+#: header.php:114
+msgid "WhatsApp"
+msgstr "WhatsApp"
+
+#: header.php:110
+msgid "Spotify"
+msgstr "Spotify"
+
+#: inc/semplicemente-dynamic.php:133
+msgid "WhatsApp URL"
+msgstr "URL Whatsapp"
+
+#: inc/semplicemente-dynamic.php:128
+msgid "Spotify URL"
+msgstr "URL Spotify"
+
+#. Template Name of the theme
+msgid "Full width"
+msgstr "Larghezza piena"
+
+#: header.php:106
+msgid "Twitch"
+msgstr "Twitch"
+
+#: inc/semplicemente-dynamic.php:123
+msgid "Twitch URL"
+msgstr "URL Twitch"
+
+#: inc/template-tags.php:20 inc/template-tags.php:51
+msgid "Posts"
+msgstr "Articoli"
+
+#: inc/semplicemente-dynamic.php:256
+msgid "Get the PRO version to remove CrestaProject Credits"
+msgstr "Ottieni la versione PRO per rimuovere i crediti a CrestaProject"
+
+#: inc/semplicemente-dynamic.php:255
+msgid "Copyright Text"
+msgstr "Testo del copyright"
+
+#. translators: 1: theme name, 2: theme developer
+#: footer.php:23
+msgid "WordPress Theme: %1$s by %2$s."
+msgstr "Tema WordPress: %1$s di %2$s."
+
+#: functions.php:88
+msgid "XL"
+msgstr "XL"
+
+#: functions.php:87
+msgid "Larger"
+msgstr "Più grande"
+
+#: functions.php:82
+msgid "L"
+msgstr "L"
+
+#: functions.php:81
+msgid "Large"
+msgstr "Grande"
+
+#: functions.php:76
+msgid "M"
+msgstr "M"
+
+#: functions.php:75
+msgid "Regular"
+msgstr "Normale"
+
+#: functions.php:70
+msgid "S"
+msgstr "S"
+
+#: functions.php:69
+msgid "Small"
+msgstr "Piccolo"
+
+#: inc/semplicemente-dynamic.php:168
+msgid "Your Email"
+msgstr "La tua email"
+
+#: header.php:118
+msgid "Email"
+msgstr "Email"
+
+#. translators: 1: title.
+#: comments.php:32
+msgid "One thought on &ldquo;%1$s&rdquo;"
+msgstr "Un commento su &ldquo;%1$s&rdquo;"
+
+#: inc/semplicemente-dynamic.php:118
+msgid "Xing URL"
+msgstr "URL Xing"
+
+#: header.php:102
+msgid "Xing"
+msgstr "Xing"
+
+#: comments.php:61
+msgid "Newer Comments"
+msgstr "Commenti più recenti"
+
+#: comments.php:60
+msgid "Older Comments"
+msgstr "Commenti meno recenti"
+
+#: inc/pro-button/class-customize.php:72
+msgid "More Info"
+msgstr "Maggiori informazioni"
+
+#: inc/admin/semplicemente-admin-page.php:379
+msgid "More Information"
+msgstr "Maggiori informazioni"
+
+#: inc/admin/semplicemente-admin-page.php:378
+msgid "View PRO version demo"
+msgstr "Visualizza la demo della versione PRO"
+
+#: inc/admin/semplicemente-admin-page.php:330
+msgid "Powerful theme options"
+msgstr "Potente pannello delle opzioni"
+
+#: inc/admin/semplicemente-admin-page.php:325
+msgid "RTL Support"
+msgstr "Supporto RTL"
+
+#: inc/admin/semplicemente-admin-page.php:320
+msgid "Choose Social Incons"
+msgstr "Scegli le icone social"
+
+#: inc/admin/semplicemente-admin-page.php:315
+msgid "Unlimited Text Color"
+msgstr "Colori del testo illimitati"
+
+#: inc/admin/semplicemente-admin-page.php:310
+msgid "Change Background"
+msgstr "Cambia lo sfondo"
+
+#: inc/admin/semplicemente-admin-page.php:305
+msgid "Responsive Design"
+msgstr "Design responsive"
+
+#: inc/admin/semplicemente-admin-page.php:298
+msgid "Features"
+msgstr "Caratteristiche"
+
+#: inc/admin/semplicemente-admin-page.php:242
+msgid "View changelog below:"
+msgstr "Visualizza il changelog qui sotto:"
+
+#: inc/admin/semplicemente-admin-page.php:227
+msgid "Go to Dashboard"
+msgstr "Vai alla bacheca"
+
+#: inc/admin/semplicemente-admin-page.php:227
+msgid "Go to Dashboard &rarr; Home"
+msgstr "Vai a Bacheca &rarr; Home"
+
+#: inc/admin/semplicemente-admin-page.php:224
+msgid "Return to Dashboard &rarr; Updates"
+msgstr "Torna a Bacheca &rarr; Aggiornamenti"
+
+#: inc/admin/semplicemente-admin-page.php:224
+msgid "Return to Updates"
+msgstr "Torna alla pagina Aggiornamenti"
+
+#: inc/admin/semplicemente-admin-page.php:208
+msgid "Click below to translate this theme into your own language."
+msgstr "Fai clic qui sotto per tradurre questo tema nella tua lingua."
+
+#: inc/admin/semplicemente-admin-page.php:204
+#: inc/admin/semplicemente-admin-page.php:212
+msgid "Translate"
+msgstr "Traduci"
+
+#: inc/admin/semplicemente-admin-page.php:198
+msgid "Info about PRO version"
+msgstr "Informazioni sulla versione PRO"
+
+#: inc/admin/semplicemente-admin-page.php:197
+#: inc/admin/semplicemente-admin-page.php:293
+msgid "Upgrade to PRO version for more exciting features."
+msgstr "Esegui l'upgrade alla versione PRO per funzionalità più interessanti."
+
+#: inc/admin/semplicemente-admin-page.php:196
+msgid "Need more features?"
+msgstr "Hai bisogno di altre funzionalità?"
+
+#: inc/admin/semplicemente-admin-page.php:192
+msgid "Support"
+msgstr "Supporto"
+
+#: inc/admin/semplicemente-admin-page.php:191
+msgid "Please put it in our support forum."
+msgstr "Inseriscilo nel nostro forum di supporto."
+
+#: inc/admin/semplicemente-admin-page.php:190
+msgid "Got theme support question?"
+msgstr "Hai domande sul tema?"
+
+#: inc/admin/semplicemente-admin-page.php:186
+msgid "Customize"
+msgstr "Personalizza"
+
+#: inc/admin/semplicemente-admin-page.php:185
+msgid "All Theme Options are available via Customize screen."
+msgstr "Tutte le opzioni del tema sono disponibili nella schermata Personalizza"
+
+#: inc/admin/semplicemente-admin-page.php:184
+msgid "Theme Customizer"
+msgstr "Personalizza il tema"
+
+#: inc/admin/semplicemente-admin-page.php:150
+msgid "Changelog"
+msgstr "Changelog"
+
+#: inc/admin/semplicemente-admin-page.php:147
+msgid "Free Vs PRO"
+msgstr "Free Vs PRO"
+
+#: inc/admin/semplicemente-admin-page.php:132
+msgid "Rate this theme"
+msgstr "Valuta questo tema"
+
+#: inc/admin/semplicemente-admin-page.php:130
+msgid "View PRO version Demo"
+msgstr "Dai un'occhiata alla versione PRO"
+
+#: inc/admin/semplicemente-admin-page.php:128
+msgid "View Demo"
+msgstr "Visualizza demo"
+
+#: inc/admin/semplicemente-admin-page.php:126
+msgid "Theme Info"
+msgstr "Informazioni tema"
+
+#: inc/admin/semplicemente-admin-page.php:103
+msgid "Get started with Semplicemente"
+msgstr "Inizia con Semplicemente"
+
+#. translators: 1: start option panel link, 2: end option panel link
+#: inc/admin/semplicemente-admin-page.php:99
+msgid "Welcome! Thank you for choosing Semplicemente! To fully take advantage of the best our theme can offer please make sure you visit our %1$swelcome page%2$s."
+msgstr "Benvenuto! Grazie per aver scelto Semplicemente! Per sfruttare appieno il meglio che il nostro tema può offrire, assicurati di visitare la nostra %1$spagina di benvenuto%2$s."
+
+#: inc/admin/semplicemente-admin-page.php:95
+msgid "Dismiss"
+msgstr "Ignora"
+
+#: inc/admin/semplicemente-admin-page.php:81
+msgid "Cheatin&#8217; huh?"
+msgstr "Vuoi barare, eh?"
+
+#: inc/admin/semplicemente-admin-page.php:77
+msgid "Action failed. Please refresh the page and retry."
+msgstr "Azione non riuscita. Ricarica la pagina e riprova."
+
+#: inc/admin/semplicemente-admin-page.php:37
+#: inc/admin/semplicemente-admin-page.php:119
+msgid "About"
+msgstr "Informazioni"
+
+#: inc/semplicemente-dynamic.php:300
+msgid "More features? Upgrade to PRO"
+msgstr "Più caratteristiche? Aggiorna alla versione PRO"
+
+#: inc/semplicemente-dynamic.php:291
+msgid "12 Exclusive Widgets"
+msgstr "12 widget esclusivi"
+
+#: inc/semplicemente-dynamic.php:289
+msgid "Post format"
+msgstr "Formato articolo"
+
+#: inc/admin/semplicemente-admin-page.php:350 inc/semplicemente-dynamic.php:288
+msgid "Post views counter"
+msgstr "Contatore visualizzazioni degli articoli"
+
+#: inc/admin/semplicemente-admin-page.php:335 inc/semplicemente-dynamic.php:286
+msgid "Loading Page"
+msgstr "Caricamento pagina"
+
+#: inc/admin/semplicemente-admin-page.php:340 inc/semplicemente-dynamic.php:285
+msgid "Font switcher"
+msgstr "Cambia font"
+
+#: inc/semplicemente-dynamic.php:284
+msgid "Choose sidebar position"
+msgstr "Scegli la posizione della barra laterale"
+
+#: inc/semplicemente-dynamic.php:283
+msgid "Logo Upload"
+msgstr "Carica Logo"
+
+#: inc/semplicemente-dynamic.php:278
+msgid "Get Semplicemente PRO Theme"
+msgstr "Ottieni il tema Semplicemente PRO"
+
+#: inc/semplicemente-dynamic.php:275
+msgid "Watch the demo"
+msgstr "Guarda la demo"
+
+#: inc/semplicemente-dynamic.php:270
+msgid "Get Semplicemente PRO WP Theme for only"
+msgstr "Ottieni il tema WP Semplicemente PRO a soli"
+
+#: inc/semplicemente-dynamic.php:185
+msgid "Show Search Button"
+msgstr "Mostra pulsante di ricerca"
+
+#: inc/semplicemente-dynamic.php:113
+msgid "VK URL"
+msgstr "URL VK"
+
+#: inc/semplicemente-dynamic.php:108
+msgid "Tumblr URL"
+msgstr "URL Tumblr"
+
+#: inc/semplicemente-dynamic.php:103
+msgid "Pinterest URL"
+msgstr "URL Pinterest"
+
+#: inc/semplicemente-dynamic.php:98
+msgid "YouTube URL"
+msgstr "URL YouTube"
+
+#: inc/semplicemente-dynamic.php:93
+msgid "Instagram URL"
+msgstr "URL Instagram"
+
+#: inc/semplicemente-dynamic.php:88
+msgid "Linkedin URL"
+msgstr "URL Linkedin"
+
+#: inc/semplicemente-dynamic.php:83
+msgid "Google Plus URL"
+msgstr "URL Google Plus"
+
+#: inc/semplicemente-dynamic.php:78
+msgid "Twitter URL"
+msgstr "URL Twitter"
+
+#: inc/semplicemente-dynamic.php:73
+msgid "Facebook URL"
+msgstr "URL Facebook"
+
+#: header.php:98
+msgid "VK"
+msgstr "VK"
+
+#: header.php:94
+msgid "Tumblr"
+msgstr "Tumblr"
+
+#: header.php:90
+msgid "Pinterest"
+msgstr "Pinterest"
+
+#: header.php:86
+msgid "YouTube"
+msgstr "YouTube"
+
+#: header.php:82
+msgid "Instagram"
+msgstr "Instagram"
+
+#: header.php:78
+msgid "Linkedin"
+msgstr "LinkedIn"
+
+#: header.php:74
+msgid "Google Plus"
+msgstr "Google Plus"
+
+#: header.php:70
+msgid "Twitter"
+msgstr "Twitter"
+
+#: header.php:66
+msgid "Facebook"
+msgstr "Facebook"
+
+#. translators: %s: search query
+#: search.php:20
+msgid "Search Results for: %s"
+msgstr "Risultati della ricerca per: %s"
+
+#: inc/semplicemente-dynamic.php:294
+msgid "And much more..."
+msgstr "E molto altro..."
+
+#: inc/admin/semplicemente-admin-page.php:370 inc/semplicemente-dynamic.php:293
+msgid "Information About Author Box"
+msgstr "Box sulle informazioni sull'autore"
+
+#: inc/admin/semplicemente-admin-page.php:365 inc/semplicemente-dynamic.php:292
+msgid "Related Posts Box"
+msgstr "Box degli articoli correlati"
+
+#: inc/admin/semplicemente-admin-page.php:360
+msgid "10 Exclusive Widgets"
+msgstr "10 widget esclusivi"
+
+#: inc/admin/semplicemente-admin-page.php:355 inc/semplicemente-dynamic.php:290
+msgid "7 Shortcodes"
+msgstr "7 shortcode"
+
+#: inc/admin/semplicemente-admin-page.php:345
+msgid "Breadcrumb"
+msgstr "Breadcrumb"
+
+#: inc/semplicemente-dynamic.php:287
+msgid "Unlimited Colors and Skin"
+msgstr "Colori e varianti illimitati"
+
+#: inc/semplicemente-dynamic.php:282
+msgid "Advanced Theme Options"
+msgstr "Opzioni avanzate del tema"
+
+#: inc/admin/semplicemente-admin-page.php:300
+#: inc/pro-button/class-customize.php:71
+msgid "Semplicemente PRO"
+msgstr "Semplicemente PRO"
+
+#: inc/semplicemente-dynamic.php:64
+msgid "Semplicemente Theme Options"
+msgstr "Opzioni del tema Semplicemente"
+
+#: inc/template-tags.php:56
+msgid "Next Post:"
+msgstr "Articolo successivo:"
+
+#: inc/template-tags.php:55
+msgid "Previous post:"
+msgstr "Articolo precedente:"
+
+#: inc/template-tags.php:52
+msgid "Post navigation"
+msgstr "Navigazione articolo"
+
+#: inc/template-tags.php:29
+msgid "Newer posts"
+msgstr "Articoli seguenti"
+
+#: inc/template-tags.php:25
+msgid "Older Posts"
+msgstr "Articoli precedenti"
+
+#: inc/template-tags.php:21
+msgid "Posts navigation"
+msgstr "Navigazione articoli"
+
+#: inc/semplicemente-dynamic.php:33
+msgid "Secondary Color "
+msgstr "Colore secondario"
+
+#: inc/semplicemente-dynamic.php:27
+msgid "Link Color "
+msgstr "Colore dei link"
+
+#: inc/semplicemente-dynamic.php:21
+msgid "Primary Color "
+msgstr "Colore principale "
+
+#: header.php:134 inc/semplicemente-dynamic.php:215
+msgid "Menu"
+msgstr "Menu"
+
+#: functions.php:116
+msgid "Sidebar"
+msgstr "Barra laterale"
+
+#: functions.php:49
+msgid "Primary Menu"
+msgstr "Menu principale"
+
+#: content-search.php:39 content.php:40 inc/semplicemente-dynamic.php:231
+msgid "Read More"
+msgstr "Leggi tutto"
+
+#: content-search.php:26 content-single.php:21 content.php:22
+msgid "% Comments"
+msgstr "% commenti"
+
+#: content-search.php:26 content-single.php:21 content.php:22
+msgid "1 Comment"
+msgstr "1 commento"
+
+#: content-search.php:26 content-single.php:21 content.php:22
+msgid "Leave a comment"
+msgstr "Lascia un commento"
+
+#: content-page.php:33 content-search.php:37 content.php:39
+#: inc/template-tags.php:104
+msgid "Edit"
+msgstr "Modifica"
+
+#: content-page.php:25 content-single.php:30 content.php:32
+msgid "Pages:"
+msgstr "Pagine:"
+
+#: content-none.php:33
+msgid "It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps searching can help."
+msgstr "Non riusciamo a trovare quello che cerchi. Forse eseguire una ricerca potrebbe essere di aiuto."
+
+#: content-none.php:28
+msgid "Sorry, but nothing matched your search terms. Please try again with some different keywords."
+msgstr "Non c’è nessuna corrispondenza con i termini di ricerca che hai indicato. Riprova con termini diversi."
+
+#. translators: %1$s: create new post link
+#: content-none.php:22
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "Sei pronto a pubblicare il tuo primo articolo? <a href=\"%1$s\">Comincia da qui</a>."
+
+#: content-none.php:13
+msgid "Nothing Found"
+msgstr "Non è stato trovato nulla"
+
+#: comments.php:98
+msgid "Comment *"
+msgstr "Commento *"
+
+#: comments.php:97
+msgid "Post Comment"
+msgstr "Invia commento"
+
+#: comments.php:96
+msgid "Cancel reply"
+msgstr "Annulla risposta"
+
+#. translators: %s: name of person to reply
+#: comments.php:95
+msgid "Leave a Reply to %s"
+msgstr "Rispondi a %s"
+
+#: comments.php:93
+msgid "Leave a Reply"
+msgstr "Lascia una risposta"
+
+#: comments.php:92
+msgid "Your email address will not be published."
+msgstr "L'indirizzo email non verrà pubblicato."
+
+#. translators: 1: profile user link, 2: username, 3: logout link
+#: comments.php:91
+msgid "Logged in as <a href=\"%1$s\">%2$s</a>. <a href=\"%3$s\" title=\"Log out of this account\">Log out?</a>"
+msgstr "Autenticato come <a href=\"%1$s\">%2$s</a>. <a href=\"%3$s\" title=\"Scollegarsi da questo account\">Logout?</a>"
+
+#. translators: %s: wordpress login url
+#: comments.php:89
+msgid "You must be <a href=\"%s\">logged in</a> to post a comment."
+msgstr "Devi essere <a href=\"%s\">connesso</a> per pubblicare un commento."
+
+#: comments.php:84
+msgid " Required fields are marked "
+msgstr "I campi obbligatori sono contrassegnati"
+
+#: comments.php:82
+msgid "Website"
+msgstr "Sito web"
+
+#: comments.php:81
+msgid "Email *"
+msgstr "Email *"
+
+#: comments.php:80
+msgid "Name *"
+msgstr "Nome *"
+
+#: comments.php:71
+msgid "Comments are closed."
+msgstr "I commenti sono chiusi."
+
+#: comments.php:59
+msgid "Comment navigation"
+msgstr "Navigazione commenti"
+
+#: comments.php:52
+msgid "Reply"
+msgstr "Rispondi"
+
+#. translators: 1: comment count number, 2: title.
+#: comments.php:38
+msgctxt "comments title"
+msgid "%1$s thought on &ldquo;%2$s&rdquo;"
+msgid_plural "%1$s thoughts on &ldquo;%2$s&rdquo;"
+msgstr[0] "%1$s commento su &ldquo;%2$s&rdquo;"
+msgstr[1] "%1$s commenti su &ldquo;%2$s&rdquo;"
+
+#. translators: %1$s: smiley
+#: 404.php:27
+msgid "Try looking in the monthly archives. %1$s"
+msgstr "Provare a consultare gli archivi mensili. %1$s"
+
+#: 404.php:19
+msgid "It looks like nothing was found at this location. Maybe try one of the links below or a search?"
+msgstr "Sembra non vi sia nulla in questa posizione. Provare con qualcuno dei link qua sotto o una ricerca?"
+
+#: 404.php:15
+msgid "Oops! That page can&rsquo;t be found."
+msgstr "Oops! Questa pagina non si trova."
+
+#. Author URI of the theme
+#, gp-priority: low
+msgid "https://crestaproject.com"
+msgstr "https://crestaproject.com"
+
+#. Author of the theme
+#, gp-priority: low
+msgid "Rizzo Andrea - CrestaProject.com"
+msgstr "Rizzo Andrea - CrestaProject.com"
+
+#. Theme URI of the theme
+#, gp-priority: low
+msgid "https://crestaproject.com/downloads/semplicemente/"
+msgstr "https://crestaproject.com/downloads/semplicemente/"

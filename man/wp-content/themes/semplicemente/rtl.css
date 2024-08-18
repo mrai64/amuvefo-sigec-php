@@ -1,0 +1,112 @@
+/*
+Theme Name: semplicemente
+
+Adding support for language written in a Right To Left (RTL) direction is easy -
+it's just a matter of overwriting all the horizontal positioning attributes
+of your CSS stylesheet in a separate stylesheet file named rtl.css.
+
+http://codex.wordpress.org/Right_to_Left_Language_Support
+
+*/
+
+body {
+	direction: rtl;
+	unicode-bidi: embed;
+}
+.spaceRight {
+	padding-right: 0;
+	padding-left: 5px;
+}
+.spaceLeft {
+	padding-left: 0;
+	padding-right: 5px;
+}
+.widget_archive li a, .widget_categories li a, .main-navigation, .main-navigation li {
+	float: right;
+}
+.widget_archive li, .widget_categories li {
+	text-align: left;
+}
+.widget.widget_categories li:before {
+	padding-right: inherit;
+	padding-left: 0.5em;
+	float: right;
+}
+.widget.widget_archive li:before {
+	content: "\f0d9";
+	padding-right: inherit;
+	padding-left: 0.5em;
+	float: right;
+}
+.site-branding, .post-navigation .nav-previous, #comments .reply, .paging-navigation .nav-previous {
+	text-align: left;
+}
+#comments article footer img {
+  float: right;
+  margin-left: 15px;
+  margin-right: 0;
+}
+#comments ol ol {
+  padding-left: 0;
+  padding-right: 5%;
+}
+textarea {
+	padding-right: 3px;
+}
+.edit-link {
+  float: right;
+}
+.readMoreLink {
+	float: left;
+}
+
+.main-navigation li a:not(:last-child):after {
+    margin: 0 4px 0 0;
+    float: left;
+	line-height: inherit;
+}
+.main-navigation ul ul li a:not(:last-child):after {
+    content: "\f0d9";
+    margin: 0 4px 0 0;
+    float: left;
+}
+.main-navigation ul ul ul {
+	right: 100%;
+	left: inherit;
+}
+.readMoreLink i.fa-angle-double-right:before {
+	content: "\f100";
+}
+.widget.widget_search input[type="search"] {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+	border-bottom-right-radius: 3px;
+    border-top-right-radius: 3px;
+	float: right;
+}
+.widget.widget_search input[type="submit"] {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+	border-bottom-left-radius: 3px;
+    border-top-left-radius: 3px;
+	float: left;
+}
+@media screen and (max-width: 1025px) {
+	.menu-toggle, .main-navigation.toggled .nav-menu {
+		text-align: right;
+		float: right;
+	}
+	.menu-toggle i {
+		float: left;
+	}
+	.main-navigation ul li .indicator {
+		left: 0;
+		right: inherit;
+		border-right: 1px solid rgba(0,0,0,.05);
+		border-left: none;
+	}
+	.main-navigation.toggled .nav-menu ul {
+		padding-left: 0;
+		padding-right: 5%;
+	}
+}

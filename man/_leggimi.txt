@@ -1,0 +1,4 @@
+Cartella dedicata al manuale d'uso dell'archivio.
+Su piattaforma wordpress.
+Per i particolari tecnici e per l'amministrazione del sito 
+è presente un altro manuale.
