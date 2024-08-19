@@ -1,11 +1,187 @@
 <?php 
+/**
+ * @source /aa-controller/richieste-controller.php
+ * @author Massimo Rainato <maxrainato@libero.it>
+ * 
+ * RICHIESTE controller
+ * Nella navigazione il consultatore può marcare 
+ * alcune foto o album per chiedere di avere accesso
+ * agli originali. Un amministratore delegato dal comitato di gestione 
+ * può rispondere sì o no, motivandolo. 
+ *  
+ * 
+ */
+if (!defined('ABSPATH')){
+	include_once('../_config.php');
+}
+include_once(ABSPATH . 'aa-model/database-handler-oop.php');
+include_once(ABSPATH . 'aa-model/consultatori-oop.php');
+include_once(ABSPATH . 'aa-model/richieste-oop.php');
+include_once(ABSPATH . 'aa-model/album-oop.php');
+include_once(ABSPATH . 'aa-model/fotografie-oop.php');
+include_once(ABSPATH . 'aa-model/video-oop.php');
 
+/**
+ * consultatore - elenco delle richieste in sospeso 
+ * consultatore_id può essere prelevato da Cookie ma è 
+ * preferibile fornirlo come parametro anche per usarlo nei test  
+ * 
+ * @param  int $consultatore_id 
+ * @return void espone una schermata html
+ * 
+ */
+function get_elenco_richieste_consultatore(int $consultatore_id){
+	$dbh   = new DatabaseHandler();
+	$con_h = new Consultatori($dbh); 
+	$ric_h = new Richieste($dbh); 
+	$alb_h = new Album($dbh); 
+	$fot_h = new Fotografie($dbh); 
+	$vid_h = new Video($dbh); 
 
-$campi['query'] = 'SELECT * FROM richieste_elenco ' 
-. ' WHERE record_cancellabile_dal = :record_cancellabile_dal ' 
-. '   AND richiesta_evasa_il = :richiesta_evasa_il '  
-. ' ORDER BY record_id_in_consultatori_calendario, '
-. '          oggetto_richiesta,  '
-. '          record_id_richiesta ';
-$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-$campi['record_id_richiesta']     = $dbh->get_datetime_forever();
+	// verifiche 
+	$ret_con = $con_h->get_consultatore_from_id($consultatore_id);
+	if (isset($ret_con['error'])){
+		http_response_code(404);
+		$ret = '<p style="font-family:monospace;color:red;">' . __FUNCTION__
+		. ' Errore in lettura consultatore' . '</p>'
+		. '<p>'.$ret_con['message'].'</p>'	
+		. '<p>Consultatore-id: '.$consultatore_id.'</p>';	
+		echo $ret;
+		exit(1);
+	}
+	if ($ret_con['numero'] == 0){
+		http_response_code(404);
+		$ret = '<p style="font-family:monospace;color:red;">' . __FUNCTION__
+		. ' Errore in lettura consultatore' . '</p>'
+		. '<p>Consultatore-id: '.$consultatore_id.'</p>';	
+		echo $ret; 
+		exit(1);
+	}
+	$consultatore = $ret_con['data'][0];
+
+	$ric_h->set_record_id_richiedente($consultatore_id);
+	//
+	$campi=[];
+	$campi['query']= 'SELECT * FROM ' . Richieste::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND richiesta_evasa_il = :richiesta_evasa_il '
+	. ' AND record_id_richiedente = :record_id_richiedente '
+	. ' ORDER BY record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['richiesta_evasa_il']      = $dbh->get_datetime_forever();
+	$campi['record_id_richiedente']   = $ric_h->get_record_id_richiedente();
+	$ret_ric = $ric_h->leggi($campi);
+	if (isset($ret_ric['error'])){
+		http_response_code(404);
+		$ret = '<p style="font-family:monospace;color:red;">'
+		. 'Errore in lettura richieste' . '</p>'
+		. '<p>'.$ret_ric['message'].'</p>'	
+		. '<p>Campi: '.serialize($campi).'</p>';	
+		exit(1);
+	}
+
+	// 
+	// via si stampa 
+	$nome_consultatore=$consultatore['cognome_nome'];
+	$numero_richieste = $ret_ric['numero'];
+	if ($numero_richieste==0){
+		$elenco_richieste= '<tr><td colspan="2">'
+		. '<p class="h4">Nessuna richiesta in sospeso.</p>'
+		. '</td></tr>';
+		require_once(ABSPATH.'aa-view/richieste-consultatore-view.php');
+		exit(0);
+	}
+
+	// loop 
+	$elenco_richieste='';
+	$richieste=$ret_ric['data'];
+	for ($i=0; $i < count($richieste) ; $i++) { 
+
+		$richiesta_singola = $richieste[$i];
+		$oggetto_richiesta = $richiesta_singola['oggetto_richiesta'];
+		$oggetto_id        = $richiesta_singola['record_id_richiesta'];
+		$data_richiesta    = substr($richiesta_singola['ultima_modifica_record'], 0, 10);
+		$richiesta_id      = $richiesta_singola['record_id'];
+
+		if ($oggetto_richiesta == 'fotografie'){
+			$ret_foto = $fot_h->get_fotografia_from_id($oggetto_id);
+			if (isset($ret_foto['error'])){
+				http_response_code(404);
+				$ret = '<p style="font-family:monospace;color:red;">'
+				. 'Errore in lettura richieste' . '</p>'
+				. '<p>'.$ret_foto['message'].'</p>'	
+				. '<p>foto_id: '.$oggetto_id.'</p>';	
+				echo $ret;
+				exit(1);
+			}
+			if ($ret_foto['numero']>0){
+				$fotografia=$ret_foto['data'][0];
+				$titolo   = $fotografia['titolo_fotografia'];
+				$siete_in = $fotografia['percorso_completo'];
+			}
+		} // fotografia 
+		if ($oggetto_richiesta == 'album'){
+			$rec_album= $alb_h->get_album_from_id($oggetto_id);
+			if ($rec_album['error']){
+				http_response_code(404);
+				$ret = '<p style="font-family:monospace;color:red;">'
+				. 'Errore in lettura richieste' . '</p>'
+				. '<p>'.$rec_album['message'].'</p>'	
+				. '<p>album_id: '.$oggetto_id.'</p>';	
+				echo $ret;
+				exit(1);
+			}
+			if ($rec_album['numero']>0){
+				$album=$rec_album['data'][0];
+				$titolo   = $album['titolo_fotografia'];
+				$siete_in = $album['percorso_completo'];
+			}
+		} // album 
+		if ($oggetto_richiesta == 'video'){
+			$rec_video= $vid_h->get_video_from_id($oggetto_id);
+			if ($rec_video['error']){
+				http_response_code(404);
+				$ret = '<p style="font-family:monospace;color:red;">'
+				. 'Errore in lettura richieste' . '</p>'
+				. '<p>'.$ret_video['message'].'</p>'	
+				. '<p>video_id: '.$oggetto_id.'</p>';	
+				echo $ret;
+				exit(1);
+			}
+			if ($rec_video['numero']>0){
+				$video=$rec_video['data'][0];
+				$titolo   = $video['titolo_fotografia'];
+				$siete_in = $video['percorso_completo'];
+			}
+		} // video
+
+		// 
+		$rec = '<tr><td>'.($i + 1).'. '. $titolo . '<br>'."\n"
+		. 'Siete in: '.$siete_in . '<br>'."\n"
+		. 'Richiesta del: ' . $data_richiesta 
+		. '</td><td>'. "\n"
+		. '<a class="btn btn-secondary cancella-richiesta" href="'
+		. URLBASE.'richieste.php/cancella-richiesta/'.$richiesta_id
+		. '" role="button"><i class="bi bi-trash-fill"></i></a>' . "\n"
+		. '</td></tr>' . "\n";
+
+		$elenco_richieste .= $rec;
+
+	} // for 
+	require_once(ABSPATH.'aa-view/richieste-consultatore-view.php');
+	exit(0);
+
+} // get_elenco_richieste_consultatore()
+
+/** TEST 
+ * http://localhost:8888/AMUVEFO-sigec-php/aa-controller/richieste-controller.php?id=6&test=get_elenco_richieste_consultatore
+ * 
+ */
+	if (isset($_GET['test'])     && 
+	    isset($_GET['id'])       && 
+			$_GET['test']='get_elenco_richieste_consultatore'){
+		get_elenco_richieste_consultatore($_GET['id']);		
+		echo "fine.";
+		exit(0);
+	}
+//

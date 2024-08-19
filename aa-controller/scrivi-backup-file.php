@@ -417,10 +417,11 @@ function get_backup_richieste(string $ultimo_backup) : string {
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
 	$riempire = "INSERT INTO `richieste` (`record_id`, "
-	. "`record_id_in_consultatori_calendario`, `oggetto_richiesta`, "
-	. "`record_id_richiesta`, `richiesta_evasa_il`, `ultima_modifica_record`, "
-	. "`record_cancellabile_dal`) "
-	. "VALUES(§1, §2, '§3', §4, '§5', '§6', '§7');";
+	. "`record_id_richiedente`, `oggetto_richiesta`, "
+	. "`record_id_richiesta`, `richiesta_evasa_il`, "
+	. "`record_id_amministratore`, `motivazione`, "
+	. "`ultima_modifica_record`, `record_cancellabile_dal`) "
+	. "VALUES(§1, §2, '§3', §4, '§5', §6, '§7', '§8', '§9');";
 
 	$leggi = 'SELECT * FROM richieste ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -441,12 +442,14 @@ function get_backup_richieste(string $ultimo_backup) : string {
 	. "\n". '--'."\n";
 	while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
 		$rigo = str_ireplace('§1', $record['record_id'], $riempire);
-		$rigo = str_ireplace('§2', $record['record_id_in_consultatori_calendario'], $rigo);
+		$rigo = str_ireplace('§2', $record['record_id_richiedente'], $rigo);
 		$rigo = str_ireplace('§3', $record['oggetto_richiesta'], $rigo);
 		$rigo = str_ireplace('§4', $record['record_id_richiesta'], $rigo);
 		$rigo = str_ireplace('§5', $record['richiesta_evasa_il'], $rigo);
-		$rigo = str_ireplace('§6', $record['ultima_modifica_record'], $rigo);
-		$rigo = str_ireplace('§7', $record['record_cancellabile_dal'], $rigo);
+		$rigo = str_ireplace('§6', $record['record_id_amministratore'], $rigo);
+		$rigo = str_ireplace('§7', $record['motivazione'], $rigo);
+		$rigo = str_ireplace('§8', $record['ultima_modifica_record'], $rigo);
+		$rigo = str_ireplace('§9', $record['record_cancellabile_dal'], $rigo);
 		$ret .= "\n".$rigo;
 	}
     return $ret;

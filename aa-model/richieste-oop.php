@@ -1,6 +1,6 @@
 <?php 
 /**
- * @source richieste-oop.php
+ * @source /aa-model/richieste-oop.php
  * @author Massimo Rainato <maxrainato@libero.it>
  * 
  * Classe Richieste 
@@ -10,65 +10,78 @@
  */
 Class Richieste {
 	private $conn = false;
-	private	$tabella = 'richieste'; 
+	public const nome_tabella = 'richieste';
 	private	$oggetto_set = [
 		'album',
 		'fotografie',
 		'video'
 	];
 	// 
-	public $record_id;
-	public $record_id_in_consultatori_calendario; 
-	public $oggetto_richiesta;
-	public $record_id_richiesta;
-
-	public $richiesta_evasa_il; 
-	public $ultima_modifica_record;
-	public $record_cancellabile_dal; 
+	public $record_id;             // uso interno 
+	public $record_id_richiedente; // chiave esterna calendario_consultatori.record_id
+	public $oggetto_richiesta;     // ENUM 
+	public $record_id_richiesta;   // chiave esterna 
+	public $richiesta_evasa_il;    // datetime aaaa-mm-gg hh:mm:ss 
+	public $record_id_amministratore; // chiave esterna calendario_consultatori.record_id
+	public $motivazione;              // testo libero
+	public $ultima_modifica_record;   // datetime aaaa-mm-gg hh:mm:ss
+	public $record_cancellabile_dal;  // datetime aaaa-mm-gg hh:mm:ss
 
 	// __construct()
 	public function __construct(DatabaseHandler $dbh){
 		$this->conn = $dbh;
 
-		$this->record_id							 = 0;	// invalido 
-		$this->record_id_in_consultatori_calendario = 0; // invalido 
+		$this->record_id							 = 0;	 // invalido 
+		$this->record_id_richiedente   = 0;  // invalido 
 		$this->oggetto_richiesta			 = ''; // invalido
-		$this->record_id_richiesta		 = 0;	// invalido 
-		$this->richiesta_evasa_il			= $dbh->get_datetime_forever();
-		$this->ultima_modifica_record				= $dbh->get_datetime_now();
+		$this->record_id_richiesta		 = 0;	 // invalido 
+		$this->richiesta_evasa_il			 = $dbh->get_datetime_forever();
+		$this->record_id_amministratore= 0;  //
+		$this->motivazione             = '';
+		$this->ultima_modifica_record  = $dbh->get_datetime_now();
 		$this->record_cancellabile_dal = $dbh->get_datetime_forever();
 	} // __construct
 
 	// GETTER 
-	public function get_record_id(){
+	public function get_record_id() : int {
 		return $this->record_id;
 	} 
 
-	public function get_record_id_in_consultatori_calendario(){
-		return $this->record_id_in_consultatori_calendario;
+	public function get_record_id_richiedente() : int {
+		return $this->record_id_richiedente;
 	} 
 
-	public function get_oggetto_richiesta(){
+	public function get_oggetto_richiesta() : string {
 		return $this->oggetto_richiesta;
 	} 
 
-	public function get_record_id_richiesta(){
+	public function get_record_id_richiesta() : int {
 		return $this->record_id_richiesta;
 	} 
 
-	public function get_richiesta_evasa_il(){
+	public function get_richiesta_evasa_il() : string {
 		return $this->richiesta_evasa_il;
 	} 
 
-	public function get_ultima_modifica_record(){
+	public function get_record_id_amministratore() : int {
+		return $this->record_id_amministratore;
+	}
+
+	public function get_motivazione() : string {
+		return $this->motivazione;
+	}
+
+	public function get_ultima_modifica_record() : string {
 		return $this->ultima_modifica_record;
 	} 
 
-	public function get_record_cancellabile_dal(){
+	public function get_record_cancellabile_dal() : string {
 		return $this->record_cancellabile_dal;
 	} 
 
-	// SETTER
+
+
+	// SETTER e VERIFICA
 	public function set_record_id( int $record_id ){
 		if ($record_id < 1){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
@@ -77,13 +90,12 @@ Class Richieste {
 		$this->record_id = $record_id;
 	}
 
-
-	public function set_record_id_in_consultatori_calendario( int $record_id_in_consultatori_calendario ){
-		if ($record_id_in_consultatori_calendario < 1){
+	public function set_record_id_richiedente( int $record_id_richiedente ){
+		if ($record_id_richiedente < 1){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
-			. ' Must be unsigned integer is : ' . $record_id_in_consultatori_calendario );
+			. ' Must be unsigned integer is : ' . $record_id_richiedente );
 		}
-		$this->record_id_in_consultatori_calendario = $record_id_in_consultatori_calendario;
+		$this->record_id_richiedente = $record_id_richiedente;
 	}
 
 	public function set_oggetto_richiesta(string $oggetto_richiesta){
@@ -93,7 +105,6 @@ Class Richieste {
 		}
 		$this->oggetto_richiesta = $oggetto_richiesta;
 	}
-
 
 	public function set_record_id_richiesta( int $record_id_richiesta ){
 		if ($record_id_richiesta < 1){
@@ -116,6 +127,20 @@ Class Richieste {
 			. $richiesta_evasa_il );
 		}
 		$this->richiesta_evasa_il = $richiesta_evasa_il;
+	}
+
+	public function set_record_id_amministratore( int $record_id_amministratore ){
+		if ($record_id_amministratore < 1){
+			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
+			. ' Must be unsigned integer is : ' . $record_id_amministratore );
+		}
+		$this->record_id_amministratore = $record_id_amministratore;
+	}
+
+	public function set_motivazione( string $motivazione){
+		$chiave = htmlspecialchars($motivazione);
+		$chiave = trim($chiave);
+		$this->motivazione = $chiave; 
 	}
 
 	public function set_ultima_modifica_record( string $ultima_modifica_record ) {
@@ -170,59 +195,69 @@ Class Richieste {
 	 * @return array $ret ok + record_id | error + message
 	 */
 	public function aggiungi( array $campi)	:array {
-		// record_id							 aggiunto in automatico 
-		// richiesta_evasa_il			aggiunto in automatico 
-		// ultima_modifica_record				aggiunto in automatico 
-		// record_cancellabile_dal aggiunto in automatico 
-		static $create = 'INSERT INTO ' . $this->tabella 
-		. ' (	record_id_in_consultatori_calendario, '
+		// sono aggiunti in automatico oppure DEVONO essere aggiunti in seguito  
+		// . record_id 
+		// . richiesta_evasa_il 
+		// . record_id_amministratore 
+		// . motivazione 
+		// . ultima_modifica_record 
+		// . record cancellabile_dal 
+		static $create = 'INSERT INTO ' . self::nome_tabella 
+		. ' (	record_id_richiedente, '
 		. '		oggetto_richiesta,	record_id_richiesta ) VALUES '
-		. ' ( :record_id_in_consultatori_calendario, '
+		. ' (:record_id_richiedente, '
 		. '	 :oggetto_richiesta, :record_id_richiesta ) ';
 
 		$dbh = $this->conn; // a PDO object thru Database class
 		if ($dbh === false){
 			$ret = [
-				"error"=> true, 
-				"message" => "Inserimento record senza connessione archivio per: " 
-				. $this->tabella 
+				'error'   => true, 
+				'message' => __CLASS__ .' '. __FUNCTION__ 
+				. " Per aggiungere il record serve la connessione all'archivio." 
 			];
 			return $ret;
 		}
 
-		if (!isset($campi['record_id_in_consultatori_calendario']) || 
-		!isset($campi['oggetto_richiesta']) || 
-		!isset($campi['record_id_richiesta']) ){
+		if ( !isset($campi['record_id_richiedente']) || 
+		     !isset($campi['oggetto_richiesta'])     || 
+		     !isset($campi['record_id_richiesta'])   ){
 			$ret = [
-				"error"=> true,
-				"message" => "Servono 3 parametri 3. " 
-				. $this->tabella 
+				'error'   => true,
+				'message' => __CLASS__ .' '. __FUNCTION__ 
+				. " Servono 3 parametri 3. " 
+				. self::nome_tabella 
 			];
 			return $ret;
 		}
-		$this->set_record_id_in_consultatori_calendario($campi['record_id_in_consultatori_calendario']);
+		// verifiche 
+		$this->set_record_id_richiedente($campi['record_id_richiedente']);
 		$this->set_oggetto_richiesta($campi['oggetto_richiesta']);
 		$this->set_record_id_richiesta($campi['record_id_richiesta']);
+		// azione
+		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try {
 			$aggiungi = $dbh->prepare($create);
-			$aggiungi->bindValue("record_id_in_consultatori_calendario",	 $this->record_id_in_consultatori_calendario); 
-			$aggiungi->bindValue("oggetto_richiesta",	 $this->oggetto_richiesta); 
-			$aggiungi->bindValue("record_id_richiesta", $this->record_id_richiesta); 
+			$aggiungi->bindValue('record_id_richiedente',	 $this->record_id_richiedente); 
+			$aggiungi->bindValue('oggetto_richiesta',	     $this->oggetto_richiesta); 
+			$aggiungi->bindValue('record_id_richiesta',    $this->record_id_richiesta); 
 			$aggiungi->execute();
 			$record_id_assegnato = $this->conn->lastInsertId();
+			$dbh->commit();
+
 		} catch (\Throwable $th) {
-			//throw $th;
+			$dbh->rollBack();
 			$ret = [
-				"record_id" => 0,
-				"error" => true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__ . ' '
-				. $th->getMessage() . " campi: " . serialize($campi)
-				. ' istruzione SQL: ' . $create
+				'record_id' => 0,
+				'error'     => true,
+				'message'   => __CLASS__ . ' ' . __FUNCTION__ 
+				. '<br>' . $th->getMessage() 
+				. '<br>Campi: ' . serialize($campi)
+				. '<br>istruzione SQL: ' . $create
 			];
 			return $ret;
 		}
 		$ret = [
-			'ok' => true,
+			'ok'        => true,
 			'record_id' => $record_id_assegnato
 		];
 		return $ret;
@@ -239,13 +274,14 @@ Class Richieste {
 	 * @return array ret 
 	 */
 	public function leggi( array $campi ) : array {
+		// necessari 
 		$dbh = $this->conn; // a PDO object thru Database class
 		if ($dbh === false){
 			$ret = [
 				"error"=> true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. "Lettura record senza connessione archivio per: " 
-				. $this->tabella
+				. " Lettura record senza connessione archivio per: " 
+				. self::nome_tabella
 			];
 			return $ret;
 		}
@@ -259,11 +295,12 @@ Class Richieste {
 			return $ret;
 		}
 		$read = $campi["query"];
+		// validazioni 
 		if (isset($campi['record_id'])){
 			$this->set_record_id($campi['record_id']);
 		}
-		if (isset($campi['record_id_in_consultatori_calendario'])){
-			$this->set_record_id_in_consultatori_calendario($campi['record_id_in_consultatori_calendario']);
+		if (isset($campi['record_id_richiedente'])){
+			$this->set_record_id_richiedente($campi['record_id_richiedente']);
 		}
 		if (isset($campi['oggetto_richiesta'])){
 			$this->set_oggetto_richiesta($campi['oggetto_richiesta']);
@@ -273,6 +310,12 @@ Class Richieste {
 		}
 		if (isset($campi['richiesta_evasa_il'])){
 			$this->set_richiesta_evasa_il($campi['richiesta_evasa_il']);
+		}
+		if (isset($campi['record_id_amministratore'])){
+			$this->set_record_id_amministratore($campi['record_id_amministratore']);
+		}
+		if (isset($campi['motivazione'])){
+			$this->set_motivazione($campi['motivazione']);
 		}
 		if (isset($campi['ultima_modifica_record'])){
 			$this->set_ultima_modifica_record($campi['ultima_modifica_record']);
@@ -285,8 +328,8 @@ Class Richieste {
 			if (isset($campi['record_id'])){
 				$lettura->bindValue('record_id', $this->record_id, PDO::PARAM_INT );
 			}
-			if (isset($campi['record_id_in_consultatori_calendario'])){
-				$lettura->bindValue('record_id_in_consultatori_calendario', $this->record_id_in_consultatori_calendario, PDO::PARAM_INT );
+			if (isset($campi['record_id_richiedente'])){
+				$lettura->bindValue('record_id_richiedente', $this->record_id_richiedente, PDO::PARAM_INT );
 			}
 			if (isset($campi['oggetto_richiesta'])){
 				$lettura->bindValue('oggetto_richiesta', $this->oggetto_richiesta );
@@ -297,21 +340,28 @@ Class Richieste {
 			if (isset($campi['richiesta_evasa_il'])){
 				$lettura->bindValue('richiesta_evasa_il', $this->richiesta_evasa_il );
 			}
+			if (isset($campi['record_id_amministratore'])){
+				$lettura->bindValue('record_id_amministratore', $this->record_id_amministratore, PDO::PARAM_INT );
+			}
+			if (isset($campi['motivazione'])){
+				$lettura->bindValue('motivazione', $this->motivazione );
+			}
 			if (isset($campi['ultima_modifica_record'])){
 				$lettura->bindValue('ultima_modifica_record', $this->ultima_modifica_record );
 			}
 			if (isset($campi['record_cancellabile_dal'])){
 				$lettura->bindValue('record_cancellabile_dal', $this->record_cancellabile_dal );
 			}
+			$lettura->execute();
 
 		} catch (\Throwable $th) {
 			//throw $th;
 			$ret = [
-				"error" => true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi)
-				. ' istruzione SQL: ' . $read
+				'error'   => true,
+				'message' => __CLASS__ . ' ' . __FUNCTION__ 
+				. '<br>' . $th->getMessage() 
+				. '<br>Campi: ' . serialize($campi)
+				. '<br>Istruzione SQL: ' . $read
 			];
 			return $ret;
 		}
@@ -345,13 +395,14 @@ Class Richieste {
 	 * @return array $ret 
 	 */
 	public function modifica(array $campi) : array {
+		// necessari 
 		$dbh = $this->conn; // a PDO object thru Database class
 		if ($dbh === false){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Lettura record senza connessione archivio per: ' 
-				. $this->tabella 
+				. self::nome_tabella 
 			];
 			return $ret;
 		}
@@ -360,16 +411,17 @@ Class Richieste {
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Serve un campo update. ' 
-				. $this->tabella 
+				. self::nome_tabella 
 			];
 			return $ret;
 		}
 		$update = $campi['update'];
+		// verifiche 
 		if (isset($campi['record_id'])){
 			$this->set_record_id($campi['record_id']);
 		}
-		if (isset($campi['record_id_in_consultatori_calendario'])){
-			$this->set_record_id_in_consultatori_calendario($campi['record_id_in_consultatori_calendario']);
+		if (isset($campi['record_id_richiedente'])){
+			$this->set_record_id_richiedente($campi['record_id_richiedente']);
 		}
 		if (isset($campi['oggetto_richiesta'])){
 			$this->set_oggetto_richiesta($campi['oggetto_richiesta']);
@@ -380,19 +432,27 @@ Class Richieste {
 		if (isset($campi['richiesta_evasa_il'])){
 			$this->set_richiesta_evasa_il($campi['richiesta_evasa_il']);
 		}
+		if (isset($campi['record_id_amministratore'])){
+			$this->set_record_id_amministratore($campi['record_id_amministratore']);
+		}
+		if (isset($campi['motivazione'])){
+			$this->set_motivazione($campi['motivazione']);
+		}
 		if (isset($campi['ultima_modifica_record'])){
 			$this->set_ultima_modifica_record($campi['ultima_modifica_record']);
 		}
 		if (isset($campi['record_cancellabile_dal'])){
 			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']);
 		}
+		// azione
+		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try {
 			$aggiorna = $this->conn->prepare($update);
 			if (isset($campi['record_id'])){
 				$aggiorna->bindValue('record_id', $this->record_id, PDO::PARAM_INT);
 			}
-			if (isset($campi['record_id_in_consultatori_calendario'])){
-				$aggiorna->bindValue('record_id_in_consultatori_calendario', $this->record_id_in_consultatori_calendario, PDO::PARAM_INT);
+			if (isset($campi['record_id_richiedente'])){
+				$aggiorna->bindValue('record_id_richiedente', $this->record_id_richiedente, PDO::PARAM_INT);
 			}
 			if (isset($campi['oggetto_richiesta'])){
 				$aggiorna->bindValue('oggetto_richiesta', $this->oggetto_richiesta);
@@ -403,6 +463,12 @@ Class Richieste {
 			if (isset($campi['richiesta_evasa_il'])){
 				$aggiorna->bindValue('richiesta_evasa_il', $this->richiesta_evasa_il);
 			}
+			if (isset($campi['record_id_amministratore'])){
+				$aggiorna->bindValue('record_id_amministratore', $this->record_id_amministratore, PDO::PARAM_INT);
+			}
+			if (isset($campi['motivazione'])){
+				$aggiorna->bindValue('motivazione', $this->motivazione);
+			}
 			if (isset($campi['ultima_modifica_record'])){
 				$aggiorna->bindValue('ultima_modifica_record', $this->ultima_modifica_record);
 			}
@@ -410,15 +476,17 @@ Class Richieste {
 				$aggiorna->bindValue('record_cancellabile_dal', $this->record_cancellabile_dal);
 			}
 			$aggiorna->execute();
+			$dbh->commit();
 
 		} catch (\Throwable $th) {
+			$dbh->rollBack();
 			//throw $th;
 			$ret = [
-        "error" => true,
-        "message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi)
-        . ' istruzione SQL: ' . $update
+        'error' => true,
+        'message' => __CLASS__ . ' ' . __FUNCTION__ 
+				. '<br>' . $th->getMessage() 
+				. '<br>Campi: ' . serialize($campi)
+        . '<br>Istruzione SQL: ' . $update
       ];
       return $ret;
 		}
@@ -442,13 +510,14 @@ Class Richieste {
    * @return array  $ret 
    */
 	public function elimina( array $campi ){
+		// necessari
 		$dbh = $this->conn;
 		if ($dbh == false){
 			$ret = [
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Non è presente la connessione per la tabella '
-				. $this->tabella
+				. self::nome_tabella
 			];
 			return $ret;
 		}
@@ -461,13 +530,13 @@ Class Richieste {
 			];
 			return $ret;
 		}
+		// verifiche 
 		$delete = $campi['delete'];
-
 		if (isset($campi['record_id'])){
 			$this->set_record_id($campi['record_id']);
 		}
-		if (isset($campi['record_id_in_consultatori_calendario'])){
-			$this->set_record_id_in_consultatori_calendario($campi['record_id_in_consultatori_calendario']);
+		if (isset($campi['record_id_richiedente'])){
+			$this->set_record_id_richiedente($campi['record_id_richiedente']);
 		}
 		if (isset($campi['oggetto_richiesta'])){
 			$this->set_oggetto_richiesta($campi['oggetto_richiesta']);
@@ -478,21 +547,26 @@ Class Richieste {
 		if (isset($campi['richiesta_evasa_il'])){
 			$this->set_richiesta_evasa_il($campi['richiesta_evasa_il']);
 		}
+		if (isset($campi['record_id_amministrazione'])){
+			$this->set_record_id_amministrazione($campi['record_id_amministrazione']);
+		}
+		// motivazione no
 		if (isset($campi['ultima_modifica_record'])){
 			$this->set_ultima_modifica_record($campi['ultima_modifica_record']);
 		}
 		if (isset($campi['record_cancellabile_dal'])){
 			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']);
 		}
-
+		// azione
+		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try {
 			//code...
 			$cancella = $dbh->prepare($delete);
 			if (isset($campi['record_id'])){
 				$cancella->bindValue('record_id', $this->record_id, PDO::PARAM_INT);
 			}
-			if (isset($campi['record_id_in_consultatori_calendario'])){
-				$cancella->bindValue('record_id_in_consultatori_calendario', $this->record_id_in_consultatori_calendario, PDO::PARAM_INT);
+			if (isset($campi['record_id_richiedente'])){
+				$cancella->bindValue('record_id_richiedente', $this->record_id_richiedente, PDO::PARAM_INT);
 			}
 			if (isset($campi['oggetto_richiesta'])){
 				$cancella->bindValue('oggetto_richiesta', $this->oggetto_richiesta);
@@ -503,6 +577,10 @@ Class Richieste {
 			if (isset($campi['richiesta_evasa_il'])){
 				$cancella->bindValue('richiesta_evasa_il', $this->richiesta_evasa_il);
 			}
+			if (isset($campi['record_id_amministratore'])){
+				$cancella->bindValue('record_id_amministratore', $this->record_id_amministratore, PDO::PARAM_INT);
+			}
+			// mmotivazione no 
 			if (isset($campi['ultima_modifica_record'])){
 				$cancella->bindValue('ultima_modifica_record', $this->ultima_modifica_record);
 			}
@@ -510,15 +588,16 @@ Class Richieste {
 				$cancella->bindValue('record_cancellabile_dal', $this->record_cancellabile_dal);
 			}
 			$cancella->execute();
+			$dbh->commit();
 
 		} catch (\Throwable $th) {
 			//throw $th;
 			$ret = [
-        "error" => true,
-        "message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi)
-        . ' istruzione SQL: ' . $delete
+        'error'   => true,
+        'message' => __CLASS__ . ' ' . __FUNCTION__ 
+				. '<br>' . $th->getMessage() 
+				. '<br>Campi: ' . serialize($campi)
+        . '<br>Istruzione SQL: ' . $delete
       ];
       return $ret;
 		}
@@ -528,5 +607,55 @@ Class Richieste {
 		];
 		return $ret;
 	} // elimina
+
+
+	public function get_richiesta_from_id(int $richiesta_id): array{
+		// dati obbligatori 
+		$dbh = $this->conn; // a PDO object thru Database class
+		if ($dbh === false){
+			$ret = [
+				'error'   => true, 
+				'message' => __CLASS__ . ' ' . __FUNCTION__ 
+				. '<br>Serve una connessione attiva per leggere in '
+				. self::nome_tabella 
+			];
+			return $ret;
+		}
+		// validazione
+		$this->set_record_id($richiesta_id);
+
+		$read = 'SELECT * FROM ' . self::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal  '
+		. ' AND record_id = :record_id '
+		. ' LIMIT 1 ';
+		try {
+			$lettura=$dbh->prepare($read);
+			$lettura->bindValue('record_cancellabile_dal', $dbh->get_datetime_forever() ); 
+			$lettura->bindValue('record_id',               $richiesta_id, PDO::PARAM_INT); 
+			$lettura->execute();
+
+		} catch( \Throwable $th ){
+			$ret = [
+				'error'   => true,
+				'message' => __CLASS__ . ' ' . __FUNCTION__ 
+				. '<br>' . $th->getMessage() 
+				. '<br>richiesta_id: ' . $richiesta_id
+				. '<br>istruzione SQL: ' . $read
+			];
+			return $ret;
+		}
+		$numero = 0;
+		$dati_di_ritorno = [];
+		while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
+			$dati_di_ritorno[] = $record;
+			$numero++;
+		}    
+		$ret = [
+			'ok'     => true,
+			'numero' => $numero,
+			'data'   => $dati_di_ritorno 
+		];
+		return $ret;
+	} // get_richiesta_from_id
 
 } // Class Richieste

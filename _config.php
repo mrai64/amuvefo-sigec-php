@@ -7,6 +7,8 @@
  * imposta delle costanti ABSPATH RECORD_VALIDO usate 
  * in più punti nel resto del codice.
  * 
+ * Versione per localhost 
+ * 
  */
 //dbg echo "<pre style='maw-width:100%;'>". __FILE__ . "\n";
 $durata_sessione = 6000; // seimila secondi 100 minuti
@@ -15,11 +17,11 @@ setcookie(session_name(), session_id(), time()+$durata_sessione);
 if ( !defined( 'ABSPATH' ) ) {
 
   // percorso per accedere alla cartella / nel server senza modificare il $PATH del server
-  define( 'ABSPATH', '/Users/massimorainato/Sites/archivio_athesis77_it/' ); // deve terminare con 
+  define( 'ABSPATH', '/Users/massimorainato/Sites/AMUVEFO-sigec-php/' ); // deve terminare con 
   // define( 'ABSPATH', '/web/htdocs/archivio.athesis77.it/home/' ); // deve terminare con 
 
-	define( 'URLBASE', 'http://localhost:8888/archivio_athesis77_it/' ); //          deve terminare con 
-	define( 'BASEURL', 'http://localhost:8888/archivio_athesis77_it/' ); //          deve terminare con 
+	define( 'URLBASE', 'http://localhost:8888/amuvefo-sigec-php/' ); //          deve terminare con 
+	define( 'BASEURL', 'http://localhost:8888/AMUVEFO-sigec-php/' ); //          deve terminare con 
   // define( 'URLBASE', 'https://archivio.athesis77.it/' ); //          deve terminare con 
 	// define( 'BASEURL', 'https://archivio.athesis77.it/' ); //          deve terminare con 
 

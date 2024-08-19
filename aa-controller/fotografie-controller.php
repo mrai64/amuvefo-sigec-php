@@ -461,7 +461,7 @@ function carica_richiesta_fotografie_per_id( int $fotografie_id) : bool {
 	}
 
 	$campi=[];
-	$campi['record_id_in_consultatori_calendario'] = $_COOKIE['id_calendario'];
+	$campi['record_id_richiedente'] = $_COOKIE['id_calendario'];
 	$campi['oggetto_richiesta']     = 'fotografie';
 	$campi['record_id_richiesta']   = $fotografia['record_id'];
 	$ret_ric = $ric_h->aggiungi($campi);

@@ -9,6 +9,7 @@ function route_from_uri( string $uri = "" ) : array {
     if ($uri == ""){
         $uri = $_SERVER["REQUEST_URI"];
     }
+    $uri = str_replace( URLBASE, '/', $uri);
     $separati   = explode('?', $uri );
     $operazioni = array_slice(explode('/', $separati[0]), 2);
 
