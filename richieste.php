@@ -47,14 +47,13 @@ switch($richiesta){
 
 /**
  * sbarramento abilitazione 
- * 
+ *
+ */
 if ($_COOKIE['abilitazione'] <= SOLALETTURA){
 	http_response_code(404); // know not found
 	echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non abilitata</strong></pre>'."\n";
 	exit(1);
 }
- *
- */
 
 // parametri 
 $richiesta_id    = (isset($pezzi['operazioni'][1])) ? (int) $pezzi['operazioni'][1] : 0;
@@ -67,6 +66,12 @@ include_once(ABSPATH.'aa-controller/richieste-controller.php');
 // con parametro 
 if ($richiesta == 'elenco-consultatore' && ($consultatore_id > 0)){
 	get_elenco_richieste_consultatore($consultatore_id);	
+  exit(0);
+}
+if ($richiesta == 'elenco-consultatore'  && 
+    $consultatore_id == 0                && 
+    isset($_COOKIE['consultatore_id'])){
+	get_elenco_richieste_consultatore($_COOKIE['consultatore_id']);	
   exit(0);
 }
 
