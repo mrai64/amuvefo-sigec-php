@@ -4,64 +4,38 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Richieste in sospeso | AMUVEFO</title>
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+		<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 		<!-- icone --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
-		</head>
+	</head>
 	<body>
-	<div class="container pt-5">
-		<div class="row">
-			<table class="table table-striped table-hover">
-				<thead>
-					<tr>
-						<th class="col-11 h4" >Elenco richieste di [consultatore]</th>
-						<th class="col-1">Conferma / Rifiuto</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>1. [titolo album]<br>
-						[siete in -album]<br>
-						[data-della-richiesta]
-						</td>
-						<td>
-						<a class="btn btn-secondary conferma-richiesta" href="#richieste.php/conferma-richiesta/[id_richiesta]" role="button"><i class="bi bi-hand-thumbs-up-fill"></i></a>
-						<a class="btn btn-secondary nega-richiesta" href="#richieste.php/nega-richiesta/[id_richiesta]" role="button"><i class="bi bi-hand-thumbs-down-fill"></i></a>
-						</td>
-					</tr>
-					<tr>
-						<td>1. [titolo album]<br>
-						[siete in -album]<br>
-						[data-della-richiesta]
-						</td>
-						<td>
-						<a class="btn btn-secondary conferma-richiesta" href="#richieste.php/conferma-richiesta/[id_richiesta]" role="button"><i class="bi bi-hand-thumbs-up-fill"></i></a>
-						<a class="btn btn-secondary nega-richiesta" href="#richieste.php/nega-richiesta/[id_richiesta]" role="button"><i class="bi bi-hand-thumbs-down-fill"></i></a>
-						</td>
-					</tr>
-					<tr>
-						<td>1. [titolo album]<br>
-						[siete in -album]<br>
-						[data-della-richiesta]
-						</td>
-						<td>
-						<a class="btn btn-secondary conferma-richiesta" href="#richieste.php/conferma-richiesta/[id_richiesta]" role="button"><i class="bi bi-hand-thumbs-up-fill"></i></a>
-						<a class="btn btn-secondary nega-richiesta" href="#richieste.php/nega-richiesta/[id_richiesta]" role="button"><i class="bi bi-hand-thumbs-down-fill"></i></a>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+		<div class="container pt-5">
+<!-- 
+<div class="row">
+	<table class="table table-striped table-hover">
+		<thead>
+			<tr>
+				<th class="col-11 h4" >Elenco richieste di [consultatore]</th>
+				<th class="col-1">Rinuncia</th>
+			</tr>
+		</thead>
+		<tbody>
+			[elenco richieste di consultatore]
+		</tbody>
+	</table>
+</div>
+-->
+			<?= $tabelle_richieste; ?>
 		</div>
-	<footer class="py-3">
-		<ul class="nav justify-content-center border-top pb-3 ">
-			<li class="nav-item"><a href="<?=URLBASE; ?>ingresso.php" class="nav-link px-2 text-body-secondary">Ingresso</a></li>
-			<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
-			<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
-			<li class="nav-item"><a href="https://athesis77.it/" class="nav-link px-2 text-body-secondary">Associazione</a></li>
-			<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
-		</ul>
-		<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
-	</footer>
-	</div>
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+		<footer class="py-3">
+			<ul class="nav justify-content-center border-top pb-3 ">
+				<li class="nav-item"><a href="<?=URLBASE; ?>ingresso.php" class="nav-link px-2 text-body-secondary">Ingresso</a></li>
+				<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
+				<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
+				<li class="nav-item"><a href="https://athesis77.it/" class="nav-link px-2 text-body-secondary">Associazione</a></li>
+				<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
+			</ul>
+			<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
+		</footer>
+		<!-- bootstrap js --><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 	</body>
 </html>

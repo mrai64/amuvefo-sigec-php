@@ -133,7 +133,7 @@ function get_elenco_richieste_consultatore(int $consultatore_id){
 			}
 			if ($rec_album['numero']>0){
 				$album=$rec_album['data'][0];
-				$titolo   = $album['titolo_fotografia'];
+				$titolo   = $album['titolo_album'];
 				$siete_in = $album['percorso_completo'];
 			}
 		} // album 
@@ -150,7 +150,7 @@ function get_elenco_richieste_consultatore(int $consultatore_id){
 			}
 			if ($rec_video['numero']>0){
 				$video=$rec_video['data'][0];
-				$titolo   = $video['titolo_fotografia'];
+				$titolo   = $video['titolo_video'];
 				$siete_in = $video['percorso_completo'];
 			}
 		} // video
@@ -234,3 +234,210 @@ function cancella_richiesta_per_id(int $richiesta_id){
 	get_elenco_richieste_consultatore($consultatore_id);
 	exit(0);
 } // cancella_richiesta_per_id()
+
+
+/**
+ * Elenco richieste per amministratore - tutti richiedenti, tutte le richieste
+ */
+function get_elenco_richieste_per_amministratore(){
+	$dbh   = new DatabaseHandler();
+	$con_h = new Consultatori($dbh); 
+	$ric_h = new Richieste($dbh); 
+	$alb_h = new Album($dbh); 
+	$fot_h = new Fotografie($dbh); 
+	$vid_h = new Video($dbh); 
+
+	// ricerca "de tutto" 
+	$tabelle_richieste='';
+	// 1.for richiedenti 
+	//   2.for richieste per ogni richiedente 
+	$campi=[];
+	$campi['query'] = 'SELECT DISTINCT record_id_richiedente, '
+	. ' count(*) as Num FROM ' . Richieste::nome_tabella
+	. ' WHERE (record_cancellabile_dal = :record_cancellabile_dal) '
+	. ' AND richiesta_evasa_il = :richiesta_evasa_il '
+	. ' GROUP BY record_id_richiedente';
+	$campi['record_cancellabile_dal']=$dbh->get_datetime_forever();
+	$campi['richiesta_evasa_il']=$dbh->get_datetime_forever();
+	$ret_ric = $ric_h->leggi($campi);
+	if (isset($ret_ric['error'])){
+		http_response_code(404);
+		$ret = '<p style="font-family:monospace;color:red;">'
+		. 'Errore in lettura richieste' . '</p>'
+		. '<p>'.$ret_ric['message'].'</p>'	
+		. '<p>Campi: '.serialize($campi).'</p>';	
+		echo $ret;
+		exit(1);
+	}
+	if ($ret_ric['numero'] == 0 ){
+		http_response_code(404);
+		$ret = '<p style="font-family:monospace;color:red;">'
+		. 'Errore in lettura richieste' . '</p>'
+		. '<p>Nessun record trovato</p>'	
+		. '<p>Campi: '.serialize($campi).'</p>';	
+		echo $ret;
+		exit(1);
+	}
+	$consultatori = $ret_ric['data'];
+	// echo '<br>Letti '.count($consultatori).' consultatori<br>';
+	$ret_ric=[];
+	$blocco_consultatore = file_get_contents(ABSPATH.'aa-view/richieste-amministratore—consultatore-view.php');
+	// echo htmlentities($blocco_consultatore);
+	// exit(0);
+	for ($i=0; $i < count($consultatori) ; $i++) { 
+		$consultatore_id = $consultatori[$i]['record_id_richiedente'];
+		$ret_con = $con_h->get_consultatore_from_id($consultatore_id);
+		if (isset($ret_con['error'])){
+			http_response_code(404);
+			$ret = '<p style="font-family:monospace;color:red;">'
+			. 'Errore in lettura consultatori' . '</p>'
+			. '<p>'.$ret_con['message'].'</p>'	
+			. '<p>Consultatore: '.$consultatore_id.'</p>';	
+			echo $ret;
+			exit(1);
+		}
+		if ($ret_con['numero'] == 0){
+			continue; // consultatore cancellato?
+		}
+		$consultatore= $ret_con['data'][0];
+		$nome_consultatore = $consultatore['cognome_nome'];
+
+		// echo '<br>Consultatore: '.$consultatore_id; 
+		// echo '<br>Consultatore: '.$nome_consultatore; 
+		// echo '<br>'; 
+		$ric_h->set_record_id_richiedente($consultatore_id);
+		//
+		$campi=[];
+		$campi['query']= 'SELECT * FROM ' . Richieste::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+		. ' AND richiesta_evasa_il = :richiesta_evasa_il '
+		. ' AND record_id_richiedente = :record_id_richiedente '
+		. ' ORDER BY record_id ';
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$campi['richiesta_evasa_il']      = $dbh->get_datetime_forever();
+		$campi['record_id_richiedente']   = $ric_h->get_record_id_richiedente();
+		$ret_ric = $ric_h->leggi($campi);
+		if (isset($ret_ric['error'])){
+			http_response_code(404);
+			$ret = '<p style="font-family:monospace;color:red;">'
+			. 'Errore in lettura richieste' . '</p>'
+			. '<p>'.$ret_ric['message'].'</p>'	
+			. '<p>Campi: '.serialize($campi).'</p>';	
+			echo $ret; 
+			exit(1);
+		}
+		$elenco_richieste='';
+		$richieste=$ret_ric['data'];
+		// echo '<br>Richieste: '. str_replace(';', '; ', serialize($ret_ric));
+		// echo '<br>'; 
+		// echo '<br>'; 
+
+		for ($j=0; $j < count($richieste) ; $j++) { 
+	
+			$richiesta_singola = $richieste[$j];
+			$oggetto_richiesta = $richiesta_singola['oggetto_richiesta'];
+			$oggetto_id        = $richiesta_singola['record_id_richiesta'];
+			$data_richiesta    = substr($richiesta_singola['ultima_modifica_record'], 0, 10);
+			$richiesta_id      = $richiesta_singola['record_id'];
+			// echo '<br>Richiesta_id: '.$richiesta_id;
+			// echo '<br>oggetto: '.$oggetto_richiesta;
+	
+			if ($oggetto_richiesta == 'fotografie'){
+				$ret_foto = $fot_h->get_fotografia_from_id($oggetto_id);
+				// echo '<br>ret_foto: '. serialize($ret_foto);
+				// echo '<br>';
+				if (isset($ret_foto['error'])){
+					http_response_code(404);
+					$ret = '<p style="font-family:monospace;color:red;">'
+					. 'Errore in lettura richieste' . '</p>'
+					. '<p>'.$ret_foto['message'].'</p>'	
+					. '<p>foto_id: '.$oggetto_id.'</p>';	
+					echo $ret;
+					exit(1);
+				}
+				if ($ret_foto['numero']>0){
+					$fotografia=$ret_foto['data'][0];
+					$titolo   = $fotografia['titolo_fotografia'];
+					$siete_in = $fotografia['percorso_completo'];
+				}
+			} // fotografia 
+
+			if ($oggetto_richiesta == 'album'){
+				$rec_album= $alb_h->get_album_from_id($oggetto_id);
+				if ($rec_album['error']){
+					http_response_code(404);
+					$ret = '<p style="font-family:monospace;color:red;">'
+					. 'Errore in lettura richieste'.'</p>'
+					. '<p>'.$rec_album['message'].'</p>'	
+					. '<p>album_id: '.$oggetto_id.'</p>';	
+					echo $ret;
+					exit(1);
+				}
+				if ($rec_album['numero']>0){
+					$album=$rec_album['data'][0];
+					$titolo   = $album['titolo_album'];
+					$siete_in = $album['percorso_completo'];
+				}
+			} // album 
+
+			if ($oggetto_richiesta == 'video'){
+				$ret_video= $vid_h->get_video_from_id($oggetto_id);
+				if ($ret_video['error']){
+					http_response_code(404);
+					$ret = '<p style="font-family:monospace;color:red;">'
+					. 'Errore in lettura richieste' . '</p>'
+					. '<p>'.$ret_video['message'].'</p>'	
+					. '<p>video_id: '.$oggetto_id.'</p>';	
+					echo $ret;
+					exit(1);
+				}
+				if ($ret_video['numero']>0){
+					$video=$ret_video['data'][0];
+					$titolo   = $video['titolo_video'];
+					$siete_in = $video['percorso_completo'];
+				}
+			} // video
+	
+			// 
+			$rec = '<tr><td>'.($j + 1).'. '. $titolo . '<br>'."\n"
+			. 'Siete in: '.$siete_in . '<br>'."\n"
+			. 'Richiesta del: ' . $data_richiesta 
+			. '</td><td nowrap>'. "\n"
+			. '<a class="btn btn-success conferma-richiesta" href="'
+			. URLBASE.'richieste.php/conferma-richiesta/'.$richiesta_id
+			. '" role="button"><i class="bi bi-hand-thumbs-up-fill"></i></a>&nbsp;&nbsp;' 
+			. '<a class="btn btn-danger rifiuta-richiesta" href="'
+			. URLBASE.'richieste.php/rifiuta-richiesta/'.$richiesta_id
+			. '" role="button"><i class="bi bi-hand-thumbs-down-fill"></i></a>' . "\n"
+			. '</td></tr>' . "\n";
+			// echo htmlentities($rec);
+
+			$elenco_richieste .= $rec;
+	
+			// echo '<br>for consultatori '.$j;
+		} // 2.for - richieste del consultatore_id '' si "" no
+
+		$temp= str_ireplace('[nome_consultatore]', $nome_consultatore, $blocco_consultatore);
+		$temp= str_ireplace('[elenco_richieste]',  $elenco_richieste, $temp);
+		//  echo htmlentities($temp);
+		$tabelle_richieste .= "\n".$temp;
+
+	} // 1.for - consultatori
+
+	require_once(ABSPATH.'aa-view/richieste-amministratore-view.php');
+	exit(0);
+} // get_elenco_richieste_per_amministratore()
+
+/** TEST 
+ * http://localhost:8888/AMUVEFO-sigec-php/aa-controller/richieste-controller.php?test=get_elenco_richieste_per_amministratore
+ * https://archivio.athesis77.it/aa-controller/richieste-controller.php?test=get_elenco_richieste_per_amministratore
+ * 
+ */
+	if (isset($_GET['test'])     && 
+	    $_GET['test']='get_elenco_richieste_per_amministratore'){
+		echo get_elenco_richieste_per_amministratore();		
+		echo "fine.";
+		exit(0);
+	}
+//
+

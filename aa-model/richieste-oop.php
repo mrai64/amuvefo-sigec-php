@@ -138,9 +138,10 @@ Class Richieste {
 	}
 
 	public function set_motivazione( string $motivazione){
-		$chiave = htmlspecialchars($motivazione);
-		$chiave = trim($chiave);
-		$this->motivazione = $chiave; 
+		$motivazione = htmlspecialchars($motivazione);
+		$motivazione = trim($motivazione);
+		$motivazione = mb_substr($motivazione, 0, 1500);
+		$this->motivazione = $motivazione; 
 	}
 
 	public function set_ultima_modifica_record( string $ultima_modifica_record ) {
@@ -208,7 +209,7 @@ Class Richieste {
 		.   ' motivazione ) VALUES '
 		. ' (:record_id_richiedente, '
 		.  ' :oggetto_richiesta, :record_id_richiesta, '
-		.  " :motivazione ) ";
+		.  ' :motivazione ) ';
 
 		$dbh = $this->conn; // a PDO object thru Database class
 		if ($dbh === false){
