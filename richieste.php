@@ -99,10 +99,15 @@ if ($_COOKIE['abilitazione'] <  MODIFICAPLUS){
 }
 
 // senza parametro 
-if ($richiesta == 'elenco-consultatore'){
-
+if ($richiesta == 'elenco-amministratore'){
+	get_elenco_richieste_per_amministratore();
   exit(0);
 }
+
+/** TEST
+ * https://archivio.athesis77.it/richieste.php/elenco-amministratore/
+ *  
+ */
 
 // con parametro 
 if ($richiesta == 'conferma-richiesta' && $richieste_id > 0){
