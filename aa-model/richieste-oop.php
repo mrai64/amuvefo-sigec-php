@@ -204,9 +204,11 @@ Class Richieste {
 		// . record cancellabile_dal 
 		static $create = 'INSERT INTO ' . self::nome_tabella 
 		. ' (	record_id_richiedente, '
-		. '		oggetto_richiesta,	record_id_richiesta ) VALUES '
+		.   ' oggetto_richiesta,	record_id_richiesta, '
+		.   ' motivazione ) VALUES '
 		. ' (:record_id_richiedente, '
-		. '	 :oggetto_richiesta, :record_id_richiesta ) ';
+		.  ' :oggetto_richiesta, :record_id_richiesta, '
+		.  " :motivazione ) ";
 
 		$dbh = $this->conn; // a PDO object thru Database class
 		if ($dbh === false){
@@ -240,6 +242,7 @@ Class Richieste {
 			$aggiungi->bindValue('record_id_richiedente',	 $this->record_id_richiedente); 
 			$aggiungi->bindValue('oggetto_richiesta',	     $this->oggetto_richiesta); 
 			$aggiungi->bindValue('record_id_richiesta',    $this->record_id_richiesta); 
+			$aggiungi->bindValue('motivazione',    'Richiesta inoltrata'); 
 			$aggiungi->execute();
 			$record_id_assegnato = $this->conn->lastInsertId();
 			$dbh->commit();

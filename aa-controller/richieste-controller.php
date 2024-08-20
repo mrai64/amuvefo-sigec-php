@@ -185,3 +185,52 @@ function get_elenco_richieste_consultatore(int $consultatore_id){
 		exit(0);
 	}
 //
+
+
+function cancella_richiesta_per_id(int $richiesta_id){
+	$dbh   = new DatabaseHandler();
+	$ric_h = new Richieste($dbh); 
+
+	// verifiche
+	$ret_ric = $ric_h->get_richiesta_from_id($richiesta_id);
+	if (isset($ret_ric['error'])){
+		http_response_code(404);
+		$ret = '<p style="font-family:monospace;color:red;">' . __FUNCTION__
+		. ' Errore in lettura richiesta' . '</p>'
+		. '<p>'.$ret_ric['message'].'</p>'	
+		. '<p>Richiesta_id: '.$richiesta_id.'</p>';	
+		echo $ret;
+		exit(1);
+	}
+	if ($ret_ric['numero'] == 0){
+		http_response_code(404);
+		$ret = '<p style="font-family:monospace;color:red;">' . __FUNCTION__
+		. ' Errore in lettura richiesta' . '</p>'
+		. '<p>Richiesta_id: '.$richiesta_id.'</p>';	
+		echo $ret; 
+		exit(1);
+	}
+	$richiesta=$ret_ric['data'][0];
+	// cancellazione non fisica 
+	$campi=[];
+	$campi['update'] = ' UPDATE ' . Richieste::nome_tabella
+	. ' SET record_cancellabile_dal = :record_cancellabile_dal '
+	. ' WHERE record_id = :record_id  ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_now();
+	$campi['record_id'] = $richiesta_id;
+	$ret_ric=[];
+	$ret_ric = $ric_h->modifica($campi);
+	if (isset($ret_ric['error'])){
+		http_response_code(404);
+		$ret = '<p style="font-family:monospace;color:red;">' . __FUNCTION__
+		. ' Errore in cancellazione richiesta' . '</p>'
+		. '<p>'.$ret_ric['message'].'</p>'	
+		. '<p>Richiesta_id: '.$richiesta_id.'</p>';	
+		echo $ret;
+		exit(1);
+	}
+	// si torna all'elenco consultatore 
+	$consultatore_id = $_COOKIE['consultatore_id'];
+	get_elenco_richieste_consultatore($consultatore_id);
+	exit(0);
+} // cancella_richiesta_per_id()
