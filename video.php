@@ -36,9 +36,9 @@
 if (!defined('ABSPATH')){
 	include_once("./_config.php");
 }
-include_once(ABSPATH."aa-controller/controller-base.php");  // routeFromUri
+include_once(ABSPATH."aa-controller/controller-base.php");  // route_from_uri
 $uri=$_SERVER['REQUEST_URI'];
-$pezzi=route_from_uri($uri);
+$pezzi=route_from_uri($uri, '/video.php/');
 
 $richiesta=$pezzi['operazioni'][0];
 switch($richiesta){
