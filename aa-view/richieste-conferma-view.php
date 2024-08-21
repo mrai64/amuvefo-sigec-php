@@ -16,26 +16,21 @@
   <body>
     <div class="container pt-5">
     <?php
-      // include(ABSPATH.'aa-controller/mostra-messaggio-sessione.php');
+      include(ABSPATH.'aa-controller/mostra-messaggio-sessione.php');
     ?>
     <div class="row">
       <div class="col-md-12">
         <h4>Conferma richiesta
-          <a href="<?= $url_amministrazione_richieste; ?>" class="btn btn-secondary float-end">Torna all'elenco richieste in sospeso</a>
+          <a href="<?=URLBASE; ?>richieste.php/elenco-amministratore/'" class="btn btn-secondary float-end">Torna all'elenco richieste in sospeso</a>
         </h4>
         <hr>
-        <form action="<?=$url_aggiorna_richiesta; ?>" method="POST">
+        <form action="<?=URLBASE;?>richieste.php/conferma-richiesta/<?=$richiesta_id; ?>" method="POST">
           <p class="h4">Richiesta</p>
           <input type="hidden" name="record_id" value="<?=$richiesta_id; ?>">
+          <p class="h4">Richiedente: <?=$richiedente; ?></p>
           <div class="mb-3">
-            <label for="richiedente" class="h4 form-label">Richiedente 
-            </label>
-            <input type="text" name="richiedente" value="<?=$richiedente; ?>" class="form-control" readonly>
-          </div>
-          <div class="mb-3">
-            <label for="oggetto" class="h4 form-label">oggetto della richiesta 
-            </label>
-            <textarea name="oggetto" rows="5" class="form-control w-100" readonly><?=$oggetto_richiesta; ?></textarea>
+            <p class="h5">oggetto della richiesta</p>
+            <p class="h5"><?=$oggetto_richiesta; ?></p>
           </div>
           <div class="mb-3">
             <label for="motivazione" class="form-label">Confermiamo la concessione di quanto richiesto per: 

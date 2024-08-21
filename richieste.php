@@ -110,8 +110,17 @@ if ($richiesta == 'elenco-amministratore'){
  */
 
 // con parametro 
-if ($richiesta == 'conferma-richiesta' && $richieste_id > 0){
-
+// aggiorna coi dati dal modulo 
+if ($richiesta == 'conferma-richiesta' && 
+    isset($_POST['motivazione'])       && 
+    $richieste_id > 0){
+	conferma_richiesta_per_id($richiesta_id, $_POST);
+  exit(0);
+}
+//espone il modulo per aggiornare la richiesta
+if ($richiesta == 'conferma-richiesta' && 
+    $richieste_id > 0){
+	conferma_richiesta_per_id($richiesta_id, []);
   exit(0);
 }
 
