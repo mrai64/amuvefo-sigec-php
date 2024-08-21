@@ -21,9 +21,9 @@ if ( !defined( 'ABSPATH' ) ) {
 		define( 'BASEURL', 'https://archivio.athesis77.it/' ); //          deve terminare con 
 
 	} else {
-		define( 'ABSPATH', '/Users/massimorainato/Sites/archivio_athesis77_it/' ); // deve terminare con 
-		define( 'URLBASE', 'http://localhost:8888/archivio_athesis77_it/' ); //          deve terminare con 
-		define( 'BASEURL', 'http://localhost:8888/archivio_athesis77_it/' ); //          deve terminare con 
+		define( 'ABSPATH', '/Users/massimorainato/Sites/AMUVEFO-sigec-php/' ); // deve terminare con 
+		define( 'URLBASE', 'http://localhost:8888/AMUVEFO-sigec-php/' ); //          deve terminare con 
+		define( 'BASEURL', 'http://localhost:8888/AMUVEFO-sigec-php/' ); //          deve terminare con 
 
 	}
 
