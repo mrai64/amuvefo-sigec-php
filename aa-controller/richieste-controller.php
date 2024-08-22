@@ -582,6 +582,7 @@ function respinta_richiesta_per_id(int $richiesta_id, array $dati_input){
 =======
 
 /**
+ * Se presenti i dati del modulo aggiorna la richiesta,
  * Se i dati del modulo mancano propone la scheda 
  */
 function set_conferma_richiesta_per_id(int $richiesta_id, array $dati_input) {
