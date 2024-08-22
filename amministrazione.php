@@ -17,16 +17,5 @@ if (!defined('ABSPATH')){
 include_once(ABSPATH . "aa-controller/controller-base.php"); // routeFromUri
 include_once(ABSPATH . "aa-controller/controllo-abilitazione.php"); // check & set cookie
 
-// lettura della pagina "base"
-$ingresso = file_get_contents(ABSPATH."aa-view/amministrazione-view.php");
-if ($ingresso === false){
-	header('Content-Type: text/plain; charset=UTF-8');
-	http_response_code(503);
-	exit("La lettura del file non è andata a buon fine.");
-}
-
-$ingresso = str_ireplace('URLBASE.', URLBASE, $ingresso);
-
-// Esposizione pagina trattata
-echo $ingresso;
+require_once(ABSPATH.'aa-view/amministrazione-view.php');
 exit(0);

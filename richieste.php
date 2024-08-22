@@ -15,7 +15,7 @@
  * 
  * /richieste.php/conferma-richiesta/{richiesta_id}
  * 
- * /richieste.php/respinta-richiesta/{richiesta_id}
+ * /richieste.php/rifiuta-richiesta/{richiesta_id}
  * 
  */
 if (!defined('ABSPATH')){
@@ -33,13 +33,13 @@ switch($richiesta){
 	case 'elenco-amministratore':
 	case 'cancella-richiesta':
 	case 'conferma-richiesta':
-	case 'respinta-richiesta':
+	case 'rifiuta-richiesta':
 		break; 
 
 	// resto no 
 	default:
 		http_response_code(404); // know not found
-		echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non supportata</strong></pre>'."\n";
+		echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non supportata 1</strong></pre>'."\n";
 		exit(1);
 		break; // per check   
 } // switch richiesta 
@@ -113,26 +113,32 @@ if ($richiesta == 'elenco-amministratore'){
 // aggiorna coi dati dal modulo 
 if ($richiesta == 'conferma-richiesta' && 
     isset($_POST['motivazione'])       && 
-    $richieste_id > 0){
+    $richiesta_id > 0){
 	conferma_richiesta_per_id($richiesta_id, $_POST);
   exit(0);
 }
 //espone il modulo per aggiornare la richiesta
 if ($richiesta == 'conferma-richiesta' && 
-    $richieste_id > 0){
+    $richiesta_id > 0){
 	conferma_richiesta_per_id($richiesta_id, []);
   exit(0);
 }
 
-if ($richiesta == 'respinta-richiesta' && $richieste_id > 0){
-
+if ($richiesta == 'rifiuta-richiesta' && 
+    isset($_POST['motivazione'])      && 
+    $richiesta_id > 0){
+	respinta_richiesta_per_id($richiesta_id, $_POST);
+  exit(0);
+}
+//espone il modulo per aggiornare la richiesta
+if ($richiesta == 'rifiuta-richiesta' && 
+    $richiesta_id > 0){
+	respinta_richiesta_per_id($richiesta_id, []);
   exit(0);
 }
 
 
-
-
 // Qui non dovrebbe arrivarci, però...
 http_response_code(404); // know not found
-echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non supportata</strong></pre>'."\n";
+echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non supportata 2</strong></pre>'."\n";
 exit(1);

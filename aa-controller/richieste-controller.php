@@ -122,7 +122,7 @@ function get_elenco_richieste_consultatore(int $consultatore_id){
 		} // fotografia 
 		if ($oggetto_richiesta == 'album'){
 			$rec_album= $alb_h->get_album_from_id($oggetto_id);
-			if ($rec_album['error']){
+			if (isset($rec_album['error'])){
 				http_response_code(404);
 				$ret = '<p style="font-family:monospace;color:red;">'
 				. 'Errore in lettura richieste' . '</p>'
@@ -139,7 +139,7 @@ function get_elenco_richieste_consultatore(int $consultatore_id){
 		} // album 
 		if ($oggetto_richiesta == 'video'){
 			$rec_video= $vid_h->get_video_from_id($oggetto_id);
-			if ($rec_video['error']){
+			if (isset($rec_video['error'])){
 				http_response_code(404);
 				$ret = '<p style="font-family:monospace;color:red;">'
 				. 'Errore in lettura richieste' . '</p>'
@@ -364,7 +364,7 @@ function get_elenco_richieste_per_amministratore(){
 
 			if ($oggetto_richiesta == 'album'){
 				$rec_album= $alb_h->get_album_from_id($oggetto_id);
-				if ($rec_album['error']){
+				if (isset($rec_album['error'])){
 					http_response_code(404);
 					$ret = '<p style="font-family:monospace;color:red;">'
 					. 'Errore in lettura richieste'.'</p>'
@@ -382,7 +382,7 @@ function get_elenco_richieste_per_amministratore(){
 
 			if ($oggetto_richiesta == 'video'){
 				$ret_video= $vid_h->get_video_from_id($oggetto_id);
-				if ($ret_video['error']){
+				if (isset($ret_video['error'])){
 					http_response_code(404);
 					$ret = '<p style="font-family:monospace;color:red;">'
 					. 'Errore in lettura richieste' . '</p>'

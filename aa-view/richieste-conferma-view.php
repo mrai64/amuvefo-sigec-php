@@ -1,11 +1,4 @@
-<?php 
-  $url_amministrazione_richieste = '#';
-  $url_aggiorna_richieste = '#';
-  $richiesta_id = 1;
-  $richiedente= 'Rainato, Massimo';
-  $oggetto_richiesta = 'Album. titolo album ___ che si trova in  ___';
-
-?><!doctype html>
+<!doctype html>
 <html lang="it">
   <head>
     <meta charset="utf-8">

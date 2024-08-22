@@ -1,11 +1,4 @@
-<?php 
-	$url_amministrazione_richieste = '#';
-	$url_aggiorna_richieste = '#';
-	$richiesta_id = 1;
-	$richiedente= 'Rainato, Massimo';
-	$oggetto_richiesta = 'Album. titolo album ___ che si trova in  ___';
-
-?><!doctype html>
+<!doctype html>
 <html lang="it">
 	<head>
 		<meta charset="utf-8">
@@ -24,7 +17,7 @@
 					<a href="<?=URLBASE; ?>richieste.php/elenco-amministratore/" class="btn btn-secondary float-end">Torna all'elenco richieste in sospeso</a>
 				</h4>
 				<hr>
-				<form action="<?=URLBASE; ?>richieste.php/respinta-richiesta/<?=$richiesta_id; ?>" method="POST">
+				<form action="<?=URLBASE; ?>richieste.php/rifiuta-richiesta/<?=$richiesta_id; ?>" method="POST">
 					<p class="h4">Richiesta</p>
 					<input type="hidden" name="record_id" value="<?=$richiesta_id; ?>">
 					<p class="h4">Richiedente: <?=$richiedente; ?></p>

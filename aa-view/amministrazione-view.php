@@ -15,7 +15,7 @@
 		<div class="row">
 			<div class="col-4">
 				<div class="list-group">
-					<a href="URLBASE.man/" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="<?=URLBASE; ?>man/" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
 								<h4 class="mb-0">Manuale d'uso e manutenzione</h4>
@@ -23,7 +23,7 @@
 						</div>
 					</a>
 				<!-- /elenchi.php/chiavi-elenco/0 -->
-					<a href="URLBASE.96-chiavi-ricerca.php" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="<?=URLBASE; ?>96-chiavi-ricerca.php" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
 								<h6 class="mb-0">Chiavi di ricerca: elenco delle -</h6>
@@ -32,7 +32,7 @@
 						</div>
 					</a>
 				<!-- /elenchi.php/autori-elenco/0  -->	
-					<a href="URLBASE.91-autori-elenco.php" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="<?=URLBASE; ?>91-autori-elenco.php" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
 								<h6 class="mb-0">Autori. Elenco delle / degli -</h6>
@@ -40,7 +40,7 @@
 						</div>
 					</a>
 				<!-- /elenchi.php/calendario/0 -->	
-					<a href="URLBASE.97-consultatori.php" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="<?=URLBASE; ?>97-consultatori.php" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
 								<h6 class="mb-0">Consultatori. Elenco -</h6>
@@ -52,7 +52,7 @@
 			</div>
 			<div class="col-4">
 				<div class="list-group">
-					<a href="URLBASE.cartelle.php/aggiungi-cartella/0" 
+					<a href="<?=URLBASE; ?>cartelle.php/aggiungi-cartella/0" 
 					   class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
@@ -61,7 +61,7 @@
 							</div>
 						</div>
 					</a>
-					<a href="URLBASE.cartelle.php/archivia-cartella/0" 
+					<a href="<?=URLBASE; ?>cartelle.php/archivia-cartella/0" 
 					   target="_blank" 
 						 class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
@@ -71,7 +71,7 @@
 							</div>
 						</div>
 					</a>
-					<a href="URLBASE.album.php/aggiungi_album/0" 
+					<a href="<?=URLBASE; ?>album.php/aggiungi_album/0" 
 					   class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
@@ -80,7 +80,7 @@
 							</div>
 						</div>
 					</a>
-					<a href="URLBASE.fotografie.php/carica_dettagli_da_fotografia/0" 
+					<a href="<?=URLBASE; ?>fotografie.php/carica_dettagli_da_fotografia/0" 
 					   target="_blank" 
 						 class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
@@ -90,7 +90,7 @@
 							</div>
 						</div>
 					</a>
-					<a href="URLBASE.video.php/carica_dettagli_da_video/0" 
+					<a href="<?=URLBASE; ?>video.php/carica_dettagli_da_video/0" 
 					   class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
@@ -103,7 +103,7 @@
 			</div>
 			<div class="col-4">
 				<div class="list-group">
-					<a href="#dafare" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="<?=URLBASE; ?>richieste.php/elenco-amministratore/" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
 								<h6 class="mb-0">Richieste accesso originali, elenco</h6>
@@ -111,7 +111,7 @@
 							</div>
 						</div>
 					</a>
-					<a href="URLBASE.elenchi.php/backup" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="<?=URLBASE; ?>elenchi.php/backup" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
 								<h6 class="mb-0">Scarico record dalla data del </h6>
@@ -157,9 +157,9 @@
   </div>
   <footer class="py-3 fixed-bottom" style="z-index: -1000;" >
     <ul class="nav justify-content-center border-top pb-3 ">
-      <li class="nav-item"><a href="URLBASE.ingresso.php" class="nav-link px-2 text-body-secondary">Ingresso</a></li>
-      <li class="nav-item"><a href="URLBASE.man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
-      <li class="nav-item"><a href="URLBASE.man/" class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
+      <li class="nav-item"><a href="<?=URLBASE; ?>ingresso.php" class="nav-link px-2 text-body-secondary">Ingresso</a></li>
+      <li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
+      <li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
       <li class="nav-item"><a href="https://athesis77.it/" class="nav-link px-2 text-body-secondary">Associazione</a></li>
       <li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
     </ul>
