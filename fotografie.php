@@ -48,7 +48,7 @@ if (!defined('ABSPATH')){
 }
 include_once(ABSPATH."aa-controller/controller-base.php");  // route_from_uri
 $uri=$_SERVER['REQUEST_URI'];
-$pezzi=route_from_uri($uri .'/fotografie.php/');
+$pezzi=route_from_uri($uri, '/fotografie.php/');
 //dbg echo 'pezzi: '. var_dump($pezzi) . "\n";
 $richiesta=$pezzi['operazioni'][0];
 if (count($pezzi['operazioni']) < 2){

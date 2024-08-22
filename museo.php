@@ -28,38 +28,38 @@ if ($ingresso === false){
 // abilitazione lettura
 $ingresso = str_replace('#originali_athesis',             'https://www.athesis77.it/', $ingresso);
 // prima quello più lungo
-$ingresso = str_replace('#consultazione_autori_fondi',    'cartelle.php/cartella/2AUTOF/',  $ingresso);
-$ingresso = str_replace('#consultazione_autori',          'cartelle.php/cartella/1AUTORI/', $ingresso);
+$ingresso = str_replace('#consultazione_autori_fondi',    URLBASE.'cartelle.php/cartella/2AUTOF/',  $ingresso);
+$ingresso = str_replace('#consultazione_autori',          URLBASE.'cartelle.php/cartella/1AUTORI/', $ingresso);
 // il + sostituisce lo spazio per la cartella "fondi 3" > "fondi+3", no %20
-$ingresso = str_replace('#consultazione_fondi',           'cartelle.php/cartella/3FONDI/',  $ingresso);
-$ingresso = str_replace('#consultazione_libri',           'cartelle.php/cartella/4LIBRI/',  $ingresso);
-$ingresso = str_replace('#consultazione_localita_abcss',  'cartelle.php/cartella/6LOCA/',   $ingresso);
-$ingresso = str_replace('#consultazione_localita',        'cartelle.php/cartella/5LOCA/',   $ingresso);
-$ingresso = str_replace('#consultazione_dati',            'cartelle.php/cartella/7DATI/',   $ingresso);
-$ingresso = str_replace('#consultazione_scuola',          'cartelle.php/cartella/8SCUOLA/', $ingresso);
-$ingresso = str_replace('#consultazione_terrisaurum',     'cartelle.php/cartella/9TERRI/',  $ingresso);
-$ingresso = str_replace('#consultazione_video',           'cartelle.php/cartella/10VIDEO/', $ingresso);
+$ingresso = str_replace('#consultazione_fondi',           URLBASE.'cartelle.php/cartella/3FONDI/',  $ingresso);
+$ingresso = str_replace('#consultazione_libri',           URLBASE.'cartelle.php/cartella/4LIBRI/',  $ingresso);
+$ingresso = str_replace('#consultazione_localita_abcss',  URLBASE.'cartelle.php/cartella/6LOCA/',   $ingresso);
+$ingresso = str_replace('#consultazione_localita',        URLBASE.'cartelle.php/cartella/5LOCA/',   $ingresso);
+$ingresso = str_replace('#consultazione_dati',            URLBASE.'cartelle.php/cartella/7DATI/',   $ingresso);
+$ingresso = str_replace('#consultazione_scuola',          URLBASE.'cartelle.php/cartella/8SCUOLA/', $ingresso);
+$ingresso = str_replace('#consultazione_terrisaurum',     URLBASE.'cartelle.php/cartella/9TERRI/',  $ingresso);
+$ingresso = str_replace('#consultazione_video',           URLBASE.'cartelle.php/cartella/10VIDEO/', $ingresso);
 
-$ingresso = str_replace('#consultazione_amuvefo',         'https://archivio.athesis77.it/man/', $ingresso);
+$ingresso = str_replace('#consultazione_amuvefo',         URLBASE.'man/', $ingresso);
 $ingresso = str_replace('#consultazione_fiaf',            'https://fiaf.net/veneto/',  $ingresso);
 $ingresso = str_replace('#consultazione_athesis',         'https://www.athesis77.it/', $ingresso);
 
 // abilitazione modifica 
 if ($_COOKIE['abilitazione'] > SOLALETTURA){
-	$ingresso = str_replace('#laboratorio_prove',           'amministrazione.php', $ingresso);
+	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
 }
 
 // abilitazione modifica con aruba drive 
 if ($_COOKIE['abilitazione'] > MODIFICA){
-	$ingresso = str_replace('#laboratorio_prove',           'amministrazione.php', $ingresso);
+	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
 	// TODO Definire dei link di condivisione per ciascuna cartella definitiva 
 	// e associarli
-	$ingresso = str_replace('#consultazione_athesis',         'https://www.athesis77.it/', $ingresso);
+	$ingresso = str_replace('#consultazione_athesis',       'https://www.athesis77.it/', $ingresso);
 }
 
 // abilitazione amministrazione
 if ($_COOKIE['abilitazione'] > MODIFICAPLUS){
-	$ingresso = str_replace('#laboratorio_prove',           'amministrazione.php', $ingresso);
+	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
 }
 
 // Esposizione pagina trattata

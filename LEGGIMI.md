@@ -14,7 +14,7 @@ mescolare italiano e inglese.
 
 Nel corso degli ultimi 40anni il foto club ha raccolto
 una mole impressionante di immagini e documenti. La stima
-ammonta a circa 24TB di dati. Divisi in una dozzina+dozzina di HDD,
+ammonta a circa 24TB di dati[^1]. Divisi in una dozzina+dozzina di HDD,
 una copia di tutto online, ma si sa, i dischi sono come gli scaffali
 di una biblioteca, se un libro è su uno scaffale dello Sport
 non può essere allo stesso momento in un altro scaffale.
@@ -22,6 +22,8 @@ Così i bibliotecari si sono creati le schede, e pure io ho
 sviluppato l'acqua calda usando per archiviare file e cartelle
 un sistema di etichette basato su dozzine di termini come
 nome/autore, luogo/comune ecc.
+
+[^1]: Alla data di maggio 2024
 
 ## Generalità
 
