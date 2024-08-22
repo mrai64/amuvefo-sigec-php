@@ -14,7 +14,7 @@ if (!defined('ABSPATH')){
   include_once("./_config.php");
 }
 
-include_once(ABSPATH . "aa-controller/controller-base.php"); // routeFromUri
+include_once(ABSPATH . "aa-controller/controller-base.php"); // route_from_uri
 include_once(ABSPATH . "aa-controller/controllo-abilitazione.php"); // check & set cookie
 
 require_once(ABSPATH.'aa-view/amministrazione-view.php');

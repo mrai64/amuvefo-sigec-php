@@ -32,9 +32,9 @@
 if (!defined('ABSPATH')){
 	include_once("./_config.php");
 }
-include_once(ABSPATH . "aa-controller/controller-base.php"); // routeFromUri
+include_once(ABSPATH . "aa-controller/controller-base.php"); // route_from_uri
 $uri = $_SERVER['REQUEST_URI'];
-$pezzi=route_from_uri($uri);
+$pezzi=route_from_uri($uri, '/cartelle.php/');
 $richiesta=$pezzi['operazioni'][0];
 //dbg echo '<pre>'. var_dump($pezzi); 
 
@@ -62,11 +62,11 @@ switch($richiesta){
 		break; // per check 
 }
 		
-include_once(ABSPATH . "aa-controller/cartelle-controller.php"); // routeFromUri
+include_once(ABSPATH . "aa-controller/cartelle-controller.php"); // route_from_uri
 /* 
 	Struttura dell'url attesa da cartelle.php/ in avanti:
 	operazione/parametri?parametri-aggiuntivi 
-	array $operazioni restituito da routeFromUri
+	array $operazioni restituito da route_from_uri
 	[0]        [1]
  */
 
