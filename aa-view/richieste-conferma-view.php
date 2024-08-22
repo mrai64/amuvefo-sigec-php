@@ -38,7 +38,7 @@
             <textarea name="motivazione" rows="10" class="form-control w-100"></textarea>
           </div>
           <div class="mb-3">
-            <button type="submit" name="conferma_richiesta" class="btn btn-primary">Visto, si conferma</button>
+            <button type="submit" name="conferma_richiesta" class="btn btn-success">Visto, si conferma</button>
           </div>
         </form>        
       </div>
