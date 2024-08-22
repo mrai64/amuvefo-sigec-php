@@ -638,22 +638,36 @@ function carica_richiesta_album(int $album_id){
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 	$campi['record_id']               = $alb_h->get_record_id();
 	$ret_alb = $alb_h->leggi($campi);
-	if (isset($ret_alb['error']) || $ret_alb['numero'] == 0 ){
+	if (isset($ret_alb['error'])){
 		http_response_code(404);
-		echo '<pre style="color: red;"><strong>Inserimento album non riuscito</strong></pre>'."\n";
+		echo '<pre style="color: red;"><strong>'
+		. 'Inserimento album non riuscito</strong></pre>'
+		. '<p>'.$ret_alb['message'].'</p>'
+		. '<p>Campi: '.serialize($campi).'</p>'
+		. "\n";
+		exit(1);
+	}
+	if ($ret_alb['numero'] == 0 ){
+		http_response_code(404);
+		echo '<pre style="color: red;"><strong>'
+		. 'album non trovato</strong></pre>'
+		. "\n";
 		exit(1);
 	}
 	$album = $ret_alb['data'][0];
 
 	// inserimento richiesta 
 	$campi=[];
-	$campi['record_id_in_consultatori_calendario'] = $_COOKIE['id_calendario'];
+	$campi['record_id_richiedente'] = $_COOKIE['id_calendario'];
 	$campi['oggetto_richiesta']     = 'album';
 	$campi['record_id_richiesta']   = $album_id;
 	$ret_ric = $ric_h->aggiungi($campi);
 	if (isset($ret_ric['error'])){
 		http_response_code(404);
-		echo '<pre style="color: red;"><strong>Inserimento album non riuscito</strong></pre>'."\n";
+		echo '<pre style="color: red;"><strong>'
+		. 'Inserimento album non riuscito</strong></pre>'
+		. '<p>'.$ret_ric['message'].'</p>'
+		. "\n";
 		exit(1);
 	}
 
