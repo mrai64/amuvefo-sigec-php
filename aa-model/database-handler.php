@@ -10,33 +10,15 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 /**
  * $con connessione mysql procedurale 
  */
-$con = mysqli_connect("31.11.39.113:3306", "Sql1515403", "3o860s7no2", "Sql1515403_4");
+// $con = mysqli_connect("31.11.39.113:3306", "Sql1515403", "3o860s7no2", "Sql1515403_4");
+
+$con = mysqli_connect( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 if (!$con){
 	return 'Connessione non riuscita, info: ' . mysqli_connect_error() ;
 	exit(0);
 }
 // impostazione caratteri usati
-mysqli_set_charset($con, 'utf8mb4'); // utf8 multibyte da 4 https://dev.mysql.com/doc/refman/8.0/en/charset-unicode-utf8mb4.html 
-
-
-/**
- * RECORD_CANCELLABILE < (datetime) 9999-12-31 23:59:59
- * Al posto di cancellare i record, nella tabella viene impostato una colonna
- * in cui "marcare" se il record è cancellato, per poi procedere con una 
- * pulizia seguente. Sarebbe bastato un flag "cancellabile" con dominio S/N,
- * ma usare una DATETIME consente di aggiungere una informazione in più,
- * posto che la consultazione avviene con un consultatore per volta.
- * Questo comporta che: in inserimento se il record manca viene creato 
- * con un valore predefinito che significa _record in vita, non cancellabile_, 
- * se in inserimento il record c'è, con il flag cancellato, viene aggiornato
- * reimpostando il flag da _cancellato_ a _cancellabile_. In modifica 
- * valore non viene cambiato, era e resta com'è, _cancellabile_. In cancellazione
- * il record viene modificato solo per il flag, da _cancellabile_ a _cancellato_
- */
-if ( !defined('RECORD_VIVO')){
-	DEFINE( "RECORD_VIVO", "9999-12-31 23:59:59");
-}
-
+mysqli_set_charset($con, DB_CHARSET); // utf8 multibyte da 4 https://dev.mysql.com/doc/refman/8.0/en/charset-unicode-utf8mb4.html 
 
 /**#@+
  * Authentication unique keys and salts.

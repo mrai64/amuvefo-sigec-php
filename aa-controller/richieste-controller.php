@@ -441,6 +441,7 @@ function get_elenco_richieste_per_amministratore(){
 	}
 //
 
+<<<<<<< Updated upstream
 function conferma_richiesta_per_id(int $richiesta_id, array $dati_input) : array{
 	$dbh   = new DatabaseHandler();
 	$con_h = new Consultatori($dbh); 
@@ -578,6 +579,18 @@ function respinta_richiesta_per_id(int $richiesta_id, array $dati_input){
 	$ric_h = new Richieste($dbh); 
 	$alb_h = new Album($dbh); 
 	$fot_h = new Fotografie($dbh); 
+=======
+
+/**
+ * Se i dati del modulo mancano propone la scheda 
+ */
+function set_conferma_richiesta_per_id(int $richiesta_id, array $dati_input) {
+	$dbh   = new DatabaseHandler();
+	$alb_h = new Album($dbh); 
+	$con_h = new Consultatori($dbh); 
+	$fot_h = new Fotografie($dbh); 
+	$ric_h = new Richieste($dbh); 
+>>>>>>> Stashed changes
 	$vid_h = new Video($dbh); 
 
 	$ret_ric = $ric_h->get_richiesta_from_id($richiesta_id);
@@ -599,6 +612,7 @@ function respinta_richiesta_per_id(int $richiesta_id, array $dati_input){
 		exit(1);
 	}
 	$richiesta=$ret_ric['data'][0];
+<<<<<<< Updated upstream
 	if (isset($dati_input['motivazione'])){
 		// aggiorniamo e torniamo a elenco amministratore 
 		$campi=[];
@@ -691,3 +705,98 @@ function respinta_richiesta_per_id(int $richiesta_id, array $dati_input){
 	exit(0);
 	
 } // respinta_richiesta_per_id()
+=======
+	// per modulo 
+	if (!isset($_POST['motivazione'])){		
+		$richiedente_id = $richiesta['record_id_richiedente'];
+		$ret_con= $con_h->get_consultatore_from_id($richiedente_id);
+		if (isset($ret_con['error'])){
+			http_response_code(404);
+			$ret = '<p style="font-family:monospace;color:red;">'
+			. 'Errore in lettura consultatori' . '</p>'
+			. '<p>'.$ret_con['message'].'</p>'	
+			. '<p>Consultatore: '.$richiedente_id.'</p>';	
+			echo $ret;
+			exit(1);
+		}
+		if ($ret_con['numero'] == 0){
+			http_response_code(404);
+			$ret = '<p style="font-family:monospace;color:red;">'
+			. 'Errore in lettura consultatori' . '</p>'
+			. '<p>Consultatore: '.$richiedente_id.'</p>';	
+			echo $ret;
+			exit(1);
+		}
+		$richiedente=$ret_con['data'][0]['cognome_nome'];
+		$oggetto_richiesta=$richiesta['oggetto_richiesta'];
+		$oggetto_id       =$richiesta['record_id_richiesta'];
+		if ($oggetto_richiesta == 'fotografie'){
+			$ret_ogg = $fot_h->get_fotografia_from_id($oggetto_id);
+			if (isset($ret_ogg['numero']) && $ret_ogg['numero'] > 0){
+				$oggetto=$ret_ogg['data'][0];
+				$titolo   = $oggetto['titolo_fotografia'];
+				$siete_in = $oggetto['percorso_completo'];
+			}
+		}
+		if ($oggetto_richiesta == 'album'){
+			$ret_ogg = $alb_h->get_album_from_id($oggetto_id);
+			if (isset($ret_ogg['numero']) && $ret_ogg['numero'] > 0){
+				$oggetto=$ret_ogg['data'][0];
+				$titolo   = $oggetto['titolo_album'];
+				$siete_in = $oggetto['percorso_completo'];
+			}
+		}
+		if ($oggetto_richiesta == 'video'){
+			$ret_ogg = $vid_h->get_video_from_id($oggetto_id);
+			if (isset($ret_ogg['numero']) && $ret_ogg['numero'] > 0){
+				$oggetto=$ret_ogg['data'][0];
+				$titolo   = $oggetto['titolo_video'];
+				$siete_in = $oggetto['percorso_completo'];
+			}
+		}
+		if (isset($ret_['error'])){
+			http_response_code(404);
+			$ret = '<p style="font-family:monospace;color:red;">'
+			. 'Errore in lettura richieste'.'</p>'
+			. '<p>'.$ret_ogg['message'].'</p>'	
+			. '<p>richiesta_id: '.$richiesta_id.'</p>';	
+			echo $ret;
+			exit(1);
+		}
+		require_once(ABSPATH.'aa-view/richieste-conferma-view.php');
+		exit(0);		
+	} // esposizione modulo
+	
+	$ric_h->set_record_id($richiesta_id);
+	$ric_h->set_record_id_amministratore($_COOKIE['consultatore_id']);
+	$ric_h->set_richiesta_evasa_il($dbh->get_datetime_now());
+	$ric_h->set_motivazione($_POST['motivazione']);
+	$campi=[];
+	$campi['update'] = 'UPDATE ' . Richieste::nome_tabella 
+	. ' SET record_id_amministratore = :record_id_amministratore, '
+	.     ' richiesta_evasa_il = :richiesta_evasa_il, '
+	.     ' motivazione = :motivazione '
+	. ' WHERE record_id = :record_id ';
+	$campi['record_id_amministratore'] = $ric_h->get_record_id_amministratore();
+	$campi['richiesta_evasa_il'] = $ric_h->get_richiesta_evasa_il();
+	$campi['motivazione'] = $ric_h->get_motivazione();
+	$campi['record_id'] = $ric_h->get_record_id();
+	// ultima_modifica_record viene aggiornato in automatico 
+	$ret_agg = $ric_h->modifica($campi);
+	if (isset($ret_agg['error'])){
+		http_response_code(404);
+		$ret = '<p style="font-family:monospace;color:red;">'
+		. 'Errore in aggiornamento richieste'.'</p>'
+		. '<p>'.$ret_agg['message'].'</p>'	
+		. '<p>richiesta_id: '.$richiesta_id.'</p>';	
+		echo $ret;
+		exit(1);
+	}
+	// 
+	// aggiornamento completato si torna all'elenco
+	$_SESSION['messaggio'] = 'Aggiornamento completato';
+	get_elenco_richieste_per_amministratore();
+	exit(0);
+
+	} // set_conferma_richiesta_per_id()
+>>>>>>> Stashed changes

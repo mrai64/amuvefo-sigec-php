@@ -9,7 +9,7 @@
  * - inserimento richieste per video in /video.php 
  * 
  * /richieste.php/elenco-consultatore
- * /richieste.php/elenco-amministrarore 
+ * /richieste.php/elenco-amministratore 
  * 
  * /richieste.php/cancella-richiesta/{richiesta_id}
  * 
@@ -110,6 +110,7 @@ if ($richiesta == 'elenco-amministratore'){
  */
 
 // con parametro 
+<<<<<<< Updated upstream
 // aggiorna coi dati dal modulo 
 if ($richiesta == 'conferma-richiesta' && 
     isset($_POST['motivazione'])       && 
@@ -134,6 +135,26 @@ if ($richiesta == 'rifiuta-richiesta' &&
 if ($richiesta == 'rifiuta-richiesta' && 
     $richiesta_id > 0){
 	respinta_richiesta_per_id($richiesta_id, []);
+=======
+
+if ($richiesta == 'conferma-richiesta' && 
+    $richiesta_id > 0                  && 
+		isset($_POST['motivazione'])){
+	set_conferma_richiesta_per_id($richiesta_id, $_POST);
+  exit(0);
+}
+if ($richiesta == 'conferma-richiesta' && $richiesta_id > 0){
+	set_conferma_richiesta_per_id($richiesta_id, []);
+  exit(0);
+}
+
+/** TEST 
+ * http://localhost:8888/AMUVEFO-sigec-php/richieste.php/conferma-richiesta/2
+ */
+
+if ($richiesta == 'respinta-richiesta' && $richiesta_id > 0){
+
+>>>>>>> Stashed changes
   exit(0);
 }
 

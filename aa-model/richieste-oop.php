@@ -245,7 +245,7 @@ Class Richieste {
 			$aggiungi->bindValue('record_id_richiesta',    $this->record_id_richiesta); 
 			$aggiungi->bindValue('motivazione',    'Richiesta inoltrata'); 
 			$aggiungi->execute();
-			$record_id_assegnato = $this->conn->lastInsertId();
+			$record_id_assegnato = $dbh->lastInsertId();
 			$dbh->commit();
 
 		} catch (\Throwable $th) {
@@ -451,7 +451,7 @@ Class Richieste {
 		// azione
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try {
-			$aggiorna = $this->conn->prepare($update);
+			$aggiorna = $dbh->prepare($update);
 			if (isset($campi['record_id'])){
 				$aggiorna->bindValue('record_id', $this->record_id, PDO::PARAM_INT);
 			}
@@ -551,8 +551,8 @@ Class Richieste {
 		if (isset($campi['richiesta_evasa_il'])){
 			$this->set_richiesta_evasa_il($campi['richiesta_evasa_il']);
 		}
-		if (isset($campi['record_id_amministrazione'])){
-			$this->set_record_id_amministrazione($campi['record_id_amministrazione']);
+		if (isset($campi['record_id_amministratore'])){
+			$this->set_record_id_amministratore($campi['record_id_amministratore']);
 		}
 		// motivazione no
 		if (isset($campi['ultima_modifica_record'])){
@@ -584,7 +584,7 @@ Class Richieste {
 			if (isset($campi['record_id_amministratore'])){
 				$cancella->bindValue('record_id_amministratore', $this->record_id_amministratore, PDO::PARAM_INT);
 			}
-			// mmotivazione no 
+			// motivazione no 
 			if (isset($campi['ultima_modifica_record'])){
 				$cancella->bindValue('ultima_modifica_record', $this->ultima_modifica_record);
 			}
