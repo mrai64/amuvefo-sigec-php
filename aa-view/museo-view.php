@@ -67,9 +67,8 @@
 </svg>
 <p class="text-center">
   La consultazione è consigliata a schermi di risoluzione FullHD<br>
-  L'accesso è soggetto a <a href="https://archivio.athesis77.it/man/termini-di-servizio-e-condizioni-duso/" >Termini e Condizioni</a>
+  L'accesso è soggetto a <a href="<?=URLBASE; ?>man/termini-di-servizio-e-condizioni-duso/" >Termini e Condizioni</a>
 </p>  
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

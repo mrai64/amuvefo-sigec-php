@@ -240,11 +240,11 @@ function get_lista_album(array $dati_ricerca) : string {
 		// siete in
 		$siete_in = str_replace('/', ' / ', $album['percorso_completo']);
 		$rigo_album=$album_rigo;
-		$rigo_album=str_replace('URLBASE',               URLBASE,       $rigo_album);  
-		$rigo_album=str_replace('<?= $album_id; ?>',     $album_id,     $rigo_album);  
-		$rigo_album=str_replace('<?= $tinta_rgb; ?>',    $tinta_rgb,    $rigo_album);  
-		$rigo_album=str_replace('<?= $titolo_album; ?>', $titolo_album, $rigo_album);  
-		$rigo_album=str_replace('<?= $siete_in; ?>',     $siete_in,     $rigo_album);  
+		$rigo_album=str_replace('<?=URLBASE; ?>',       URLBASE,       $rigo_album);  
+		$rigo_album=str_replace('<?=$album_id; ?>',     $album_id,     $rigo_album);  
+		$rigo_album=str_replace('<?=$tinta_rgb; ?>',    $tinta_rgb,    $rigo_album);  
+		$rigo_album=str_replace('<?=$titolo_album; ?>', $titolo_album, $rigo_album);  
+		$rigo_album=str_replace('<?=$siete_in; ?>',     $siete_in,     $rigo_album);  
     // echo '<br>rigo:';
     // echo '<pre>'.htmlentities($rigo_album).'<pre>';
 		$ret .= "\n\n".$rigo_album;
@@ -435,11 +435,11 @@ function get_lista_fotografie(array $dati_ricerca) : string {
 			$siete_in = str_ireplace('/', ' / ', substr($percorso_completo, 1, $ultima_barra_al));
 		}
 	
-		$rigo_fotografia   = str_replace('URLBASE',            URLBASE,            $fotografia_rigo);
-		$rigo_fotografia   = str_replace('$fotografia_id',     $fotografia_id,     $rigo_fotografia);
-		$rigo_fotografia   = str_replace('$titolo_fotografia', $titolo_fotografia, $rigo_fotografia);
-		$rigo_fotografia   = str_replace('$percorso_completo', $percorso_completo, $rigo_fotografia);
-		$rigo_fotografia   = str_replace('$siete_in',          $siete_in,          $rigo_fotografia);
+		$rigo_fotografia   = str_replace('<?=URLBASE; ?>',            URLBASE,            $fotografia_rigo);
+		$rigo_fotografia   = str_replace('<?=$fotografia_id; ?>',     $fotografia_id,     $rigo_fotografia);
+		$rigo_fotografia   = str_replace('<?=$titolo_fotografia; ?>', $titolo_fotografia, $rigo_fotografia);
+		$rigo_fotografia   = str_replace('<?=$percorso_completo; ?>', $percorso_completo, $rigo_fotografia);
+		$rigo_fotografia   = str_replace('<?=$siete_in; ?>',          $siete_in,          $rigo_fotografia);
 		$ret .= $rigo_fotografia;
 	}
 	return $ret;

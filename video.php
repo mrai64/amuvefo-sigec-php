@@ -11,7 +11,7 @@
  *
  * /video.php/precedente/{video_id}
  * /video.php/seguente/{video_id}
- *   rintraccia, se presente, un vidoe precedente o seguente
+ *   rintraccia, se presente, un video precedente o seguente
  *   inserito nello stesso album
  *
  * /video.php/richiesta/{video_id}?return_to={url_pagina}

@@ -7,7 +7,6 @@
 		<!-- jquery --><script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 		<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" >
 		<!-- icone --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
-
 	</head>
 	<body>
 	<div class="container">
@@ -22,7 +21,7 @@
 				</div>
 					<div class="card-body" style="overflow-y: scroll;">
 					<?php
-					include('./aa-controller/mostra-messaggio-sessione.php');
+			    include(ABSPATH.'aa-controller/mostra-messaggio-sessione.php');
 					// didascalia 
 					if ($leggimi > ""){
 					?>
@@ -145,15 +144,6 @@
 		</ul>
 		<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
 	</footer>
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-	<!-- jQuery lib --> 
-		<!-- script src="01-esplora.js"></script -->
-		<?php
-		if (isset($debug_log)){
-			echo "<hr /><pre style='max-width: 50rem;background-color: white;'>\nREGISTRO LOG ";
-			echo $debug_log;
-			echo "</pre><hr />";
-		}
-		?>
+	<!-- bootstrap lib --><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 	</body>
 </html>

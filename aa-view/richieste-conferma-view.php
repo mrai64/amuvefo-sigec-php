@@ -14,31 +14,16 @@
     <div class="row">
       <div class="col-md-12">
         <h4>Conferma richiesta
-<<<<<<< Updated upstream
           <a href="<?=URLBASE; ?>richieste.php/elenco-amministratore/'" class="btn btn-secondary float-end">Torna all'elenco richieste in sospeso</a>
         </h4>
         <hr>
-        <form action="<?=URLBASE;?>richieste.php/conferma-richiesta/<?=$richiesta_id; ?>" method="POST">
-=======
-          <a href="<?=URLBASE.'richieste.php/elenco-amministratore/'; ?>" class="btn btn-secondary float-end">Torna all'elenco richieste in sospeso</a>
-        </h4>
-        <hr>
-        <form action="<?=URLBASE.'richieste.php/conferma-richiesta/'.$richiesta_id; ?>" method="POST">
->>>>>>> Stashed changes
+        <form action="<?=URLBASE; ?>richieste.php/conferma-richiesta/<?=$richiesta_id; ?>" method="POST">
           <p class="h4">Richiesta</p>
           <input type="hidden" name="record_id" value="<?=$richiesta_id; ?>">
           <p class="h4">Richiedente: <?=$richiedente; ?></p>
           <div class="mb-3">
-<<<<<<< Updated upstream
             <p class="h5">oggetto della richiesta</p>
             <p class="h5"><?=$oggetto_richiesta; ?></p>
-=======
-            <p class="h4">Richiedente: <?=$richiedente; ?></p>
-          </div>
-          <div class="mb-3">
-            <p class="h5">Oggetto della richiesta: <?=$oggetto_richiesta; ?> / <?=$titolo; ?></p>
-            <p>Sito in: <?=$siete_in; ?></p>
->>>>>>> Stashed changes
           </div>
           <div class="mb-3">
             <label for="motivazione" class="form-label">Confermiamo la <strong>concessione</strong> di quanto richiesto per: 

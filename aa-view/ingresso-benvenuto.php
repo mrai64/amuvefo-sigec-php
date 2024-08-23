@@ -12,7 +12,7 @@
 <body>
 	<p class="text-center">
 		La consultazione è consigliata a schermi di risoluzione FullHD &nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp; Per entrare cliccate sulla porta d'ingresso.<br>
-		L'accesso è soggetto a <a href="https://archivio.athesis77.it/man/termini-di-servizio-e-condizioni-duso/" >Termini e Condizioni</a>
+		L'accesso è soggetto a <a href="<?=URLBASE; ?>man/termini-di-servizio-e-condizioni-duso/" >Termini e Condizioni</a>
 	</p>  
 	<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1755 1240">
 		<image width="1755" height="1240" xlink:href="aa-img/ingresso-benvenuto.jpg"></image> <a xlink:href="accesso.php">

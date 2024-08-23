@@ -16,21 +16,21 @@ if (!defined('ABSPATH')){
 include_once(ABSPATH . 'aa-controller/controllo-abilitazione.php');
 //
 // caricamento pagina e sostituzione link vuoti 
-$ingresso = file_get_contents(ABSPATH."aa-view/museo-view.htm");
+$ingresso = file_get_contents(ABSPATH."aa-view/museo-view.php");
 if ($ingresso === false){
 	header('Content-Type: text/plain; charset=UTF-8');
 	http_response_code(503);
 	exit("La lettura del file non è andata a buon fine.");
 }
+// conversione a prescindere 
+$ingresso = str_replace('<?=URLBASE; ?>', URLBASE, $ingresso);
 
 // applicazione dei link in base al contenuto di _COOKIE['abilitazione']
-
 // abilitazione lettura
 $ingresso = str_replace('#originali_athesis',             'https://www.athesis77.it/', $ingresso);
-// prima quello più lungo
+// quello più lungo ha la precedenza
 $ingresso = str_replace('#consultazione_autori_fondi',    URLBASE.'cartelle.php/cartella/2AUTOF/',  $ingresso);
 $ingresso = str_replace('#consultazione_autori',          URLBASE.'cartelle.php/cartella/1AUTORI/', $ingresso);
-// il + sostituisce lo spazio per la cartella "fondi 3" > "fondi+3", no %20
 $ingresso = str_replace('#consultazione_fondi',           URLBASE.'cartelle.php/cartella/3FONDI/',  $ingresso);
 $ingresso = str_replace('#consultazione_libri',           URLBASE.'cartelle.php/cartella/4LIBRI/',  $ingresso);
 $ingresso = str_replace('#consultazione_localita_abcss',  URLBASE.'cartelle.php/cartella/6LOCA/',   $ingresso);
@@ -44,11 +44,13 @@ $ingresso = str_replace('#consultazione_amuvefo',         URLBASE.'man/', $ingre
 $ingresso = str_replace('#consultazione_fiaf',            'https://fiaf.net/veneto/',  $ingresso);
 $ingresso = str_replace('#consultazione_athesis',         'https://www.athesis77.it/', $ingresso);
 
+// applicazione dei link in base al contenuto di _COOKIE['abilitazione']
 // abilitazione modifica 
 if ($_COOKIE['abilitazione'] > SOLALETTURA){
 	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
 }
 
+// applicazione dei link in base al contenuto di _COOKIE['abilitazione']
 // abilitazione modifica con aruba drive 
 if ($_COOKIE['abilitazione'] > MODIFICA){
 	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
@@ -57,11 +59,12 @@ if ($_COOKIE['abilitazione'] > MODIFICA){
 	$ingresso = str_replace('#consultazione_athesis',       'https://www.athesis77.it/', $ingresso);
 }
 
+// applicazione dei link in base al contenuto di _COOKIE['abilitazione']
 // abilitazione amministrazione
 if ($_COOKIE['abilitazione'] > MODIFICAPLUS){
 	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
 }
 
-// Esposizione pagina trattata
+// tutto pronto, si espone
 echo $ingresso;
 exit(0);

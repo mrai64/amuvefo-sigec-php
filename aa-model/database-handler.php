@@ -11,8 +11,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
  * $con connessione mysql procedurale 
  */
 // $con = mysqli_connect("31.11.39.113:3306", "Sql1515403", "3o860s7no2", "Sql1515403_4");
-
-$con = mysqli_connect( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+$con = mysqli_connect( DB_HOST, DB_USER, getenv('DB_PASSWORD'), getenv('DB_NAME'));
 if (!$con){
 	return 'Connessione non riuscita, info: ' . mysqli_connect_error() ;
 	exit(0);

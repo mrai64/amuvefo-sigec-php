@@ -17,8 +17,7 @@ include_once(ABSPATH.'aa-model-database-handler.php'); // $con usato più avanti
     <title>DETTAGLIO ALBUM | modifica </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   </head>
-  <body>
-    
+  <body>    
   <div class="container pt-5">
     <?php
     include(ABSPATH.'aa-controller/mostra-messaggio-sessione.php');
@@ -28,7 +27,7 @@ include_once(ABSPATH.'aa-model-database-handler.php'); // $con usato più avanti
         <div class="card">
           <div class="card-header">
             <h4>Modifica Dettaglio Album
-              <a href="<?= URLBASE?>album.php/leggi/<?= $_GET["album_id"]; ?>" class="btn btn-secondary float-end">Torna all'Album</a>
+              <a href="<?=URLBASE; ?>album.php/leggi/<?= $_GET["album_id"]; ?>" class="btn btn-secondary float-end">Torna all'Album</a>
             </h4>
           </div>
           <div class="card-body">
@@ -64,9 +63,6 @@ include_once(ABSPATH.'aa-model-database-handler.php'); // $con usato più avanti
       </div>
     </div>
   </div>
-
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </body>
 </html>

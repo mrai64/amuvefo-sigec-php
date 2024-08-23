@@ -36,7 +36,7 @@
 								<span id="passwordHelpInline" class="form-text">
 									Come compilare il campo? <br>
 									(1) Dipende dalla 'chiave' scelta. Consultare il 
-									<a href="https://archivio.athesis77.it/man/" target="_blank" rel="noopener noreferrer">manuale</a>.<br>
+									<a href="<?=URLBASE; ?>man/" target="_blank" rel="noopener noreferrer">manuale</a>.<br>
 									(2) Avviso: se il dettaglio è condiviso con tutti i materiali dell'album, va assegnato all'album, non alla foto.<br>
 								</span>
 							</div>

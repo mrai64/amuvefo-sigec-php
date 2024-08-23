@@ -10,4 +10,4 @@
 if (!defined('ABSPATH')){
   include_once('./_config.php');
 }
-include_once(ABSPATH.'aa-view/ingresso-benvenuto.htm');
+require_once(ABSPATH.'aa-view/ingresso-benvenuto.php');

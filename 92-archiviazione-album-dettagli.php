@@ -28,7 +28,7 @@
  * ToDo: va definito il livello di abilitazione necessario, va verificato
  * che sia presente un livello abilitazione del consultatore. Va richiamato
  * un modulo di login se il livello di abilitazione del consultatore non sia
- * sufficiente. I moduli inseriti nella lista dei lanci aurtomatici che abilitazione 
+ * sufficiente. I moduli inseriti nella lista dei lanci automatici che abilitazione 
  * hanno, e come superano il login? 
  */ 
 session_start(); // recupera o costituisce i dati _SESSION

@@ -9,14 +9,14 @@
 		<!-- icone bootstrap  --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
 		</head>
 	<body>
-		<!-- 	https://archivio.athesis77.it/aa-view/ricerca-per-chiavi.php 	-->
+		<!-- TEST	https://archivio.athesis77.it/aa-view/ricerca-per-chiavi.php 	-->
 		<div class="container pt-5">
 			<div class="row">
 				<div class="col-12">
 					<h4>Ricerca avanzata</h4>
 				</div>
 			</div>
-			<form action="#" method="post" id="moduloRicerca">
+			<form action="#" method="POST" id="moduloRicerca">
 				<div class="row mt-3">
 					<div class="col-3">
 						<a href="#" class="btn btn-secondary float-start" id="addRicerche"><i class="bi bi-plus-square-fill"></i> aggiungi una selezione</a>
@@ -79,17 +79,17 @@
 			</div>
 			<footer class="py-3">
 				<ul class="nav justify-content-center border-top pb-3 ">
-					<li class="nav-item"><a href="/ingresso.php" class="nav-link px-2 text-body-secondary">Ingresso</a></lem>
-					<li class="nav-item"><a href="/amministrazione.php" class="nav-link px-2 text-body-secondary">Amministrazione</a></lem>
-					<li class="nav-item"><a href="/man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></lem>
-					<li class="nav-item"><a href="/man/" class="nav-link px-2 text-body-secondary">D&R FAQ</a></lem>
+					<li class="nav-item"><a href="<?=URLBASE; ?>ingresso.php" class="nav-link px-2 text-body-secondary">Ingresso</a></lem>
+					<li class="nav-item"><a href="<?=URLBASE; ?>amministrazione.php" class="nav-link px-2 text-body-secondary">Amministrazione</a></lem>
+					<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></lem>
+					<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary">D&R FAQ</a></lem>
 					<li class="nav-item"><a href="https://athesis77.it/" class="nav-link px-2 text-body-secondary">Associazione</a></lem>
 					<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" class="nav-link px-2 text-body-secondary">Chi siamo</a></lem>
 				</ul>
 				<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
 			</footer>
 		</div>
-		<script src="https://archivio.athesis77.it/aa-view/ricerca-per-chiavi.js"></script>
+		<script src="<?=URLBASE; ?>aa-view/ricerca-per-chiavi.js"></script>
 		<script>
 		</script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

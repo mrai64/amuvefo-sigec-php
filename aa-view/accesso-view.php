@@ -40,7 +40,7 @@
     include(ABSPATH.'aa-controller/mostra-messaggio-sessione.php');
     ?>
     <main class="form-signin w-100 m-auto">
-      <form action="/aa-controller/accesso-checkpoint.php" method="POST">
+      <form action="<?=URLBASE; ?>aa-controller/accesso-checkpoint.php" method="POST">
         <img class="mb-4" src="/aa-img/aa-login.png" alt="" width="325" height="75">
 
         <h1 class="h3 mb-3 fw-normal">Accreditatevi</h1>
@@ -64,7 +64,7 @@
         <div class="form-check text-start my-3">
           <input class="form-check-input" type="checkbox" value="termof" name="accessoTermini" id="accessoTermini" required>
           <label class="form-check-label" for="accessoTermini">
-            Accetto i <a href="https://archivio.athesis77.it/man/termini-di-servizio-e-condizioni-duso/" target="_blank">Termini di servizio e le Condizioni d'uso</a> 
+            Accetto i <a href="<?=URLBASE; ?>man/termini-di-servizio-e-condizioni-duso/" target="_blank">Termini di servizio e le Condizioni d'uso</a> 
           </label>
         </div>
         <p>Lasciando i valori preimpostati potete visionare i materiali nella persona di Anonimo Consultatore.</p>
@@ -78,8 +78,8 @@
   </div>
   <footer class="py-3 " >
     <ul class="nav justify-content-center border-top pb-3 ">
-      <li class="nav-item"><a href="/man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
-      <li class="nav-item"><a href="/man/" class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
+      <li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
+      <li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
       <li class="nav-item"><a href="https://athesis77.it/" class="nav-link px-2 text-body-secondary">Associazione</a></li>
       <li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
     </ul>

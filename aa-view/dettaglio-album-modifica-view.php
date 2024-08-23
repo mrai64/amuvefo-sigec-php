@@ -30,7 +30,7 @@
                 <span id="valoreHelpInline" class="form-text">
                   Come compilare il campo? <br>
                   (1) Dipende dalla 'chiave' scelta. Consultare il 
-                  <a href="https://archivio.athesis77.it/man/" target="_blank" rel="noopener noreferrer">manuale</a>.<br>
+                  <a href="<?=URLBASE; ?>man/" target="_blank" rel="noopener noreferrer">manuale</a>.<br>
                   (2) Avviso: se il dettaglio è condiviso con tutti i materiali dell'album, va assegnato all'album, non alla foto.<br>
                 </span>
                     </div>
@@ -43,9 +43,6 @@
       </div>
     </div>
   </div>
-
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </body>
 </html>
