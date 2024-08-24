@@ -121,12 +121,12 @@
 							</div>
 						</div>
 					</a>
-					<a href="#dafare" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="<?=URLBASE; ?>elenchi.php/elimina/" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
-								<h6 class="mb-0">Eliminazione record cancellabili fino al </h6>
-								<p class="mb-0 opacity-75">Cancellazione fisica <strong>irrevocabile</strong>. 
-									Eseguire SEMPRE prima una copia di salvataggio dei dati.
+								<h6 class="mb-0">&#x1F6A8; Eliminazione record cancellabili </h6>
+								<p class="mb-0 opacity-75">&#x1F6A8; &#x1F6A8; Cancellazione fisica <strong>irrevocabile</strong>&#x1F6A8; &#x1F6A8; . 
+									Eseguire SEMPRE prima almeno una copia di salvataggio dei dati, e conservarla.
 								</p>
 							</div>
 						</div>

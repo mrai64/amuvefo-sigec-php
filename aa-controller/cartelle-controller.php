@@ -700,8 +700,8 @@ function carica_campi_da_percorso( string $percorso_fs_cartella, array &$campi )
 function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 	$dbh        = New DatabaseHandler(); // nessun parametro dedicato
 	$cartelle_h = New Cartelle($dbh);
-	echo "\n".'<p style="font-family:monospace;">';
-	echo "\n".'cartella_id: '.$cartella_id;
+	// echo "\n".'<p style="font-family:monospace;">';
+	// echo "\n".'cartella_id: '.$cartella_id;
 	$errori = '';
 
 	// Se non viene passato un id si recupera "il primo che capita" 
@@ -718,17 +718,19 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 		$campi['record_id'] = $cartelle_h->get_record_id();	
 	}
 	$ret_car = $cartelle_h->leggi($campi);
-	if ( isset($ret_car['error'])){
+	if (isset($ret_car['error'])){
 		http_response_code(404);
-		$ret = 'Album non trovato per un errore:<br>'
-		. $ret_car['message'] 
+		$ret = __FUNCTION__ 
+		. '<br>Album non trovato per un errore:'
+		. '<br>'. $ret_car['message'] 
 		. '<br>campi: ' . serialize($campi);
 		echo $ret; 
 		exit(1);
 	}
 	if ($ret_car['numero'] == 0){
 		http_response_code(404);
-		exit("<p style='font-family:monospace;'>Album $cartella_id non trovato. ".'</p>');
+		$ret = "<p style='font-family:monospace;'>Album $cartella_id non trovato. ".'</p>';
+		echo $ret; 
 		exit(1);
 	}
 	$cartella = $ret_car['data'][0];
@@ -736,17 +738,22 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 	$ret_car=[];
 	if ($cartella['stato_scansione'] != Cartelle::statoDaFare ){
 		http_response_code(404);
-		exit("<p style='font-family:monospace;'>Album $cartella_id non lavorabile. stato_scansione: " . $cartella['stato_scansione'] .'</p>');
+		$ret = "<p style='font-family:monospace;'>Album "
+		. " $cartella_id non lavorabile. stato_scansione: " 
+		. $cartella['stato_scansione'] .'</p>';
+		echo $ret;
 		exit(1);
 	}
-	echo "\n".'step 3';
+	// echo "\n".'step 3';
 	// cambio status 
 	if (!set_stato_scansione( $cartella['record_id'], Cartelle::statoLavoriInCorso )){
 		http_response_code(404);
-		exit("<p style='font-family:monospace;'>Non è stato variato lo stato della cartella $cartella_id. <br></p>");
+		$ret = "<p style='font-family:monospace;'>Non è "
+		. "stato variato lo stato della cartella $cartella_id. </p>";
+		echo $ret;
 		exit(1);
 	}
-	echo "\n".'step 4';
+	// echo "\n".'step 4';
 	/**
 	 * caricamento cartella in scansioni_disco 
 	 * fs_cartella quello del server 
@@ -762,9 +769,9 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 		$percorso_fs_cartella = '.'.$percorso_fs_cartella;
 	}
 	$percorso_con_abspath = str_replace('./', ABSPATH, $percorso_fs_cartella);
-  echo "\n". 'percorso_con_abspath: ';
-	echo $percorso_con_abspath; 
-	echo "\n". 'is_dir: '. is_dir($percorso_con_abspath);
+  // echo "\n". 'percorso_con_abspath: ';
+	// echo $percorso_con_abspath; 
+	// echo "\n". 'is_dir: '. is_dir($percorso_con_abspath);
 	
 	$percorso_fs_cartella = str_replace('./', '/'    , $percorso_fs_cartella);
 	@list($livello1, $livello2, $livello3, 
@@ -950,7 +957,7 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 		}
 	} // is_file()
 
-	echo "\ncambio status:lavoro finito";
+	// echo "\ncambio status:lavoro finito";
 	// cambio status 
 	if (!set_stato_scansione( $cartella['record_id'], Cartelle::statoCompletato )){
 		$errori .= '<br>Non è stato possibile cambiare stato_scansione in completato.';
@@ -961,21 +968,23 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 		echo '<pre>'.$errori;
 		exit(1);
 	}
+	echo "<p>Lavoro eseguito</p>";
+	exit(0);
 
 } // carica_scansioni_disco_da_scansioni_cartelle()
 
-/**
- * test 
+/** TEST
+ *  
  * https://archivio.athesis77.it/aa-controller/cartelle-controller.php?id=1111&test=carica_scansioni_disco_da_scansioni_cartelle
  */
-if ( isset($_GET['test'])   && 
-     isset($_GET['id'])     && 
-		 $_GET['test'] == 'carica_scansioni_disco_da_scansioni_cartelle'){
-	echo '<pre style="max-width:50rem;">debug on'."\n";
-	echo carica_scansioni_disco_da_scansioni_cartelle( $_GET['id']);
-	echo '<br>fine';
-}
-
+	if (isset($_GET['test'])   && 
+			isset($_GET['id'])     && 
+			$_GET['test'] == 'carica_scansioni_disco_da_scansioni_cartelle'){
+		echo '<pre style="max-width:50rem;">debug on'."\n";
+		echo carica_scansioni_disco_da_scansioni_cartelle( $_GET['id']);
+		echo '<br>fine';
+	}
+//
 
 /**
  * Espone solo la mappa che chiede la cartella e con jQuery 

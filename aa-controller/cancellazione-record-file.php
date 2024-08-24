@@ -12,7 +12,6 @@
  * il backup della tabella è totale, altrimenti 
  * si parte dal datetime indicato per >= 
  * 
- * !SOLO PER SVILUPPO TUTTI I COMMIT sono sostituiti da rollback 
  */
 // TEST localhost:8888/AMUVEFO-sigec-php/aa-controller/cancellazione-record-file.php 
 if (!defined('ABSPATH')){
@@ -66,7 +65,7 @@ function remove_record_from( string $nome_tabella, string $ultimo_backup) : arra
 		$cancella = $dbh->prepare($delete);
 		$cancella->execute();
 		$numero = $cancella->rowCount();
-		$dbh->rollBack(); // per debug $dbh->commit();
+		$dbh->commit(); // per debug $dbh->rollBack();
 
 	} catch( \Throwable $th ){
 		//throw $th;
@@ -112,7 +111,7 @@ function reset_record_cancellabile_dal(int $album_id) : array {
 		$modifica->execute();
 		$numero_album = $modifica->rowCount();
 		// se non si può fare un commit alla fine, farlo man mano
-		$dbh->rollBack(); // per debug $dbh->commit();
+		$dbh->commit(); // per debug $dbh->rollBack();
 
 	} catch( \Throwable $th ){
 		//throw $th;
@@ -133,7 +132,7 @@ function reset_record_cancellabile_dal(int $album_id) : array {
 		$modifica = $dbh->prepare($update);
 		$modifica->execute();
 		$numero_album_dettagli = $modifica->rowCount();
-		$dbh->rollBack(); // per debug $dbh->commit();
+		$dbh->commit(); // per debug $dbh->rollBack();
 
 	} catch( \Throwable $th ){
 		//throw $th;
@@ -154,7 +153,7 @@ function reset_record_cancellabile_dal(int $album_id) : array {
 		$modifica = $dbh->prepare($update);
 		$modifica->execute();
 		$numero_fotografie = $modifica->rowCount();
-		$dbh->rollBack(); // per debug $dbh->commit();
+		$dbh->commit(); // per debug $dbh->rollBack();
 
 	} catch( \Throwable $th ){
 		//throw $th;
@@ -177,7 +176,7 @@ function reset_record_cancellabile_dal(int $album_id) : array {
 		$modifica = $dbh->prepare($update);
 		$modifica->execute();
 		$numero_fotografie_dettagli = $modifica->rowCount();
-		$dbh->rollBack(); // per debug $dbh->commit();
+		$dbh->commit(); // per debug $dbh->rollBack();
 
 	} catch( \Throwable $th ){
 		//throw $th;
@@ -198,7 +197,7 @@ function reset_record_cancellabile_dal(int $album_id) : array {
 		$modifica = $dbh->prepare($update);
 		$modifica->execute();
 		$numero_video = $modifica->rowCount();
-		$dbh->rollBack(); // per debug $dbh->commit();
+		$dbh->commit(); // per debug $dbh->rollBack();
 
 	} catch( \Throwable $th ){
 		//throw $th;
@@ -221,7 +220,7 @@ function reset_record_cancellabile_dal(int $album_id) : array {
 		$modifica = $dbh->prepare($update);
 		$modifica->execute();
 		$numero_video_dettagli = $modifica->rowCount();
-		$dbh->rollBack(); // per debug $dbh->commit();
+		$dbh->commit(); // per debug $dbh->rollBack();
 
 	} catch( \Throwable $th ){
 		//throw $th;
@@ -342,7 +341,7 @@ function remove_record_album(string $ultimo_backup) : array{
 				$modifica = $dbh->prepare($update);
 				$modifica->execute();
 				$numero = $modifica->rowCount();
-				$dbh->rollBack(); // per debug $dbh->commit();
+				$dbh->commit(); // per debug $dbh->rollBack();
 		
 			} catch( \Throwable $th ){
 				//throw $th;
@@ -364,7 +363,7 @@ function remove_record_album(string $ultimo_backup) : array{
 				$modifica = $dbh->prepare($update);
 				$modifica->execute();
 				$numero = $modifica->rowCount();
-				$dbh->rollBack(); // per debug $dbh->commit();
+				$dbh->commit(); // per debug $dbh->rollBack();
 		
 			} catch( \Throwable $th ){
 				//throw $th;
@@ -455,7 +454,7 @@ function remove_record_fotografie(string $ultimo_backup) : array {
 				$modifica = $dbh->prepare($update);
 				$modifica->execute();
 				$numero = $modifica->rowCount();
-				$dbh->rollBack(); // per debug $dbh->commit();
+				$dbh->commit(); // per debug $dbh->rollBack();
 		
 			} catch( \Throwable $th ){
 				//throw $th;
@@ -478,7 +477,7 @@ function remove_record_fotografie(string $ultimo_backup) : array {
 				$modifica = $dbh->prepare($update);
 				$modifica->execute();
 				$numero = $modifica->rowCount();
-				$dbh->rollBack(); // per debug $dbh->commit();
+				$dbh->commit(); // per debug $dbh->rollBack();
 		
 			} catch( \Throwable $th ){
 				//throw $th;
@@ -601,7 +600,7 @@ function remove_record_video(string $ultimo_backup) : array {
 				$modifica = $dbh->prepare($update);
 				$modifica->execute();
 				$numero = $modifica->rowCount();
-				$dbh->rollBack(); // per debug $dbh->commit();
+				$dbh->commit(); // per debug $dbh->rollBack();
 		
 			} catch( \Throwable $th ){
 				//throw $th;
@@ -624,7 +623,7 @@ function remove_record_video(string $ultimo_backup) : array {
 				$modifica = $dbh->prepare($update);
 				$modifica->execute();
 				$numero = $modifica->rowCount();
-				$dbh->rollBack(); // per debug $dbh->commit();
+				$dbh->commit(); // per debug $dbh->rollBack();
 		
 			} catch( \Throwable $th ){
 				//throw $th;
