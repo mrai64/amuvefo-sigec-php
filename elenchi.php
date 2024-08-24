@@ -34,6 +34,7 @@ switch($richiesta){
 	// queste si
 	case 'elenco_chiavi':
 	case 'backup':
+	case 'elimina':
 		break;
 		
 		// resto no 
@@ -57,6 +58,14 @@ if ($richiesta=='backup'){
 	// include_once(ABSPATH.'aa-controller/controllo-abilitazione.php'); // check & set cookie
 	include_once(ABSPATH.'aa-controller/scrivi-backup-file.php'); 
 	get_file_backup();
+	exit(0);
+}
+
+
+if ($richiesta=='elimina'){
+	// include_once(ABSPATH.'aa-controller/controllo-abilitazione.php'); // check & set cookie
+	include_once(ABSPATH.'aa-controller/cancellazione-record-file.php'); 
+	remove_record_tutti();
 	exit(0);
 }
 
