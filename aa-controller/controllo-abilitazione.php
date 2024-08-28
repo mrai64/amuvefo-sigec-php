@@ -59,7 +59,7 @@ if (str_contains($url_pagina, '/backup/')){
 }
 
 $leggi  = "SELECT * FROM abilitazioni_elenco "
-. " WHERE (record_cancellabile_dal = '".RECORD_VALIDO."' ) "
+. " WHERE (record_cancellabile_dal = '".FUTURO."' ) "
 . "   AND url_pagina = '$url_pagina' ";
 if ($operazione){
 	$leggi .= " AND operazione = '$operazione' ";

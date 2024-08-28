@@ -48,7 +48,7 @@ $password_mescolata = hash_hmac("sha512", $accesso_password . AUTH_SALT, AUTH_KE
 $password_mescolata = substr($password_mescolata, 0, 250); // varchar(250) 
 
 $leggi  = 'SELECT * from consultatori_calendario'
-. " WHERE (record_cancellabile_dal = '". RECORD_VIVO ."' ) "
+. " WHERE (record_cancellabile_dal = '". FUTURO ."' ) "
 . " AND (email = '". $accesso_email               ."' ) "
 . " AND (attivita_dal <= '". $oggi                ."' ) "
 . " AND (attivita_fino_al >= '". $oggi            ."' ) ";

@@ -59,8 +59,8 @@ if (!$record_id){
  * - le cartelle hanno nomefile '/'
  */
 $leggi  = "SELECT * FROM scansioni_disco "; 
-$leggi .=  "WHERE record_da_esaminare = " . RECORD_VIVO . " ";
-$leggi .=  "AND record_cancellabile_dal = " . RECORD_VIVO . " ";
+$leggi .=  "WHERE record_da_esaminare = " . FUTURO . " ";
+$leggi .=  "AND record_cancellabile_dal = " . FUTURO . " ";
 $leggi .=  "AND estensione = '' ";
 $leggi .=  "AND record_id = " . $record_id;
 //          ORDER BY RECORD_ID se record_id resta zero per 
@@ -101,7 +101,7 @@ echo '<pre>' . print_r($record). '</pre><br />';
 // lettura tabella scansioni_disco per trovare i file contenuti nella cartella
 $leggi  = "SELECT * FROM scansioni_disco "; 
 $leggi .= "WHERE estensione in ('tif', 'jpg', 'mp4', 'mkv') ";
-$leggi .=  "AND record_cancellabile_dal = " . RECORD_VIVO . " ";
+$leggi .=  "AND record_cancellabile_dal = " . FUTURO . " ";
 $leggi .=  "AND disco = '$disco' ";
 $leggi .=  "AND livello1 = '$livello1' ";
 $leggi .=  "AND livello2 = '$livello2' ";

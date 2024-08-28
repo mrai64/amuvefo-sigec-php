@@ -64,7 +64,7 @@ if (!$album_record_id){
 // $dati_album = $album->leggiId($album_record_id);
 $leggi  = "SELECT * FROM ".$tabella_padre;
 $leggi .= " WHERE record_id = $album_record_id";
-$leggi .= "   AND record_cancellabile_dal = " . RECORD_VIVO ;
+$leggi .= "   AND record_cancellabile_dal = " . FUTURO ;
 echo '<pre>' . ($leggi).  '</pre>';
 
 $record_letti = mysqli_query($con, $leggi);
@@ -98,7 +98,7 @@ if (!isset($album['record_id'])){
 // dati album_dettagli 
 $record_id_padre = $album['record_id']; // proforma
 $leggi  = "SELECT * FROM " . $tabella_figlio;
-$leggi .= " WHERE record_cancellabile_dal = " . RECORD_VIVO;
+$leggi .= " WHERE record_cancellabile_dal = " . FUTURO;
 $leggi .= "   AND record_id_padre = " . $record_id_padre;
 echo '<pre>leggi: ' . ($leggi).  '</pre><br />';
 
@@ -166,7 +166,7 @@ $chiave = 'luogo/comune'; // check in tabella chiavi_elenco
 $elenco_luoghi = [];
 $leggi  = "SELECT valore FROM chiavi_valori_vocabolario";
 $leggi .= " WHERE chiave = '$chiave'";
-$leggi .= "   AND record_cancellabile_dal = " . RECORD_VIVO;
+$leggi .= "   AND record_cancellabile_dal = " . FUTURO;
 $leggi .= " ORDER BY valore DESC, record_id ";
 echo '<pre>' .print_r($leggi).  '</pre><br />';
 

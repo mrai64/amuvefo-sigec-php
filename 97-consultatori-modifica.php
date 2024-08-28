@@ -43,7 +43,7 @@ $aggiorna .= " attivita_dal = '$attivita_dal',    ";
 $aggiorna .= " attivita_fino_al = '$attivita_fino_al', ";
 $aggiorna .= " email = '$accesso_email',         ";
 $aggiorna .= " password = '$password_mescolata', ";
-$aggiorna .= " record_cancellabile_dal = '".RECORD_VIVO."' ";
+$aggiorna .= " record_cancellabile_dal = '".FUTURO."' ";
 $aggiorna .= "WHERE record_id = $record_id ";
 $esegui_aggiorna = mysqli_query($con, $aggiorna);
 // se va bene non è false

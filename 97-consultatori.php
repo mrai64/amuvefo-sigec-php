@@ -70,7 +70,7 @@ require('aa-model/database-handler.php'); // valorizza $con
             <?php 
             // Soli record non cancellati 
             $leggi = "SELECT * FROM consultatori_calendario "
-                   . "WHERE (record_cancellabile_dal = '" . RECORD_VIVO . "' ) "; 
+                   . "WHERE (record_cancellabile_dal = '" . FUTURO . "' ) "; 
             $record_letti = mysqli_query($con, $leggi);
             if (mysqli_num_rows($record_letti) < 1) { 
               ?>

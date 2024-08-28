@@ -4,7 +4,7 @@
  * @author Massimo Rainato <maxrainato@libero.it>
  * 
  * Questo pezzo di codice, eseguito sempre per primo 
- * imposta delle costanti ABSPATH RECORD_VALIDO usate 
+ * imposta delle costanti ABSPATH FUTURO usate 
  * in più punti nel resto del codice.
  *
  * versione online  
@@ -27,10 +27,9 @@ if ( !defined( 'ABSPATH' ) ) {
 
 	}
 
-	// definizione record_vivo / record valido quello che 
+	// definizione FUTURO / record valido, quello che 
 	// ha nel campo record_cancellabile_dal questo valore futuro 
-	define( 'RECORD_VIVO',   "9999-12-31 23:59:59" ); // da sostituire dove si trova con RECORD_VALIDO
-	define( 'RECORD_VALIDO', "9999-12-31 23:59:59" ); // 
+	define( 'FUTURO', "9999-12-31 23:59:59" ); // 
 	
 	// definizione di abilitazione lettura che non consente 
 	// la richiesta originali e la modifica dei dati 
@@ -52,5 +51,5 @@ if ( !defined( 'ABSPATH' ) ) {
 		}
 	} 
 }
-// definizioni per password da wordpress
+// recupero parametri per password da wordpress
 include_once( ABSPATH . 'man/wp-config.php');
