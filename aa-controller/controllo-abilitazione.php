@@ -3,51 +3,58 @@
  *	@source /aa-controller/controllo-abilitazione.php 
  *	@author Massimo Rainato <maxrainato@libero.it>
  *
- * Controller: inserito all'inizio dei php 
- * di gestione delle pagine verifica se sono presenti 
- * cookie e parametri di sessione rinviando alla pagina 
- * di login se la sessione è scaduta. 
- *
- * TODO: L'accesso all'archivio è diretto, va isolato 
- * in un accesso più "asettico" con l'uso di una classe 
- * AbilitazioniURL, e AbilitazioniURL->leggi() e un 
- * CalendarioConsultazioni->leggiAbilitazione()
+ * 1. Verifica se sono impostati i parametri $_COOKIE['consultatore']
+ * e $_SESSION['consultatore']
+ * 2. Accede alla tabella delle abilitazioni per verificare 
+ * se è presente una abilitazione per la pagina e se questa 
+ * è minore uguale a quella assegnata alla session
+ * 2.1. Se no, passa o torna al modulo di accesso 
+ * 2.2. Se sì, si prosegue
  * 
- * Per esempio se il record della pagina manca viene 
- * inserito con abilitazioni di amministrazione, e in seguito 
- * dalla gestione abilitazioni "ridimensionato"2" o lasciato com'è 
  */
 if (!defined('ABSPATH')){
   include_once('../_config.php');
 }
-
 if ( !isset($_SESSION['consultatore']) ){
 	session_start(); // se già dato crea un warning
 }
-
-//
-// inoltra alla pagina se i dati mancano o non sono uguali
-if ( !isset($_COOKIE['consultatore']) || !isset($_SESSION['consultatore']) ){
-	header("Location: ".URLBASE."accesso.php?p=1&redirect_to=".urlencode($_SERVER['REQUEST_URI']) );
-	exit(0);
-}
-if ( empty($_COOKIE['consultatore']) || empty($_SESSION['consultatore']) ){
-	header("Location: ".URLBASE."accesso.php?p=2&redirect_to=".urlencode($_SERVER['REQUEST_URI']) );
-	exit(0);
-}
-if ( ("".$_COOKIE["consultatore"]) != ("".$_SESSION["consultatore"]) ){
-	header("Location: ".URLBASE."accesso.php?p=3&redirect_to=".urlencode($_SERVER['REQUEST_URI']) );
-	exit(0);
-}
-if ( !isset($_COOKIE['abilitazione']) || (!$_COOKIE['abilitazione']) ){
-	header("Location: ".URLBASE."accesso.php?p=4&redirect_to=".urlencode($_SERVER['REQUEST_URI']) );
+if (!isset($_COOKIE['abilitazione'])){
+	$_SESSION['messaggio'] = "Non risulta presente un consultatore "
+	. '<br>' . serialize($_COOKIE);
+	header("Location: ".URLBASE."accesso.php?p=3&return_to=".urlencode($_SERVER['REQUEST_URI']) );
 	exit(0);
 }
 
-// TODO Valutare se in base al nome dei link sia possibile escludere la tabella abilitazioni
-// leggi lista aggiorna modifica amministra si ripetono nei link
+/* 
+	// inoltra alla pagina se i dati mancano o non sono uguali
+	if ( !isset($_COOKIE['consultatore']) || !isset($_SESSION['consultatore']) ){
+		$_SESSION['messaggio'] = "Non risulta presente un consultatore "
+		. '<br>' . serialize($_COOKIE)
+		. '<br>' . serialize($_SESSION);
+		header("Location: ".URLBASE."accesso.php?p=1&return_to=".urlencode($_SERVER['REQUEST_URI']) );
+		exit(0);
+	}
+	if ( empty($_COOKIE['consultatore']) || empty($_SESSION['consultatore']) ){
+		header("Location: ".URLBASE."accesso.php?p=2&return_to=".urlencode($_SERVER['REQUEST_URI']) );
+		exit(0);
+	}
+	if ( ("".$_COOKIE["consultatore"]) != ("".$_SESSION["consultatore"]) ){
+		$_SESSION['messaggio'] = "Non risulta presente un consultatore "
+		. '<br>' . serialize($_COOKIE)
+		. '<br>' . serialize($_SESSION);
+		header("Location: ".URLBASE."accesso.php?p=3&return_to=".urlencode($_SERVER['REQUEST_URI']) );
+		exit(0);
+	}
+	if ( !isset($_COOKIE['abilitazione']) || (!$_COOKIE['abilitazione']) ){
+		header("Location: ".URLBASE."accesso.php?p=4&return_to=".urlencode($_SERVER['REQUEST_URI']) );
+		exit(0);
+	}
 
-// legge se l'abilitazione è sufficiente tramite la tabella abilitazioni 
+	// TODO Valutare se in base al nome dei link sia possibile escludere la tabella abilitazioni
+	// leggi lista aggiorna modifica amministra si ripetono nei link
+ */
+
+ // legge se l'abilitazione è sufficiente tramite la tabella abilitazioni 
 include(ABSPATH."aa-model/database-handler.php"); // fornisce $con connessione archivio 
 $url_pagina = $_SERVER['REQUEST_URI']; 
 $operazione = ""; // in uso nei router 
@@ -57,6 +64,8 @@ if (str_contains($url_pagina, '/modifica/')){
 if (str_contains($url_pagina, '/backup/')){
 	$operazione = 'backup';
 }
+// in localhost la pagina ha qualcosa in più che non è in tabella abilitazioni
+$url_pagina = str_replace( URLZERO, '', $url_pagina);
 
 $leggi  = "SELECT * FROM abilitazioni_elenco "
 . " WHERE (record_cancellabile_dal = '".FUTURO."' ) "
@@ -74,13 +83,20 @@ if (mysqli_num_rows($record_letti) < 1) {
 }
 
 // trovato - verifica abilitazione 
-$abilitazione_richiesta = mysqli_fetch_array($record_letti);
-if ($_COOKIE["abilitazione"] < $abilitazione_richiesta["abilitazione"]){
+// può essere "1 lettura" ma anche "'1 lettura'"
+$cookie_abilitazione = str_replace("'", '', $_COOKIE['abilitazione']);
+
+$abilitazione = mysqli_fetch_array($record_letti);
+$abilitazione_richiesta = str_replace("'", '', $abilitazione['abilitazione']);
+// if ($_COOKIE["abilitazione"] < $abilitazione_richiesta["abilitazione"]){
+if (strncmp($cookie_abilitazione, $abilitazione_richiesta, 2) < 0){ // A < B 
 	$_SESSION["messaggio"] = "Non c'è abilitazione sufficiente per accedere alla pagina: $url_pagina. ";
 	header("Location: ".URLBASE."accesso.php?p=6&redirect_to=".urlencode($_SERVER['REQUEST_URI']) );
 	exit(0);
 }
+unset($abilitazione);
 unset($abilitazione_richiesta);
+unset($cookie_abilitazione);
 unset($record_letti);
 unset($letti);
 // tutto ok e continua...

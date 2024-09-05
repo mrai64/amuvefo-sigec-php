@@ -10,20 +10,22 @@
  * versione online  
  */
 //dbg echo "<pre style='maw-width:100%;'>". __FILE__ . "\n";
-$durata_sessione = 6000; // seimila secondi 100 minuti
+$durata_sessione = 7200; // settemiladuedento secondi 120 minuti 2 ore - rinnovabili 
 session_start();
 setcookie(session_name(), session_id(), time()+$durata_sessione);
 if ( !defined( 'ABSPATH' ) ) {
 	if (str_contains($_SERVER['SERVER_NAME'], 'athesis77.it')){
 		// percorso per accedere alla cartella / nel server senza modificare il $PATH del server
-		define( 'ABSPATH', '/web/htdocs/archivio.athesis77.it/home/' ); // deve terminare con 
-		define( 'URLBASE', 'https://archivio.athesis77.it/' ); //          deve terminare con 
-		define( 'BASEURL', 'https://archivio.athesis77.it/' ); //          deve terminare con 
-
+		define( 'ABSPATH', '/web/htdocs/archivio.athesis77.it/home/' );  
+		define( 'URLBASE', 'https://archivio.athesis77.it/' );  
+		define( 'BASEURL', 'https://archivio.athesis77.it/' );  
+		define( 'URLZERO', ''); // la sottocartella che contiene il sito 
+		
 	} else {
-		define( 'ABSPATH', '/Users/massimorainato/Sites/AMUVEFO-sigec-php/' ); // deve terminare con 
-		define( 'URLBASE', 'http://localhost:8888/AMUVEFO-sigec-php/' ); //          deve terminare con 
-		define( 'BASEURL', 'http://localhost:8888/AMUVEFO-sigec-php/' ); //          deve terminare con 
+		define( 'ABSPATH', '/Users/massimorainato/Sites/AMUVEFO-sigec-php/' ); 
+		define( 'URLBASE', 'http://localhost:8888/AMUVEFO-sigec-php/' ); 
+		define( 'BASEURL', 'http://localhost:8888/AMUVEFO-sigec-php/' ); 
+		define( 'URLZERO', '/AMUVEFO-sigec-php'); // la sottocartella che contiene il sito 
 
 	}
 
@@ -40,6 +42,8 @@ if ( !defined( 'ABSPATH' ) ) {
 	define( 'AMMINISTRA',   '7 amministrazione');
 	
 	// altre impostazioni che dipendono dall'ambiente
+	// TODO parecchie volte i valori qui dentro NON SOVRASCRIVONO 
+	// TODO i valori preesistenti 
 	$env = file_get_contents(ABSPATH.'.env'); 
 	$lines = explode("\n",$env);
 	//dbg   echo var_dump($lines);

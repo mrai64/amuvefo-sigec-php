@@ -79,6 +79,7 @@ if ($abilitazione == "0 Nessuna"){
 }
 
 // setcookie 
+/* va bene online ma non in localhost 
 // time() adesso + 60 secondi * 60 minuti * 24 ore * 10 giorni
 setcookie("consultatore",  $cognome_nome,  time()+(60*60*24*10), "/", "archivio.athesis77.it", true, true); // 10gg 
 setcookie("abilitazione",  $abilitazione,  time()+(60*60*24*10), "/", "archivio.athesis77.it", true, true); // 10gg 
@@ -90,6 +91,29 @@ $_SESSION['abilitazione']   = $abilitazione;
 $_SESSION['accesso_email']  = $accesso_email;
 $_SESSION['id_calendario']  = $id_calendario;
 $_SESSION['consultatore_id']  = $id_calendario;
+ */
+// per online e localhost 
+session_reset();
+$_SESSION['consultatore']   = $cognome_nome;
+$_SESSION['abilitazione']   = $abilitazione;
+$_SESSION['accesso_email']  = $accesso_email;
+$_SESSION['consultatore_id']= $id_calendario;
+
+$scadenza = (int) time()+(60*60*24*10); //              setcookie php 
+$expires  = date("D, d M Y H:i:s",$scadenza).' GMT'; // headers setcookie 
+$dominio  = str_replace('https://', '', URLBASE);
+$dominio  = str_replace('http://', '', $dominio);
+$dominio  = substr($dominio, 0, strpos($dominio, '/', 0));
+
+header("Set-Cookie: consultatore='$cognome_nome'; Expires='$expires'; Path=/; SameSite=None; ", false);
+header("Set-Cookie: abilitazione='$abilitazione'; Expires='$expires'; Path=/; SameSite=None; ", false);
+header("Set-Cookie: consultatore_id=$id_calendario; Expires='$expires'; Path=/; SameSite=None; ", false);
+
+setcookie("consultatore",    $cognome_nome,  $scadenza, "/", $dominio); // 10gg
+setcookie("abilitazione",    $abilitazione,  $scadenza, "/", $dominio); // 10gg
+setcookie("accesso_email",   $accesso_email, $scadenza, "/", $dominio); // 10gg
+setcookie("consultatore_id", $id_calendario, $scadenza, "/", $dominio); // 10gg
 
 header("Location: ". $pagina_destinazione );
 exit(0); // tutto ok - termina
+//--
