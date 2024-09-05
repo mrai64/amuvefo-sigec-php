@@ -279,7 +279,7 @@ function leggi_cartella_per_id(int $scansioni_disco_id) {
 	if  (isset($ret_album['ok']) && $ret_album['numero'] > 0){
 		$album_id = $ret_album['data'][0]['record_id'];
 		// si passa la palla 
-		header('Location: '.BASEURL.'album.php/leggi/'.$album_id);
+		header('Location: '.URLBASE.'album.php/leggi/'.$album_id);
 		exit(0);
 	}
 	
@@ -763,7 +763,7 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 
 	// si converte il dato i tabella in un percorso nel server 
 	// deve iniziare con ./ 
-	$percorso_fs_cartella = str_ireplace( BASEURL, './', $cartella['percorso_completo']);
+	$percorso_fs_cartella = str_ireplace( URLBASE, './', $cartella['percorso_completo']);
 	$percorso_fs_cartella = str_replace('%20', ' ',    $percorso_fs_cartella);
 	if ($percorso_fs_cartella[0]=='/'){
 		$percorso_fs_cartella = '.'.$percorso_fs_cartella;

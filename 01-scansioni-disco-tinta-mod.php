@@ -8,11 +8,14 @@
  * alla visualizzazione della cartella aggiornata
  * 
  */
-session_start();
-# include "aa-controller/controllo-abilitazione.php"; // no oop - connessione archivio $con aperta
-include "aa-model/database-handler.php"; // $con 
+if (!defined('ABSPATH')){
+  include_once("./_config.php");
+}
+//session_start();
+include ABSPATH.'aa-model/database-handler.php'; // $con 
 
 $record_id = (isset($_GET["id"])) ? mysqli_real_escape_string($con, $_GET["id"]) : 0;
+// ! TODO /ark/ è stato sostituito dai router + archivio.athesis77.it vale solo online
 $back_to_page = (isset($_GET["back"])) ? "https://archivio.athesis77.it/ark/".$_GET["back"] : "#";
 $back_to_page = str_replace('%20', '+', $back_to_page);
 $back_to_page = str_replace(' ', '+', $back_to_page);
@@ -28,14 +31,13 @@ if ($record_id == 0 || $back_to_page == "#" || $tabella == ""){
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Cambio colore</title>
-
     <!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" >
     <!-- icone bootstrap  --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
     </head>
   <body>
     <div class="container">
     <?php
-    include('./aa-controller/mostra-messaggio-sessione.php');
+    include(ABSPATH.'aa-controller/mostra-messaggio-sessione.php');
     ?>
       <div class="row">
         <div class="col-md-12">
@@ -44,7 +46,7 @@ if ($record_id == 0 || $back_to_page == "#" || $tabella == ""){
               <h4>Modifica colore</h4>
             </div>
             <div class="card-body">
-              <form action="/01-scansioni-disco-tinta.php" method="POST">
+              <form action="<?=URLBASE; ?>01-scansioni-disco-tinta.php" method="POST">
                 <div class="mb-3">
                 <input type="hidden" name="record_id" value="<?=$record_id; ?>"> 
                 <input type="hidden" name="tabella" value="<?=$tabella; ?>"> 

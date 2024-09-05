@@ -28,7 +28,7 @@
 if (!defined('ABSPATH')){
   include_once('./_config.php');
 }
-include 'aa-controller/controllo-abilitazione.php';
+include(ABSPATH.'aa-controller/controllo-abilitazione.php');
 
 $last_cognome_nome = (isset($_SESSION['ultimo_cognome_nome'])) ? $_SESSION['ultimo_cognome_nome'] : "";
 $last_record_id    = (isset($_SESSION['ultimo_record_id']))    ? $_SESSION['ultimo_record_id']    : 0;

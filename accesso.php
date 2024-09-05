@@ -14,15 +14,15 @@ include_once(ABSPATH . 'aa-model/database-handler.php'); // $con non oop
 // Valori predefiniti e sanificazione dati 
 // !TODO rintracciare chi chiama /accesso.php e definire UNA e sempre UNA  
 // p.es. return_to
-$return_to = BASEURL . "museo.php"; // facciata museo con pulsantiera
+$return_to = URLBASE.'museo.php'; // facciata museo con pulsantiera
 if (isset($_POST['return_to'])){
   $return_to = mysqli_real_escape_string($con, $_POST['return_to']);
 }
 if (isset($_GET['r'])){
   $return_to = mysqli_real_escape_string($con, $_GET['r']);
 }
-if (isset($_GET['return_to'])){
-  $return_to = mysqli_real_escape_string($con, $_GET['return_to']);
+if (isset($_GET['redirect_to'])){
+  $return_to = mysqli_real_escape_string($con, $_GET['redirect_to']);
 }
 if (isset($_GET['return_to'])){
   $return_to = mysqli_real_escape_string($con, $_GET['return_to']);

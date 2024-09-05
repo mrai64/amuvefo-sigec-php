@@ -18,6 +18,8 @@
  *       - status (numerico codici html)      (obbligatorio)
  *       - message string                     (obbligatorio anche banale, in italiano)
  *       - data    object oppure object array (facoltativo)
+ * 
+ * TODO /disco-intero.php/archiviazione/ ?
  */
 session_start(); 
 

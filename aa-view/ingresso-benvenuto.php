@@ -15,7 +15,7 @@
 		L'accesso è soggetto a <a href="<?=URLBASE; ?>man/termini-di-servizio-e-condizioni-duso/" >Termini e Condizioni</a>
 	</p>  
 	<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1755 1240">
-		<image width="1755" height="1240" xlink:href="aa-img/ingresso-benvenuto.jpg"></image> <a xlink:href="accesso.php">
+		<image width="1755" height="1240" xlink:href="<?=URLBASE; ?>aa-img/ingresso-benvenuto.jpg"></image> <a xlink:href="<?=URLBASE; ?>accesso.php">
 			<rect x="383" y="608" fill="#fff" opacity="0" width="1020" height="547"></rect>
 		</a>
 	</svg>

@@ -41,7 +41,7 @@
     ?>
     <main class="form-signin w-100 m-auto">
       <form action="<?=URLBASE; ?>aa-controller/accesso-checkpoint.php" method="POST">
-        <img class="mb-4" src="/aa-img/aa-login.png" alt="" width="325" height="75">
+        <img class="mb-4" src="<?=URLBASE; ?>aa-img/aa-login.png" alt="" width="325" height="75">
 
         <h1 class="h3 mb-3 fw-normal">Accreditatevi</h1>
 

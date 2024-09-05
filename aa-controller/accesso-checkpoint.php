@@ -34,7 +34,7 @@ if (!isset($_POST['return_to'])){
 	die('Form required codice errore 4');
 }
 // campi in input dal 
-$modulo_di_accesso   = BASEURL."accesso.php";
+$modulo_di_accesso   = URLBASE.'accesso.php';
 $accesso_email       = mysqli_real_escape_string($con, $_POST['accessoEmail']);
 $accesso_password    = mysqli_real_escape_string($con, $_POST['accessoPassword']);
 $pagina_destinazione = mysqli_real_escape_string($con, $_POST['return_to']);
