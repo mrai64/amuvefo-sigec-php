@@ -10,8 +10,11 @@
  * 
  * utente deve essere abilitato a modifica 
  */
-session_start();
-include "aa-model/database-handler.php"; // crea una connessione per usare mysqli_real_escape_string()
+if (!defined('ABSPATH')){
+	include_once("./_config.php");
+}
+include_once(ABSPATH.'aa-model/database-handler.php'); // $con connessione archivio mysql
+
 $record_id    = (isset($_POST["record_id"])) ? mysqli_real_escape_string($con, $_POST["record_id"]) : 0;
 $back_to_page = (isset($_POST["back"]))      ? mysqli_real_escape_string($con, $_POST["back"])      : "";
 $tabella      = (isset($_POST["tabella"]))   ? mysqli_real_escape_string($con, $_POST["tabella"])   : "";
@@ -21,15 +24,16 @@ if ($tinta   == "" ||
     $back_to_page == "" || 
     $record_id    == 0 ){
   http_response_code(500);
-  exit("Richiamo della funzione invalido.");
+  echo "Richiamo della funzione invalido.";
+  exit(1);
 }
 
-$tinta = substr( str_replace("#", "", $tinta."000000"), 0, 6);
+$tinta = substr( str_replace('#', '', $tinta.'000000'), 0, 6);
 if (isset($_POST["aggiorna_scansioni_tinta"])){
   // aggiornamento dato 
   $aggiorna = "UPDATE scansioni_disco "
   . " SET tinta_rgb = '$tinta' WHERE "
-  . " record_cancellabile_dal = '9999-12-31 23:59:59' "
+  . " record_cancellabile_dal = '".FUTURO."' "
   . " AND record_id = $record_id";
   $esegui_aggiorna = mysqli_query($con, $aggiorna);
   if ($esegui_aggiorna){

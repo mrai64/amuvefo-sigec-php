@@ -27,7 +27,7 @@ $url_manuale  = mysqli_real_escape_string($con, $url_manuale);
 $aggiorna = "UPDATE chiavi_elenco "
 . "SET chiave = '$chiave', "
 . "url_manuale = '$url_manuale', "
-. "record_cancellabile_dal = '".RECORD_VIVO."' "
+. "record_cancellabile_dal = '".FUTURO."' "
 . "WHERE record_id = $record_id";
 $esegui_aggiorna = mysqli_query($con, $aggiorna);
 if ($esegui_aggiorna){

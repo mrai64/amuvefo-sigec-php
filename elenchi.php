@@ -37,8 +37,8 @@ switch($richiesta){
 	case 'elimina':
 		break;
 		
-		// resto no 
-		default:
+	// resto no 
+	default:
 		http_response_code(404); // know not found
 		echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non supportata</strong></pre>'."\n";
 		exit(1);
@@ -46,7 +46,7 @@ switch($richiesta){
 }
 	
 //
-// senza secondo parametro 
+// senza secondo parametro - richiesta abilitazione lettura
 if ($richiesta=='elenco_chiavi'){
 	include_once(ABSPATH.'aa-controller/chiavi-controller.php'); 
 	$ret = get_chiavi_datalist();
@@ -54,8 +54,18 @@ if ($richiesta=='elenco_chiavi'){
 	exit(0);
 }
 
+// operazioni ricercate amministratore - sostituisce controllo-abilitazione.php
+// può essere "1 lettura" ma anche "'1 lettura'"
+// ("'7 amministrazione'" < "1 lettura" ) === true
+$abilitazione_cookie     = str_replace("'", '', $_COOKIE['abilitazione']);
+$abilitazione_amministra = str_replace("'", '', AMMINISTRA);
+if (strncmp($abilitazione_cookie, $abilitazione_amministra, 2) < 0){
+	http_response_code(401); // Unauthorized
+	echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non supportata</strong></pre>'."\n";
+	exit(1);
+}
+
 if ($richiesta=='backup'){
-	// include_once(ABSPATH.'aa-controller/controllo-abilitazione.php'); // check & set cookie
 	include_once(ABSPATH.'aa-controller/scrivi-backup-file.php'); 
 	get_file_backup();
 	exit(0);
@@ -63,19 +73,13 @@ if ($richiesta=='backup'){
 
 
 if ($richiesta=='elimina'){
-	// include_once(ABSPATH.'aa-controller/controllo-abilitazione.php'); // check & set cookie
 	include_once(ABSPATH.'aa-controller/cancellazione-record-file.php'); 
 	remove_record_tutti();
 	exit(0);
 }
 
 
-// secondo elemento obbligatorio
-if (count($pezzi['operazioni']) < 2){
-	http_response_code(404); // TODO sostituire con il codice errore parametro invalido 
-	echo '<pre style="color: red;"><strong>Manca un id</strong></pre>'."\n";
-	exit(1);
-}
-
-include_once(ABSPATH . "aa-controller/cartelle-controller.php"); // cartelle
-exit(0); 
+// Anche qui non dovrebbe arrivarci, però...
+http_response_code(403); // know not found
+echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non supportata</strong></pre>'."\n";
+exit(1);

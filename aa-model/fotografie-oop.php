@@ -201,7 +201,7 @@ Class Fotografie {
 	 *
 	 * @return bool 
 	 */
-	public function check_record_valido(){
+	public function check_FUTURO(){
 		return ($this->record_cancellabile_dal == $this->conn->get_datetime_forever() );
 	}
 	
