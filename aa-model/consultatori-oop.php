@@ -191,8 +191,8 @@ Class Consultatori{
 		if (!in_array($abilitazione, self::abilitazione_set)){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
 			. ' abilitazione invalid value, out of set. ' );
-			$this->abilitazione = $abilitazione; 
 		}
+		$this->abilitazione = $abilitazione; 
 	}
 
 	public function set_attivita_dal( string $attivita_dal ){
@@ -252,8 +252,8 @@ Class Consultatori{
 		. ' (:cognome_nome, :email, :password, :abilitazione, :attivita_dal,  :attivita_fino_al ) ';
 		// necessari
 		// dati obbligatori
-		$dbc = $this->conn; // a PDO object thru Database class
-		if ($dbc === false){
+		$dbh = $this->conn; // a PDO object thru Database class
+		if ($dbh === false){
 			$ret = [
 				'error'   => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__
@@ -324,19 +324,17 @@ Class Consultatori{
 		$this->set_attivita_fino_al($campi['attivita_fino_al']);
 
 		// azione
-		// azione
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try{
-			$aggiungi = $dbc->prepare($create);
+			$aggiungi = $dbh->prepare($create);
 			$aggiungi->bindValue('cognome_nome',     $this->cognome_nome);
 			$aggiungi->bindValue('email',            $this->email);
-			$aggiungi->bindValue('valore',           $this->valore);
 			$aggiungi->bindValue('password',         $this->password);
 			$aggiungi->bindValue('abilitazione',     $this->abilitazione);
 			$aggiungi->bindValue('attivita_dal',     $this->attivita_dal);
 			$aggiungi->bindValue('attivita_fino_al', $this->attivita_fino_al);
 			$aggiungi->execute();
-			$record_id = $dbc->lastInsertID();
+			$record_id = $dbh->lastInsertID();
 			$dbh->commit();
 
 		} catch(\Throwable $th ){
@@ -367,8 +365,8 @@ Class Consultatori{
 	 */
 	public function leggi(array $campi) : array{
 		// necessari 
-		$dbc = $this->conn; // a PDO object thru Database class
-		if ($dbc === false){
+		$dbh = $this->conn; // a PDO object thru Database class
+		if ($dbh === false){
 			$ret = [
 				'error'   => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__
@@ -473,8 +471,8 @@ Class Consultatori{
 
 	function modifica(array $campi) : array{
 		// necessari 
-		$dbc = $this->conn; // a PDO object thru Database class
-		if ($dbc === false){
+		$dbh = $this->conn; // a PDO object thru Database class
+		if ($dbh === false){
 			$ret = [
 				'error'   => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__
@@ -577,8 +575,8 @@ Class Consultatori{
 	
 	public function elimina(array $chiavi) : array {
 		// necessari 
-		$dbc = $this->conn; // a PDO object thru Database class
-		if ($dbc === false){
+		$dbh = $this->conn; // a PDO object thru Database class
+		if ($dbh === false){
 			$ret = [
 				'error'    => true,
 				'message'  => __CLASS__ . ' ' . __FUNCTION__

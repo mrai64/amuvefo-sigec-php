@@ -1,22 +1,14 @@
-<?php
-/**
- * nomefile: 97-consultatori-aggiungi-mod.php 
- * funzione: Modulo di inserimento record per il calendario consultatori
- * ToDo: vincolare l'accesso al livello admin 
- */
-if (!defined('ABSPATH')){
-  include_once("./_config.php");
-}
-?><!doctype html>
+<!doctype html>
 <html lang="it">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Consultatori | Modulo di aggiunta</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  </head>
-  <body>
-    
+    <title>Agenda Accessi Consultatori | Modulo di aggiunta</title>
+		<!-- jquery --><script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+		<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+		<!-- icone bootstrap  --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
+    </head>
+  <body>    
   <div class="container pt-5">
     <?php
     include(ABSPATH .'aa-controller/mostra-messaggio-sessione.php');
@@ -25,12 +17,12 @@ if (!defined('ABSPATH')){
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-            <h4>Aggiungere Consultatori
-              <a href="/97-consultatori.php" class="btn btn-secondary float-end">Elenco consultatori</a>
+            <h4>Aggiungere Agenda Consultatori
+              <a href="<?=URLBASE; ?>consultatori.php/elenco/" class="btn btn-secondary float-end">Elenco Agende Consultatori</a>
             </h4>
           </div>
           <div class="card-body">
-            <form action="97-consultatori-aggiungi.php" method="POST">
+            <form action="<?=URLBASE; ?>consultatori.php/aggiungi/" method="POST">
               <!-- record_id                : assegnato in automatico -->
               <div class="mb-3">
                 <label for="cognome_nome"> Cognome, Nome</label>
@@ -38,8 +30,8 @@ if (!defined('ABSPATH')){
               </div>
               <div class="mb-3">
                 <label for="abilitazione"> Livello di abilitazione</label>
-                <select class="form-select" name="abilitazione" required aria-label="Default select example">
-                  <option selected>Una delle voci</option>
+                <select class="form-select" name="abilitazione" required aria-label="Selezione livelli abilitazione">
+                  <option >Una delle voci</option>
                   <option value="0 nessuna">Nessuna</option>
                   <option value="1 lettura">Lettura</option>
                   <option value="3 modifica">Modifica</option>
@@ -69,10 +61,10 @@ if (!defined('ABSPATH')){
                 <input type="password" name="password2" class="form-control" required>
                 <small class="text-muted">Deve essere uguale a quella del campo precedente</small>
               </div>
-              <!-- record_creato_il         : assegnato in automatico -->
+              <!-- ultima_modifica_record   : assegnato in automatico -->
               <!-- record_cancellabile_dal  : assegnato in automatico -->
               <div class="mb-3">
-                <button type="submit" name="aggiungi_operatore" class="btn btn-primary">Aggiungi consultatore</button>
+                <button type="submit" name="aggiungi_agenda_consultatore" class="btn btn-primary">Aggiungi Agenda Consultatore</button>
               </div>
             </form>
           </div>
@@ -80,6 +72,6 @@ if (!defined('ABSPATH')){
       </div>
     </div>
   </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </body>
 </html>

@@ -46,13 +46,18 @@ $ingresso = str_replace('#consultazione_athesis',         'https://www.athesis77
 
 // applicazione dei link in base al contenuto di _COOKIE['abilitazione']
 // abilitazione modifica 
-if ($_COOKIE['abilitazione'] > SOLALETTURA){
+$cookie_abilitazione      = str_replace("'", '', $_COOKIE['abilitazione']);
+$abilitazione_solalettura = str_replace("'", '', constant('SOLALETTURA'));
+$abilitazione_modifica    = str_replace("'", '', constant('MODIFICA'));
+$abilitazione_modificaplus= str_replace("'", '', constant('MODIFICAPLUS'));
+
+if (strncmp($cookie_abilitazione, $abilitazione_solalettura, 2) > 0){ // A > B 
 	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
 }
 
 // applicazione dei link in base al contenuto di _COOKIE['abilitazione']
 // abilitazione modifica con aruba drive 
-if ($_COOKIE['abilitazione'] > MODIFICA){
+if (strncmp($cookie_abilitazione, $abilitazione_modifica, 2) > 0){ // A > B 
 	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
 	// TODO Definire dei link di condivisione per ciascuna cartella definitiva 
 	// e associarli
@@ -61,7 +66,7 @@ if ($_COOKIE['abilitazione'] > MODIFICA){
 
 // applicazione dei link in base al contenuto di _COOKIE['abilitazione']
 // abilitazione amministrazione
-if ($_COOKIE['abilitazione'] > MODIFICAPLUS){
+if (strncmp($cookie_abilitazione, $abilitazione_modificaplus, 2) > 0){ // A > B 
 	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
 }
 
