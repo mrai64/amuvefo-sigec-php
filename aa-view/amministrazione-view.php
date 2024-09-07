@@ -40,10 +40,10 @@
 						</div>
 					</a>
 				<!-- /elenchi.php/calendario/0 -->	
-					<a href="<?=URLBASE; ?>97-consultatori.php" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="<?=URLBASE; ?>consultatori.php/elenco/" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
-								<h6 class="mb-0">Consultatori. Elenco -</h6>
+								<h6 class="mb-0">Consultatori. Elenco Agenda Accessi -</h6>
 								<p class="mb-0 opacity-75">Accrediti per consultazione o modifica e loro calendario</p>
 							</div>
 						</div>
