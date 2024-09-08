@@ -5,11 +5,11 @@
  * 
  * La tabella scansioni_cartelle è un primo passo per l'archiviazione 
  * e dopo l'inserimento nel sito ftp raccoglie l'elenco delle carelle 
- * che vanno lavorate per caricar i record di cartelle efile nel deposito 
+ * che vanno lavorate per caricar i record di cartelle e file nel deposito 
  * scansioni_disco. Da questo poi si caricano album, fotografie video e i loro dettagli 
  * caricabili in automatico
  * 
- * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-13-scansioni_disco/ 
+ * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-12-scansioni_cartelle/ 
  *
  */
 

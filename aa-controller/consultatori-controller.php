@@ -234,9 +234,7 @@ function aggiunta_consultatore(array $dati_input){
     exit(0);
   }
   // si torna all'elenco 
-  $_SESSION['messaggio']="Agenda inserita."
-  . "<br>dati::". $dati_input['abilitazione'] . '::'
-  . '<br>acc::' .$acc_h->get_abilitazione() .'::' ;
+  $_SESSION['messaggio']="Agenda inserita.";
   calendario_consultatori();
   exit(0);
 } // aggiunta_consultatore()
