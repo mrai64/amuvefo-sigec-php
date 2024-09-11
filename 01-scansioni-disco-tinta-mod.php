@@ -16,7 +16,7 @@ include ABSPATH.'aa-model/database-handler.php'; // $con
 
 $record_id = (isset($_GET["id"])) ? mysqli_real_escape_string($con, $_GET["id"]) : 0;
 // ! TODO /ark/ è stato sostituito dai router + archivio.athesis77.it vale solo online
-$back_to_page = (isset($_GET["back"])) ? "https://archivio.athesis77.it/ark/".$_GET["back"] : "#";
+$back_to_page = (isset($_GET["back"])) ? URLBASE."ark/".$_GET["back"] : "#";
 $back_to_page = str_replace('%20', '+', $back_to_page);
 $back_to_page = str_replace(' ', '+', $back_to_page);
 $tabella = (isset($_GET["t"])) ? ($_GET["t"]) : "";

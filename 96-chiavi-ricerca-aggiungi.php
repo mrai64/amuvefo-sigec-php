@@ -32,11 +32,11 @@ $esegui_insert = mysqli_query($con, $insert);
 if ($esegui_insert){
 	// si torna al modulo con una variabile di sistema-messaggio ai posteri
 	$_SESSION['messaggio'] = 'Chiave di ricerca inserita correttamente';  
-	header("Location: 96-chiavi-ricerca-aggiungi-mod.php");
+	header("Location: ".URLBASE."96-chiavi-ricerca-aggiungi-mod.php");
 	exit(0); // tutto ok - termina
 }
 // se passa qui è come un'else ma senza else
 $_SESSION['messaggio'] = 'Chiave di ricerca non inserita proprio';
-header("Location: 96-chiavi-ricerca-aggiungi-mod.php");
+header("Location: ".URLBASE."96-chiavi-ricerca-aggiungi-mod.php");
 exit(0); // tutto ok - termina
  

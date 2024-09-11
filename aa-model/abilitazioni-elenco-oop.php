@@ -172,7 +172,7 @@ Class Abilitazioni {
     // record_id               viene assegnato automaticamente pertanto non è in elenco 
     // ultima_modifica_record        viene assegnato automaticamente 
     // record_cancellabile_dal viene assegnato automaticamente 
-    static $create = 'INSERT INTO ' . $this->tabella 
+    $create = 'INSERT INTO ' . $this->tabella 
     . ' (  url_pagina,  operazione,  abilitazione ) VALUES '
     . ' ( :url_pagina, :operazione, :abilitazione ) ';
 

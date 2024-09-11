@@ -39,8 +39,8 @@ include_once(ABSPATH.'aa-controller/controllo-abilitazione.php'); // check & set
 				<div class="card">
 					<div class="card-header">
 						<h4>Elenco Chiavi di ricerca 
-							<a href="https://archivio.athesis77.it/man/2-chiavi-di-ricerca/" class="btn btn-info btn-sm">Manuale</a>
-							<a href="/96-chiavi-ricerca-aggiungi-mod.php" class="btn btn-secondary float-end ">Aggiunta</a>
+							<a href="<?=URLBASE; ?>man/2-chiavi-di-ricerca/" class="btn btn-info btn-sm">Manuale</a>
+							<a href="<?=URLBASE; ?>96-chiavi-ricerca-aggiungi-mod.php" class="btn btn-secondary float-end ">Aggiunta</a>
 						</h4>
 						<p>In ordine alfabetico, con link al manuale che ne descrive caratteristiche e vocabolari.</p>
 					</div>
@@ -86,7 +86,7 @@ include_once(ABSPATH.'aa-controller/controllo-abilitazione.php'); // check & set
 							</td>
 							<td>
 							<!-- <a href="#" class="btn btn-info btn-sm">Dettagli</a> -->
-							<a href="/96-chiavi-ricerca-modifica-mod.php?id=<?= $chiave['record_id'] ?>" class="btn btn-success btn-sm">Modifica</a>
+							<a href="<?=URLBASE; ?>96-chiavi-ricerca-modifica-mod.php?id=<?= $chiave['record_id'] ?>" class="btn btn-success btn-sm">Modifica</a>
 							<!-- <a href="#" class="btn btn-danger btn-sm">Elimina</a> -->
 							</td>
 							</tr>

@@ -69,7 +69,7 @@ include_once(ABSPATH . 'aa-controller/fotografie-controller.php');
 include_once(ABSPATH . 'aa-controller/video-controller.php');
 
 /**
- * Elemento fotografia da esporre in griglia 
+ * Elemento fotografia da esporre in griglia nell'album
  * 
  * Per evitare che le immagini siano esportate con facilità 
  * viene sostituito l'indirizzo url con il contenuto della fotografia 
@@ -230,7 +230,7 @@ function leggi_album_per_id(int $album_id){
 	// ricerca con scansioni_disco 
 	$return_to_scansione_id = $scan_h->get_record_id_da_percorso( $percorso_quasi_completo );
 	if ($return_to_scansione_id > 0){
-		$torna_su = URLBASE.'cartelle.php/leggi/'.$return_to_scansione_id;
+		$torna_su = URLBASE.'deposito.php/leggi/'.$return_to_scansione_id;
 	}else {
 		$torna_su = URLBASE.'museo.php'; // dopo ingresso
 	}

@@ -244,7 +244,7 @@ Class Fotografie {
 		// record_cancellabile_dal viene assegnato automaticamente 
 		// stato_lavori            viene assegnato automaticamente 
 	
-		static $create = 'INSERT INTO ' . self::nome_tabella 
+		$create = 'INSERT INTO ' . self::nome_tabella 
 		. ' (  titolo_fotografia,   disco,  percorso_completo,'
 		. '    record_id_in_album,  record_id_in_scansioni_disco ) VALUES '
 		. ' ( :titolo_fotografia,  :disco, :percorso_completo, '

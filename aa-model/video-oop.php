@@ -295,7 +295,7 @@ Class Video {
 		// record_cancellabile_dal viene assegnato automaticamente 
 		// stato_lavori         viene assegnato automaticamente 
 	
-		static $create = 'INSERT INTO video '  
+		$create = 'INSERT INTO video '  
 		. ' (  titolo_video,   disco,  percorso_completo,'
 		. '    record_id_in_album,  record_id_in_scansioni_disco ) VALUES '
 		. ' ( :titolo_video,  :disco, :percorso_completo, '

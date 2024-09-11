@@ -27,11 +27,11 @@ if (!defined('ABSPATH')){
         <div class="card">
           <div class="card-header">
             <h4>Aggiungere Chiavi di ricerca
-              <a href="/96-chiavi-ricerca.php" class="btn btn-secondary float-end">Elenco </a>
+              <a href="<?=URLBASE; ?>96-chiavi-ricerca.php" class="btn btn-secondary float-end">Elenco </a>
             </h4>
           </div>
           <div class="card-body">
-            <form action="96-chiavi-ricerca-aggiungi.php" method="POST">
+            <form action="<?=URLBASE; ?>96-chiavi-ricerca-aggiungi.php" method="POST">
               <!-- record_id bigint no: assegnato in automatico -->
               <div class="mb-3">
                 <label for="chiave" class="col-form-label"> <strong>Chiave di ricerca</strong></label>

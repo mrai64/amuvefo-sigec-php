@@ -41,12 +41,12 @@ if ($esegui_aggiorna){
 	$_SESSION['messaggio'] = 'Autore aggiornato correttamente';  
 	$_SESSION['ultimo_cognome_nome'] = $cognome_nome; // l'elenco riparte dall'autore aggiornato 
 	$_SESSION['ultimo_record_id']    = 0;
-	header("Location: 91-autori-modifica-mod.php?id=$record_id");
+	header("Location: ".URLBASE."91-autori-modifica-mod.php?id=$record_id");
 	exit(0); // tutto ok - termina
 }
 // se passa qui è come un'else ma senza else
 $_SESSION['messaggio'] = 'Autore non aggiornato';
 $_SESSION['ultimo_cognome_nome'] = $cognome_nome;  
 $_SESSION['ultimo_record_id']    = 0;  
-header("Location: 91-autori-modifica-mod.php?id=$record_id");
+header("Location: ".URLBASE."91-autori-modifica-mod.php?id=$record_id");
 exit(0); // tutto ok - termina

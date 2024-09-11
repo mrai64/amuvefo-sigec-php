@@ -172,7 +172,7 @@ Class Autori {
       $this->set_url_autore($campi["url_autore"]);
     }
 
-    static $create = 'INSERT INTO ' . $this->tabella
+    $create = 'INSERT INTO ' . $this->tabella
     . ' (  cognome_nome,  detto,  sigla_6,  fisica_giuridica,  url_autore  ) VALUES '
     . ' ( :cognome_nome, :detto, :sigla_6, :fisica_giuridica, :url_autore  ) ';
 

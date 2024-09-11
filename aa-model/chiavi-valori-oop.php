@@ -154,13 +154,13 @@ Class ChiaviValori {
    * @param  array campi 
    * @return array ret  ok + record_id | error + message 
    */
-  public function aggiungi( array $campi = []){
+  public function aggiungi( array $campi){
     // record_id               viene assegnato automaticamente pertanto non è in elenco 
     // ultima_modifica_record        viene assegnato automaticamente 
     // record_cancellabile_dal viene assegnato automaticamente 
-    static $create = 'INSERT INTO ' . $this->tabella 
-    . ' (   chiave,  valore ) VALUES '
-    . ' (  :chiave, :valore ) ';
+    $create = 'INSERT INTO ' . $this->tabella 
+    . ' ( chiave,  valore ) VALUES '
+    . ' (:chiave, :valore ) ';
 
     // dati obbligatori
     $dbh = $this->conn; // a PDO object thru Database class
@@ -174,9 +174,7 @@ Class ChiaviValori {
       return $ret;
     }
     
-    $chiave = isset($campi['chiave']) ? $campi['chiave'] : "";
-    $this->set_chiave($chiave);
-    if ($this->chiave == ""){
+    if (!isset($campi['chiave']) || $campi['chiave'] === ''){
       $ret = [
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
@@ -184,9 +182,9 @@ Class ChiaviValori {
       ];
       return $ret;
     }
-    $valore = isset($campi['valore']) ? $campi['valore'] : "";
-    $this->set_valore($valore);
-    if ($this->valore == ""){
+    $this->set_chiave($campi['chiave']);
+
+    if (!isset($campi['valore']) || $campi['valore'] === ''){
       $ret = [
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
@@ -194,6 +192,8 @@ Class ChiaviValori {
       ];
       return $ret;
     }
+    $this->set_valore($valore);
+
     try{
       $aggiungi = $dbh->prepare($create);
       $aggiungi->bindValue('chiave', $this->chiave);

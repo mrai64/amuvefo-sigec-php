@@ -20,14 +20,14 @@ require('aa-model/database-handler.php'); // $con usato più avanti
     
   <div class="container pt-5">
     <?php
-    include('./aa-controller/mostra-messaggio-sessione.php');
+    include(ABSPATH.'aa-controller/mostra-messaggio-sessione.php');
     ?>
     <div class="row">
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
             <h4>Modifica scheda Autore
-              <a href="/91-autori-elenco.php" class="btn btn-secondary float-end">Elenco Autori</a>
+              <a href="<?=URLBASE; ?>91-autori-elenco.php" class="btn btn-secondary float-end">Elenco Autori</a>
             </h4>
           </div>
           <div class="card-body">
@@ -39,7 +39,7 @@ require('aa-model/database-handler.php'); // $con usato più avanti
                 if (mysqli_num_rows($record_letti) > 0){
                     $autore = mysqli_fetch_array($record_letti);
                 ?>
-                <form action="91-autori-modifica.php" method="post">
+                <form action="<?=URLBASE; ?>91-autori-modifica.php" method="post">
                     <input type="hidden" name="record_id" value="<?= $record_id; ?>">
                     <div class="mb-3">
                        <label for="cognome_nome"> Cognome, Nome</label>

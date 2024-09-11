@@ -203,7 +203,7 @@ Class Richieste {
 		// . motivazione 
 		// . ultima_modifica_record 
 		// . record cancellabile_dal 
-		static $create = 'INSERT INTO ' . self::nome_tabella 
+		$create = 'INSERT INTO ' . self::nome_tabella 
 		. ' (	record_id_richiedente, '
 		.   ' oggetto_richiesta,	record_id_richiesta, '
 		.   ' motivazione ) VALUES '

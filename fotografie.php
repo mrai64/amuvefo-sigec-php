@@ -47,16 +47,12 @@ if (!defined('ABSPATH')){
 	include_once("./_config.php");
 }
 include_once(ABSPATH."aa-controller/controller-base.php");  // route_from_uri
-$uri=$_SERVER['REQUEST_URI'];
+$uri = $_SERVER['REQUEST_URI'];
+$pos_richieste_php = strpos($uri, '/fotografie.php/');
+$uri = substr($uri, $pos_richieste_php);
 $pezzi=route_from_uri($uri, '/fotografie.php/');
-//dbg echo 'pezzi: '. var_dump($pezzi) . "\n";
+
 $richiesta=$pezzi['operazioni'][0];
-if (count($pezzi['operazioni']) < 2){
-	http_response_code(404); // TODO sostituire con il codice errore parametro invalido 
-	echo '<pre style="color: red;"><strong>Manca un id</strong></pre>'."\n";
-	exit(1);
-}
-// check 
 switch($richiesta){
 	case 'leggi':
 	case 'richiesta':
@@ -78,6 +74,12 @@ switch($richiesta){
 		break; // per check 
 }
 
+if (count($pezzi['operazioni']) < 2){
+	http_response_code(404); // TODO sostituire con il codice errore parametro invalido 
+	echo '<pre style="color: red;"><strong>Manca un id</strong></pre>'."\n";
+	exit(1);
+}
+// check 
 // verifica unsigned int 
 $fotografie_id = $pezzi['operazioni'][1];
 $dettaglio_id  = $pezzi['operazioni'][1]; // lo stesso ma con altro significato 

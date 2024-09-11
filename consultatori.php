@@ -27,10 +27,10 @@ if (!defined('ABSPATH')){
 include_once(ABSPATH.'aa-controller/controller-base.php');  // routeFromUri
 $uri = $_SERVER['REQUEST_URI'];
 $pos_richieste_php = strpos($uri, '/consultatori.php/');
-$uri       = substr($uri, $pos_richieste_php);
-$pezzi     = route_from_uri($uri);
-$richiesta = $pezzi['operazioni'][0];
+$uri = substr($uri, $pos_richieste_php);
+$pezzi=route_from_uri($uri, '/consultatori.php/');
 
+$richiesta=$pezzi['operazioni'][0];
 switch($richiesta){
 	case 'accesso':
 	case 'elenco':

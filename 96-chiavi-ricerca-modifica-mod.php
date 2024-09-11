@@ -31,7 +31,7 @@ include_once(ABSPATH.'aa-model/database-handler.php'); // $con connessione archi
         <div class="card">
           <div class="card-header">
             <h4>Modifica Chiavi di ricerca
-              <a href="/96-chiavi-ricerca.php" class="btn btn-secondary float-end">Elenco </a>
+              <a href="<?=URLBASE; ?>96-chiavi-ricerca.php" class="btn btn-secondary float-end">Elenco </a>
             </h4>
           </div>
           <div class="card-body">
@@ -45,7 +45,7 @@ include_once(ABSPATH.'aa-model/database-handler.php'); // $con connessione archi
 				if (mysqli_num_rows($record_letti) > 0 ){
                   $chiave = mysqli_fetch_array($record_letti);
 			?>
-            <form action="96-chiavi-ricerca-modifica.php" method="POST">
+            <form action="<?=URLBASE; ?>96-chiavi-ricerca-modifica.php" method="POST">
               <input type="hidden" name="record_id" value="<?=$record_id ?>"> 
               <div class="mb-3">
                 <label for="chiave" class="col-form-label"> <strong>Chiave di ricerca</strong></label>

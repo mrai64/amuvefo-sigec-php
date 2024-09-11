@@ -9,14 +9,6 @@
  * 
  * Operazioni gestite:
  * 
- * /cartelle.php/leggi/{disco_id}. . . . . . . lettura
- * /cartelle.php/cartella/{path_completo} . . . lettura
- *   queste due chiamate vanno a recuperare una cartella in tabella scansioni_disco, 
- *   ed espongono il contenuto in forma di sottocartelle. 
- *   Si deve verificare se in "album" siano presenti album che fanno riferimento 
- *   all'id di scansioni disco e nel caso sia presente caricare 
- *   /album.php/leggi/{album_id}
- * 
  * /cartelle.php/lista-cartelle-sospese/0 
  *   questa fornisce una lista di cartelle inserite 
  *   in scansioni_cartelle e pronte per caricare scansioni_disco
@@ -30,13 +22,15 @@
  * 
  */
 if (!defined('ABSPATH')){
-	include_once("./_config.php");
+	include_once('./_config.php');
 }
-include_once(ABSPATH . "aa-controller/controller-base.php"); // route_from_uri
+include_once(ABSPATH.'aa-controller/controller-base.php');
 $uri = $_SERVER['REQUEST_URI'];
+$pos_richieste_php = strpos($uri, '/cartelle.php/');
+$uri = substr($uri, $pos_richieste_php);
 $pezzi=route_from_uri($uri, '/cartelle.php/');
+
 $richiesta=$pezzi['operazioni'][0];
-//dbg echo '<pre>'. var_dump($pezzi); 
 
 // secondo elemento obbligatorio
 if (count($pezzi['operazioni']) < 2){
@@ -47,8 +41,6 @@ if (count($pezzi['operazioni']) < 2){
 // check 1 - che richiesta è stata fatta? 
 switch($richiesta){
 	// queste si
-	case 'leggi':
-	case 'cartella':
 	case 'lista-cartelle-sospese':
 	case 'archivia-cartella':
 	case 'aggiungi-cartella':
@@ -70,16 +62,18 @@ include_once(ABSPATH . "aa-controller/cartelle-controller.php"); // route_from_u
 	[0]        [1]
  */
 
+// /deposito.php/cartella/nome-della-cartella
+/* 
+	if ($richiesta == 'cartella'){
+			$livelli = array_slice( $pezzi['operazioni'], 1);
+			$percorso_completo = implode('/', $livelli);
+			leggi_cartella_per_percorso($percorso_completo);
+			exit(0);
+	} 
+ */
 
-// /cartelle.php/cartella/nome-della-cartella
-if ($richiesta == 'cartella'){
-		$livelli = array_slice( $pezzi['operazioni'], 1);
-		$percorso_completo = implode('/', $livelli);
-		leggi_cartella_per_percorso($percorso_completo);
-		exit(0);
-} 
-
-// /cartelle.php/leggi/scansioni_disco_id
+// /deposito.php/leggi/scansioni_disco_id
+/* 
 if ($richiesta=='leggi'){
 	$scansioni_disco_id = $pezzi['operazioni'][1];
 	if (!is_numeric($scansioni_disco_id)){
@@ -96,6 +90,7 @@ if ($richiesta=='leggi'){
 	leggi_cartella_per_id($scansioni_disco_id); // cartelle-controller
 	exit(0);
 }
+ */
 
 // /cartelle.php/lista-cartelle-sospese/0
 if ($richiesta == 'lista-cartelle-sospese'){

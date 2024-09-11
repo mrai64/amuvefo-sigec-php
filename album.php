@@ -41,7 +41,10 @@ if (!defined('ABSPATH')){
 }
 include_once(ABSPATH."aa-controller/controller-base.php");  // route_from_uri
 $uri = $_SERVER['REQUEST_URI'];
+$pos_richieste_php = strpos($uri, '/album.php/');
+$uri = substr($uri, $pos_richieste_php);
 $pezzi=route_from_uri($uri, '/album.php/');
+
 $richiesta=$pezzi['operazioni'][0];
 // check 1 - che richiesta è stata fatta? 
 switch($richiesta){

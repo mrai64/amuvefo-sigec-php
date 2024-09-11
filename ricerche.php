@@ -20,10 +20,11 @@ if (!defined('ABSPATH')){
 }
 include_once(ABSPATH."aa-controller/controller-base.php");  // route_from_uri
 $uri = $_SERVER['REQUEST_URI'];
+$pos_richieste_php = strpos($uri, '/ricerche.php/');
+$uri = substr($uri, $pos_richieste_php);
 $pezzi=route_from_uri($uri, '/ricerche.php/');
-$richiesta=$pezzi['operazioni'][0];
 
-// la richiesta diventa su quale tabella è richiesta la ricerca nei dettagli 
+$richiesta=$pezzi['operazioni'][0];
 switch($richiesta){
 	case 'album':
 	case 'fotografie':

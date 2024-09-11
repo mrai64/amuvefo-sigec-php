@@ -1,6 +1,6 @@
 <?php
 /**
- * @source /ricerche.php 
+ * @source /richieste.php 
  * @author Massimo Rainato <maxrainato@libero.it>
  * 
  * Centralino router delle richieste 
@@ -25,9 +25,9 @@ include_once(ABSPATH."aa-controller/controller-base.php");  // routeFromUri
 $uri = $_SERVER['REQUEST_URI'];
 $pos_richieste_php = strpos($uri, '/richieste.php/');
 $uri = substr($uri, $pos_richieste_php);
-$pezzi=route_from_uri($uri);
-$richiesta=$pezzi['operazioni'][0];
+$pezzi=route_from_uri($uri, '/richieste.php/');
 
+$richiesta=$pezzi['operazioni'][0];
 switch($richiesta){
 	case 'elenco-consultatore':
 	case 'elenco-amministratore':

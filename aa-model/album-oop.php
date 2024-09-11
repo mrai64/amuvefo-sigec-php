@@ -216,7 +216,7 @@ Class Album {
 		// ultima_modifica_record  viene assegnato automaticamente 
 		// record_cancellabile_dal viene assegnato automaticamente 
 	
-		static $create = 'INSERT INTO ' . self::nome_tabella 
+		$create = 'INSERT INTO ' . self::nome_tabella 
 		. ' (  titolo_album,  disco,  percorso_completo,  record_id_in_scansioni_disco ) VALUES '
 		. ' ( :titolo_album, :disco, :percorso_completo, :record_id_in_scansioni_disco ) ';
 

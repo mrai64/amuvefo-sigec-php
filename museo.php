@@ -29,16 +29,16 @@ $ingresso = str_replace('<?=URLBASE; ?>', URLBASE, $ingresso);
 // abilitazione lettura
 $ingresso = str_replace('#originali_athesis',             'https://www.athesis77.it/', $ingresso);
 // quello più lungo ha la precedenza
-$ingresso = str_replace('#consultazione_autori_fondi',    URLBASE.'cartelle.php/cartella/2AUTOF/',  $ingresso);
-$ingresso = str_replace('#consultazione_autori',          URLBASE.'cartelle.php/cartella/1AUTORI/', $ingresso);
-$ingresso = str_replace('#consultazione_fondi',           URLBASE.'cartelle.php/cartella/3FONDI/',  $ingresso);
-$ingresso = str_replace('#consultazione_libri',           URLBASE.'cartelle.php/cartella/4LIBRI/',  $ingresso);
-$ingresso = str_replace('#consultazione_localita_abcss',  URLBASE.'cartelle.php/cartella/6LOCA/',   $ingresso);
-$ingresso = str_replace('#consultazione_localita',        URLBASE.'cartelle.php/cartella/5LOCA/',   $ingresso);
-$ingresso = str_replace('#consultazione_dati',            URLBASE.'cartelle.php/cartella/7DATI/',   $ingresso);
-$ingresso = str_replace('#consultazione_scuola',          URLBASE.'cartelle.php/cartella/8SCUOLA/', $ingresso);
-$ingresso = str_replace('#consultazione_terrisaurum',     URLBASE.'cartelle.php/cartella/9TERRI/',  $ingresso);
-$ingresso = str_replace('#consultazione_video',           URLBASE.'cartelle.php/cartella/10VIDEO/', $ingresso);
+$ingresso = str_replace('#consultazione_autori_fondi',    URLBASE.'deposito.php/cartella/2AUTOF/',  $ingresso);
+$ingresso = str_replace('#consultazione_autori',          URLBASE.'deposito.php/cartella/1AUTORI/', $ingresso);
+$ingresso = str_replace('#consultazione_fondi',           URLBASE.'deposito.php/cartella/3FONDI/',  $ingresso);
+$ingresso = str_replace('#consultazione_libri',           URLBASE.'deposito.php/cartella/4LIBRI/',  $ingresso);
+$ingresso = str_replace('#consultazione_localita_abcss',  URLBASE.'deposito.php/cartella/6LOCA/',   $ingresso);
+$ingresso = str_replace('#consultazione_localita',        URLBASE.'deposito.php/cartella/5LOCA/',   $ingresso);
+$ingresso = str_replace('#consultazione_dati',            URLBASE.'deposito.php/cartella/7DATI/',   $ingresso);
+$ingresso = str_replace('#consultazione_scuola',          URLBASE.'deposito.php/cartella/8SCUOLA/', $ingresso);
+$ingresso = str_replace('#consultazione_terrisaurum',     URLBASE.'deposito.php/cartella/9TERRI/',  $ingresso);
+$ingresso = str_replace('#consultazione_video',           URLBASE.'deposito.php/cartella/10VIDEO/', $ingresso);
 
 $ingresso = str_replace('#consultazione_amuvefo',         URLBASE.'man/', $ingresso);
 $ingresso = str_replace('#consultazione_fiaf',            'https://fiaf.net/veneto/',  $ingresso);

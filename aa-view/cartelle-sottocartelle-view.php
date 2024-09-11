@@ -9,6 +9,8 @@
 		<!-- icone --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
 	</head>
 	<body>
+		<!-- TODO Da revisionare, per la paginazione va aggiunto nel form un campo 
+		 per la quantità di record da esporre, a multipli 10 20 50 -->
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12">
@@ -99,10 +101,10 @@
 											$url_sottocartella = str_replace('%20', '+', $url_sottocartella);
 									?>
 										<tr>
-												<td><a href="/cartelle.php/leggi/<?= $sottocartella["record_id"]; ?>"><i class="bi bi-archive" style="font-size:1rem;color: #<?= $tinta_rgb; ?>"></i></a>&nbsp;</td>
-												<td><a href="/cartelle.php/leggi/<?= $sottocartella["record_id"]; ?>" style="text-decoration: none;"><span style="font-size:1rem;color: #<?= $tinta_rgb; ?>"><?= $sottocartella_nome; ?></span></a></td>
+												<td><a href="<?=URLBASE; ?>deposito.php/leggi/<?= $sottocartella["record_id"]; ?>"><i class="bi bi-archive" style="font-size:1rem;color: #<?= $tinta_rgb; ?>"></i></a>&nbsp;</td>
+												<td><a href="<?=URLBASE; ?>deposito.php/leggi/<?= $sottocartella["record_id"]; ?>" style="text-decoration: none;"><span style="font-size:1rem;color: #<?= $tinta_rgb; ?>"><?= $sottocartella_nome; ?></span></a></td>
 												<td nowrap>
-													<a href="/01-scansioni-disco-tinta-mod.php?id=<?= $sottocartella["record_id"]; ?>&t=scansioni_disco&back=<?= $url_sottocartella; ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-palette-fill"></i></a><a href="/01-scansioni-disco-richiesta.php?id=<?= $sottocartella["record_id"]; ?>&t=scansioni_disco&back=<?= $url_sottocartella; ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-cart-plus-fill"></i></a>
+													<a href="<?=URLBASE; ?>01-scansioni-disco-tinta-mod.php?id=<?= $sottocartella["record_id"]; ?>&t=scansioni_disco&back=<?= $url_sottocartella; ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-palette-fill"></i></a><a href="/01-scansioni-disco-richiesta.php?id=<?= $sottocartella["record_id"]; ?>&t=scansioni_disco&back=<?= $url_sottocartella; ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-cart-plus-fill"></i></a>
 												</td>
 											</tr>
 										<?php 

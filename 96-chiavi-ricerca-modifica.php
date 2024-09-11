@@ -33,10 +33,10 @@ $esegui_aggiorna = mysqli_query($con, $aggiorna);
 if ($esegui_aggiorna){
 	// si torna al modulo con una variabile di sistema-messaggio ai posteri
 	$_SESSION['messaggio'] = 'Chiave di ricerca aggiornata correttamente';  
-	header("Location: 96-chiavi-ricerca.php");
+	header("Location: ".URLBASE."96-chiavi-ricerca.php");
 	exit(0); // tutto ok - termina
 }
 // se passa qui è come un'else ma senza else
 $_SESSION['messaggio'] = 'Chiave di ricerca non aggiornata';
-header("Location: 96-chiavi-ricerca.php");
+header("Location: ".URLBASE."96-chiavi-ricerca.php");
 exit(0);
