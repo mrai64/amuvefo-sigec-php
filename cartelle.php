@@ -44,7 +44,6 @@ switch($richiesta){
 	case 'lista-cartelle-sospese':
 	case 'archivia-cartella':
 	case 'aggiungi-cartella':
-	case 'cambio-tinta':
 		break;
 			
 	// resto no 
@@ -131,4 +130,7 @@ if($richiesta =='archivia-cartella'){
 }
 
 
-
+// Qui non dovrebbe arrivarci, però...
+http_response_code(404); // know not found
+echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non supportata 2</strong></pre>'."\n";
+exit(1);
