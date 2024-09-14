@@ -44,6 +44,7 @@ switch($richiesta){
 	case 'lista-cartelle-sospese':
 	case 'archivia-cartella':
 	case 'aggiungi-cartella':
+	case 'cambio-tinta':
 		break;
 			
 	// resto no 
@@ -128,3 +129,6 @@ if($richiesta =='archivia-cartella'){
 	carica_scansioni_disco_da_scansioni_cartelle($cartella_id); // cartelle-controller
 	exit(0);
 }
+
+
+

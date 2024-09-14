@@ -3,7 +3,20 @@
  * DEPOSITO controller
  * 
  * funzioni relative ai file e cartelle inseriti in archivio
- * nella tabella scansioni_disco o che vanno a leggere/scrivere nelal tabella scansioni_disco 
+ * nella tabella scansioni_disco o che vanno a leggere/scrivere nella tabella scansioni_disco 
+ * 
+ * - crea_query_cartelle 
+ * 
+ * - crea_query_sottocartelle 
+ * 
+ * - leggi_cartella_per_id 
+ * 
+ * - leggi_cartella_per_percorso 
+ * 
+ * - verifica_cartella_contiene_album 
+ * 
+ * - cambio_tinta_record 
+ * 
  * 
  */
 if (!defined('ABSPATH')){
@@ -528,3 +541,94 @@ if (isset($_GET['test']) &&
 	exit(0);
 }
 
+
+
+/**
+ * Espone un modulo per cambiare la titna in un record di 
+ * cartelle o sottocartelle in scansioni_disco 
+ */
+function cambia_tinta_record(array $dati_input){
+	if (!isset($dati_input['record_id']) || !isset($dati_input['tabella'])){
+		echo "\n".'<p style="font-family:monospace;">';
+		echo "\n"."Errore: la chiamata alla funzione è senza parametri corretti ";
+		echo '</p>' . PHP_EOL;
+		exit(1);
+	}
+	// necessari - record id
+	if (!isset($dati_input['record_id']) || !is_numeric($dati_input['record_id']) || $dati_input['record_id'] < 1){
+		echo "\n".'<p style="font-family:monospace;">';
+		echo "\n"."Errore: la chiamata alla funzione è senza parametri corretti ";
+		echo '<br>id</p>' . PHP_EOL;
+		exit(1);
+	}
+	$record_id = (int) $dati_input['record_id'];
+	// necessari - tabella 
+	$tabelle_valide=[
+		'scansioni_disco'
+	];
+	if (!isset($dati_input['tabella']) || !in_array($dati_input['tabella'], $tabelle_valide)){
+		echo "\n".'<p style="font-family:monospace;">';
+		echo "\n"."Errore: la chiamata alla funzione è senza parametri corretti ";
+		echo '<br>tabella</p>' . PHP_EOL;
+		exit(1);
+	}
+	$tabella = $dati_input['tabella'];
+	// necessari - pagina di ritorno 
+	if (!isset($dati_input['back']) || $dati_input['back'] === ''){
+		echo "\n".'<p style="font-family:monospace;">';
+		echo "\n"."Errore: la chiamata alla funzione è senza parametri corretti ";
+		echo '<br>back | pagina di ritorno</p>' . PHP_EOL;
+		exit(1);
+	}
+	// per evitare di metterlo doppio prima lo tolgo se c'è poi lo aggiungo 
+	$return_to = $dati_input['back'];
+	$return_to = URLBASE . str_replace(URLBASE, '', $return_to);
+	$return_to = str_replace('%20', '+', $return_to);
+	$return_to = str_replace(' ', '+', $return_to);
+
+	// Se manca il campo del modulo espongo il modulo 
+	if (!isset($dati_input['tinta'])){
+		require_once(ABSPATH.'aa-view/cartelle-sottocartelle-tinta.php');
+		exit(0);
+	}
+	// il campo c'è e si passa ad aggiornare SE...
+	$tinta = $dati_input['tinta'];
+	$tinta = substr(str_replace('#', '', $tinta), 0, 6);
+	$campi=[];
+	$campi['update'] = 'UPDATE ' . $tabella 
+	. " SET tinta_rgb = '$tinta' "
+	. " WHERE record_cancellabile_dal = '". constant('FUTURO')."' "
+	. " AND record_id = $record_id "; 
+	$dbh = new DatabaseHandler();
+	$ret_att=[];
+	switch ($tabella) {
+		case 'scansioni_disco':
+			$scan = New ScansioniDisco($dbh);
+			$ret_att = $scan->modifica($campi);
+			break;
+		
+		default:
+			$ret_att= [
+				'error'   => true,
+				'message' => "Tabella $tabella non gestita"
+			];
+			break;
+	}
+	if (isset($ret_att['error'])){
+		http_response_code(404);
+		$ret = "<p style='font-family:monospace;'>Errore "
+		. "in aggiornamento tinta: " 
+		. '<br>'. $ret_att['message'] .'</p>';
+		$_SESSION['messaggio'] = $ret;
+		echo "$ret" . PHP_EOL;
+		echo "$return_to" . PHP_EOL;
+
+    header("Location: ".$return_to);
+		exit(1);
+	}
+	$_SESSION['messaggio'] = 'Tinta aggiornata';
+	http_response_code(200);
+	// echo "return_to::$return_to::" . PHP_EOL;
+  header("Location: ".$return_to);
+	exit(0);
+}

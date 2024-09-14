@@ -17,7 +17,8 @@
  *   all'id di scansioni disco e nel caso sia presente caricare 
  *   /album.php/leggi/{album_id}
  * 
- * /deposito.php/cambia-tinta/{scansioni-disco-id}
+ * /deposito.php/cambio-tinta/{scansioni-disco-id}?t=tabella=scansioni_disco&back=pagina%20a%20cui%20tornare 
+ * 
  */
 if (!defined('ABSPATH')){
 	include_once("./_config.php");
@@ -35,7 +36,8 @@ switch($richiesta){
 	// queste si
 	case 'leggi':
 	case 'cartella':
-	case 'cambia-tinta':
+	case 'richiesta':
+	case 'cambio-tinta':
 		break;
 			
 	// resto no 
@@ -98,6 +100,41 @@ if (strcmp($cookie_abilitazione, $abilitazione_richiesta) < 0){
 	exit(1);	
 }
 
+// ci sono i dati, aggiorna la tinta
+if ($richiesta === 'cambio-tinta' && isset($_POST['tinta'])){
+	cambia_tinta_record($_POST);	
+	exit(0);	
+}
+
+// mancano i dati, espone il modulo per cambiare la tinta
+if ($richiesta === 'cambio-tinta'){
+	// deposito.php/cambio-tinta/{id}?t=tabella&back=pagina%20a%20cui%20tornare
+	$dati_input=[];
+	// per assegnare i dati input alla funzione (non si fanno altri controlli che "la presenza")
+	// serve un id 
+	// serve un t 
+	// serve un back 
+	if (!isset($pezzi['operazioni'][1])){
+		http_response_code(500);
+		echo "manca un id - l'indirizzo è mal formato";
+		exit(1);
+	}
+	if (!isset($pezzi['parametri']['t'])){
+		http_response_code(500);
+		echo "manca un t - l'indirizzo è mal formato";
+		exit(1);
+	}
+	if (!isset($pezzi['parametri']['back'])){
+		http_response_code(500);
+		echo "manca un back - l'indirizzo è mal formato";
+		exit(1);
+	}
+	$dati_input['record_id'] = (int) $pezzi['operazioni'][1];
+	$dati_input['tabella']   =       $pezzi['parametri']['t'];
+	$dati_input['back']      =       $pezzi['parametri']['back'];
+	cambia_tinta_record($dati_input);	
+	exit(0);
+}
 
 // Qui non dovrebbe arrivarci, però...
 http_response_code(404); // know not found

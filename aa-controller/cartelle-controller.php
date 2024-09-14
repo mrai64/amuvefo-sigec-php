@@ -24,6 +24,10 @@
  *   nome di funzione lunghissimo ma almeno è chiara la funzione 
  * - carica_cartelle_da_scansionare
  *   espone il modulo per l'aggiunta di una cartella in scansioni_cartelle
+ * - cambia_tinta_record
+ *   espone il modulo per cambiare la tinta di un elemento in 
+ *   esponi cartelle e sottocartelle 
+ *   oppure aggiorna 
  * 
  */
 if (!defined('ABSPATH')){
@@ -475,7 +479,7 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
  *  
  * https://archivio.athesis77.it/aa-controller/cartelle-controller.php?id=1111&test=carica_scansioni_disco_da_scansioni_cartelle
  */
-	if (isset($_GET['test'])   && 
+	if (isset($_GET['test'])   &&	 
 			isset($_GET['id'])     && 
 			$_GET['test'] == 'carica_scansioni_disco_da_scansioni_cartelle'){
 		echo '<pre style="max-width:50rem;">debug on'."\n";
@@ -518,4 +522,3 @@ function carica_cartelle_da_scansionare(){
 	include_once(ABSPATH.'aa-view/cartelle-da-scansionare.php');
 	exit(0);
 }
-
