@@ -32,7 +32,7 @@
 						</div>
 					</a>
 				<!-- /elenchi.php/autori-elenco/0  -->	
-					<a href="<?=URLBASE; ?>91-autori-elenco.php" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="<?=URLBASE; ?>autori.php/elenco-autori/" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
 								<h6 class="mb-0">Autori. Elenco delle / degli -</h6>

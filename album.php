@@ -23,7 +23,10 @@
  *   aggiunge alla tabella delle richieste l'album 
  * 
  * TODO cancella/{album_id}
- *   cancellazione logica del record 
+ *   cancellazione logica del record - attenzione che sia un album 
+ *   già svuotato di dettagli e di contenuti, tutto quello che  
+ *   dipende dall'album deve essere già stato precedentemente 
+ *   marcato cancellabile o anche cancellato fisicamente 
  * 
  * /album.php/aggiungi_dettaglio/{dettaglio_id}
  *   aggiunge un dettaglio se sono presenti i dati di un modulo 

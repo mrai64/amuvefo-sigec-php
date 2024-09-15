@@ -22,6 +22,8 @@
  */
 Class Autori {
   private $conn = false; // PDO connection database 
+  public const nome_tabella = 'autori_elenco'; 
+
   private $tabella = 'autori_elenco';
   
   public $record_id; //         bigint(20) unsigned Auto+ PRIMARY
