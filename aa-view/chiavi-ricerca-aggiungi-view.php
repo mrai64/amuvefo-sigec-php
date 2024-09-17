@@ -1,23 +1,14 @@
-<?php
-/**
- * @source /96-chiavi-ricerca-option-list.php
- * @author Massimo Rainato <maxrainato@libero.it>
- * 
- * Chiavi di ricerca, pannello per modificare o aggiungere 
- */
-if (!defined('ABSPATH')){
-  include_once("./_config.php");
-}
-?><!doctype html>
+<!doctype html>
 <html lang="it">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chiavi di ricerca | Modulo di aggiunta</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  </head>
-  <body>
-    
+		<!-- jquery --><script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+		<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+		<!-- icone bootstrap  --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
+    </head>
+  <body>    
   <div class="container pt-5">
     <?php
     include(ABSPATH.'aa-controller/mostra-messaggio-sessione.php');
@@ -27,11 +18,11 @@ if (!defined('ABSPATH')){
         <div class="card">
           <div class="card-header">
             <h4>Aggiungere Chiavi di ricerca
-              <a href="<?=URLBASE; ?>96-chiavi-ricerca.php" class="btn btn-secondary float-end">Elenco </a>
+              <a href="<?=URLBASE; ?>chiavi.php/elenco/" class="btn btn-secondary float-end">Elenco </a>
             </h4>
           </div>
           <div class="card-body">
-            <form action="<?=URLBASE; ?>96-chiavi-ricerca-aggiungi.php" method="POST">
+            <form action="<?=URLBASE; ?>chiavi.php/aggiungi/" method="POST">
               <!-- record_id bigint no: assegnato in automatico -->
               <div class="mb-3">
                 <label for="chiave" class="col-form-label"> <strong>Chiave di ricerca</strong></label>
@@ -55,9 +46,6 @@ if (!defined('ABSPATH')){
       </div>
     </div>
   </div>
-
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </body>
 </html>

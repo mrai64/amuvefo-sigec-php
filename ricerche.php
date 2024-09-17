@@ -8,6 +8,14 @@
  * https://archivio.athesis77.it/ricerche.php/fotografie
  * https://archivio.athesis77.it/ricerche.php/video
  * 
+ * Invece la pagina che espone il modulo fi ricerca è
+ * /ricerca.php 
+ * 
+ * La gestione delle chiavi di ricerca, quelle che danno un 
+ * senso ai valori accoppiati, viene fatta attraverso il 
+ * router /chiavi.php e il vocabolario per i gruppi limitati 
+ * di valori validi on /vocabolari.php (sempre al plurale) 
+ * 
  * Nota: questa soluzione è stata preferita a quella di 
  * /album.php/ricerca 
  * /fotografie.php/ricerca 

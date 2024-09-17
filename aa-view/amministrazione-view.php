@@ -23,7 +23,7 @@
 						</div>
 					</a>
 				<!-- /elenchi.php/chiavi-elenco/0 -->
-					<a href="<?=URLBASE; ?>96-chiavi-ricerca.php" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="<?=URLBASE; ?>chiavi.php/elenco/" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
 								<h6 class="mb-0">Chiavi di ricerca: elenco delle -</h6>
