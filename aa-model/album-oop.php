@@ -197,7 +197,7 @@ Class Album {
 		}
 		$leggi = 'SELECT 1 FROM ' . self::nome_tabella 
 		. ' WHERE record_id = :record_id ';
-		$verifica = $this->conn->prepare($leggi);
+		$verifica = $dbh->prepare($leggi);
 		$verifica->bindValue('record_id', $record_id, PDO::PARAM_INT);
 		return $verifica->execute();
 	}

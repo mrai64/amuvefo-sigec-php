@@ -304,7 +304,7 @@ Class Chiavi {
     }
 
     try {
-      $lettura = $this->conn->prepare($read);
+      $lettura = $dbh->prepare($read);
       if (isset($campi['record_id'])){
         $lettura->bindValue('record_id', $this->record_id, PDO::PARAM_INT); // gli altri campi sono tipo string 
       }
@@ -391,7 +391,7 @@ Class Chiavi {
     // fine dei controlli 
     $update = $campi['update'];
     try {
-      $aggiorna = $this->conn->prepare($update);
+      $aggiorna = $dbh->prepare($update);
       if (isset($campi['record_id'])){
         $aggiorna->bindValue('record_id', $this->record_id, PDO::PARAM_INT); 
       }
@@ -475,7 +475,7 @@ Class Chiavi {
     //
     $cancellazione = $campi['delete'];
     try {
-      $cancella = $this->conn->prepare($cancellazione);
+      $cancella = $dbh->prepare($cancellazione);
       if (isset($campi['record_id'])){
         $cancella->bindValue('record_id', $this->record_id, PDO::PARAM_INT); 
       }

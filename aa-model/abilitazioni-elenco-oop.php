@@ -176,8 +176,8 @@ Class Abilitazioni {
     . ' (  url_pagina,  operazione,  abilitazione ) VALUES '
     . ' ( :url_pagina, :operazione, :abilitazione ) ';
 
-    $dbc = $this->conn; // a PDO object thru Database class
-    if ($dbc === false){
+    $dbh = $this->conn; // a PDO object thru Database class
+    if ($dbh === false){
       $ret = [
         "error"=> true, 
         "message" => "Inserimento record senza connessione archivio per: " . $this->tabella 
@@ -213,12 +213,12 @@ Class Abilitazioni {
     }
     
     try {
-      $aggiungi = $dbc->prepare($create);
+      $aggiungi = $dbh->prepare($create);
       $aggiungi->bindValue("url_pagina",   $url_pagina); 
       $aggiungi->bindValue("operazione",   $operazione); 
       $aggiungi->bindValue("abilitazione", $abilitazione); 
     	$aggiungi->execute();
-    	$record_id_assegnato = $this->conn->lastInsertId();
+    	$record_id_assegnato = $dbh->lastInsertId();
     } catch( \Throwable $th ){
       $ret = [
         "record_id" => 0,
@@ -248,8 +248,8 @@ Class Abilitazioni {
    * @return array ret 
    */
   public function leggi( array $campi = []) {
-    $dbc = $this->conn; // a PDO object thru Database class
-    if ($dbc === false){
+    $dbh = $this->conn; // a PDO object thru Database class
+    if ($dbh === false){
       $ret = [
         "error"=> true, 
         "message" => "Lettura record senza connessione archivio per: " . $this->tabella 
@@ -264,7 +264,7 @@ Class Abilitazioni {
       return $ret;
     }
     $read = $campi["query"];
-    $lettura = $this->conn->prepare($read);
+    $lettura = $dbh->prepare($read);
     if (isset($campi["record_id"])){
       $lettura->bindValue('record_id', $campi["record_id"], PDO::PARAM_INT); 
     }
@@ -319,8 +319,8 @@ Class Abilitazioni {
    * @return array $ret 
    */
   public function modifica( array $campi = []) : array {
-    $dbc = $this->conn; // a PDO object thru Database class
-    if ($dbc === false){
+    $dbh = $this->conn; // a PDO object thru Database class
+    if ($dbh === false){
       $ret = [
         "error"=> true, 
         "message" => "Lettura record senza connessione archivio per: " . $this->tabella 
@@ -335,7 +335,7 @@ Class Abilitazioni {
       return $ret;
     }
     $update = $campi["update"];
-    $aggiorna = $this->conn->prepare($update);
+    $aggiorna = $dbh->prepare($update);
     if (isset($campi["record_id"])){
       $aggiorna->bindValue('record_id', $campi["record_id"], PDO::PARAM_INT); 
     }
@@ -378,8 +378,8 @@ Class Abilitazioni {
    * @return array  $ret 
    */
   public function elimina( array $campi = []) {
-    $dbc = $this->conn; // a PDO object thru Database class
-    if ($dbc === false){
+    $dbh = $this->conn; // a PDO object thru Database class
+    if ($dbh === false){
       $ret = [
         "error"=> true, 
         "message" => "Cancellazione record senza connessione archivio per: " . $this->tabella 
@@ -394,7 +394,7 @@ Class Abilitazioni {
       return $ret;
     }
     $delete = $campi["delete"];
-    $cancella = $this->conn->prepare($delete);
+    $cancella = $dbh->prepare($delete);
     if (isset($campi["record_id"])){
       $cancella->bindValue('record_id', $campi["record_id"], PDO::PARAM_INT); 
     }

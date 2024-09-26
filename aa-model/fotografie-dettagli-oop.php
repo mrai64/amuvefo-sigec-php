@@ -205,8 +205,8 @@ Class FotografieDettagli {
 		}
 
 		// dati obbligatori
-		$dbc = $this->conn; // a PDO object thru Database class
-		if ($dbc === false){
+		$dbh = $this->conn; // a PDO object thru Database class
+		if ($dbh === false){
 			$ret = [
 				"error"=> true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__
@@ -253,7 +253,7 @@ Class FotografieDettagli {
 		// azione
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try{
-			$aggiungi = $dbc->prepare($create);
+			$aggiungi = $dbh->prepare($create);
 			$aggiungi->bindValue('record_id_padre', $this->record_id_padre);
 			$aggiungi->bindValue('chiave',          $this->chiave);
 			$aggiungi->bindValue('valore',          $this->valore);
@@ -261,7 +261,7 @@ Class FotografieDettagli {
 				$aggiungi->bindValue('consultatore_id', $this->consultatore_id, PDO::PARAM_INT);
 			}
 			$aggiungi->execute();
-			$record_id = $dbc->lastInsertID();
+			$record_id = $dbh->lastInsertID();
 			$dbh->commit();
 
 		} catch(\Throwable $th ){
@@ -293,8 +293,8 @@ Class FotografieDettagli {
 	 */
 	public function leggi(array $campi ) : array {
 		// campi obbligatori
-		$dbc = $this->conn; // a PDO object thru Database class
-		if ($dbc === false){
+		$dbh = $this->conn; // a PDO object thru Database class
+		if ($dbh === false){
 			$ret = [
 				"error"=> true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__
@@ -339,7 +339,7 @@ Class FotografieDettagli {
 
 		$read = $campi['query'];
 		try {
-			$lettura = $this->conn->prepare($read);
+			$lettura = $dbh->prepare($read);
 			if (isset($campi['record_id'])){
 				$lettura->bindValue('record_id', $this->record_id , PDO::PARAM_INT);
 			}
@@ -402,8 +402,8 @@ Class FotografieDettagli {
 	 */
 	public function modifica(array $campi = []){
 		// dati obbligatori
-		$dbc = $this->conn; // a PDO object thru Database class
-		if ($dbc === false){
+		$dbh = $this->conn; // a PDO object thru Database class
+		if ($dbh === false){
 			$ret = [
 				"error"=> true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__
@@ -451,7 +451,7 @@ Class FotografieDettagli {
 		// azione
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try {
-			$aggiorna = $this->conn->prepare($update);
+			$aggiorna = $dbh->prepare($update);
 			if (isset($campi['record_id'])){
 				$aggiorna->bindValue('record_id', $this->record_id, PDO::PARAM_INT);
 			}
@@ -507,8 +507,8 @@ Class FotografieDettagli {
 	 */
 	public function elimina(array $campi = []){
 		// campi obbligatori
-		$dbc = $this->conn; // a PDO object thru Database class
-		if ($dbc === false){
+		$dbh = $this->conn; // a PDO object thru Database class
+		if ($dbh === false){
 			$ret = [
 				"error"=> true,
 				"message" => "La cancellazione di record "
@@ -554,7 +554,7 @@ Class FotografieDettagli {
 		// azione
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try {
-			$cancella = $this->conn->prepare($cancellazione);
+			$cancella = $dbh->prepare($cancellazione);
 			if (isset($campi['record_id'])){
 				$cancella->bindValue('record_id', $this->record_id, PDO::PARAM_INT);
 			}

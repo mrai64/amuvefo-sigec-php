@@ -319,8 +319,8 @@ Class Autori {
    * @param array $campi Deve contenere un campo
    */
   public function modifica(array $campi=[]) : array {
-    $dbc = $this->conn; // a PDO object thru Database class
-    if ($dbc === false){
+    $dbh = $this->conn; // a PDO object thru Database class
+    if ($dbh === false){
       $ret = [
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
@@ -362,7 +362,7 @@ Class Autori {
     $update = $campi["update"];
 
     try {
-      $aggiorna = $this->conn->prepare($update);
+      $aggiorna = $dbh->prepare($update);
       if (isset($campi["record_id"])){
         $aggiorna->bindValue('record_id', $this->record_id, PDO::PARAM_INT); 
       }
@@ -413,8 +413,8 @@ Class Autori {
    * @return array  $ret 
    */
   public function elimina( array $campi = []) : array {
-    $dbc = $this->conn; // a PDO object thru Database class
-    if ($dbc === false){
+    $dbh = $this->conn; // a PDO object thru Database class
+    if ($dbh === false){
       $ret = [
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
@@ -454,7 +454,7 @@ Class Autori {
     }
     $delete = $campi["delete"];
     try {
-      $cancella = $this->conn->prepare($delete);
+      $cancella = $dbh->prepare($delete);
       if (isset($campi["record_id"])){
         $cancella->bindValue('record_id', $this->record_id, PDO::PARAM_INT); 
       }

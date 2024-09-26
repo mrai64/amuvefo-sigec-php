@@ -344,7 +344,7 @@ Class AlbumDettagli {
 
 		$read = $campi['query'];    
 		try {
-			$lettura = $this->conn->prepare($read);
+			$lettura = $dbh->prepare($read);
 			if (isset($campi['record_id'])){
 				$lettura->bindValue('record_id', $this->record_id , PDO::PARAM_INT); 
 			}
@@ -559,7 +559,7 @@ Class AlbumDettagli {
 		// azione
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try {
-			$cancella = $this->conn->prepare($cancellazione);
+			$cancella = $dbh->prepare($cancellazione);
 			if (isset($campi['record_id'])){
 				$cancella->bindValue('record_id', $this->record_id, PDO::PARAM_INT); 
 			}

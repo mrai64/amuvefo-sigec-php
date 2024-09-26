@@ -382,7 +382,7 @@ Class ScansioniDisco {
 		}
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try {
-			$aggiungi = $this->conn->prepare($create); 
+			$aggiungi = $dbh->prepare($create); 
 			$aggiungi->bindValue('disco',           $this->disco           ); 
 			$aggiungi->bindValue('livello1',        $this->livello1        ); 
 			$aggiungi->bindValue('livello2',        $this->livello2        );
@@ -397,7 +397,7 @@ Class ScansioniDisco {
 			$aggiungi->bindValue('tinta_rgb',       $this->tinta_rgb       );
 		// eseguo insert 
 			$aggiungi->execute();
-			$record_id = $this->conn->lastInsertId();
+			$record_id = $dbh->lastInsertId();
 			$dbh->commit();
 
 		} catch (\Throwable $th) {

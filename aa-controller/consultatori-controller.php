@@ -112,13 +112,15 @@ function accesso_checkpoint(array $dati_input){
   $dominio  = str_replace('https://', '', URLBASE);
   $dominio  = str_replace('http://', '', $dominio);
   $dominio  = substr($dominio, 0, strpos($dominio, '/', 0));
+
   // servono in localhost   
   header("Set-Cookie: consultatore='$cognome_nome'; Expires='$expires'; Path=/; SameSite=None; ", false);
   header("Set-Cookie: abilitazione='$abilitazione_consultatore'; Expires='$expires'; Path=/; SameSite=None; ", false);
   header("Set-Cookie: consultatore_id=$id_consultatore; Expires='$expires'; Path=/; SameSite=None; ", false);
+
   // servono online 
   setcookie("consultatore",    $cognome_nome,  $scadenza, "/", $dominio); 
-  setcookie("abilitazione",    $abilitazione,  $scadenza, "/", $dominio); 
+  setcookie("abilitazione",    $abilitazione_consultatore,  $scadenza, "/", $dominio); 
   setcookie("accesso_email",   $accesso_email, $scadenza, "/", $dominio); 
   setcookie("consultatore_id", $id_calendario, $scadenza, "/", $dominio); 
 

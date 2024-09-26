@@ -524,7 +524,7 @@ Class Consultatori{
 		// azione
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try {
-			$aggiorna = $this->conn->prepare($update);
+			$aggiorna = $dbh->prepare($update);
 			if (isset($campi['record_id'])){
 				$aggiorna->bindValue('record_id', $this->record_id , PDO::PARAM_INT);
 			}
@@ -625,7 +625,7 @@ Class Consultatori{
 		// azione
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try {
-			$cancella = $this->conn->prepare($$cancellazione);
+			$cancella = $dbh->prepare($$cancellazione);
 			if (isset($campi['record_id'])){
 				$cancella->bindValue('record_id', $this->record_id , PDO::PARAM_INT);
 			}

@@ -175,7 +175,7 @@ Class Richieste {
 		. 'WHERE record_cancellabile_dal = :record_cancellabile_dal '
 		. 'AND record_id = :record_id ';
 		try {
-			$leggi = $this->conn->prepare($campi['query']);
+			$leggi = $dbh->prepare($campi['query']);
 			$leggi->bindValue('record_cancellabile_dal', $this->conn->get_datetime_forever());
 			$leggi->bindValue('record_id', $record_id, PDO::PARAM_INT);
 			return $leggi->execute();
