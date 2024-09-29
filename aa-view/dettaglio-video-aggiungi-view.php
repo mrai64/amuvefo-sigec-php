@@ -22,12 +22,12 @@
 					</div>
 					<div class="card-body">
 						<form action="<?=$aggiungi_dettaglio; ?>" method="POST">
-							<input type="hidden" name="record_id"  value="<?= $record_id;     ?>">
-							<input type="hidden" name="album_id"   value="<?= $album_id; ?>">
+							<input type="hidden" name="record_id"  value="<?=$record_id;     ?>">
+							<input type="hidden" name="album_id"   value="<?=$album_id; ?>">
 							<div class="mb-3">
 								<label class="h3" for="chiave"> chiave di ricerca</label>
 								<select name="chiave" class="form-select-lg" required>
-									<?= $option_list_chiave; ?>
+									<?=$option_list_chiave; ?>
 								</select>
 							</div>
 							<div class="mb-3">

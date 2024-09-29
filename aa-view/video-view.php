@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?= $video['titolo_video']; ?> | Video Singolo | AMUVEFO</title>
+	<title><?=$video['titolo_video']; ?> | Video Singolo | AMUVEFO</title>
 	<!-- jquery --><script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 	<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" >
 	<!-- icone --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
@@ -17,7 +17,7 @@
 	</div>
 	<div class="row">
 		<div class="col-1">
-			<a href="<?= $torna_all_album; ?>" title="[Torna all'album]" ><i class="h2 bi bi-arrow-up-left-square" ></i></a>
+			<a href="<?=$torna_all_album; ?>" title="[Torna all'album]" ><i class="h2 bi bi-arrow-up-left-square" ></i></a>
 			<?php
 			if ($_COOKIE['abilitazione'] > SOLALETTURA){
 				echo '<a href="'. $richiesta_originali . '" title="[Richiesta foto]" ><i class="h2 bi bi-bookmark-check"></i></a>'."\n";
@@ -25,7 +25,7 @@
 			?>
 		</div>
 		<div class="col-11 h3">
-			Siete in: <?= $siete_in; ?>
+			Siete in: <?=$siete_in; ?>
 		</div>
 	</div>
 	<div class="row">
@@ -41,8 +41,8 @@
 				<li><hr class="dropdown-divider"></li>
 				<li><a href="<?=URLBASE; ?>ingresso.php" class="dropdown-item">Accesso non anonimo</a></li>
 			</ul>
-			<a href="<?= $video_precedente; ?>" title="[prev in album]"><i class="h2 bi bi-arrow-left-square-fill"></i></a>
-			<a href="<?= $video_seguente;   ?>" title="[next in album]"><i class="h2 bi bi-arrow-right-square-fill"></i></a>
+			<a href="<?=$video_precedente; ?>" title="[prev in album]"><i class="h2 bi bi-arrow-left-square-fill"></i></a>
+			<a href="<?=$video_seguente;   ?>" title="[next in album]"><i class="h2 bi bi-arrow-right-square-fill"></i></a>
 		</div>
 		<div class="col-5">
 				<table class="table table-striped border-secondary"> 

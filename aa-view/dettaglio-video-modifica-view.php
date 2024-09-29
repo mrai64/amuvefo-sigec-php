@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title><?= $dettaglio['chiave']; ?> | DETTAGLIO VIDEO | Modifica </title>
+		<title><?=$dettaglio['chiave']; ?> | DETTAGLIO VIDEO | Modifica </title>
 		<!-- --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 	</head>
 	<body>  
@@ -25,7 +25,7 @@
 							<input type="hidden" name="video_id"   value="<?=$video_id; ?>">
 							<div class="mb-3">
 								<label class="h3" for="valore"><?=$dettaglio["chiave"]; ?></label>
-								<input type="text" name="valore" value="<?= $dettaglio['valore']; ?>" class="form-control" >
+								<input type="text" name="valore" value="<?=$dettaglio['valore']; ?>" class="form-control" >
 							</div>
 							<div class="mb-3">
 								<button type="submit" name="aggiorna_dettaglio" class="btn btn-primary">Aggiorna dettaglio</button>

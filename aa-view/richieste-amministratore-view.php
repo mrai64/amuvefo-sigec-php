@@ -24,7 +24,7 @@
 	</table>
 </div>
 -->
-			<?= $tabelle_richieste; ?>
+			<?=$tabelle_richieste; ?>
 		</div>
 		<footer class="py-3">
 			<ul class="nav justify-content-center border-top pb-3 ">

@@ -35,7 +35,7 @@
 					} // if leggimi
 					?>
 						<div id="paginaPronta"></div>
-						<p class="">Sono presenti <?= count($sottocartelle); ?> sottocartelle</p>
+						<p class="">Sono presenti <?=count($sottocartelle); ?> sottocartelle</p>
 						<table class="table table-striped table-hover">
 							<thead>
 								<tr>

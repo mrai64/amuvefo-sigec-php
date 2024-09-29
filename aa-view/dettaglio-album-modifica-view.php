@@ -17,13 +17,13 @@
         <div class="card">
           <div class="card-header">
             <h4>Modifica Dettaglio Album
-              <a href="<?= $leggi_album; ?>" class="btn btn-secondary float-end">Torna all'Album</a>
+              <a href="<?=$leggi_album; ?>" class="btn btn-secondary float-end">Torna all'Album</a>
             </h4>
           </div>
           <div class="card-body">
                 <form action="<?=$aggiorna_dettaglio; ?>" method="POST">
                   <input type="hidden" name="record_id" value="<?=$dettaglio_id; ?>">
-                  <input type="hidden" name="album_id"  value="<?= $album_id;  ?>">
+                  <input type="hidden" name="album_id"  value="<?=$album_id;  ?>">
                   <div class="mb-3">
                        <label class="h3" for="valore"> <?=$dettaglio["chiave"] ?></label>
                         <input type="text" name="valore" value="<?=$dettaglio['valore']; ?>" class="form-control" aria-describedby="valoreHelpInline" required>

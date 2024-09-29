@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?= $fotografia['titolo_fotografia']; ?> | Foto Singola | AMUVEFO</title>
+	<title><?=$fotografia['titolo_fotografia']; ?> | Foto Singola | AMUVEFO</title>
 	<!-- jquery --><script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 	<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" >
 	<!-- icone --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
@@ -17,7 +17,7 @@
 	</div>
 	<div class="row">
 		<div class="col-1">
-			<a href="<?= $torna_all_album; ?>" title="[Torna all'album]" ><i class="h2 bi bi-arrow-up-left-square" ></i></a>
+			<a href="<?=$torna_all_album; ?>" title="[Torna all'album]" ><i class="h2 bi bi-arrow-up-left-square" ></i></a>
 			<?php
 			if ($_COOKIE['abilitazione'] > SOLALETTURA){
 				echo '<a href="'. $richiesta_originali . '" title="[Richiesta foto]" ><i class="h2 bi bi-bookmark-check"></i></a>'."\n";
@@ -25,14 +25,14 @@
 			?>
 		</div>
 		<div class="col-11 h3">
-			Siete in: <?= $siete_in; ?>
+			Siete in: <?=$siete_in; ?>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-6 dropdown">
 			<a href="#" class="dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 			<figure class="figure mh-50" >
-				<img id="foto" class="d-block w-100" alt="..." src="<?= $fotografia_src; ?>" > 
+				<img id="foto" class="d-block w-100" alt="..." src="<?=$fotografia_src; ?>" > 
 				<figcaption class="figure-caption"><?=$fotografia['titolo_fotografia']; ?></figcaption>
 			</figure></a>
 			<ul class="dropdown-menu">
@@ -41,8 +41,8 @@
 				<li><hr class="dropdown-divider"></li>
 				<li><a href="<?=URLBASE; ?>ingresso.php" class="dropdown-item">Accesso non anonimo</a></li>
 			</ul>
-			<a href="<?= $foto_precedente; ?>" title="[prev in album]"><i class="h2 bi bi-arrow-left-square-fill"></i></a>
-			<a href="<?= $foto_seguente;   ?>" title="[next in album]"><i class="h2 bi bi-arrow-right-square-fill"></i></a>
+			<a href="<?=$foto_precedente; ?>" title="[prev in album]"><i class="h2 bi bi-arrow-left-square-fill"></i></a>
+			<a href="<?=$foto_seguente;   ?>" title="[next in album]"><i class="h2 bi bi-arrow-right-square-fill"></i></a>
 		</div>
 		<div class="col-5">
 				<table class="table table-striped border-secondary"> 
@@ -50,7 +50,7 @@
 						<tr>
 							<th scope="col">Chiave ricerca</th>
 							<th scope="col">Valore</th>
-							<th scope="col"><a href="<?= $aggiungi_dettaglio; ?>" title="aggiungi dettaglio"><i class="h2 bi bi-pencil-square"></i></a></th>
+							<th scope="col"><a href="<?=$aggiungi_dettaglio; ?>" title="aggiungi dettaglio"><i class="h2 bi bi-pencil-square"></i></a></th>
 						</tr>
 					</thead>
 					<tbody>

@@ -27,7 +27,7 @@ include_once(ABSPATH.'aa-model-database-handler.php'); // $con usato più avanti
         <div class="card">
           <div class="card-header">
             <h4>Modifica Dettaglio Album
-              <a href="<?=URLBASE; ?>album.php/leggi/<?= $_GET["album_id"]; ?>" class="btn btn-secondary float-end">Torna all'Album</a>
+              <a href="<?=URLBASE; ?>album.php/leggi/<?=$_GET["album_id"]; ?>" class="btn btn-secondary float-end">Torna all'Album</a>
             </h4>
           </div>
           <div class="card-body">
@@ -41,8 +41,8 @@ include_once(ABSPATH.'aa-model-database-handler.php'); // $con usato più avanti
                     $dettaglio = mysqli_fetch_array($record_letti);
                 ?>
                 <form action="aa-controller/aggiorna-dettaglio-album.php" method="post">
-                  <input type="hidden" name="record_id" value="<?= $record_id; ?>">
-                  <input type="hidden" name="album_id"  value="<?= $album_id;  ?>">
+                  <input type="hidden" name="record_id" value="<?=$record_id; ?>">
+                  <input type="hidden" name="album_id"  value="<?=$album_id;  ?>">
                   <div class="mb-3">
                        <label for="valore"> <?=$dettaglio["chiave"] ?></label>
                         <input type="text" name="valore" value="<?=$dettaglio['valore']; ?>" class="form-control">

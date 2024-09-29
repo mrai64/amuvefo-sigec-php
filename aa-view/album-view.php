@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?= $album["titolo_album"] ?> | Album | AMUVEFO</title>
+	<title><?=$album["titolo_album"] ?> | Album | AMUVEFO</title>
 	<!-- jquery --><script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 	<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" >
 	<!-- icone --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
@@ -27,12 +27,12 @@
 			?>
     </div>
     <div class="col-11 h3">
-			Siete in: <?= $siete_in; ?><br>
+			Siete in: <?=$siete_in; ?><br>
     </div>
   </div>
 	<div class="grid clearfix overflow-auto">
-		<?= $float_foto; ?> 
-		<?= $float_video; ?> 
+		<?=$float_foto; ?> 
+		<?=$float_video; ?> 
   </div><!-- griglia grid foto video -->
   <div class="row">
 		<div class="col-12">
@@ -49,7 +49,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<?= $table_dettagli; ?>
+					<?=$table_dettagli; ?>
 				</tbody>
 			</table>
 		</div>
