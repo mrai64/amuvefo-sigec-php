@@ -18,13 +18,11 @@ if ( !defined( 'ABSPATH' ) ) {
 		// percorso per accedere alla cartella / nel server senza modificare il $PATH del server
 		define( 'ABSPATH', '/web/htdocs/archivio.athesis77.it/home/' );  
 		define( 'URLBASE', 'https://archivio.athesis77.it/' );  
-		define( 'BASEURL', 'https://archivio.athesis77.it/' );  
 		define( 'URLZERO', ''); // la sottocartella che contiene il sito 
 		
 	} else {
 		define( 'ABSPATH', '/Users/massimorainato/Sites/AMUVEFO-sigec-php/' ); 
 		define( 'URLBASE', 'http://localhost:8888/AMUVEFO-sigec-php/' ); 
-		define( 'BASEURL', 'http://localhost:8888/AMUVEFO-sigec-php/' ); 
 		define( 'URLZERO', '/AMUVEFO-sigec-php'); // la sottocartella che contiene il sito 
 
 	}

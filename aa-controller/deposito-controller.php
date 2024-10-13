@@ -361,7 +361,7 @@ function leggi_cartella_per_percorso( string $percorso ){
 	}
 	$percorso = urldecode($percorso);
 	$percorso = htmlspecialchars(strip_tags($percorso));
-	$percorso = str_replace(BASEURL, '', $percorso);
+	$percorso = str_replace(URLBASE, '', $percorso);
 	if (!str_contains($percorso, '/')){
 		$spezzato = ["livello1" => $percorso, "livello2" => ''];
 	} else {
