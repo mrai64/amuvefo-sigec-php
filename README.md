@@ -1,8 +1,7 @@
 # AMUVEFO-sigec-php
 
-A "simple" n "general" catalogue-portfolio for a photo club
-also in italian: see LEGGIMI.md
-
+A "simple" n "general" catalogue-portfolio for a photo club.  
+IT: vedi [LEGGIMI.md](./LEGGIMI.md)
 
 ## Half italian half english
 
@@ -17,14 +16,14 @@ verbs, subject,and so on...
 During last 40years in my photo club a huge amount
 of data was stored. We think at now 24TB of data.
 A dozen+dozen HDD, an online copy, but as you know
-HDD are like a biblioteque index, if a volume is in
+HDD are like a library index, if a volume is in
 Sport section cannot be at same time in another section.
-So biblio use cards, and also I develop warm water
+So Libraries use bibliographic cards, and also I develop warm water
 using for file n folders (directory) a tag system
 based on dozen of terms like name/author, place/common,
 etc.
 
-Thats a generic/general cataloguin' system,
+Thats a generic/general catalog system,
 so i called it italian: SIstema GEnerale di Catalogazione
 SI GE C applied to our Athesis' Museo Veneto Fotografia
 (Museum of Venetian Photographic Art, MuVePh?).
@@ -50,7 +49,7 @@ keys with a limited set of values another table.
 
 ## Adopted Style
 
-Writer' block was broked with some simple tutoria that
+Writer' block was overcome with some simple tutoria that
 mixed [html](https://en.wikipedia.org/wiki/HTML), [bootstrap](https://getbootstrap.com) n [php](https://www.php.net) to perform CRUD operations.
 After some simple page to manage list i left to an [MVC](https://en.wikipedia.org/wiki/Model–view–controller) to separate how is user interface user experience, data storage, and in between the php code to manage both.
 

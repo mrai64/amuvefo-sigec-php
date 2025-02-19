@@ -1,6 +1,7 @@
 # AMUVEFO-sigec-php
 
-Un "sistema" "generale" di catalogazione per un foto club
+Un "sistema" "generale" di catalogazione per un foto club.  
+EN: read [README.md](./README.md)
 
 ## Mezzo italiano mezzo inglese
 
@@ -47,18 +48,18 @@ un elenco vocabolario delle chiavi-valori.
 ## Sistema adottato
 
 Lo sblocco del lavoro è stato grazie ad alcuni tutorial
-dove si vedeva un semplice mescolamento 
-di codice [php](https://www.php.net) 
-e [html](https://it.wikipedia.org/wiki/HTML) 
+dove si vedeva un semplice mescolamento
+di codice [php](https://www.php.net)
+e [html](https://it.wikipedia.org/wiki/HTML)
 e [bootstrap](https://getbootstrap.com)
 per creare una lista di voci e aggiornarla. Da quella son partito a
 creare una serie di pagine semplici, per poi separare le parti tra
 quella che vede l'utente, i dati che voglio archiviare e in mezzo
 il codice php per gestire la presentazione dell'interfaccia e
-i moduli con i dati. ho quindi cercato di usare il 
+i moduli con i dati. ho quindi cercato di usare il
 sistema [MVC](https://it.wikipedia.org/wiki/Model-view-controller),
-dove 
-M sta per il modello dei dati, 
+dove
+M sta per il modello dei dati,
 V per le pagine vista
 C comanda il traffico tra le V ed M, andata e ritorno, o solo andata.
 
