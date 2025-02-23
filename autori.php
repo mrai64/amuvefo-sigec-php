@@ -69,7 +69,7 @@ $autore_id = $pezzi['operazioni'][1];
 
 // modifica 1 di 2 
 // espone il modulo  
-if ($richiesta == 'modifica' && !isset($_POST['valore'])){
+if ($richiesta == 'modifica' && !isset($_POST['aggiorna_autore'])){
 	modifica_autore($autore_id, []);
 	exit(0);
 } 
