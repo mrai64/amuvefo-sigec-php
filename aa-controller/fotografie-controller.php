@@ -149,7 +149,7 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	$ret_scan = [];
 	$ret_scan = $scan_h->leggi($campi);
 	echo '<p style="font-family:monospace">Fotografie Album da scansioni_disco:<br>'
-	. str_replace(';', '; ', serialize($ret_Scan)).'</p>';
+	. str_replace(';', '; ', serialize($ret_scan)).'</p>';
 
 	if ( isset($ret_scan['error']) || $ret_scan['numero'] == 0 ){
 		return $ret_scan;    
