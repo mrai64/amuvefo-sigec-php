@@ -11,8 +11,8 @@
  *   leggi dalla tabella album e 
  *   mostra album a video 
  * 
- * /album.php/aggiungi/0 "il primo che trovi"
- * /album.php/aggiungi/{record_id_in_scansioni_disco}
+ * /album.php/aggiungi_album/0 "il primo che trovi"
+ * /album.php/aggiungi_album/{record_id_in_scansioni_disco}
  *   aggiunge in tabella album partendo dall'id di scansione_disco
  *   aggiunge i dettagli dell'album 
  *   aggiunge le fotografie dell'album 
@@ -116,7 +116,7 @@ if ($_COOKIE['abilitazione'] <= SOLALETTURA){
 }
 
 /**
- * AGGIUNGI ALBUM
+ * AGGIUNGI ALBUM - controller album
  * Legge scansioni_disco e carica album, dettagli album e fotografie o video 
  * 
  * /album.php/aggiungi_album/0                    prende il primo che trova 

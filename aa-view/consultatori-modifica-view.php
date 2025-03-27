@@ -32,11 +32,11 @@
                 <label for="abilitazione"> Livello di abilitazione</label>
                 <!--<input type="text" name="abilitazione" value="<?=$consultatore['abilitazione']; ?>" class="form-control">-->
                 <select class="form-select" name="abilitazione" required aria-label="Default select example">
-                  <option <?=($consultatore["abilitazione"] == "0 nessuna") ? "selected" : "";?> value="0 nessuna">Nessuna</option>
-                  <option <?=($consultatore["abilitazione"] == "1 lettura") ? "selected" : "";?> value="1 lettura">Lettura</option>
-                  <option <?=($consultatore["abilitazione"] == "3 modifica") ? "selected" : "";?> value="3 modifica">Modifica</option>
-                  <option <?=($consultatore["abilitazione"] == "5 modifica originali") ? "selected" : "";?> value="5 modifica originali">Originali</option>
-                  <option <?=($consultatore["abilitazione"] == "7 amministrazione") ? "selected" : "";?> value="7 amministrazione">Amministrazione</option>
+                  <option <?= ($consultatore["abilitazione"] == "0 nessuna") ? "selected" : "";?> value="0 nessuna">Nessuna</option>
+                  <option <?= ($consultatore["abilitazione"] == "1 lettura") ? "selected" : "";?> value="1 lettura">Lettura</option>
+                  <option <?= ($consultatore["abilitazione"] == "3 modifica") ? "selected" : "";?> value="3 modifica">Modifica</option>
+                  <option <?= ($consultatore["abilitazione"] == "5 modifica originali") ? "selected" : "";?> value="5 modifica originali">Originali</option>
+                  <option <?= ($consultatore["abilitazione"] == "7 amministrazione") ? "selected" : "";?> value="7 amministrazione">Amministrazione</option>
                 </select>
               </div>
               <div class="mb-3">

@@ -1,9 +1,10 @@
 # AMUVEFO-sigec-php
 
+Italian version of that is on [LEGGIMI.md](./LEGGIMI.md)
+
 AMUVEFO is for *Athesis MUseo VEneto FOtografia*, Athesis' photographic venetian museum
 SIGEC is for *Sistema Generale di Catalogazione*, Generic archiving system 
 PHP is for ...you know.
-Italian version of readme is on [LEGGIMI.md](./LEGGIMI.md)
 
 AMUVEFO-SIGEC was built for my photo social club, tailored on our needs.
 But to be flexible as we need (anytime requirements CHANGE), i apply
@@ -46,8 +47,11 @@ keys with a limited set of values another table.
 ## Adopted Style
 
 Writer' block was overcome with some simple tutorial that
-mixed [html](https://en.wikipedia.org/wiki/HTML), [bootstrap](https://getbootstrap.com) n [php](https://www.php.net) to perform CRUD operations.
-After some simple page to manage list i left to an [MVC](https://en.wikipedia.org/wiki/Model–view–controller) to separate how is user interface user experience, data storage, and in between the php code to manage both.
+
+Based on mixed [html](https://en.wikipedia.org/wiki/HTML),
+[bootstrap](https://getbootstrap.com) n [php](https://www.php.net) to perform CRUD operations.
+After some simple page to manage list i left to
+an [MVC](https://en.wikipedia.org/wiki/Model–view–controller) to separate how is user interface user experience, data storage, and in between the php code to manage both.
 
 Why not use the trendy nodejs? well, to apply i need use a
 cloud-based platform to create a PWA, but cost should be incontrollable.

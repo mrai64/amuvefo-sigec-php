@@ -28,7 +28,7 @@
 							</p>
 						</div>
 						<div class="card-body">
-							<form action="/cartelle.php/aggiungi-cartella/0" method="POST">
+							<form action="<?=URLBASE; ?>cartelle.php/aggiungi-cartella/0" method="POST">
 								<!-- era /95-archiviazione-cartella-aggiungi.php -->
 								<div class="mb-3">
 									<label for="disco" class="form-label">Disco</label>
@@ -57,7 +57,7 @@
 									/>
 									<small id="helpCartella" class="form-text text-muted">Copiare e incollare 
 										il percorso di accesso alla cartella o in alternativa l'indirizzo url 
-										che comincia con https://archivio.athesis77.it/ (compreso).</small>
+										che comincia con https://www.fotomuseoathesis.it/ (compreso).</small>
 								</div>
 								<div class="mb-3">
 									<button type="submit" name="aggiungi_cartella" class="btn btn-primary text-center">Aggiungi cartella in elenco sospesi</button>
@@ -93,6 +93,6 @@
 		<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 		<!-- Carica -->
-		<script src="https://archivio.athesis77.it/aa-view/cartelle-da-scansionare.js"></script>
+		<script src="<?=URLBASE; ?>aa-view/cartelle-da-scansionare.js"></script>
 	</body>
 </html>

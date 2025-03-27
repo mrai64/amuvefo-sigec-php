@@ -20,7 +20,11 @@ if (!defined('ABSPATH')){
 include_once(ABSPATH.'aa-model/database-handler-oop.php');
 // verifica di abilitazione 7 
 
-
+/**
+ * Cancellazione fisica
+ * @param string nome_tabella 
+ * @param string ultimo_backup aaaa-mm-gg hh:mm:ss   
+ */
 function remove_record_from( string $nome_tabella, string $ultimo_backup) : array {
 	$elenco_tabelle=[
 		'abilitazioni_elenco',
@@ -81,7 +85,7 @@ function remove_record_from( string $nome_tabella, string $ultimo_backup) : arra
 	$ret = [ 
 		'ok'      => true,
 		'message' => 'Cancellazione eseguita, sono stati '
-		. 'eliminati dalla tabella abilitazioni_elenco n.'
+		. 'eliminati dalla tabella '.$nome_tabella.' n.'
 		. $numero . ' record. (zero non è un errore) '
 	];
 	return $ret;
@@ -384,6 +388,8 @@ function remove_record_album(string $ultimo_backup) : array{
 	return $ret;
 } // remove_record_album()
 
+
+
 function remove_record_fotografie(string $ultimo_backup) : array {
 	$dbh = new DatabaseHandler();
 	if (! $dbh->is_datetime($ultimo_backup) ){
@@ -675,6 +681,57 @@ function remove_record_video(string $ultimo_backup) : array {
 } // remove_record_video()
 
 
+/**
+ * scansioni_cartelle NON è dotata del campo record_cancellabile_dal
+ * 
+ * Vengono cancellati da scansioni_cartelle tutti i record 
+ * marcati come ultima_modifica_record < ultimo_backup 
+ * EANCHE stato_Scansione == lavorati (2) 
+ */
+function remove_record_scansioni_cartelle(string $ultimo_backup) : array {
+	$dbh = new DatabaseHandler();
+
+	if (! $dbh->is_datetime($ultimo_backup) ){
+		$ret = [
+			'error'   => true,
+			'message' => __FUNCTION__ . ' ' 
+			. "<br> L'input ultimo_backup non è corretto"  
+			. '<br> data: ' . $ultimo_backup
+		];
+		return $ret;
+	}
+
+	$delete = 'DELETE FROM scansioni_cartelle '
+	. " WHERE stato_scansione = 2 AND ultima_modifica_record < '$ultimo_backup' ";
+
+	if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try {
+		$cancella = $dbh->prepare($delete);
+		$cancella->execute();
+		$numero = $cancella->rowCount();
+		$dbh->commit(); // per debug $dbh->rollBack();
+		$ret = [ 
+			'ok'      => true,
+			'message' => 'Cancellazione eseguita, sono stati '
+			. 'eliminati dalla tabella scansioni_cartelle n.'
+			. $numero . ' record. (zero non è un errore) '
+		];
+	
+	} catch( \Throwable $th ){
+		//throw $th;
+		$dbh->rollBack(); 
+		$ret = [
+			'error'   => true,
+			'message' => __FUNCTION__ . ' ' 
+			. '<br>' . $th->getMessage() 
+			. '<br>Istruzione SQL: ' . $delete
+		];
+	}
+	return $ret;
+
+} // remove_record_scansioni_cartelle()
+
+
 
 function remove_record_tutti(){ 
 	// Legge il file contenente il precedente datetime di backup
@@ -734,12 +791,19 @@ function remove_record_tutti(){
 	$album           = remove_record_album($ultimo_backup);
 	echo '<p>Album: '.$album['message'].'</p>';
 
+	$scansioni_cartelle = remove_record_scansioni_cartelle($ultimo_backup);
+	echo '<p>Cartelle: '. $scansioni_cartelle['message'] .'</p>';
+
+	$scansioni_disco    = remove_record_from('scansioni_disco', $ultimo_backup);
+	echo '<p>Deposito: '. $scansioni_disco['message'] .'</p>';
+
 	require_once(ABSPATH.'aa-view/cancellazione-eseguita.php');
 	exit(0); 					
 } // remove_record_tutti
 
 /** TEST 
  * https://archivio.athesis77.it/aa-controller/cancellazione-record-file.php
+ * https://www.fotomuseoathesis.it/aa-controller/cancellazione-record-file.php
  * 
  */
 

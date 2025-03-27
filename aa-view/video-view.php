@@ -16,16 +16,19 @@
 		?>
 	</div>
 	<div class="row">
-		<div class="col-1">
-			<a href="<?=$torna_all_album; ?>" title="[Torna all'album]" ><i class="h2 bi bi-arrow-up-left-square" ></i></a>
+		<div class="col-2">
+			<a href="<?= $torna_all_album; ?>" title="[Torna all'album]" ><i class="h2 bi bi-arrow-up-left-square" ></i></a>
 			<?php
 			if ($_COOKIE['abilitazione'] > SOLALETTURA){
 				echo '<a href="'. $richiesta_originali . '" title="[Richiesta foto]" ><i class="h2 bi bi-bookmark-check"></i></a>'."\n";
 			}
 			?>
+		&nbsp;|&nbsp; 
+		<a href='/ricerca.php'><i class="bi bi-search" 
+			style='font-size:1.75rem;color:<?=$cartella_radice["tinta_rgb"]; ?>' ></i></a>
 		</div>
-		<div class="col-11 h3">
-			Siete in: <?=$siete_in; ?>
+		<div class="col-10 h3">
+			Siete in: <?= $siete_in; ?>
 		</div>
 	</div>
 	<div class="row">
@@ -90,9 +93,7 @@
 			<li class="nav-item"><a href="https://athesis77.it/" class="nav-link px-2 text-body-secondary">Associazione</a></li>
 			<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
 		</ul>
-		<p class="text-center text-body-secondary">
-			&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD
-		</p>
+		<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
 	</footer>
 </div>
 <!-- bootstrap+popper jQuery(sopra) --> 

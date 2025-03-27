@@ -21,6 +21,8 @@
     <rect x="520" y="377" fill="#fff" opacity="0" width="64" height="145"></rect>
   </a><a xlink:href="#originali_localita" title="riservato comitato di gestione accesso cartella disco originali online">
     <rect x="654" y="378" fill="#fff" opacity="0" width="65" height="140"></rect>
+  </a><a xlink:href="#ricerca_avanzata" title="ricerca avanzata">
+    <rect x="825" y="553" fill="#fff" opacity="0" width="88" height="82"></rect>
   </a><a xlink:href="#originali_amuvefo" title="riservato comitato di gestione accesso cartella disco originali online">
     <rect x="832" y="355" fill="#fff" opacity="0" width="68" height="69"></rect>
   </a><a xlink:href="#originali_athesis" title="riservato comitato di gestione accesso cartella disco originali online">

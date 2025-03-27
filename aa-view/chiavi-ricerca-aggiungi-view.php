@@ -31,7 +31,7 @@
               </div>
               <div class="mb-3">
                 <label for="url_manuale" class="col-form-label"> <strong>Pagina del Manuale</strong></label>
-                <input type="url" name="url_manuale" class="form-control" pattern="https://archivio.athesis77.it/man/.*"   aria-describedby="urlManualeHelpDiv">
+                <input type="url" name="url_manuale" class="form-control" pattern="https://www.fotomuseoathesis.it/man/.*"   aria-describedby="urlManualeHelpDiv">
                 <div id="urlManualeHelpDiv" class="form-text">Campo facoltativo ma se inserito fate copia incolla dall'indirizzo della pagina cresta per spiegare la chiave di ricerca</div>
               </div>
               <!-- record_creato_il datetime no: assegnato in automatico -->

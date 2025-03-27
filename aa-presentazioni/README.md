@@ -14,7 +14,23 @@ deve avere un nome associato alla funzione o al problema
 che tratta, andando sul comodo senza fantasie
 lo stesso della ramificazione.
 
-Sono previste per ora solo due sottocartelle:
+Sono previste per ora queste sottocartelle:
 
-- funzioni
 - problemi
+- sviluppi
+- manutenzioni
+
+## Problemi
+
+Non ha bisogno di presentazioni come si dice... Quello che
+*andava e ora non va* (toccato qualcosa?), o che *non fa quello che mi aspetto*
+
+## Sviluppi
+
+A seguire ho anche fatto una cartella sviluppi, questa riguarda quelli che
+**non sono** problemi, ma *cose che mancano* e vanno sviluppate.
+
+## Manutenzioni
+
+Non sono sviluppi di cose nuove ma modifiche a quello che c'è, e non da problemi,
+ma viene comunque cambiato. 

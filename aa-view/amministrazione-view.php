@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Amministrazione archivio | AMUVEFO</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" >
+	<!-- icone --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
   </head>
   <body>
 	<div class="container pt-5">
@@ -52,50 +53,70 @@
 			</div>
 			<div class="col-4">
 				<div class="list-group">
+					<!-- /cartelle.php/aggiungi-cartella/0 -->
 					<a href="<?=URLBASE; ?>cartelle.php/aggiungi-cartella/0" 
-					   class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+						target="_blank" 
+						class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
-								<h6 class="mb-0">Cartelle. Aggiunta nuove o aggiorna -</h6>
-								<p class="mb-0 opacity-75">Attività popolamento archivio <br>1 | Inserimento cartelle nel giro di lavoro | Vedi manuale</p>
+								<h6 class="mb-0"><i class="h6 bi bi-1-square"></i> Cartelle. Aggiunta nuove o aggiorna -</h6>
+								<p class="mb-0 opacity-75">Attività popolamento archivio
+									<br />Dopo aver caricato le cartelle con il protocollo ftp 
+									serve indicare al sistema qual'è la nuova cartella disponibile
+									alle operazioni di scansione e archiviazione.
+								</p>
 							</div>
 						</div>
 					</a>
+					<!-- /cartelle.php/archivia-cartella/0 -->
 					<a href="<?=URLBASE; ?>cartelle.php/archivia-cartella/0" 
-					   target="_blank" 
-						 class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					  target="_blank" 
+						class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
-								<h6 class="mb-0">Cartelle. inizio dei lavori sulle cartelle aggiunte</h6>
-								<p class="mb-0 opacity-75">Attività popolamento archivio <br>2 | Scansione cartelle per identificare sottocartelle e fotografie | Vedi manuale</p>
+								<h6 class="mb-0"><i class="h6 bi bi-2-square"></i> Cartelle. inizio dei lavori sulle cartelle aggiunte</h6>
+								<p class="mb-0 opacity-75">Attività popolamento archivio 
+									<br>Le cartelle inserite allo step precedente 
+									vengono scansionate per identificare immagini e video, 
+									e aggiungere il tutto nel deposito. </p>
 							</div>
 						</div>
 					</a>
+					<!-- /album.php/aggiungi_album/0 -->
 					<a href="<?=URLBASE; ?>album.php/aggiungi_album/0" 
-					   class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+						target="_blank" 
+						class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
-								<h6 class="mb-0">Album - creazione automatica, il primo che manca | Vedi manuale</h6>
-								<p class="mb-0 opacity-75">Attività popolamento archivio<br> 3 | Qui crea "l'album", con elenco fotografie e video | Vedi manuale</p>
+								<h6 class="mb-0"><i class="h6 bi bi-3-square"></i> Archiviazione Album </h6>
+								<p class="mb-0 opacity-75">Attività popolamento archivio
+									<br /> Qui dal deposito si "crea l'album", archiviando solo l'elenco 
+									delle fotografie e video che contiene</p>
 							</div>
 						</div>
 					</a>
 					<a href="<?=URLBASE; ?>fotografie.php/carica_dettagli_da_fotografia/0" 
-					   target="_blank" 
-						 class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+						target="_blank" 
+						class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
-								<h6 class="mb-0">Fotografie - archiviazione automatica dettagli</h6>
-								<p class="mb-0 opacity-75">Attività popolamento archivio<br>4 | Pesca dall'archivio le fotografie in sospeso ed estrae in automatico alcuni dettagli | Vedi manuale</p>
+								<h6 class="mb-0"><i class="h6 bi bi-4-square"></i> Archiviazione fotografie con dettagli </h6>
+								<p class="mb-0 opacity-75">Attività popolamento archivio
+									<br>Pesca le fotografie non ancora lavorate dal deposito 
+									ed estrae per ciascuna 
+									in automatico alcuni dettagli dal nome file o dai dati exif.</p>
 							</div>
 						</div>
 					</a>
 					<a href="<?=URLBASE; ?>video.php/carica_dettagli_da_video/0" 
-					   class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+						target="_blank" 
+						class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
-								<h6 class="mb-0">Video - archiviazione automatica dettagli</h6>
-								<p class="mb-0 opacity-75">Attività popolamento archivio<br>5 | Pesca dall'archivio i video in sospeso ed estrae in automatico alcuni dettagli | Vedi manuale</p>
+								<h6 class="mb-0"><i class="h6 bi bi-5-square"></i> Archiviazione video con dettagli</h6>
+								<p class="mb-0 opacity-75">Attività popolamento archivio
+									<br />Pesca i video in sospeso 
+									ed estrae in automatico alcuni dettagli dal nome file o da dati interni</p>
 							</div>
 						</div>
 					</a>
@@ -103,7 +124,9 @@
 			</div>
 			<div class="col-4">
 				<div class="list-group">
-					<a href="<?=URLBASE; ?>richieste.php/elenco-amministratore/" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="<?=URLBASE; ?>richieste.php/elenco-amministratore/"
+						target="_blank" 
+						class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
 								<h6 class="mb-0">Richieste accesso originali, elenco</h6>
@@ -111,7 +134,9 @@
 							</div>
 						</div>
 					</a>
-					<a href="<?=URLBASE; ?>elenchi.php/backup" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="<?=URLBASE; ?>elenchi.php/backup" 
+						target="_blank" 
+						class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
 								<h6 class="mb-0">Scarico record dalla data del </h6>
@@ -121,7 +146,9 @@
 							</div>
 						</div>
 					</a>
-					<a href="<?=URLBASE; ?>elenchi.php/elimina/" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="<?=URLBASE; ?>elenchi.php/elimina/" 
+						target="_blank" 
+						class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
 								<h6 class="mb-0">&#x1F6A8; Eliminazione record cancellabili </h6>
@@ -131,7 +158,9 @@
 							</div>
 						</div>
 					</a>
-					<a href="https://mysql.aruba.it/" target="_blank" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+					<a href="https://mysql.aruba.it/" 
+						target="_blank" 
+						class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
 								<h6 class="mb-0">Accesso pannello mySqlAdmin Aruba</h6>
@@ -157,7 +186,7 @@
   </div>
   <footer class="py-3 fixed-bottom" style="z-index: -1000;" >
     <ul class="nav justify-content-center border-top pb-3 ">
-      <li class="nav-item"><a href="<?=URLBASE; ?>ingresso.php" class="nav-link px-2 text-body-secondary">Ingresso</a></li>
+      <li class="nav-item"><a href="<?=URLBASE; ?>museo.php" class="nav-link px-2 text-body-secondary">Museo</a></li>
       <li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
       <li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
       <li class="nav-item"><a href="https://athesis77.it/" class="nav-link px-2 text-body-secondary">Associazione</a></li>

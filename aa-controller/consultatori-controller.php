@@ -22,9 +22,16 @@ include_once(ABSPATH . 'aa-model/database-handler-oop.php');
 include_once(ABSPATH . 'aa-model/consultatori-oop.php');
 
 
+/**
+ * La funzione riceve i dati in input, elabora la password per confrontarla con 
+ * quella cifrata nell'archivio, e procede ad assegnare l'abilitazione se tutto va bene.
+ * Se i dati in input mancano o se l'abilitazione non è sufficiente,
+ * ripropone dopo un ritardo variabile, il modulo di accesso.
+ * TODO Aggiungere al modulo di accesso un campo nascosto facente funzione di TOTP | Time-based One-Time Passwords
+ * Usa la super _GET, non dovrebbe
+ */
 function accesso_checkpoint(array $dati_input){
   // pagina destinazione 
-  $return_to = '';
   if (isset($dati_input['return_to'])){
     $return_to = $dati_input['return_to'];
   } elseif (isset($_GET['return_to'])){
@@ -33,10 +40,11 @@ function accesso_checkpoint(array $dati_input){
     $return_to = URLBASE.'museo.php';
   }
 
-  // niente dati - espone il modulo
+  // manca uno o o entrambi i dati - espone il modulo
   if (!isset($dati_input['accesso_email']) || 
       !isset($dati_input['accesso_password'])){
-    $_SESSION['messaggio']='';
+    $_SESSION['messaggio']='Inserite i dati';
+    sleep(rand(2,7));
     require_once(ABSPATH.'aa-view/consultatori-accesso-view.php');
     exit(0);
   }
@@ -60,7 +68,10 @@ function accesso_checkpoint(array $dati_input){
     $_SESSION['messaggio']="Si è verificato un errore nell'accesso "
     . "all'archivio dei consultatori.<br>Non proseguire e inviare "
     . "questa schermata al comitato di gestione."
-    . "<br>" . $ret_acc['message'];
+    . "<br>". str_replace(';' , '; ', serialize($campi))
+    . "<br>" . $ret_acc['message']
+    . "<br>" . 'h: ' . getenv('DB_HOST') . ' db: ' . getenv('DB_NAME');
+    sleep(rand(2,7));
     require_once(ABSPATH.'aa-view/consultatori-accesso-view.php');
     exit(0);
   }
@@ -68,8 +79,9 @@ function accesso_checkpoint(array $dati_input){
     $_SESSION['messaggio']="Si è verificato un errore nell'accesso "
     . "all'archivio dei consultatori.<br>Non proseguire e inviare "
     . "questa schermata al comitato di gestione."
-    . "<br>". str_replace(';' , '; ', serialize($campi))
+    // . "<br>". str_replace(';' , '; ', serialize($campi))
     . "<br> Record non trovato o scaduto.";
+    sleep(rand(2,7));
     require_once(ABSPATH.'aa-view/consultatori-accesso-view.php');
     exit(0);
   }
@@ -81,22 +93,29 @@ function accesso_checkpoint(array $dati_input){
   $cognome_nome = '';
   $email='';
   foreach ($ret_acc['data'] as $consultatore) {
-    if (strcmp($consultatore['password'], $pass) != 0){
+    if (strncmp($consultatore['password'], $pass, 128) != 0){
+      // echo "<br>::".$consultatore['password']."::";
+      // echo "<br>::".$pass."::";
+      // echo "<br>id:".$consultatore['record_id'];
       continue;
     }
     $abilitazione_calendario = str_replace("'", '', $consultatore['abilitazione']);
+    // se abilitazione_calendario è maggiore di ...
     if (strncmp($abilitazione_consultatore, $abilitazione_calendario, 2) < 0){
       $id_consultatore = $consultatore['record_id'];
       $abilitazione_consultatore = $abilitazione_calendario;
       $cognome_nome = $consultatore['cognome_nome'];
       $email = $consultatore['email'];
     }
-  }
+  } // foreach
   if ($id_consultatore == 0){
     $_SESSION['messaggio']="Si è verificato un errore nell'accesso "
-    . "all'archivio dei consultatori.<br>Non proseguire e inviare "
+    . "all'archivio dei consultatori.<br><b>Non proseguire</b> e inviare "
     . "questa schermata al comitato di gestione."
-    . "<br> Record non trovato o scaduto. [2]";
+    . "<br>". str_replace(';' , '; ', serialize($campi))
+    . "<br><br>". str_replace(';' , '; ', serialize($ret_acc['data']))
+    . "<br><br> Record non trovato o scaduto. [2]";
+    sleep(rand(2,7));
     require_once(ABSPATH.'aa-view/consultatori-accesso-view.php');
     exit(0);
   }
@@ -113,18 +132,16 @@ function accesso_checkpoint(array $dati_input){
   $dominio  = str_replace('http://', '', $dominio);
   $dominio  = substr($dominio, 0, strpos($dominio, '/', 0));
 
-  // servono in localhost   
+  // servono online 
+  setcookie("consultatore",    $cognome_nome,              $scadenza, "/", $dominio); 
+  setcookie("abilitazione",    $abilitazione_consultatore, $scadenza, "/", $dominio); 
+  setcookie("accesso_email",   $email,                     $scadenza, "/", $dominio); 
+  setcookie("consultatore_id", $id_consultatore,           $scadenza, "/", $dominio); 
+
+  // si gira alla pagina di destinazione 
   header("Set-Cookie: consultatore='$cognome_nome'; Expires='$expires'; Path=/; SameSite=None; ", false);
   header("Set-Cookie: abilitazione='$abilitazione_consultatore'; Expires='$expires'; Path=/; SameSite=None; ", false);
   header("Set-Cookie: consultatore_id=$id_consultatore; Expires='$expires'; Path=/; SameSite=None; ", false);
-
-  // servono online 
-  setcookie("consultatore",    $cognome_nome,  $scadenza, "/", $dominio); 
-  setcookie("abilitazione",    $abilitazione_consultatore,  $scadenza, "/", $dominio); 
-  setcookie("accesso_email",   $accesso_email, $scadenza, "/", $dominio); 
-  setcookie("consultatore_id", $id_calendario, $scadenza, "/", $dominio); 
-
-  // si gira alla pagina di destinazione 
   header("Location: ". $return_to );
   exit(0); // tutto ok - termina  
 } // accesso_checkpoint()
@@ -333,10 +350,11 @@ function modifica_consultatore(int $consultatore_id, array $dati_input){
     require_once(ABSPATH.'aa-view/consultatori-modifica-view.php');
     exit(1);
   }
-  $_SESSION['messaggio']="Aggiornamento effettuato, potete tornare all'elenco";
-  // si espone
+  $_SESSION['messaggio']="Aggiornamento effettuato, siete tornati all'elenco."
+  . "<br>" . $ret_acc['message'] ;
+  // si espone aggiungendo un timestamp per ridurre l'effetto memoria
   http_response_code(200);
-  header('Location: '.URLBASE.'consultatori.php/elenco/');
+  header('Location: '.URLBASE.'consultatori.php/elenco/?#'.time());
   exit(0);
 } // modifica_consultatore()
 
