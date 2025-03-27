@@ -21,7 +21,9 @@
  * /cartelle.php/archivia-cartella/{scansioni_cartelle_id}
  * 
  */
-if (!defined('ABSPATH')){
+
+// recupero parametri  
+ if (!defined('ABSPATH')){
 	include_once('./_config.php');
 }
 include_once(ABSPATH.'aa-controller/controller-base.php');
@@ -38,6 +40,7 @@ if (count($pezzi['operazioni']) < 2){
 	echo '<pre style="color: red;"><strong>Manca un id</strong></pre>'."\n";
 	exit(1);
 }
+
 // check 1 - che richiesta è stata fatta? 
 switch($richiesta){
 	// queste si
@@ -53,44 +56,9 @@ switch($richiesta){
 		exit(1);
 		break; // per check 
 }
-		
+
+// Operazioni 
 include_once(ABSPATH . "aa-controller/cartelle-controller.php"); // route_from_uri
-/* 
-	Struttura dell'url attesa da cartelle.php/ in avanti:
-	operazione/parametri?parametri-aggiuntivi 
-	array $operazioni restituito da route_from_uri
-	[0]        [1]
- */
-
-// /deposito.php/cartella/nome-della-cartella
-/* 
-	if ($richiesta == 'cartella'){
-			$livelli = array_slice( $pezzi['operazioni'], 1);
-			$percorso_completo = implode('/', $livelli);
-			leggi_cartella_per_percorso($percorso_completo);
-			exit(0);
-	} 
- */
-
-// /deposito.php/leggi/scansioni_disco_id
-/* 
-if ($richiesta=='leggi'){
-	$scansioni_disco_id = $pezzi['operazioni'][1];
-	if (!is_numeric($scansioni_disco_id)){
-		http_response_code(404); // know not found
-		echo '<pre style="color: red;"><strong>Il parametro deve essere un intero, invece è "'.$scansioni_disco_id.'".</strong></pre>'."\n";
-		exit(1);
-	}
-	$scansioni_disco_id = (int) $scansioni_disco_id;
-	if ($scansioni_disco_id < 1){
-		http_response_code(404); // know not found
-		echo '<pre style="color: red;"><strong>Il parametro deve essere un intero positivo, invece è "'.$scansioni_disco_id.'".</strong></pre>'."\n";
-		exit(1);
-	}
-	leggi_cartella_per_id($scansioni_disco_id); // cartelle-controller
-	exit(0);
-}
- */
 
 // /cartelle.php/lista-cartelle-sospese/0
 if ($richiesta == 'lista-cartelle-sospese'){
@@ -98,17 +66,18 @@ if ($richiesta == 'lista-cartelle-sospese'){
 	exit(0);
 }
 
-// /cartelle.php/aggiungi-cartella/0 
-// 1 di 2 espone il modulo 
-if ($richiesta == 'aggiungi-cartella' && !isset($_POST['aggiungi_cartella'])){
-	carica_cartelle_da_scansionare();
-	exit(0); 
+// /cartelle.php/aggiungi-cartella/0 + $_POST['aggiungi-cartella]
+// i dati ci sono, elabora il modulo - carica le cartelle in scansione_cartelle
+if ($richiesta == 'aggiungi-cartella' && isset($_POST['aggiungi_cartella'])){
+	// TODO a prescindere da cosa contiene, sanificare $_POST
+	carica_cartelle_in_scansioni_cartelle( $_POST );
+	exit(0); //
 }
 
-// /cartelle.php/aggiungi-cartella/0 + $_POST['aggiungi-cartella]
-// 2 di 2 elabora il modulo 
-if ($richiesta == 'aggiungi-cartella' && isset($_POST['aggiungi_cartella'])){
-	carica_cartelle_da_scansionare();
+// /cartelle.php/aggiungi-cartella/0 
+// i dati mancano, espone il modulo 
+if ($richiesta == 'aggiungi-cartella'){
+	carica_cartelle_in_scansioni_cartelle([]);
 	exit(0); 
 }
 
@@ -116,19 +85,10 @@ if ($richiesta == 'aggiungi-cartella' && isset($_POST['aggiungi_cartella'])){
 // /cartelle.php/archivia-cartella/scansioni_cartelle_id 
 if($richiesta =='archivia-cartella'){
 	$cartella_id = $pezzi['operazioni'][1];
-	if (!is_numeric($cartella_id)){
-		http_response_code(404); // know not found
-		echo '<pre style="color: red;"><strong>Il parametro deve essere un intero, invece è "'.$cartella_id.'".</strong></pre>'."\n";
-		exit(1);
-	}
-	$cartella_id = (int) $cartella_id;
-	if ($cartella_id < 1){
-		$cartella_id = 0; // con questo parametro viene preso "il primo dei sospesi"
-	}
-	carica_scansioni_disco_da_scansioni_cartelle($cartella_id); // cartelle-controller
+	$cartella_id = (is_numeric($cartella_id) && $cartella_id > 0) ? $cartella_id : 0;
+	carica_cartelle_in_scansioni_disco($cartella_id); // cartelle-controller
 	exit(0);
 }
-
 
 // Qui non dovrebbe arrivarci, però...
 http_response_code(404); // know not found

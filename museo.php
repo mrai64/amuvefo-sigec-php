@@ -43,6 +43,7 @@ $ingresso = str_replace('#consultazione_video',           URLBASE.'deposito.php/
 $ingresso = str_replace('#consultazione_amuvefo',         URLBASE.'man/', $ingresso);
 $ingresso = str_replace('#consultazione_fiaf',            'https://fiaf.net/veneto/',  $ingresso);
 $ingresso = str_replace('#consultazione_athesis',         'https://www.athesis77.it/', $ingresso);
+$ingresso = str_replace('#ricerca_avanzata',              URLBASE.'/ricerca.php',      $ingresso);
 
 // applicazione dei link in base al contenuto di _COOKIE['abilitazione']
 // abilitazione modifica 
@@ -56,11 +57,19 @@ if (strncmp($cookie_abilitazione, $abilitazione_solalettura, 2) > 0){ // A > B
 }
 
 // applicazione dei link in base al contenuto di _COOKIE['abilitazione']
-// abilitazione modifica con aruba drive 
+// abilitazione modifica / accesso ad con aruba drive (in sola lettura) 
 if (strncmp($cookie_abilitazione, $abilitazione_modifica, 2) > 0){ // A > B 
 	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
-	// TODO Definire dei link di condivisione per ciascuna cartella definitiva 
-	// e associarli
+	$ingresso = str_replace('#originali_autori_fondi',      'https://www.athesis1977.it/s/NKGJ7DytF9LXRmL', $ingresso);
+	$ingresso = str_replace('#originali_autori',            'https://www.athesis1977.it/s/4bsSwmHiWW8XbQe', $ingresso);
+	$ingresso = str_replace('#originali_fondi',             'https://www.athesis1977.it/s/Z7doaewN5yab5XR', $ingresso);
+	$ingresso = str_replace('#originali_libri',             'https://www.athesis1977.it/s/3CZj72yFYkzF4LK', $ingresso);
+	$ingresso = str_replace('#originali_localita_abcss',    'https://www.athesis1977.it/s/dkGdTKYM6SHxgGy', $ingresso);
+	$ingresso = str_replace('#originali_localita',          'https://www.athesis1977.it/s/PrtkiLyXb45ip3F', $ingresso);
+	$ingresso = str_replace('#originali_dati',              'https://www.athesis1977.it/s/eTXfW3DrmfQ29zm', $ingresso);
+	$ingresso = str_replace('#originali_scuole',            'https://www.athesis1977.it/s/8AqRLfFkqZG3qDz', $ingresso);
+	$ingresso = str_replace('#originali_terrisaurum',       'https://www.athesis1977.it/s/RNZ8kZw6fkagzXg', $ingresso);
+	$ingresso = str_replace('#originali_video',             'https://www.athesis1977.it/s/Y8EEto8ekW6TQK5', $ingresso);
 	$ingresso = str_replace('#consultazione_athesis',       'https://www.athesis77.it/', $ingresso);
 }
 

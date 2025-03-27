@@ -1,38 +1,40 @@
 # AMUVEFO-sigec-php
+English version of that doc is on [README.md](./README.md). 
 
-Un "sistema" "generale" di catalogazione per un foto club.  
-EN: read [README.md](./README.md)
+AMUVEFO sta per Athesis MUseo Veneto FOtografia.
+SIGEC sta per SIstema GEnerale di archiviazione e Catalogazione
+PHP sta per ..si sa.
 
-## Mezzo italiano mezzo inglese
+AMVEFO-SIGEC è stato realizzato per il mio photo club,
+su misura per le nostre necessità. Ma dovendo essere il più
+possibile flessibile (a ogni incontro le richieste CAMBIANO),
+ho adottato un sistema chiavi-valori.
 
-Per qualche motivo dovrò consegnare il codice sorgente
-al mio foto club perché sia usato e sviluppato nei
-prossimi anni. Pertanto alcuni termini in mezzo al sorgente
-sono in italiano, come album (in inglese uguale), fotografia/fotografie
-video, consultatore.
-La maggior parte è codice sorgente php così ho dovuto
-mescolare italiano e inglese.
+La nostra Biblioteca virtuale ha delle Sale tematiche, contenenti armadi,
+ripiani, Faldoni, Scatole che forniscono un ordine gerarchico bibliotecario
+di accesso. Ma ogni elemento può avere un proprio mazzetto di
+chiavi-valori che consentono delle ricerche mirate.
 
-Nel corso degli ultimi 40anni il foto club ha raccolto
-una mole impressionante di immagini e documenti. La stima
-ammonta a circa 24TB di dati[^1]. Divisi in una dozzina+dozzina di HDD,
-una copia di tutto online, ma si sa, i dischi sono come gli scaffali
-di una biblioteca, se un libro è su uno scaffale dello Sport
-non può essere allo stesso momento in un altro scaffale.
-Così i bibliotecari si sono creati le schede, e pure io ho
-sviluppato l'acqua calda usando per archiviare file e cartelle
-un sistema di etichette basato su dozzine di termini come
-nome/autore, luogo/comune ecc.
+Si tratta di un progetto partito ancora nel lontano 2010 e che
+si è sviluppato in diversi ambienti, ed è stato rimesso su da zero
+per la 5a o 6a volta. I progetti precedenti prevedevano un appoggio
+sul sito associativo basato s wordpress, quindi la precedente
+versione era basata tutta su javascript e nodejs, peccato che poi
+non era possibile come su localhost intervenire nello
+spazio web per gestirlo.
 
-[^1]: Alla data di maggio 2024
+Dovendo farlo funzionare per dei giovanotti d'un tempo,
+e farlo mantenere a loro, all'interno del sistema molti
+elementi sono scritti in italiano. Misto all'inglese del php
+può creare confuzione ma si è preferito questo.
 
 ## Generalità
 
-Fondamentalmente il nostro patrimonio è fatto di immagini e/o video
-raccolti in album, così ho creato degli archivi chiamati album,
-fotografie, video. Ho aggiunto degli altri archivi per memorizzare,
-abbinati agli elementi delle tabelle principali, le coppie di etichette
-chiave-valore: album_dettagli, fotografie_dettagli, video_dettagli.
+Fondamentalmente il nostro *patrimonio* è fatto di immagini e/o video
+raccolti in album, così ho creato degli archivi chiamati *tabella album*,
+*tabella fotografie*, *tabella video*. Ho aggiunto degli altri archivi per memorizzare,
+abbinati agli elementi delle tabelle principali, le coppie di 
+chiave-valore: *album_dettagli*, *fotografie_dettagli*, *video_dettagli*.
 Non tutto quello che è nei dischi finisce in archivio a far parte
 dell'AMUVEFO-SIGEC, così devo prima fare un elenco delle cartelle,
 farle esaminare per avere un (enorme) elenco del contenuto disco

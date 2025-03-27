@@ -56,20 +56,31 @@
           <input type="password" class="form-control" name="accesso_password" id="accessoPassword" placeholder="Password" value="info@athesis77.it" required>
           <label for="accesso_password">Password</label>
         </div>
-        
+        <p>Lasciando i valori preimpostati potete accedere con abilitazione 
+          di sola lettura, consultazione. Se invece dovete fare lavori
+          di amministrazione o modifica, potete inserire la e-mail e password 
+          che sono state concordate con il comitato di gestione.</p>
+          <p>L'accesso personalizzato con email e password è necessario 
+          anche per chi vuole richiedere copie in alta risoluzione 
+          delle immagini stesse.</p>
         <div class="form-check text-start my-3">
-          <input class="form-check-input" type="checkbox" value="okCookie" name="accessoCookie" id="accessoCookie" required>
+          <input class="form-check-input" type="checkbox" 
+          value="okCookie" checked 
+          name="accessoCookie" id="accessoCookie" required>
           <label class="form-check-label" for="accessoCookie">
-            Accetto la memorizzazione di cookie sul mio browser per motivi tecnici. 
+            Accetto la memorizzazione di cookie sul mio browser 
+            per motivi tecnici. 
           </label>
         </div>
         <div class="form-check text-start my-3">
-          <input class="form-check-input" type="checkbox" value="termof" name="accessoTermini" id="accessoTermini" required>
+          <input class="form-check-input" type="checkbox" 
+          value="termof" checked 
+          name="accessoTermini" id="accessoTermini" required>
           <label class="form-check-label" for="accessoTermini">
-            Accetto i <a href="<?=URLBASE; ?>man/termini-di-servizio-e-condizioni-duso/" target="_blank">Termini di servizio e le Condizioni d'uso</a> 
+            Accetto i <a href="<?=URLBASE; ?>man/termini-di-servizio-e-condizioni-duso/" target="_blank">Termini 
+              di servizio e le Condizioni d'uso</a> 
           </label>
         </div>
-        <p>Lasciando i valori preimpostati potete visionare i materiali nella persona di Anonimo Consultatore.</p>
         <p>La risposta errata è intenzionalmente ritardata.</p>
 
         <input type="hidden" name="return_to" value="<?=$return_to; ?>">

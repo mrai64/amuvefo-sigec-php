@@ -1,41 +1,38 @@
 # AMUVEFO-sigec-php
 
-A "simple" n "general" catalogue-portfolio for a photo club.  
-IT: vedi [LEGGIMI.md](./LEGGIMI.md)
+Italian version of that is on [LEGGIMI.md](./LEGGIMI.md)
 
-## Half italian half english
+AMUVEFO is for *Athesis MUseo VEneto FOtografia*, Athesis' photographic venetian museum
+SIGEC is for *Sistema Generale di Catalogazione*, Generic archiving system 
+PHP is for ...you know.
 
-For some reason i will release that source code to
-my photo club to use and develop in next years.
-So some terms are in italian as album (really),
-fotografia/fotografie (photo/photos), video
-(really), consultatore (user, visitor).
-But mostly are php code so i mix italian italian
-verbs, subject,and so on...
+AMUVEFO-SIGEC was built for my photo social club, tailored on our needs.
+But to be flexible as we need (anytime requirements CHANGE), i apply
+a key-value system.
 
-During last 40years in my photo club a huge amount
-of data was stored. We think at now 24TB of data.
-A dozen+dozen HDD, an online copy, but as you know
-HDD are like a library index, if a volume is in
-Sport section cannot be at same time in another section.
-So Libraries use bibliographic cards, and also I develop warm water
-using for file n folders (directory) a tag system
-based on dozen of terms like name/author, place/common,
-etc.
+Our virtual Library had tematic Rooms, Wardrobes, Shelves, folders, boxes
+that represent a hierarchic order of library. But every single part
+should had its lot of K-V which consent a fine research.
 
-Thats a generic/general catalog system,
-so i called it italian: SIstema GEnerale di Catalogazione
-SI GE C applied to our Athesis' Museo Veneto Fotografia
-(Museum of Venetian Photographic Art, MuVePh?).
+It is a project that started back in 2010 and has already been carried
+out in different environments, and has now been rebuilt from scratch
+after the 5th, or 6th version. The previous projects provided for a "support"
+from the wordpress structure of the associative site, then a first version
+was made with nodejs locally and then it was seen that in the web space
+it was not possible to install nodejs and manage it as in localhost.
+
+To be used by the elderly, and maintained by them, all messages,
+the interface, the names of the archives and more are strictly in Italian.
+And this can also cause some confusion.
 
 ## ABOUT
 
-Basically _our treasure_ are photo and/or video folded in
-albums, so i build an album table, a fotografie table
-and an album table.
+Basically *our treasure* are photo and/or video folded in
+albums, so i build an *album table*, a *fotografie table*
+and an *album table*.
 As sidecar, other 3 tables for a list of referenced
-key-value: album_dettagli, fotografie_dettagli,
-video_dettagli. Not all file n folders stored in HDD
+key-value: *album_dettagli*, *fotografie_dettagli*,
+*video_dettagli*. Not all file n folders stored in HDD
 become part of AMUVEFO-SIGEC, so i need first elencate
 a list of folders (cartelle) and every folder cartella is readd
 to build automatically an huge disk-list (disco)
@@ -49,9 +46,13 @@ keys with a limited set of values another table.
 
 ## Adopted Style
 
-Writer' block was overcome with some simple tutoria that
-mixed [html](https://en.wikipedia.org/wiki/HTML), [bootstrap](https://getbootstrap.com) n [php](https://www.php.net) to perform CRUD operations.
-After some simple page to manage list i left to an [MVC](https://en.wikipedia.org/wiki/Model–view–controller) to separate how is user interface user experience, data storage, and in between the php code to manage both.
+Writer' block was overcome with some simple tutorial that
+
+Based on mixed [html](https://en.wikipedia.org/wiki/HTML),
+[bootstrap](https://getbootstrap.com) n [php](https://www.php.net) to perform CRUD operations.
+After some simple page to manage list i left to
+an [MVC](https://en.wikipedia.org/wiki/Model–view–controller) to separate how is user interface user experience, data storage, and in between the php code to manage both.
 
 Why not use the trendy nodejs? well, to apply i need use a
 cloud-based platform to create a PWA, but cost should be incontrollable.
+

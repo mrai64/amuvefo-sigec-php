@@ -334,6 +334,10 @@ function leggi_cartella_per_id(int $scansioni_disco_id) {
 		$leggimi = file_get_contents($leggimi_file);
 	}
 
+	// Ritorno a /museo.php 
+	$torna_base = URLBASE.'museo.php';
+	$torna_sala = URLBASE.'deposito.php/cartella/'.$cartella_radice['livello1'].'/'; 
+
 	// finito,. si applica e si mostra.
 	require_once(ABSPATH."aa-view/cartelle-sottocartelle-view.php");
 	exit(0);
@@ -354,6 +358,10 @@ if ( isset($_GET['test']) &&
  * 
  */
 function leggi_cartella_per_percorso( string $percorso ){
+	//dbg echo '<p style="font-family:monospace;">input '. __FUNCTION__ .'<br>';
+	//dbg echo var_dump($percorso);
+	//dbg echo '</p>';
+
 	// input vuoto
 	if ($percorso == ''){
 		http_response_code(404);
@@ -362,6 +370,11 @@ function leggi_cartella_per_percorso( string $percorso ){
 	$percorso = urldecode($percorso);
 	$percorso = htmlspecialchars(strip_tags($percorso));
 	$percorso = str_replace(URLBASE, '', $percorso);
+	
+	//dbg echo '<p style="font-family:monospace;">input '. __FUNCTION__ .'<br>';
+	//dbg echo var_dump($percorso);
+	//dbg echo '</p>';
+
 	if (!str_contains($percorso, '/')){
 		$spezzato = ["livello1" => $percorso, "livello2" => ''];
 	} else {
@@ -374,18 +387,24 @@ function leggi_cartella_per_percorso( string $percorso ){
 	}
 	// caricamento $campi
 	$campi = [];
-	$ind=1;
+	$ind=1; // non parte da 0
 	foreach($spezzato as $tmp){
 		if ($tmp > ''){
 			$campi["livello".$ind] = $tmp;
 			$ind++;
 		}
 	}
-	//dbg echo "<pre style='font-family:monospace;max-width:50rem;'>";
+	//dbg echo "<p style='font-family:monospace;'>";
 	//dbg echo '<br>Campi:';
 	//dbg echo var_dump($campi);
 	$campi['query'] = crea_query_cartella($campi);
 	//dbg echo 'query: ' . $campi['query'];
+	//dbg echo '</p>';
+
+	// Ritorno a /museo.php 
+	$torna_base = URLBASE.'museo.php';
+	$torna_sala = URLBASE.'deposito.php/cartella/'.$campi['livello1'].'/'; 
+
 
 	$dbh  = New DatabaseHandler();
 	$scan = New ScansioniDisco($dbh);
@@ -427,6 +446,10 @@ function leggi_cartella_per_percorso( string $percorso ){
 	}
 
 	$ret = $scan->leggi($campi);
+	//dbg echo '<p>Lettura: <br>';
+	//dbg echo var_dump($ret);
+	//dbg echo '</p>';
+
 	if (isset($ret['error'])){
 		http_response_code(404);
 		exit("Errore in ricerca sottocartelle" . $ret['message']);
@@ -440,11 +463,9 @@ function leggi_cartella_per_percorso( string $percorso ){
 	$cartella .= ($cartella_radice['livello5']) ? ' / ' . $cartella_radice['livello5'] : "";
 	$cartella .= ($cartella_radice['livello6']) ? ' / ' . $cartella_radice['livello6'] : "";
 
-	/*
-	Si deve verificare: se nella cartella fisicamente
-	collocata in livello1/livello2/... è presente un file _leggimi.txt
-	e proporlo, in alternativa si può leggere una didascalia
-	associata alla tabella scansioni disco + id
+	/* DIDASCALIA della cartella
+	Verificare se è presente un file _leggimi.txt
+	e proporlo.
 	*/
 	$leggimi = "";
 	//$leggimi_file = '../'.str_replace(' / ', '/', $cartella)."/_leggimi.txt";
@@ -461,13 +482,15 @@ function leggi_cartella_per_percorso( string $percorso ){
 
 /**
  * collaudo della funzione 
+ * https://www.fotomuseoathesis.it/aa-controller/deposito-controller.php?test=leggi_cartella_per_percorso&percorso=/6LOCA/
  */
 if (isset($_GET['test']) &&
 		isset($_GET['percorso']) &&
 		$_GET['test'] == "leggi_cartella_per_percorso" ){
-			
+	echo "<p style='font-family:monospace;'> test leggi cartella per percorso </p>";
+	echo '<p>percorso:' . $_GET['percorso'] . '</p>';
 	leggi_cartella_per_percorso( $_GET['percorso'] );
-
+	exit(0);
 }
 
 /**
@@ -544,7 +567,7 @@ if (isset($_GET['test']) &&
 
 
 /**
- * Espone un modulo per cambiare la titna in un record di 
+ * Espone un modulo per cambiare la tinta in un record di 
  * cartelle o sottocartelle in scansioni_disco 
  */
 function cambia_tinta_record(array $dati_input){

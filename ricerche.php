@@ -8,7 +8,7 @@
  * https://archivio.athesis77.it/ricerche.php/fotografie
  * https://archivio.athesis77.it/ricerche.php/video
  * 
- * Invece la pagina che espone il modulo fi ricerca è
+ * Invece la pagina che espone il modulo di ricerca è
  * /ricerca.php 
  * 
  * La gestione delle chiavi di ricerca, quelle che danno un 

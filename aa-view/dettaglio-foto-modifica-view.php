@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?=$dettaglio['chiave']; ?> | DETTAGLIO FOTO | Modifica </title>
+    <title><?= $dettaglio['chiave']; ?> | DETTAGLIO FOTO | Modifica </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   </head>
   <body>  
@@ -16,16 +16,16 @@
         <div class="card">
           <div class="card-header">
             <h4>Modifica Dettaglio foto
-              <a href="<?=$leggi_fotografia; ?>" class="btn btn-secondary float-end">Torna alla vista foto</a>
+              <a href="<?= $leggi_fotografia; ?>" class="btn btn-secondary float-end">Torna alla vista foto</a>
             </h4>
           </div>
           <div class="card-body">
-            <form action="<?=$aggiorna_dettaglio; ?>" method="post">
-              <input type="hidden" name="record_id"     value="<?=$record_id;     ?>">
-              <input type="hidden" name="fotografie_id" value="<?=$fotografie_id; ?>">
+            <form action="<?= $aggiorna_dettaglio; ?>" method="post">
+              <input type="hidden" name="record_id"     value="<?= $record_id;     ?>">
+              <input type="hidden" name="fotografie_id" value="<?= $fotografie_id; ?>">
               <div class="mb-3">
-                <label class="h3" for="valore"> <?=$dettaglio["chiave"]; ?></label>
-                <input type="text" name="valore" value="<?=$dettaglio['valore']; ?>" class="form-control" >
+                <label class="h3" for="valore"> <?= $dettaglio["chiave"]; ?></label>
+                <input type="text" name="valore" value="<?= $dettaglio['valore']; ?>" class="form-control" >
               </div>
               <div class="mb-3">
                 <button type="submit" name="aggiorna_dettaglio" class="btn btn-primary">Aggiorna dettaglio</button>
