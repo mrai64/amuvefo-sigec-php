@@ -31,9 +31,9 @@
                     id="tinta"
                     class="form-control form-control-color"
                     aria-describedby="helpTinta"
-                    value="#<?="000099"; ?>"
+                    value="#<?= "000099"; ?>"
                   />
-                  <small id="helpTinta" class="form-text text-muted" style="color: #<?="000099"; ?>" >Selezionare un colore</small>
+                  <small id="helpTinta" class="form-text text-muted" style="color: #<?= "000099"; ?>" >Selezionare un colore</small>
                 </div>
                 <div class="mb-3">
                   <button type="submit" name="aggiorna_tinta" class="btn btn-primary text-center">Aggiorna colore</button>

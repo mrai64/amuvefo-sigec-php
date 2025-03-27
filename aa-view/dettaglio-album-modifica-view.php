@@ -24,6 +24,7 @@
                 <form action="<?=$aggiorna_dettaglio; ?>" method="POST">
                   <input type="hidden" name="record_id" value="<?=$dettaglio_id; ?>">
                   <input type="hidden" name="album_id"  value="<?=$album_id;  ?>">
+                  <input type="hidden" name="chiave"    value="<?=$dettaglio["chiave"] ?>">
                   <div class="mb-3">
                        <label class="h3" for="valore"> <?=$dettaglio["chiave"] ?></label>
                         <input type="text" name="valore" value="<?=$dettaglio['valore']; ?>" class="form-control" aria-describedby="valoreHelpInline" required>

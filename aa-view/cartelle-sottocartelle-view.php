@@ -16,9 +16,17 @@
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-header" style='color: #<?=$cartella_radice["tinta_rgb"]; ?>'>
-						<div class="bi flex-shrink-0 me-3" width="1.75em" height="1.75em" style=style='color: #<?=$cartella_radice["tinta_rgb"]; ?>'><i class="bi bi-archive" style='font-size:1.75rem;color:<?=$cartella_radice["tinta_rgb"]; ?>' ></i>
-						&nbsp; 
-						<span style='color: #<?=$cartella_radice["tinta_rgb"]; ?> !important;'><?=$cartella; ?></span>
+						<div class="bi flex-shrink-0 me-3" width="1.75em" height="1.75em" 
+						style='color: #<?=$cartella_radice["tinta_rgb"]; ?>'>
+						&nbsp; <a href='<?=$torna_base; ?>'><i class="h2 bi bi-house-up" 
+						style='color:<?=$cartella_radice["tinta_rgb"]; ?>' ></i></a>
+						&nbsp; <a href='<?=$torna_sala; ?>'><i class="h2 bi bi-arrow-left-square" 
+						style='color:<?=$cartella_radice["tinta_rgb"]; ?>' ></i></a>
+						&nbsp;|&nbsp; <a href='/ricerca.php'><i class="h2 bi bi-search" 
+						style='color:<?=$cartella_radice["tinta_rgb"]; ?>' ></i></a>
+						&nbsp;|&nbsp; <i class="h2 bi bi-geo-alt" 
+						style='color:<?=$cartella_radice["tinta_rgb"]; ?>' ></i>
+						<span style='color: #<?=$cartella_radice["tinta_rgb"]; ?> !important;'><?=$cartella; // siete in ?></span>
 					</div>
 				</div>
 					<div class="card-body" style="overflow-y: scroll;">
@@ -106,7 +114,8 @@
 												<td><a href="<?=URLBASE; ?>deposito.php/leggi/<?=$sottocartella["record_id"]; ?>"><i class="bi bi-archive" style="font-size:1rem;color: #<?=$tinta_rgb; ?>"></i></a>&nbsp;</td>
 												<td><a href="<?=URLBASE; ?>deposito.php/leggi/<?=$sottocartella["record_id"]; ?>" style="text-decoration: none;"><span style="font-size:1rem;color: #<?=$tinta_rgb; ?>"><?=$sottocartella_nome; ?></span></a></td>
 												<td nowrap>
-													<a href="<?=URLBASE; ?>deposito.php/cambio-tinta/<?=$sottocartella["record_id"]; ?>?t=scansioni_disco&back=<?=$url_sottocartella; ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-palette-fill"></i></a><!-- a href="<?=URLBASE; ?>deposito.php/richiesta<?=$sottocartella["record_id"]; ?>&t=scansioni_disco&back=<?=$url_sottocartella; ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-cart-plus-fill"></i></a -->
+													<a href="<?=URLBASE; ?>deposito.php/cambio-tinta/<?=$sottocartella["record_id"]; ?>?t=scansioni_disco&back=<?=$url_sottocartella; ?>" 
+													class="btn btn-outline-primary btn-sm"><i class="bi bi-palette-fill"></i></a><!-- a href="<?=URLBASE; ?>deposito.php/richiesta<?=$sottocartella["record_id"]; ?>&t=scansioni_disco&back=<?=$url_sottocartella; ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-cart-plus-fill"></i></a -->
 												</td>
 											</tr>
 										<?php 
@@ -140,11 +149,16 @@
 	</div>
 	<footer class="py-3 " style="z-index: -1;">
 		<ul class="nav justify-content-center border-top pb-3 ">
-			<li class="nav-item"><a href="<?=URLBASE; ?>ingresso.php" class="nav-link px-2 text-body-secondary">Ingresso</a></li>
-			<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
-			<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
-			<li class="nav-item"><a href="https://athesis77.it/" class="nav-link px-2 text-body-secondary">Associazione</a></li>
-			<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
+			<li class="nav-item"><a href="<?=URLBASE; ?>ricerca.php" 
+			class="nav-link px-2 text-body-secondary">Ricerca avanzata</a></li>
+			<li class="nav-item"><a href="<?=URLBASE; ?>man/" 
+			class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
+			<li class="nav-item"><a href="<?=URLBASE; ?>man/" 
+			class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
+			<li class="nav-item"><a href="https://athesis77.it/" 
+			class="nav-link px-2 text-body-secondary">Associazione</a></li>
+			<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" 
+			class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
 		</ul>
 		<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
 	</footer>

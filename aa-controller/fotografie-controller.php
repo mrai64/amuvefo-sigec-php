@@ -53,11 +53,10 @@ include_once(ABSPATH . 'aa-model/album-dettagli-oop.php');
 
 /**
  * CREATE - aggiungi 
- * Fotografie 
- * 
+ * Fotografie  
  * Legge scansioni_disco scrive fotografie 
  * 
- * @param  int   $scansioni_id 
+ * @param  int   $scansioni_id  id dell'album in scansioni_disco
  * @return array 'ok' + 'message' | 'error' + 'message' 
  */
 function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : array {
@@ -65,8 +64,19 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	$scan_h = New ScansioniDisco($dbh);
 	$alb_h  = New Album($dbh);
 	$foto_h = New Fotografie($dbh);
+	/* 1. in scansioni_disco cerca scansioni_id 
+	 * 2. in album cerca record_id_in_scansioni_disco
+	 * 3. in scansioni disco cerca le fotografie dentro album
+	 * 4. mette le fotografie da scansioni_disco in fotografie
+	 * 5. (manca) mette i video da scansioni_disco in video 
+	 */
 	
+	echo "<p style='font-family:monospace'>".__FUNCTION__." avvio :<br>"
+	. 'input:'. $scansioni_id.'</p>';
+
 	// verifica id in scansioni_disco 
+	// dev'essere il record_id dell'album
+	// Viene ignorato lo status 
 	$campi=[];
 	$campi['query'] = 'SELECT * FROM ' . ScansioniDisco::nome_tabella 
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
@@ -74,6 +84,7 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 	$campi['record_id'] = $scansioni_id;
 	$ret_scan = $scan_h->leggi($campi);
+
 	if ( isset($ret_scan['error']) || $ret_scan['numero'] == 0){
 		$ret = [
 			'error' => true,
@@ -81,14 +92,18 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 			. $scansioni_id 
 			. ' ' . (isset($ret_scan['message'])?$ret_scan['message']:'')
 		];
-		echo '<pre>Fotografie non inserite'."\n";
-		echo var_dump($ret);
+
+		echo '<p style="font-family:monospace">Fotografie non inserite<br>'
+		. str_replace(';', '; ', serialize($ret_scan)).'</p>';
 		return $ret;
-	}
+	} 
+	
 	$scansione_disco = $ret_scan['data'][0];
-	//dbg echo 'scansione_disco'."\n";
-	//dbg echo var_dump($scansione_disco);
-	// album 
+	echo '<p style="font-family:monospace">Scansioni_disco:<br>'
+	. str_replace(';', '; ', serialize($ret_scan)).'</p>';
+
+	
+	// lettura in album tramite chiave esterna record_di_in_scansioni_disco 
 	$campi=[];
 	$campi['query'] = 'SELECT * FROM ' . Album::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
@@ -96,6 +111,7 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	$campi['record_cancellabile_dal']      = $dbh->get_datetime_forever();
 	$campi['record_id_in_scansioni_disco'] = $scansioni_id;
 	$ret_alb = $alb_h->leggi($campi);
+	
 	if ( isset($ret_alb['error']) || $ret_alb['numero'] == 0){
 		$ret = [
 			'error' => true,
@@ -103,14 +119,16 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 			. $scansioni_id 
 			. ' ' . (isset($ret_scan['message'])?$ret_scan['message']:'')
 		];
-		echo '<pre>Fotografie non inserite '."\n";
-		echo var_dump($ret);
+		
+		echo '<p style="font-family:monospace">Fotografie non inserite<br>'
+		. str_replace(';', '; ', serialize($ret_scan));
 		return $ret;
 	}
-	$album = $ret_alb['data'][0];
-	//dbg echo 'album'."\n";
-	//dbg echo var_dump($album);
 	
+	$album = $ret_alb['data'][0];
+	echo '<p style="font-family:monospace">Album:<br>'
+	. str_replace(';', '; ', serialize($album)).'</p>';
+
 	// Elenco da scansioni_disco di fotografie e video (no, i video no)
 	$campi=[];
 	$campi['query']='SELECT * FROM ' . ScansioniDisco::nome_tabella
@@ -119,7 +137,7 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	. ' AND livello3 = :livello3  AND livello4 = :livello4 '
 	. ' AND livello5 = :livello5  AND livello6 = :livello6 '
 	. " AND nome_file <> '/' "
-	. " AND estensione in ('jpg','jpeg','tif') "
+	. " AND estensione in ('jpg','jpeg','psd','tif') "
 	. ' ORDER BY nome_file ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 	$campi['livello1'] = $scansione_disco['livello1'];
@@ -130,11 +148,14 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	$campi['livello6'] = $scansione_disco['livello6'];
 	$ret_scan = [];
 	$ret_scan = $scan_h->leggi($campi);
-	//dbg   echo 'album'."\n";
-	//dbg   echo var_dump($ret_scan);
+	echo '<p style="font-family:monospace">Fotografie Album da scansioni_disco:<br>'
+	. str_replace(';', '; ', serialize($ret_Scan)).'</p>';
+
 	if ( isset($ret_scan['error']) || $ret_scan['numero'] == 0 ){
 		return $ret_scan;    
 	}
+
+	// A "metter dentro" da scansioni_disco nella tabella delle fotografie
 	$fotografia=[];
 	$fotografia['record_id_in_album']     = $album['record_id'];
 	$fotografia['disco']                  = $album['disco'];
@@ -142,32 +163,59 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	$ret['ok'] = true;
 	$ret['numero'] = 0;
 	$ret['data'] = [];
+	echo '<ol>';
 	for ($i=0; $i < count($ret_scan['data']); $i++) { 
-		//dbg echo 'fotografie'."\n";
+		
 		$fotografia['titolo_fotografia'] = $ret_scan['data'][$i]['nome_file'];
 		$fotografia['percorso_completo'] = $album['percorso_completo'].$fotografia['titolo_fotografia'];
-		//dbg echo 'titolo_fotografia: ' . $fotografia['titolo_fotografia']."\n";
 		$fotografia['record_id_in_scansioni_disco'] = $ret_scan['data'][$i]['record_id'];
+		$ret_foto = [];
 		$ret_foto = $foto_h->aggiungi($fotografia);
-		//dbg echo var_dump($ret_foto);
+		
+		echo '<li style="font-family:monospace">Fotografia:<br>'
+		. str_replace(';', '; ', serialize($ret_foto)).'</li>';	
+		
 		if (isset($ret_foto['ok'])){
 			$ret['numero']++;
 			$ret['data'][] = $fotografia['titolo_fotografia'];
 		}
+		// nota: inserimento in tabella fotografie non cambia lo stato lavori delle fotografie
+		// che resta '0 da fare', è relativo all'elaborazione della fotografia per estrazione dettagli 
+		// Va invece cambiato in scansioni_disco 
+		// cambio stato in tabella da fare > lavori completati 
+		$ret_stato = $scan_h->set_stato_lavori_in_scansioni_disco($fotografia['record_id_in_scansioni_disco'], ScansioniDisco::stato_completati);
+		if (isset($ret_stato['error'])){
+			$ret = [
+				'error' => true,
+				'message' => "Non è stato aggiornato in scansioni_disco lo stato per il record " 
+				. $fotografia['record_id_in_scansioni_disco'] . '<br>'
+				. ' ' . $ret_stato['message'] . '<br>'
+				. serialize($campi)
+			];
+			return $ret;
+		}
+	
+
 	}
+	echo '</ol>';
+
+	echo "<p style='font-family:monospace;max-width:90%'>".__FUNCTION__." uscita :<br>"
+	. str_replace(';', '; ', serialize($ret)).'</p>';
+
 	return $ret; 
 } // carica_fotografie_da_scansioni_disco_con_id
 
 /**
  * test 
+ * https://fotomuseoathesis.it/aa-controller/fotografie-controller.php?disco_id=66&test=carica_fotografie_da_scansioni_disco_con_id
  * https://archivio.athesis77.it/aa-controller/fotografie-controller.php?id=66&test=carica_fotografie_da_scansioni_disco_con_id
  * 
  */
 if (isset($_GET['test']) && 
-		isset($_GET['id'])   && 
+		isset($_GET['disco_id'])   && 
 		$_GET['test'] == 'carica_fotografie_da_scansioni_disco_con_id'){
 	echo '<pre>debug on'."\n";
-	$ret = carica_fotografie_da_scansioni_disco_con_id($_GET['id']);
+	$ret = carica_fotografie_da_scansioni_disco_con_id($_GET['disco_id']);
 	echo 'fine'."\n";
 }
 
@@ -180,7 +228,7 @@ if (isset($_GET['test']) &&
  * aggiorna album in album
  * aggiorna fotografie in fotografie 
  */
-function carica_fotografie_da_album(int $album_id =0 ) : array {
+function carica_fotografie_da_album(int $album_id = 0 ) : array {
 	$dbh    = New DatabaseHandler();
 	$alb_h  = New Album($dbh);
 	$foto_h = New Fotografie($dbh);
@@ -229,7 +277,7 @@ function carica_fotografie_da_album(int $album_id =0 ) : array {
 	$album    = $ret_alb['data'][0];
 	$album_id = $album['record_id'];
 	
-	// album caricato in scansioni_disco 
+	// lettura album caricato in scansioni_disco 
 	$campi=[];
 	$campi['query'] = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
@@ -260,7 +308,7 @@ function carica_fotografie_da_album(int $album_id =0 ) : array {
 	. ' AND livello3 = :livello3    AND livello4 = :livello4 '
 	. ' AND livello5 = :livello5    AND livello6 = :livello6 '
 	. " AND nome_file <> '/' "
-	. " AND estensione IN ('jpg', 'jpeg', 'tif') "
+	. " AND estensione IN ('jpg', 'jpeg', 'psd', 'tif') "
 	. ' ORDER BY record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 	$campi['livello1'] = $album_in_scansioni['livello1'];
@@ -293,27 +341,30 @@ function carica_fotografie_da_album(int $album_id =0 ) : array {
 	$fotografie_in_scansioni=$ret_scan['data']; 	
 	$new_foto=[];
 	$new_foto['disco']             =$album_in_scansioni['disco'];
-	$new_foto['record_id_in_album']=$album_in_scansioni['record_id'];
+	$new_foto['record_id_in_album']=$album_id;
 	$ret=[];
-	$ret['numero']=0;
 	$ret['data']=[];
+	$ret_numero=0;
 	for ($i=0; $i < count($fotografie_in_scansioni); $i++) { 
 		# code...
 		$new_foto['titolo_fotografia'] = $fotografie_in_scansioni[$i]['nome_file'];
+		// resta nel titolo l'estensione
+		$new_foto['titolo_fotografia'] = str_replace('.'.$fotografie_in_scansioni[$i]['estensione'], '', $new_foto['titolo_fotografia'] );
+		$new_foto['titolo_fotografia'] = trim($new_foto['titolo_fotografia'] );
 		$new_foto['percorso_completo'] = $album['percorso_completo'] . $fotografie_in_scansioni[$i]['nome_file'];
 		$new_foto['record_id_in_scansioni_disco'] = $fotografie_in_scansioni[$i]['record_id'];
 		$ret_new = $foto_h->aggiungi($new_foto);
 		// echo "\n".'<hr>';
 		// echo var_dump($ret_new);
 		if (isset($ret_new['ok'])){
-			$ret['numero']++;
-			$ret['data'][]=$ret_new['numero'] .' '.$new_foto['titolo_fotografia'];
+			$ret_numero++;
+			$ret['data'][]=$ret_numero .' '.$new_foto['titolo_fotografia'];
 		}
 	} // for(fotografie_in_scansioni_disco)
-	// echo "\n".'<hr>';
+	$ret['numero']=$ret_numero;
 	$ret['ok'] = true;
 	return $ret;
-}
+} // carica_fotografie_da_album
 
 /**
  * test 
@@ -366,6 +417,13 @@ function leggi_fotografie_per_id( int $fotografie_id){
 	// Per limitare il carico macchina, si potrebbe già salvare un file "sidecar" con estensione .b64
 	// dove si trova l'immagine
 	$fotografia_src  = str_replace('//' , '/' , ABSPATH.$fotografia['percorso_completo']);
+
+	// Quando il file è tif viene creata una miniatura in jpg 300K vs 90MB
+	$fotografia_jpg = str_replace('.psd', '.jpg', $fotografia_src);
+	$fotografia_jpg = str_replace('.tif', '.jpg', $fotografia_jpg);
+	if (is_file($fotografia_jpg)){
+		$fotografia_src = $fotografia_jpg;
+	}
 	$fotografia_src  = 'data:image/jpeg;base64,'.base64_encode(file_get_contents($fotografia_src));
 	
 	// questo sistema crea una immagine in memoria e la libera dei dati exif 
@@ -392,7 +450,21 @@ function leggi_fotografie_per_id( int $fotografie_id){
 		$richiesta_originali = '#solalettura';
 		$aggiungi_dettaglio  = '#solalettura';
 	}
-	
+
+	/*
+	Si deve verificare: se nella cartella fisicamente
+	collocata in livello1/livello2/... è presente un file _leggimi.txt
+	e proporlo, in alternativa si può leggere una didascalia
+	associata alla tabella scansioni disco + id
+	*/
+	$leggimi = "";
+	$leggimi_file = ABSPATH.$fotografia['percorso_completo'];
+	$leggimi_file = str_replace('+', ' ', $leggimi_file);
+	$leggimi_file = str_replace(['.JPG', '.jpg', '.jpeg', '.TIF', '.tif', '.psd'] , '.txt' , $leggimi_file);
+	if (is_file($leggimi_file)){
+		$leggimi = file_get_contents($leggimi_file);
+	}
+
 	// dettagli 
 	$campi=[];
 	$campi['query'] = 'SELECT * FROM fotografie_dettagli '
@@ -760,6 +832,7 @@ include_once(ABSPATH . 'aa-model/chiavi-oop.php');
  * Aggiunge dettaglio da modulo via _POST 
  * @param   int $fotografia_id + $_POST
  * 
+ * !TODO $_POST deve diventare un parametro di input, passato dal router
  */
 function aggiungi_dettaglio_fotografia(int $fotografia_id){
 	$dbh    = New DatabaseHandler();
@@ -860,7 +933,7 @@ function carico_dettaglio(int $fotografia_id, string $chiave, string $valore) : 
  * l'alternativa può essere raccogliere tutti i dettagli ed eseguire 
  * un loop di insert con eventuale rollBack
  * 
- * Esegue un ridimensionamento distruttivo a 800 px lato lungo 
+ * rimosso - Esegue un ridimensionamento distruttivo a 800 px lato lungo 
  * 
  * @param  int  $fotografie_id 
  * @return void | echo html messages 
@@ -905,6 +978,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	$aggiunti=[];
 	$larghezza=0;
 	$altezza=0;
+	$data_evento_prima = 1880-01-01;
 
 	if ($fotografia_id == 0 ){
 		// cerca una non lavorata 
@@ -912,6 +986,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		$campi['query'] = 'SELECT * FROM ' . Fotografie::nome_tabella
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 		. ' AND stato_lavori = :stato_lavori '
+		. ' ORDER BY titolo_fotografia '
 		. ' LIMIT 1 ';
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 		$campi['stato_lavori'] = Fotografie::stato_da_fare;
@@ -927,19 +1002,26 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		$campi['record_id'] = $foto_h->get_record_id(); 		
 	}	
 	$ret_foto = $foto_h->leggi($campi);
-	// echo var_dump($ret_foto);
 	if (isset($ret_foto['error'])){
-		$ret = '<h2>Errore</h2>' 
-		. '<p>Non è stato possibile rintracciare la fotografia</p>'
+		$ret = '<h2>Errore </h2>' 
+		. '<p>Non è stato possibile rintracciare la fotografia </p>'
 		. '<pre>campi: ' . serialize($campi)
 		. '<br>' .(isset($ret_foto['message'])?$ret_foto['message']:'');
 		http_response_code(404);
 		echo $ret;
 		exit(1);
 	}
+	if (($fotografia_id == 0) && ($ret_foto['numero'] == 0) ){
+		$ret = '<h2 style="font-family:monospace;">avviso</h2>' 
+		. '<p>FINE / Non sono state rintracciare fotografie da elaborare.</p>';
+		http_response_code(200);
+		echo $ret;
+		exit(0);
+	}
 	if ($ret_foto['numero'] == 0 ){
 		$ret = '<h2>Errore</h2>' 
-		. '<p>Non è stato possibile rintracciare la fotografia</p>';
+		. '<p>Non è stata rintracciata la fotografia richiesta.</p>'
+		. '<pre>campi: ' . serialize($campi);
 		http_response_code(404);
 		echo $ret;
 		exit(1);
@@ -947,8 +1029,16 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	$fotografia=$ret_foto['data'][0];
 	$fotografia_id=$fotografia['record_id'];
 	$foto_file = $fotografia['percorso_completo'];
+	$foto_file = htmlspecialchars_decode($foto_file); // &amp; > &
+	$foto_file = htmlspecialchars_decode($foto_file); // &039; > '
 	$foto_file = str_replace('//', '/', ABSPATH.$foto_file);
-	echo 'id:' . $fotografia_id. ' file: ' . $foto_file;
+
+	echo '<p style="font-family:monospace;">';
+	echo 'Elaborazone fotografia id:' . $fotografia_id . '<br>file: "' . $foto_file . '"';
+	//dbg echo '<br>is_file: ' . (is_file($foto_file) ? 'true' : 'false');
+	echo '</p>';
+
+	// cambio stato in tabella da fare > lavori in corso 
 	$ret_stato = $foto_h->set_stato_lavori_in_fotografie($fotografia_id, Fotografie::stato_in_corso);
 	if (isset($ret_stato['error'])){
 		$ret = '<h2>Errore</h2>'
@@ -967,126 +1057,26 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		}
 
 		$ret = '<h2>Errore</h2>'
-		. '<p>Non è stato possibile leggere la fotografia ['. $foto_file .']</p>'
+		. '<p>Non è stato possibile leggere la fotografia <br>['. $foto_file .']</p>'
 		. '<p>campi: ' . serialize($campi) . '</p>';
 		http_response_code(404);
 		echo $ret;
 		exit(1);
 	}
 
-	$ultimo_punto = strrpos($foto_file, '.');
-	$estensione   = substr($foto_file, ($ultimo_punto + 1), 6);
-	$estensione   = strtolower($estensione);
-
-	if (!in_array($estensione, ['jpg','jpeg', 'tif', 'tiff'])){
-		$ret = '<h2>Errore</h2>'
-		. '<p>La fotografia non è in un formato che contiene dati exif ['. $foto_file .']</p>';
-		echo $ret;
-	}
-
-	// cerca se in fotografie_dettagli ci sono già dettagli dedicati exif 
-	$campi=[];
-	$campi['query']= 'SELECT * FROM '. FotografieDettagli::nome_tabella 
-	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
-	. ' AND record_id_padre = :record_id_padre '
-	. ' ORDER BY chiave, record_id ';
-	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-	$campi['record_id_padre']         = $foto_h->get_record_id(); 
-	$ret_det = $fdet_h->leggi($campi);
-	if (isset($ret_det['error'])){
-		// cambio stato al record 
-		$ret_stato = $foto_h->set_stato_lavori_in_fotografie($fotografia_id, Fotografie::stato_completati);
-		if (isset($ret_stato['error'])){
-			$ret = '<h2>Errore</h2>'
-			. '<p>Non è stato possibile cambiare stato_lavori alla fotografia ['. $fotografia_id .']</p>'
-			. '<p>Per: ' . $ret_stato['message'];
-			echo $ret;
-		}
-
-		// ret_det error
-		$ret = '<h2>Errore</h2>'
-		. '<p>Cercando dettagli exif già registrati si è verificato '
-		. 'un errore, chi ci capisce è bravo</p>'
-		. '<p>' . $ret_det['message'] . '<br>'
-		. 'campi: ' . serialize($campi) . '</p>';
-		http_response_code(404);
-		echo $ret;
-		exit(1);
-	}
-	if ($ret_det['numero'] > 0){
-		echo '<h3>Avviso</h3>';
-		echo '<p>Saranno aggiunti dettagli ai dettagli già presenti.</p>';
-	}
-
-	// considerazioni sui dati exif - incrociate 
-	// exif FILE FileName - escluso già presente nei dati 
-	$exif = exif_read_data($foto_file, null, true, false );
-	if ($exif === false){
-		$ret = '<h2>Errore</h2>'
-		. '<p>Cercando dettagli exif nel file si è verificato '
-		. 'un errore, ma non si sa quale.</p>';
-		echo $ret;
-		// proseguo per dati su file dal nome file 
-	}
-	echo '<br>Sono stati rintracciati dati exif';
-	echo var_dump($exif);
-
-	// Marca e modello: sono scansioni?
-	if (isset($exif['IFD0']['Make']) && 
-			isset($exif['IFD0']['Model'])){
-		$marca = $exif['IFD0']['Make'];
-		$modello = $exif['IFD0']['Model'];
-		echo "\n".'Marca: '. $marca . ' Modello: ' . $modello.'<br>'; 
-		// scanner Athesis 
-		if ($marca   == 'Nikon' && 
-				$modello == 'Nikon SUPER COOLSCAN 5000 ED'){
-			// scansioni
-			$ret_det = carico_dettaglio( $fotografia_id, 'materia/tecnica', 'diapositiva/pellicola');
-			$ret_det = carico_dettaglio( $fotografia_id, 'dimensione/unita-di-misura', 'mm');
-			$ret_det = carico_dettaglio( $fotografia_id, 'dimensione/altezza-larghezza', '24 x 36');
-		}
-	} // $exif['IFD0']['Make'] 
-
-	// sequenza di dettagli exif 
-	if (isset($exif['COMPUTED'])){
-		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/unita-di-misura', 'px');
-		$altezza   = $exif['COMPUTED']['Height'];
-		$larghezza = $exif['COMPUTED']['Width'];
-		// TODO scaglioni 800px 1080px 1440px 1920px 2500px 3000px 4000px 6000px
-		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/altezza-larghezza', $altezza . ' x ' . $larghezza);		
-	} // exif
-	
-	// data scansione, spesso
-	if (isset($exif['EXIF']['DateTimeOriginal'])){
-		$ret_det   = carico_dettaglio( $fotografia_id, 'data/evento', $exif['EXIF']['DateTimeOriginal']);
-	} // $exif['EXIF']['DateTimeOriginal']
-	
-	if (isset($exif['FILE']['FileDateTime'])){
-		$ret_det   = carico_dettaglio( $fotografia_id, 'data/evento', date('Y-m-d H:i:s', $exif['FILE']['FileDateTime']));
-	} // $exif['FILE']['FileDateTime']
-	
-	if (isset($exif['IFD0']['Copyright'])){
-		$ret_det   = carico_dettaglio( $fotografia_id, 'nome/diritti', $exif['IFD0']['Copyright']);
-	} // $exif['IFD0']['Copyright']
-	
-	/*
-	 * Fine dati EXIF 
-	 */
-	echo '<br>Fine esame dati exif';
-	
 	// nome file 	
 	$ultima_barra = strrpos($foto_file, '/', 1);
 	$nome_file    = trim(substr($foto_file, ($ultima_barra + 1)));
 	$album_id     = $fotografia['record_id_in_album'];
 	$adet_h       = New AlbumDettagli($dbh);
 	
-	echo '<br>inizio esame data/evento';
+	echo '<p style="font-family:monospace">inizio esame data/evento</p>';
 	// dati da nome file se nome standard:
 	// aaaa mm gg luogo soggetto contatore
 	
 	// data/evento 
 	$data_evento = get_data_evento($nome_file);
-	echo '<br>data_evento: ::'.$data_evento .'::'; 
+	echo '<p style="font-family:monospace">data_evento: '.$data_evento .'</p>'; 
 	if ($data_evento>''){
 		$data_evento_album= '';
 		//verificare se è già presente nell'album 
@@ -1122,40 +1112,267 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 			$data_evento = str_replace('-', ' ', $data_evento);
 			$nome_file = str_replace($data_evento, '', $nome_file);
 		}
+		if (str_contains($nome_file, 'DP ') && strpos($nome_file, 'DP ', 0) < 5){ 
+			$nome_file = str_replace('DP ', '', $nome_file);
+		}
 		$nome_file = trim($nome_file);
-		echo "Per effetto dell'inserimento di data/elenco, ora nomefile è: " .$nome_file.'<br>';
+		echo "<br>Per effetto dell'inserimento di data/elenco, ora nomefile è: " .$nome_file.'<br>';
 	} // data/evento 
-	echo '<br>Fine esame data/evento';
+	echo '<p style="font-family:monospace">Fine esame data/evento</p>';
+	$data_evento_prima = $data_evento;
+	if ( str_contains($data_evento, 'decennio')){
+		$data_evento_prima=str_replace(' decennio', '-01-01', $data_evento_prima);
+	}
+	echo '<br>data_evento_prima: ::'.$data_evento_prima .'::'; 
+
+	$ultimo_punto = strrpos($foto_file, '.');
+	$estensione   = substr($foto_file, ($ultimo_punto + 1), 6);
+	$estensione   = trim(strtolower($estensione));
+
+	if (!in_array($estensione, ['jpg', 'jpeg', 'psd', 'tif', 'tiff'])){
+		$ret = '<h2>Errore</h2>'
+		. '<p>La fotografia non è in un formato che contiene dati exif ['. $foto_file .']</p>';
+		echo $ret;
+	}
+
+	// cerca se in fotografie_dettagli ci sono già dettagli dedicati exif 
+	$campi=[];
+	$campi['query']= 'SELECT * FROM '. FotografieDettagli::nome_tabella 
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id_padre = :record_id_padre '
+	. ' ORDER BY chiave, record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id_padre']         = $foto_h->get_record_id(); 
+	$ret_det = $fdet_h->leggi($campi);
+	if (isset($ret_det['error'])){
+		// cambio stato al record 
+		$ret_stato = $foto_h->set_stato_lavori_in_fotografie($fotografia_id, Fotografie::stato_completati);
+		if (isset($ret_stato['error'])){
+			$ret = '<h2>Errore</h2>'
+			. '<p>Non è stato possibile cambiare stato_lavori alla fotografia ['. $fotografia_id .']</p>'
+			. '<p>Per: ' . $ret_stato['message'];
+			echo $ret;
+		}
+
+		// ret_det error
+		$ret = '<h2>Errore</h2>'
+		. '<p>Cercando dettagli exif già registrati si è verificato '
+		. 'un errore, chi ci capisce è bravo</p>'
+		. '<p>' . $ret_det['message'] . '<br>'
+		. 'campi: ' . serialize($campi) . '</p>';
+		http_response_code(404);
+		echo $ret;
+		exit(1);
+	}
+	if ($ret_det['numero'] > 0){
+		echo '<h3 style="font-family:monospace;">Avviso</h3>';
+		echo '<p style="font-family:monospace;">Saranno aggiunti '
+		. 'dettagli ai dettagli già presenti.<br>'
+		. str_replace(';', '; ', serialize($ret_det['data'])).'</p>';
+
+	}
+	echo '<p style="font-family:monospace;">Dati EXIF.</p>';
+
+	// considerazioni sui dati exif - incrociate 
+	// exif FILE FileName - escluso già presente nei dati 
+	$exif = exif_read_data($foto_file, null, true, false );
+	if ($exif === false){
+		$ret = '<h2 style="font-family:monospace;">Errore</h2>'
+		. '<p style="font-family:monospace;>Cercando dettagli exif nel file si è verificato '
+		. 'un errore, non sono stati estratti dati.</p>';
+		$exif=[];
+		echo $ret;
+		// proseguo per dati su file dal nome file 
+	}
+	echo '<p style="font-family:monospace;">Sono stati rintracciati dati exif <br>';
+	$exif_str = serialize($exif);
+	$re = '/[^a-zA-Z0-9_\-,\s\/:";%]/i';
+	$exif_str = preg_replace($re, '.', $exif_str);
+	echo $exif_str . '</p>';
+
+	// Marca e modello: sono scansioni?
+	if (isset($exif['IFD0']['Make']) && 
+			isset($exif['IFD0']['Model'])){
+		$marca = $exif['IFD0']['Make'];
+		$modello = $exif['IFD0']['Model'];
+		echo '<p style="font-family:monospace;">';
+		echo 'Marca: '. $marca . ' Modello: ' . $modello; 
+		echo '</p>';
+		// scanner Athesis 1 
+		if ($marca   == 'Nikon' && 
+				$modello == 'Nikon SUPER COOLSCAN 5000 ED'){
+			// scansioni
+			$ret_det = carico_dettaglio( $fotografia_id, 'materia/tecnica', 'diapositiva/pellicola');
+			$ret_det = carico_dettaglio( $fotografia_id, 'dimensione/unita-di-misura', 'mm');
+			$ret_det = carico_dettaglio( $fotografia_id, 'dimensione/altezza-larghezza', '24 x 36');
+			$aggiunti[] = "'materia/tecnica': 'diapositiva/pellicola'";
+			$aggiunti[] = "'dimensione/unita-di-misura': 'mm'";
+			$aggiunti[] = "'dimensione/altezza-larghezza': '24 x 36'";
+		}
+	} // $exif['IFD0']['Make'] 
+
+	// sequenza di dettagli exif 
+	if (isset($exif['COMPUTED'])){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/unita-di-misura', 'px');
+		$altezza   = $exif['COMPUTED']['Height'];
+		$larghezza = $exif['COMPUTED']['Width'];
+		// TODO scaglioni 800px 1080px 1440px 1920px 2500px 3000px 4000px 6000px
+		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/altezza', $altezza);		
+		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/larghezza', $larghezza);		
+		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/altezza-larghezza', $altezza . ' x ' . $larghezza);
+		$aggiunti[] = "'dimensione/altezza-larghezza': '$altezza x $larghezza'";
+	} // exif
+	
+	// data scansione, spesso
+	// Se è uguale non si inserisce un doppione
+	if (isset($exif['EXIF']['DateTimeOriginal'])){
+		$date_det = $exif['EXIF']['DateTimeOriginal'];
+		if($data_evento_prima < $date_det){
+			$ret_det  = carico_dettaglio( $fotografia_id, 'data/scansione', $date_det);
+			$aggiunti[] = "'data/scansione': ".$date_det;
+		}
+		if($data_evento_prima > $date_det){
+			$ret_det  = carico_dettaglio( $fotografia_id, 'data/evento', $date_det);
+			$aggiunti[] = "'data/evento': ".$date_det;
+		}
+	} // $exif['EXIF']['DateTimeOriginal']
+	
+	if (isset($exif['FILE']['FileDateTime'])){
+		$date_det  = date('Y-m-d H:i:s', $exif['FILE']['FileDateTime']);
+		if($data_evento_prima > $date_det){
+			$ret_det   = carico_dettaglio( $fotografia_id, 'data/evento', $date_det);
+			$aggiunti[] = "'data/evento': ".$date_det;
+		}
+	} // $exif['FILE']['FileDateTime']
+	
+	// Si verifica il caso che il dato c'è ma vale " "
+	if (isset($exif['IFD0']['Copyright'])){
+		$copy_det = $exif['IFD0']['Copyright'];
+		$copy_det = trim($copy_det);
+		if ($copy_det>''){
+			$ret_det   = carico_dettaglio( $fotografia_id, 'nome/diritti', $copy_det);
+			$aggiunti[] = "'nome/diritti': ".$copy_det;
+		}
+	} // $exif['IFD0']['Copyright']
+	
+	/*
+	 * Fine dati EXIF 
+	 */
+	echo '<p style="font-family:monospace;">Fine esame dati exif</p>';
+	
+	echo '<p style="font-family:monospace">inizio esame luogo/area-geografica';
+	$luogo = get_luogo_localita($nome_file);
+	if ($luogo>''){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'luogo/area-geografica', $luogo);
+		// sfilo 
+		$nome_file = str_ireplace($luogo, '', $nome_file);
+		$nome_file = trim($nome_file);
+		echo "<br>Per effetto dell'inserimento di luogo/area-geografica, ora nomefile è: " .$nome_file.'<br>';
+		$aggiunti[] = "'luogo/area-geografica': ".$luogo;
+	} // luogo/area-geografica 
+	echo '<br>Fine esame luogo/area-geografica: '.$luogo.'.</p>';
+	//dbg echo $nome_file;
 	
 	// luogo/comune 
-	$luogo = get_luogo($nome_file);
+	echo '<p style="font-family:monospace">inizio esame luogo/comune';
+	$luogo = get_luogo_comune($nome_file);
 	if ($luogo>''){
 		$ret_det   = carico_dettaglio( $fotografia_id, 'luogo/comune', $luogo);
 		// sfilo 
-		$nome_file = str_replace($luogo, '', $nome_file);
+		$nome_file = str_ireplace($luogo, '', $nome_file);
 		$nome_file = trim($nome_file);
-		echo "Per effetto dell'inserimento di luogo/comune, ora nomefile è: " .$nome_file.'<br>';
+		echo "<br>Per effetto dell'inserimento di luogo/comune, ora nomefile è: " .$nome_file.'<br>';
+		$aggiunti[] = "'luogo/comune': ".$luogo;
 	} // luogo/comune 
-	echo '<br>Fine esame luogo/comune';
+	echo '<br>Fine esame luogo/comune: '.$luogo.'.</p>';
+	//dbg echo $nome_file;
+	
 	
 	
 	// codice/autore/athesis
+	echo '<p style="font-family:monospace">inizio esame codice/autore/athesis';
 	$sigla_autore = get_autore_sigla_6($nome_file);
 	if ($sigla_autore>''){
 		$ret_det   = carico_dettaglio( $fotografia_id, 'codice/autore/athesis', $sigla_autore);
 		// sfilo 
 		$nome_file = str_replace($sigla_autore, '', $nome_file);
 		$nome_file = trim($nome_file);
-		echo "Per effetto dell'inserimento di codice/autore/athesis, ora nomefile è: " .$nome_file.'<br>';
+		echo "<br>Per effetto dell'inserimento di codice/autore/athesis, ora nomefile è: " .$nome_file.'<br>';
+		$aggiunti[] = "'codice/autore/athesis': ".$sigla_autore;
 	} // codice/autore/sigla 
-	echo '<br>Fine esame codice/autore/sigla';
+	echo '<br>Fine esame codice/autore/athesis</p>';
 	
+	// nome/ente-societa
+	echo '<p style="font-family:monospace">inizio esame nome/ente-societa';
+	$ente = get_ente_societa($nome_file);
+	if ($ente>''){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'nome/ente-societa', $ente);
+		$aggiunti[] = "'nome/ente-societa': ".$ente;
+	} // nome/ente-societa 
+	echo '<br>Fine esame nome/ente-societa: '.$ente.'</p>';
+	
+	// nome/fondo 
+	echo '<p style="font-family:monospace">Inizio esame fondo';
+	$fondo = get_fondo($nome_file);
+	if ($fondo>''){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'nome/fondo', $fondo);
+		$aggiunti[] = "'nome/fondo': ".$fondo;
+	}
+	echo '<br>Fine esame fondo_* : '.$fondo.'</p>';
+
+	// codice archivio esterno
+	echo '<p style="font-family:monospace">Inizio esame codice/esterno';
+	$cod_esterno="";
+	if (preg_match('/id_\d+/', $nome_file, $match)){
+		$cod_esterno = trim($match[0]);
+	}
+	if ($cod_esterno > ''){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'codice/esterno', $cod_esterno);
+		$aggiunti[] = 'codice/esterno: '.$cod_esterno;
+	}
+	echo '<br>Fine esame id_* : '.$cod_esterno.'</p>';
+
+	// codice archivio athesis
+	echo '<p style="font-family:monospace">Inizio esame codice/archivio-athesis';
+	$cod_athesis="";
+	if (preg_match('/ath_\d+/', $nome_file, $match)){
+		$cod_athesis = trim($match[0]);
+	}
+	if ($cod_athesis>''){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'codice/archivio-athesis', $cod_athesis);
+		$aggiunti[] = 'codice/archivio-athesis: '.$cod_athesis;
+	}
+	echo '<br>Fine esame ath_* : '.$cod_athesis.'</p>';
+
+	// dimensioni 
+	echo '<p style="font-family:monospace">Inizio esame dimensioni';
+	$dimensioni="";
+	if (preg_match('/cm_\d{2}x\d{2}/', $nome_file, $match)){
+		$dimensioni = trim($match[0]);
+	}
+	if ($dimensioni>''){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/unita-di-misura', 'cm');
+		$aggiunti[] = 'dimensione/unita-di-misura: cm';
+		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/altezza-larghezza', $dimensioni);
+		$aggiunti[] = 'dimensione/unita-di-misura: '.$dimensioni;
+	}
+	echo '<br>Fine esame cm_* : '.$dimensioni.'</p>';
+
 	
 	// sfilettato nome_file quello che resta al centro  
 	// nome/manifestazione-soggetto
-	$ret_det=carico_dettaglio( $fotografia_id, 'nome/manifestazione-soggetto', $nome_file);
+	// sfilettare estensioni
+	echo '<p style="font-family:monospace">Inizio esame nome/manifestazione-soggetto';
+	$nome_soggetto = str_replace('.'.$estensione, '', $nome_file);
+	$nome_soggetto = trim($nome_soggetto);
+	if ($nome_soggetto>''){
+		$ret_det=carico_dettaglio( $fotografia_id, 'nome/manifestazione-soggetto', $nome_soggetto);
+		$aggiunti[] = "'nome/manifestazione-soggetto': ".$nome_soggetto;
+	}
+	echo '<br>Fine esame nome/manifestazione-soggetto</p>';
 	
 	// cambio stato al record 
+	$ret_stato=[];
 	$ret_stato = $foto_h->set_stato_lavori_in_fotografie($fotografia_id, Fotografie::stato_completati);
 	if (isset($ret_stato['error'])){
 		$ret = '<h2>Errore</h2>'
@@ -1164,43 +1381,9 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		echo $ret;
 	}
 
-	// ridimensionamento distruttivo a 800 px lato lungo
-	if (in_array($estensione, ['jpg','jpeg'])){
-		$img=imagecreatefromjpeg($foto_file);
-		$img_size=getimagesize($foto_file, $image_inner);
-		$larghezza=$img_size[0];
-		$altezza  =$img_size[1];
-		if ( $larghezza>800 || $altezza>800){
-			if ($larghezza >= $altezza){
-				$img_ridotta=imagescale($img, 800); // altezza in proporzione
-			} else{
-				$larghezza = (int) ((800 * $larghezza) / $altezza );
-				$img_ridotta=imagescale($img, $larghezza); 
-			}
-			imagejpeg($img_ridotta, $foto_file);
-			imagedestroy($img_ridotta);
-		}
-	}
-	if (in_array($estensione, ['tiff', 'tif'])){
-		$img= new Imagick($foto_file);
-		$larghezza=$img->getimageWidth();
-		$altezza  =$img->getImageHeigth();
-		if ( $larghezza>800 || $altezza>800){
-			if ($larghezza >= $altezza){
-				$img->scaleImage(800, 0); // altezza in proporzione
-			} else{
-				$img->scaleImage(0, 800); // altezza in proporzione
-			}
-			$img->setImageFormat('jpeg');
-			$img->setImageCompressionQuality(95);
-			file_put_contents($foto_file, $img);
-		}
-		$img->clear();
-	}
-	
 	// riepilogo 
 	if (count($aggiunti)){
-		echo '<hr><h4>Aggiunti alla fotografia ' . count($aggiunti) . ' record.</h4>';
+		echo '<br><h4 style="font-family:monospace;">Aggiunti alla fotografia ' . count($aggiunti) . ' record.</h4>';
 		echo '<p style="font-family:monospace;">';
 		for ($i=0; $i < count($aggiunti); $i++) { 
 			# code...
@@ -1208,6 +1391,124 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		}	
 		echo '</p>';
 	}
+	
+	/**
+	 * Ridimensionamento rimosso 
+	 * 
+	$ridimensiona = false;
+	// ridimensionamento distruttivo a 800 px lato lungo - restano i dati exif?
+	if ($ridimensiona && in_array($estensione, ['jpg','jpeg'])){
+		$larghezza=0;
+		$altezza  =0;
+		try {
+			//code...
+			$img=imagecreatefromjpeg($foto_file);
+			$img_size=getimagesize($foto_file, $image_inner);
+			$larghezza=$img_size[0];
+			$altezza  =$img_size[1];
+			if ( $larghezza>800 || $altezza>800){
+				echo '<p style="font-family:monospace">Ridimensionamento immagine entro il quadro 800x800 <br>';
+				echo $foto_file . '<br>dimensione: ' . filesize($foto_file); 
+				echo "<br>se questo resta l'ultimo rigo si è verificato un errore (file troppo grande)<br>";
+			if ($larghezza >= $altezza){
+					$img_ridotta=imagescale($img, 800); // altezza in proporzione
+				} else{
+					$larghezza = (int) ((800 * $larghezza) / $altezza );
+					$img_ridotta=imagescale($img, $larghezza); 
+				}
+				imagejpeg($img_ridotta, $foto_file, 100);
+				imagedestroy($img_ridotta);
+				echo '<br>salvato il file: '.$foto_file;
+				echo '<br>size: '.filesize($foto_file);
+				echo '<br>Ridimensionamento finito <br>';
+			}
+			unset($img, $img_ridotta);
+
+		} catch (\Throwable $th) {
+			//throw $th;
+			echo '<p style="font-family:monospace">'
+			. 'Eccezione: <br>';
+			echo var_dump($th);
+			exit(1);
+		}
+	} // riduzione jpeg jpg
+
+	if ($ridimensiona && in_array($estensione, ['tiff', 'tif'])){
+		$larghezza=0;
+		$altezza  =0;
+		try {
+			//code...
+			$img= new Imagick($foto_file);
+			$larghezza=$img->getImageWidth();
+			$altezza  =$img->getImageHeight();
+			if ( $larghezza>800 || $altezza>800){
+				echo '<p style="font-family:monospace">Ridimensionamento immagine entro il quadro 800x800 <br>';
+				echo $foto_file . '<br>dimensione: ' . filesize($foto_file); 
+				echo "<br>se questo resta l'ultimo rigo si è verificato un errore (file troppo grande)<br>";
+				if ($larghezza >= $altezza){
+					$img->scaleImage(800, 0); // altezza in proporzione
+				} else{
+					$img->scaleImage(0, 800); // altezza in proporzione
+				}
+				$img->setImageFormat('jpeg');
+				$img->setImageCompressionQuality(100); // 0 massima compressione 100 massimo dettaglio 
+				$file_rid =str_replace('.tiff', '.jpg', $foto_file);
+				$file_rid =str_replace('.tif', '.jpg',  $file_rid);
+				// file_put_contents($file_rid, $img);
+				$img->writeImage($file_rid);
+				echo '<br>salvato il file: '.$file_rid;
+				echo '<br>size: '.filesize($file_rid);
+				echo '<br>Ridimensionamento finito <br>';
+			}
+			$img->clear(); 
+
+		} catch (\Throwable $th) {
+			//throw $th;
+			var_dump($th);
+			exit(1);
+		}
+	} // riduzione tiff tif 
+
+	if ($ridimensiona && in_array($estensione, ['psd'])){
+		$larghezza=0;
+		$altezza  =0;
+		try {
+			//code...
+			$img= new Imagick($foto_file);
+			$larghezza=$img->getImageWidth();
+			$altezza  =$img->getImageHeight();
+			if ( $larghezza>800 || $altezza>800){
+				echo '<p style="font-family:monospace">Ridimensionamento immagine entro il quadro 800x800 <br>';
+				echo $foto_file . '<br>dimensione: ' . filesize($foto_file); 
+				echo "<br>se questo resta l'ultimo rigo si è verificato un errore (file troppo grande)<br>";
+				if ($larghezza >= $altezza){
+					$img->scaleImage(800, 0); // altezza in proporzione
+				} else{
+					$img->scaleImage(0, 800); // altezza in proporzione
+				}
+				$img->setImageFormat('jpeg');
+				$img->setImageCompressionQuality(100); // 0 massima compressione 100 massimo dettaglio 
+				$file_rid =str_replace('.tiff', '.jpg', $foto_file);
+				$file_rid =str_replace('.tif', '.jpg',  $file_rid);
+				// file_put_contents($file_rid, $img);
+				$img->writeImage($file_rid);
+				echo '<br>salvato il file: '.$file_rid;
+				echo '<br>size: '.filesize($file_rid);
+				echo '<br>Ridimensionamento finito <br>';
+			}
+			$img->clear(); 
+
+		} catch (\Throwable $th) {
+			//throw $th;
+			var_dump($th);
+			exit(1);
+		}
+	} // riduzione tiff tif 
+	 * 
+	 */
+
+
+	exit(0);
 
 } // carica_dettagli_da_fotografia()
 
@@ -1216,8 +1517,9 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
  * 1. https://archivio.athesis77.it/aa-controller/fotografie-controller.php?id=1111&test=carica_dettagli_da_fotografia
  * atteso : non è stato possibile rintracciare la fotografia 
  * 
+ * 2. https://www.fotomuseoathesis.it/aa-controller/fotografie-controller.php?id=0&test=carica_dettagli_da_fotografia
  * 2. https://archivio.athesis77.it/aa-controller/fotografie-controller.php?id=0&test=carica_dettagli_da_fotografia
- * atteso: rintraccia la prima fotografia ed elavbora quella
+ * atteso: rintraccia la prima fotografia ed elabora quella
  */
 if ( isset($_GET['test']) && 
      $_GET['test'] == 'carica_dettagli_da_fotografia' && 

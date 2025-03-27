@@ -27,12 +27,12 @@
               <input type="hidden" name="record_id" value="<?=$chiave['record_id']; ?>"> 
               <div class="mb-3">
                 <label for="chiave" class="col-form-label"> <strong>Chiave di ricerca</strong></label>
-                <input type="text" name="chiave" class="form-control" aria-describedby="chiaveHelDiv" value="<?=$chiave['chiave']; ?>" required>
+                <input type="text" name="chiave" class="form-control" aria-describedby="chiaveHelDiv" value="<?= $chiave['chiave']; ?>" required>
                 <div id="chiaveHelpDiv" class="form-text">Il formato delle chiavi di ricerca è in <code>lettere minuscole</code>, partendo da un soggetto sostantivo singolare (data, luogo, nome ecc. e non date, luoghi, nomi), sostituendo eventuali spazi con il trattino <code>'-'</code>; <br />per le sotto-categorie separarle da una barra <code>'/'</code>. <br />Esempi: <code>nome/autore</code> ["Lasalandra, Mario", "Monti, Paolo", "Berengo Gardin, Gianni"], nome/scansionatore, nome/ente [Consorzio di Bonifica, Provincia di Padova, CSV Padova Rovigo], data/evento, data/stampa, luogo/riprese [Scuole medie, Festa dell'Unità, Patronato], luogo/comune [Stanghella, Montagnana, Cittadella, Treviso, Venezia], luogo/area-geografica [Polesine, Bassa Padovana, Provincia di Padova, Città metropolitana di Venezia]. <br /><strong>RICHIESTA</strong> Inserite una nuova chiave di ricerca solo se concordata con il comitato di gestione. Poche chiavi comporta una limitata ricercabilità, troppe chiavi creano una inutile confusione. </div>
               </div>
               <div class="mb-3">
                 <label for="url_manuale" class="col-form-label"> <strong>Pagina del Manuale</strong></label>
-                <input type="url" name="url_manuale" class="form-control" pattern="https://archivio.athesis77.it/man/.*"   aria-describedby="urlManualeHelpDiv" value="<?=$chiave['url_manuale']; ?>">
+                <input type="url" name="url_manuale" class="form-control" pattern="https://www.fotomuseoathesis.it/man/.*"   aria-describedby="urlManualeHelpDiv" value="<?= $chiave['url_manuale']; ?>">
                 <div id="urlManualeHelpDiv" class="form-text">Campo facoltativo ma se inserito fate copia incolla dall'indirizzo della pagina cresta per spiegare la chiave di ricerca in manuale archivio</div>
               </div>
               <!-- record_creato_il datetime no: assegnato in automatico -->

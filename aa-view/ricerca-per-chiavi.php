@@ -79,7 +79,7 @@
 			</div>
 			<footer class="py-3">
 				<ul class="nav justify-content-center border-top pb-3 ">
-					<li class="nav-item"><a href="<?=URLBASE; ?>ingresso.php" class="nav-link px-2 text-body-secondary">Ingresso</a></lem>
+					<li class="nav-item"><a href="<?=URLBASE; ?>museo.php" class="nav-link px-2 text-body-secondary">Ingresso</a></lem>
 					<li class="nav-item"><a href="<?=URLBASE; ?>amministrazione.php" class="nav-link px-2 text-body-secondary">Amministrazione</a></lem>
 					<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></lem>
 					<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary">D&R FAQ</a></lem>

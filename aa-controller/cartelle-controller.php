@@ -20,9 +20,9 @@
  * - verifica_cartella_contiene_album
  * - lista_cartelle_sospese 
  * - set_stato_scansione 
- * - carica_scansioni_disco_da_scansioni_cartelle 
- *   nome di funzione lunghissimo ma almeno è chiara la funzione 
- * - carica_cartelle_da_scansionare
+ * - carica_cartelle_in_scansioni_disco 
+ *   carica in scansioni_disco partendo da scansioni_cartelle 
+ * - carica_cartelle_in_scansioni_cartelle
  *   espone il modulo per l'aggiunta di una cartella in scansioni_cartelle
  * - cambia_tinta_record
  *   espone il modulo per cambiare la tinta di un elemento in 
@@ -40,7 +40,7 @@ include_once(ABSPATH . 'aa-model/scansioni-cartelle-oop.php');//  Class Cartelle
 
 
 /**
- * 
+ * @return string elenco delle cartelle codificato in html
  */
 function lista_cartelle_sospese() : string {
 	$dbh        = New DatabaseHandler();
@@ -105,7 +105,7 @@ function lista_cartelle_sospese() : string {
 
 /**
  * test 
- * https://archivio.athesis77.it/aa-controller/cartelle-controller.php?test=lista-cartelle-sospese
+ * https://www.fotomuseoathesis.it/aa-controller/cartelle-controller.php?test=lista-cartelle-sospese
  */
 
 if (isset($_GET['test']) && 
@@ -122,7 +122,6 @@ if (isset($_GET['test']) &&
  * @return bool true = stato cambiato 
  */
 function set_stato_scansione(int $cartella_id, int $stato_scansione) : bool {
-	//echo "\n" . __FUNCTION__ ."\n";
 	$dbh        = New DatabaseHandler(); // nessun parametro dedicato
 	$cartelle_h = New Cartelle($dbh);
 
@@ -132,94 +131,45 @@ function set_stato_scansione(int $cartella_id, int $stato_scansione) : bool {
 	. ' WHERE record_id = :record_id ';
 	$campi['stato_scansione'] = $stato_scansione;
 	$campi['record_id']       = $cartella_id;
-	//dbg echo var_dump($campi);
 	$ret_sta = $cartelle_h->modifica($campi);
-	//echo "\n" . __FUNCTION__ ." ret_sta: \n";
-	//echo var_dump($ret_sta);
 	return (isset($ret_sta['ok']));
-}
+} // set_stato_scansione()
 
-/**
- * 
-function carica_campi_da_percorso( string $percorso_fs_cartella, array &$campi ){
-	$dbh        = New DatabaseHandler(); // nessun parametro dedicato
-	$sd_h    = New ScansioniDisco($dbh);
-
-	$campi['nome_file']      = '/';
-	$campi['estensione']     = '';
-	$campi['codice_verifica']= '0';
-
-	@list($livello1, $livello2, $livello3, $livello4, $livello5, $livello6) = 
-		explode('/', substr($percorso_fs_cartella, 1));
-	//echo "\n" . __FUNCTION__ . "\n";
-	//echo var_dump( explode('/', substr($percorso_fs_cartella, 1) ));	
-	
-	$sd_h->set_livello1($livello1);
-	$campi['livello1']=$sd_h->get_livello1();
-	//echo "\n" . __FUNCTION__ . " livello1 \n";
-	
-	if ($livello2 > '') {
-		$sd_h->set_livello2($livello2);
-	}
-	$campi['livello2']=$sd_h->get_livello2();
-	//echo "\n" . __FUNCTION__ . " livello2 \n";
-	
-	if ($livello3 > '') {
-		$sd_h->set_livello3($livello3);
-	}
-	$campi['livello3']=$sd_h->get_livello3();
-	// echo "\n" . __FUNCTION__ . " livello3 \n";
-
-	if ($livello4 > '') {
-		$sd_h->set_livello4($livello4);
-	}
-	$campi['livello4']=$sd_h->get_livello4();
-
-	if ($livello5 > '') {
-		$sd_h->set_livello5($livello5);
-	}
-	$campi['livello5']=$sd_h->get_livello5();
-
-	if ($livello6 > '') {
-		$sd_h->set_livello6($livello6);
-	}
-	$campi['livello6']=$sd_h->get_livello6();
-
-	// echo "\ncampi:";
-	// echo var_dump($campi);
-
-} // carica_campi_da_percorso()
- * 
- */
 
 
 /**
  * @param  int $cartella_id - facoltativo
- *   Si tratta del record in scansioni_cartelle, se non viene passato 
- *   la funzione va a cercare un primo record da elaborare
+ *   Si tratta del record in scansioni_cartelle, se non viene passato, 
+ *   o viene passato 0, la funzione va a cercare un primo record da elaborare
  * @return void 
+ * 
+ * TODO diventerà carica_deposito_da_cartelle
  */
-function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
+function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 	$dbh        = New DatabaseHandler(); // nessun parametro dedicato
 	$cartelle_h = New Cartelle($dbh);
-	// echo "\n".'<p style="font-family:monospace;">';
-	// echo "\n".'cartella_id: '.$cartella_id;
 	$errori = '';
 
 	// Se non viene passato un id si recupera "il primo che capita" 
 	if ($cartella_id == 0){
+		// TODO diventa una funzione del model get_cartella_da_elaborare() : int
 		$campi=[];
 		$campi['query'] = 'SELECT * FROM ' . Cartelle::nomeTabella 
 		. ' WHERE stato_scansione IN ( :stato_scansione ) LIMIT 1 ';
 		$campi['stato_scansione']=Cartelle::statoDaFare;
 	} else {
+		// viene ignorato lo stato scansione
 		$cartelle_h->set_record_id($cartella_id);
 		$campi=[];
 		$campi['query'] = 'SELECT * FROM ' . Cartelle::nomeTabella
 		. ' WHERE record_id = :record_id ';
 		$campi['record_id'] = $cartelle_h->get_record_id();	
 	}
+
+	echo '<h2 style="font-family:monospace;">Carica in scansioni_disco da scansioni_cartelle</h2>';
 	$ret_car = $cartelle_h->leggi($campi);
+
+	// arrivati errori
 	if (isset($ret_car['error'])){
 		http_response_code(404);
 		$ret = __FUNCTION__ 
@@ -229,15 +179,22 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 		echo $ret; 
 		exit(1);
 	}
+
+	// nessun errore ma nessun record
 	if ($ret_car['numero'] == 0){
 		http_response_code(404);
-		$ret = "<p style='font-family:monospace;'>Album $cartella_id non trovato. ".'</p>';
+		$ret = "<p style='font-family:monospace;'>".
+		"Nessun caricamento in deposito della cartella id: $cartella_id "
+		. " (0 = la prima che c'è)<br>Nessun lavoro in sospeso o Cartella non trovata."
+		. "<br>Chiudere e passare al prossimo step.".'</p>';
 		echo $ret; 
 		exit(1);
 	}
+
 	$cartella = $ret_car['data'][0];
 	$cartella_id=$cartella['record_id'];
-	$ret_car=[];
+	echo '<p style="font-family:monospace">Cartella: '.$cartella_id;
+	echo '<br>'. str_replace(';', '; ', serialize($cartella)) . '</p>';
 	if ($cartella['stato_scansione'] != Cartelle::statoDaFare ){
 		http_response_code(404);
 		$ret = "<p style='font-family:monospace;'>Album "
@@ -246,7 +203,8 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 		echo $ret;
 		exit(1);
 	}
-	// echo "\n".'step 3';
+	$ret_car=[];
+
 	// cambio status 
 	if (!set_stato_scansione( $cartella['record_id'], Cartelle::statoLavoriInCorso )){
 		http_response_code(404);
@@ -255,15 +213,15 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 		echo $ret;
 		exit(1);
 	}
-	// echo "\n".'step 4';
+
 	/**
-	 * caricamento cartella in scansioni_disco 
+	 * caricamento cartella (da scansioni_cartelle) in scansioni_disco 
 	 * fs_cartella quello del server 
 	 */
 	$disco   = $cartella['disco'];
 	$disco_h = New ScansioniDisco($dbh);
 
-	// si converte il dato i tabella in un percorso nel server 
+	// si converte il percorso_completo tabella in un percorso nel server 
 	// deve iniziare con ./ 
 	$percorso_fs_cartella = str_ireplace( URLBASE, './', $cartella['percorso_completo']);
 	$percorso_fs_cartella = str_replace('%20', ' ',    $percorso_fs_cartella);
@@ -271,15 +229,12 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 		$percorso_fs_cartella = '.'.$percorso_fs_cartella;
 	}
 	$percorso_con_abspath = str_replace('./', ABSPATH, $percorso_fs_cartella);
-  // echo "\n". 'percorso_con_abspath: ';
-	// echo $percorso_con_abspath; 
-	// echo "\n". 'is_dir: '. is_dir($percorso_con_abspath);
-	
 	$percorso_fs_cartella = str_replace('./', '/'    , $percorso_fs_cartella);
 	@list($livello1, $livello2, $livello3, 
 	      $livello4, $livello5, $livello6) = explode('/', mb_substr($percorso_fs_cartella, 1));
 	if (is_dir($percorso_con_abspath)){
-		// echo "\n". 'is_dir(percorso_fs_cartella): Sì';
+		// Se c'è già cosa va fatto?
+
 		$campi=[];
 		$campi['disco']    = $disco;
 		$campi['livello1']=$livello1;
@@ -298,11 +253,13 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 		//echo var_dump($ret_car);
 		if ( isset($ret_car['error'])){
 			http_response_code(404); // cambiare codice
-			echo "<p style='font-family:monospace;'>Nono è stata inserita la cartella in scansioni_disco.<br>"
+			echo "<p style='font-family:monospace;'>"
+			. "Non è stata inserita la cartella in scansioni_disco.<br>"
 			. $ret_car['message']."</p>";
 			exit(1);
 		}
 		$ret_car=[];
+
 		/**
 		 * scansiono elemento per elemento 
 		 * il contenuto della directory percorso_fs_cartella
@@ -330,6 +287,7 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 
 			// aggiunta alla tabella scansioni_cartelle 
 			if (is_dir($percorso_piu_elemento) ){
+				// Se c'è già viene "resettato" in 
 				$campi=[];
 				$campi['disco'] = $disco;
 				$campi['percorso_completo'] = $percorso_fs_cartella.$elemento.'/';
@@ -340,19 +298,19 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 					. ' campi: ' . serialize($campi);
 				}
 				$ret_car=[];
-				echo "\n".'Caricamento eseguito '.serialize($campi);
+				echo "\n".'<br>Caricamento eseguito in cartelle: '.serialize($campi);
 			} // is_dir($percorso_piu_elemento)
 
+			// aggiunta alla tabella scansioni_disco 
 			if (is_dir($percorso_piu_elemento) ){
-				// aggiunta alla tabella scansioni_disco 
 				$campi=[];
-				$campi['disco']    = $disco;
-				$campi['livello1']=$livello1;
-				$campi['livello2']=$livello2;
-				$campi['livello3']=$livello3;
-				$campi['livello4']=$livello4;
-				$campi['livello5']=$livello5;
-				$campi['livello6']=$livello6;
+				$campi['disco']   = $disco;
+				$campi['livello1']= $livello1;
+				$campi['livello2']= $livello2;
+				$campi['livello3']= $livello3;
+				$campi['livello4']= $livello4;
+				$campi['livello5']= $livello5;
+				$campi['livello6']= $livello6;
 				// brutta ma serve 
 				if ($livello2 == '') { 
 					$campi['livello2'] = $elemento; 
@@ -380,6 +338,7 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 				continue;
 			} // is_dir($percorso_piu_elemento)
 			
+			// aggiunta alla tabella scansioni_disco
 			if (is_file($percorso_piu_elemento)){
 				$punto_estensione = strrpos($elemento, '.');
 				if ($punto_estensione===false){
@@ -390,7 +349,7 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 				}
 				// estensioni gestite:
 				//! TODO gestione file tipo shortcut - versione windows
-				if (!in_array($estensione, ['jpg', 'jpeg', 'tif', 'tiff', 'mp4'])){
+				if (!in_array($estensione, ['jpg', 'jpeg', 'tif', 'tiff', 'psd', 'mp4'])){
 					// salta tutto e avanti al prossimo
 					continue;
 				}
@@ -413,18 +372,23 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 					. '<br>' . $ret_car['message']
 					. ' campi: ' . serialize($campi);
 				} else {
-					echo "\n".'Caricamento eseguito '.serialize($campi);
+					echo "\n".'<p style="font-family:monospace;">Caricamento eseguito in scansioni_disco <br>' 
+					. str_replace(';', '; ',serialize($campi)) . '<br>'
+					. str_replace(';', '; ',serialize($ret_car)) . '</p>';
 				}
 			} // is_file($percorso_piu_elemento)
-		} // while()
-		echo "\n".'caricamento is_dir completato';
+
+		} // while() - lettura directory - folder
+		echo "\n".'<br>caricamento directory completato';
 		if (!set_stato_scansione( $cartella['record_id'], Cartelle::statoCompletato )){
 			$errori .= '<br>Non è stato possibile cambiare stato_scansione in completato.';
 		}
-		} // is_dir()
+	} // is_dir()
 
-	if ( is_file($percorso_piu_elemento)){
+	if (is_file($percorso_piu_elemento)){
 		// Però però però dovrebbe essere una cartella però... 
+
+		// recupero estensione 
 		$punto_estensione = strrpos($percorso_piu_elemento, '.');
 		if ($punto_estensione===false){
 			$estensione='?';
@@ -434,33 +398,35 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 		}
 		// estensioni gestite:
 		//! TODO gestione file tipo shortcut - versione windows
-		if (!in_array($estensione, ['jpg', 'jpeg', 'tif', 'tiff', 'mp4'])){
+		if (!in_array($estensione, ['jpg', 'jpeg', 'tif', 'tiff', 'psd', 'mp4'])){
 			// salta tutto e avanti al prossimo
 			exit(0);
 		}
-		// aggiunta alla tabella scansioni_disco
+
+		// aggiunta file alla tabella scansioni_disco
 		$campi=[];
 		$campi['disco']    = $disco;
-		$campi['livello1']=$livello1;
-		$campi['livello2']=$livello2;
-		$campi['livello3']=$livello3;
-		$campi['livello4']=$livello4;
-		$campi['livello5']=$livello5;
-		$campi['livello6']=$livello6;
+		$campi['livello1'] = $livello1;
+		$campi['livello2'] = $livello2;
+		$campi['livello3'] = $livello3;
+		$campi['livello4'] = $livello4;
+		$campi['livello5'] = $livello5;
+		$campi['livello6'] = $livello6;
 		$campi['nome_file']  = $elemento;
 		$campi['estensione'] = $estensione;
 		$campi['codice_verifica'] = md5_file($percorso_piu_elemento); // prende tempo...
 		$campi['tinta_rgb']  = '000000';
 		$ret_car = $disco_h->aggiungi($campi);
+
 		if ( isset($ret_car['error'])){
 			$errori .= '<br>Nel caricamento in scansioni_disco si è verificato questo:'
 			. '<br>' . $ret_car['message']
 			. ' campi: ' . serialize($campi);
 		}
+
 	} // is_file()
 
-	// echo "\ncambio status:lavoro finito";
-	// cambio status 
+	// cambio status - la cartella in scansione_cartelle non viene rielaborata
 	if (!set_stato_scansione( $cartella['record_id'], Cartelle::statoCompletato )){
 		$errori .= '<br>Non è stato possibile cambiare stato_scansione in completato.';
 	}
@@ -470,46 +436,55 @@ function carica_scansioni_disco_da_scansioni_cartelle( int $cartella_id = 0) {
 		echo '<pre>'.$errori;
 		exit(1);
 	}
-	echo "<p>Lavoro eseguito</p>";
+	echo "<p style='font-family:monospace;'>Lavoro eseguito</p>";
 	exit(0);
 
-} // carica_scansioni_disco_da_scansioni_cartelle()
+} // carica_cartelle_in_scansioni_disco()
 
 /** TEST
  *  
- * https://archivio.athesis77.it/aa-controller/cartelle-controller.php?id=1111&test=carica_scansioni_disco_da_scansioni_cartelle
+ * https://www.fotomuseoathesis.it/aa-controller/cartelle-controller.php?id=1111&test=carica_cartelle_in_scansioni_disco
  */
 	if (isset($_GET['test'])   &&	 
 			isset($_GET['id'])     && 
-			$_GET['test'] == 'carica_scansioni_disco_da_scansioni_cartelle'){
+			$_GET['test'] == 'carica_cartelle_in_scansioni_disco'){
 		echo '<pre style="max-width:50rem;">debug on'."\n";
-		echo carica_scansioni_disco_da_scansioni_cartelle( $_GET['id']);
+		echo carica_cartelle_in_scansioni_disco( $_GET['id']);
 		echo '<br>fine';
 	}
 //
 
 /**
- * Espone solo la mappa che chiede la cartella e con jQuery 
- * si popola l'elenco delle cartelle 'da fare' 
+ * Il modulo chiede due dati
+ * - il disco
+ * - il "percorso completo" es. "/9TERRI/Bonifiche/", 
+ *   che deve avere alla fine la /
+ * 
  */
-function carica_cartelle_da_scansionare(){
-	if (isset($_POST['aggiungi_cartella'])){
+function carica_cartelle_in_scansioni_cartelle(array $dati_input = [] ){
+
+	// inserimento del record nella tabella Cartelle 
+	if (isset($dati_input['aggiungi_cartella'])){
 		$dbh    = New DatabaseHandler();
 		$scan_h = New Cartelle($dbh);
 		$_SESSION['messaggio']='';
 		//
-		if (!isset($_POST['disco'])){
+		if (!isset($dati_input['disco'])){
 			$_SESSION['messaggio'] = "1. Si è verificato un problema nel caricamento della cartella"
 			. " mancano i dati del modulo.";
 		}
-		if (!isset($_POST['cartella'])){
+		if (!isset($dati_input['cartella'])){
 			$_SESSION['messaggio'] = "2. Si è verificato un problema nel caricamento della cartella"
 			. " mancano i dati del modulo.";
 		}
 		if ($_SESSION['messaggio']==''){
 			$campi=[];
-			$campi['disco']=$_POST['disco'];
-			$campi['percorso_completo']=$_POST['cartella'];
+			$campi['disco']    = $dati_input['disco'];
+			$percorso_completo = $dati_input['cartella'].'/'; // prima lo aggiungo 
+			$percorso_completo = str_replace('%20', ' ', $percorso_completo);
+			$percorso_completo = str_replace('+', ' ', $percorso_completo);
+			$percorso_completo = str_replace('//', '/', $percorso_completo);
+			$campi['percorso_completo'] = $percorso_completo;
 			$ret_scan = $scan_h->aggiungi($campi);
 			if (isset($ret_scan['ok'])){
 				$_SESSION['messaggio']='Cartella inserita in elenco sospesi';
@@ -517,8 +492,9 @@ function carica_cartelle_da_scansionare(){
 				$_SESSION['messaggio']=$ret_scan['message'];
 			}	
 		}
-	} // $_POST['aggiungi_cartella']
+	} // inserimento del record 
 
+	// esposizione del modulo che chiede i dati ed espone il messaggio
 	include_once(ABSPATH.'aa-view/cartelle-da-scansionare.php');
 	exit(0);
-}
+} // carica_cartelle_in_scansioni_cartelle()
