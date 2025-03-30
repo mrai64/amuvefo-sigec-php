@@ -3,7 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?=$video['titolo_video']; ?> | Video Singolo | AMUVEFO</title>
+	<title><?= $video['titolo_video']; ?> | Video Singolo | AMUVEFO</title>
+	<meta name='robots' content='noindex, nofollow' />
 	<!-- jquery --><script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 	<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" >
 	<!-- icone --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
@@ -44,8 +45,8 @@
 				<li><hr class="dropdown-divider"></li>
 				<li><a href="<?=URLBASE; ?>ingresso.php" class="dropdown-item">Accesso non anonimo</a></li>
 			</ul>
-			<a href="<?=$video_precedente; ?>" title="[prev in album]"><i class="h2 bi bi-arrow-left-square-fill"></i></a>
-			<a href="<?=$video_seguente;   ?>" title="[next in album]"><i class="h2 bi bi-arrow-right-square-fill"></i></a>
+			<a href="<?= $video_precedente; ?>" title="[prev in album]"><i class="h2 bi bi-arrow-left-square-fill"></i></a>
+			<a href="<?= $video_seguente;   ?>" title="[next in album]"><i class="h2 bi bi-arrow-right-square-fill"></i></a>
 		</div>
 		<div class="col-5">
 				<table class="table table-striped border-secondary"> 
@@ -86,12 +87,18 @@
 				</table>
 		</div>
 	</div>
-	<footer class="py-3 bg-light">
+	<footer class="py-3 " style="z-index: -1;">
 		<ul class="nav justify-content-center border-top pb-3 ">
-			<li class="nav-item"><a href="<?=URLBASE; ?>ingresso.php" class="nav-link px-2 text-body-secondary">Ingresso</a></li>
-			<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
-			<li class="nav-item"><a href="https://athesis77.it/" class="nav-link px-2 text-body-secondary">Associazione</a></li>
-			<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
+			<li class="nav-item"><a href="<?=URLBASE; ?>ricerca.php" 
+			class="nav-link px-2 text-body-secondary">Ricerca avanzata</a></li>
+			<li class="nav-item"><a href="<?=URLBASE; ?>man/" 
+			class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
+			<li class="nav-item"><a href="<?=URLBASE; ?>man/" 
+			class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
+			<li class="nav-item"><a href="https://athesis77.it/" 
+			class="nav-link px-2 text-body-secondary">Associazione</a></li>
+			<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" 
+			class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
 		</ul>
 		<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
 	</footer>
