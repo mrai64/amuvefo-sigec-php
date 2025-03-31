@@ -1190,6 +1190,8 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	$exif_str = preg_replace($re, '.', $exif_str);
 	echo $exif_str . '</p>';
 
+	// oltre i 300dpi sono scansioni 800 dpi 1200 dpi 4000 dpi 
+
 	// Marca e modello: sono scansioni?
 	if (isset($exif['IFD0']['Make']) && 
 			isset($exif['IFD0']['Model'])){
@@ -1349,15 +1351,31 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	$dimensioni="";
 	if (preg_match('/cm_\d{2}x\d{2}/', $nome_file, $match)){
 		$dimensioni = trim($match[0]);
+		$dimensioni = str_ireplace('cm_', '', $dimensioni);
 	}
 	if ($dimensioni>''){
 		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/unita-di-misura', 'cm');
 		$aggiunti[] = 'dimensione/unita-di-misura: cm';
 		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/altezza-larghezza', $dimensioni);
 		$aggiunti[] = 'dimensione/unita-di-misura: '.$dimensioni;
+		// sfilo 
+		$nome_file = trim(str_ireplace('cm_'.$dimensioni, '', $nome_file));		
+		echo "<br>Per effetto dell'inserimento di dimensioni, ora nomefile è: " .$nome_file.'<br>';
 	}
 	echo '<br>Fine esame cm_* : '.$dimensioni.'</p>';
 
+	// materiale lastra fotografica
+	echo '<p style="font-family:monospace">Inizio esame materiale';
+	$materiale=(str_contains(strtolower($nome_file), ' lastra')) ? 'lastra' : "";
+	if ($materiale>''){
+		$ret_det   = carico_dettaglio( $fotografia_id, 'materia/tecnica', 'negativo/lastra-di-vetro');
+		// sfilo 
+		$nome_file = str_ireplace($materiale, '', $nome_file);
+		$nome_file = trim($nome_file);
+		echo "<br>Per effetto dell'inserimento di materia/tecnica, ora nomefile è: " .$nome_file.'<br>';
+		$aggiunti[] = "'materia/tecnica': negativo/lastra-di-vetro";
+	}
+	echo '<br>Fine esame materiale : '.$materiale.'</p>';
 	
 	// sfilettato nome_file quello che resta al centro  
 	// nome/manifestazione-soggetto
