@@ -65,20 +65,20 @@
 	</div>
 </div>
 <footer class="py-3 " style="z-index: -1;">
-		<ul class="nav justify-content-center border-top pb-3 ">
-			<li class="nav-item"><a href="<?=URLBASE; ?>ricerca.php" 
-			class="nav-link px-2 text-body-secondary">Ricerca avanzata</a></li>
-			<li class="nav-item"><a href="<?=URLBASE; ?>man/" 
-			class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
-			<li class="nav-item"><a href="<?=URLBASE; ?>man/" 
-			class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
-			<li class="nav-item"><a href="https://athesis77.it/" 
-			class="nav-link px-2 text-body-secondary">Associazione</a></li>
-			<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" 
-			class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
-		</ul>
-		<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
-	</footer>
+	<ul class="nav justify-content-center border-top pb-3 ">
+		<li class="nav-item"><a href="<?=URLBASE; ?>ricerca.php" 
+		class="nav-link px-2 text-body-secondary">Ricerca avanzata</a></li>
+		<li class="nav-item"><a href="<?=URLBASE; ?>man/" 
+		class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
+		<li class="nav-item"><a href="<?=URLBASE; ?>man/" 
+		class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
+		<li class="nav-item"><a href="https://athesis77.it/" 
+		class="nav-link px-2 text-body-secondary">Associazione</a></li>
+		<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" 
+		class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
+	</ul>
+	<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
+</footer>
 <!-- bootstrap no jQuery --> 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
