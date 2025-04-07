@@ -7,7 +7,7 @@
 
 					// ricerca in album
 					$.post(
-						'https://www.fotomuseoathesis.it/ricerche.php/album-semplice',
+						'https://archivio.athesis77.it/ricerche.php/album-semplice',
 						modulo
 					)
 					.done(function(json_ret){
@@ -46,7 +46,7 @@
 
 					// ricerca in fotografie 
 					$.post(
-						'https://www.fotomuseoathesis.it/ricerche.php/fotografie-semplice',
+						'https://archivio.athesis77.it/ricerche.php/fotografie-semplice',
 						modulo
 					)
 					.done(function(json_ret){
