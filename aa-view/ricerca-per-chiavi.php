@@ -48,17 +48,22 @@
 					<hr>
 					<div class="col-3 mb-3">
 						<label class="form-label" for="chiave[]"><em>Chiave di ricerca</em>
-							<input class="form-control" type="text" name="chiave[]" value="" list="elencoChiaviRicerca" aria-label="Selezione chiave di ricerca" required>
+							<input class="form-control" type="text" name="chiave[]" 
+							value="nome/manifestazione-soggetto" 
+							list="elencoChiaviRicerca" aria-label="Selezione chiave di ricerca" required>
 						</label>
 					</div>
 					<div class="col-2 mb-3">
 						<label class="form-label" for="operatore[]"><em>operatore</em>
-							<input class="form-control " type="text" name="operatore[]" list="operatori" required>
+							<input class="form-control " type="text" name="operatore[]" 
+							value="contiene"
+							list="operatori" required>
 						</label>
 					</div>
 					<div class="col-7 mb-3">
 						<label class="form-label w-100" for="valore[]"><em>Valore / nome /aggettivo </em>
-							<input class="form-control" type="text" name="valore[]" value="" required>
+							<input class="form-control" type="text" name="valore[]" 
+							value="?" required>
 						</label>
 					</div>
 				</div>
@@ -80,12 +85,12 @@
 			</div>
 			<footer class="py-3">
 				<ul class="nav justify-content-center border-top pb-3 ">
-					<li class="nav-item"><a href="<?=URLBASE; ?>museo.php" class="nav-link px-2 text-body-secondary">Ingresso</a></lem>
-					<li class="nav-item"><a href="<?=URLBASE; ?>amministrazione.php" class="nav-link px-2 text-body-secondary">Amministrazione</a></lem>
-					<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></lem>
-					<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary">D&R FAQ</a></lem>
-					<li class="nav-item"><a href="https://athesis77.it/" class="nav-link px-2 text-body-secondary">Associazione</a></lem>
-					<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" class="nav-link px-2 text-body-secondary">Chi siamo</a></lem>
+					<li class="nav-item"><a href="<?=URLBASE; ?>museo.php" class="nav-link px-2 text-body-secondary">Restart consultazione</a></li>
+					<li class="nav-item"><a href="<?=URLBASE; ?>amministrazione.php" class="nav-link px-2 text-body-secondary">Amministrazione</a></li>
+					<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
+					<li class="nav-item"><a href="<?=URLBASE; ?>man/" class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
+					<li class="nav-item"><a href="https://athesis77.it/" class="nav-link px-2 text-body-secondary">Associazione</a></li>
+					<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
 				</ul>
 				<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
 			</footer>

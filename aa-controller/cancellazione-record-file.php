@@ -569,6 +569,7 @@ function remove_record_video(string $ultimo_backup) : array {
 		return $ret;
 	}
 	while ($video = $lettura_video->fetch(PDO::FETCH_ASSOC)) {
+		$aggiornare=false;
 		$leggi_dettagli = "SELECT * from video_dettagli "
 		. " WHERE record_id_padre = " .$video['record_id'] 
 		. " AND record_cancellabile_dal > '".$video['record_cancellabile_dal']."' "; 
@@ -586,7 +587,6 @@ function remove_record_video(string $ultimo_backup) : array {
 			];
 			return $ret;
 		}
-		$aggiornare=false;
 		while ($record = $lettura_dettagli->fetch(PDO::FETCH_ASSOC)) {
 			$aggiornare = true;
 			break;
