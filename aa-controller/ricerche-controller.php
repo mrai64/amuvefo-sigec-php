@@ -102,7 +102,7 @@ function get_where(string $chiave, string $operatore, string $valore_parziale) :
 
 /**
  * Ricerca avanzata - in base a delle terne chiave-operatore-valore
- * che vene passata alla funzione get_where si crea la ricerca
+ * che viene passata alla funzione get_where si crea la ricerca
  * 
  * @param  array  $_POST
  * @return string html code
@@ -266,7 +266,7 @@ function get_lista_album(array $dati_ricerca) : string {
 } // get_lista_album
 
 /**
- * TEST 
+ * TEST parziale della get_where
  * https://fotomuseoathesis.it/aa-controller/ricerche-controller.php?test=ricerche-album
  * 
  */
@@ -328,7 +328,7 @@ if (isset($_GET['test']) && $_GET['test'] == 'ricerche-album'){
 
 /**
  * Ricerca avanzata - in base a delle terne chiave-operatore-valore
- * che vene passata alla funzione get_where si crea la ricerca
+ * che viene passata alla funzione get_where si crea la ricerca
  * 
  * @param  array  $dati_ricerca
  * @return string html code
@@ -522,6 +522,7 @@ function get_lista_album_semplice(array $dati_ricerca) : string {
 	$query = 'SELECT DISTINCT record_id_padre from album_dettagli ' // . AlbumDettagli::nome_tabella 
 	.' WHERE record_cancellabile_dal = :record_cancellabile_dal ';
 	foreach ($elenco_termini as $valore_parziale) {
+		$valore_parziale= addslashes($valore_parziale); // non per sanificare
 		$query .= 'AND record_id_padre in ('
 		. ' select record_id_padre from album_dettagli ' // . AlbumDettagli::nome_tabella 
 		. " where valore like '%".$valore_parziale."%' "
@@ -586,6 +587,7 @@ function get_lista_album_semplice(array $dati_ricerca) : string {
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. " AND nome_file = '/' "; 
 	foreach ($elenco_termini as $valore_parziale) {
+		$valore_parziale= addslashes($valore_parziale); // non per sanificare
 		$query .= " AND ( disco  like '%".$valore_parziale."%' "
 		          . " OR  livello1 like '%".$valore_parziale."%' "
 		          . " OR  livello2 like '%".$valore_parziale."%' "
@@ -787,6 +789,7 @@ function get_lista_fotografie_semplice(array $dati_ricerca) : string {
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. " AND nome_file <> '/' "; 
 	foreach ($elenco_termini as $valore_parziale) {
+		$valore_parziale= addslashes($valore_parziale); // non per sanificare
 		$query .= " AND ( disco  like '%".$valore_parziale."%'"
 		          . " OR nome_file like '%".$valore_parziale."%'"
 		          . " OR  livello1 like '%".$valore_parziale."%'"
@@ -843,6 +846,7 @@ function get_lista_fotografie_semplice(array $dati_ricerca) : string {
 	. ' FROM fotografie_dettagli ' 
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal ';
 	foreach ($elenco_termini as $valore_parziale) {
+		$valore_parziale= addslashes($valore_parziale); // non per sanificare
 		$query .= 'AND record_id_padre IN ('
 		. ' SELECT record_id_padre FROM fotografie_dettagli ' // . AlbumDettagli::nome_tabella 
 		. " WHERE valore LIKE '%".$valore_parziale."%' "
