@@ -29,6 +29,16 @@
 				</div>
 			</form>
 
+			<!-- chiedi a Massimo -->
+			<div class="row">
+				<div class="col-12 text-center">
+					<a aria-label="chiedi aiuto a massimo con una chat whatsapp." 
+					href="https://wa.me/393485117782?text=Mi%20serve%20una%20mano%20per%20fotomuseoathesis." >
+					<span class="fs-6 me-4">Chiedi a Massimo </span><img src="https://www.fotomuseoathesis.it/aa-img/WhatsAppButtonWhiteSmall.svg" alt="Chiedi a massimo. Chat whatsapp">
+				</a>
+				</div>
+			</div>
+
 			<div class="row" >
 				<div class="col-12 vh-50 overflow-auto " id="listaRisultatiAlbum">
 					<p> Elenco album </p>	
