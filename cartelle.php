@@ -62,12 +62,13 @@ include_once(ABSPATH . "aa-controller/cartelle-controller.php"); // route_from_u
 
 // /cartelle.php/lista-cartelle-sospese/0
 if ($richiesta == 'lista-cartelle-sospese'){
+	echo 'lista cartelle sospese<br />';
 	echo lista_cartelle_sospese(); // cartelle-controller
 	exit(0);
 }
 
 // /cartelle.php/aggiungi-cartella/0 + $_POST['aggiungi-cartella]
-// i dati ci sono, elabora il modulo - carica le cartelle in scansione_cartelle
+// i dati ci sono, elabora il modulo - carica le cartelle in scansioni_cartelle
 if ($richiesta == 'aggiungi-cartella' && isset($_POST['aggiungi_cartella'])){
 	// TODO a prescindere da cosa contiene, sanificare $_POST
 	carica_cartelle_in_scansioni_cartelle( $_POST );

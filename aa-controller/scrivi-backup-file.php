@@ -462,8 +462,9 @@ function get_backup_cartelle(string $ultimo_backup) : string {
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
 	$riempire = "INSERT INTO `scansioni_cartelle` (`record_id`, `disco`, "
-	. "`percorso_completo`, `stato_scansione`, `ultima_modifica_record`) "
-	. "VALUES(§1, '§2', '§3', §4, '§5');";
+	. "`percorso_completo`, `stato_scansione`, `ultima_modifica_record`"
+	. "`stato_lavori`, `record_cancellabile_dal` ) "
+	. "VALUES(§1, '§2', '§3', §4, '§5', '§6', '§7' );";
 
 	$leggi = 'SELECT * FROM scansioni_cartelle ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -488,7 +489,8 @@ function get_backup_cartelle(string $ultimo_backup) : string {
 		$rigo = str_ireplace('§3', $record['percorso_completo'], $rigo);
 		$rigo = str_ireplace('§4', $record['stato_scansione'], $rigo);
 		$rigo = str_ireplace('§5', $record['ultima_modifica_record'], $rigo);
-		// $rigo = str_ireplace('§7', $record['record_cancellabile_dal'], $rigo);
+		$rigo = str_ireplace('§6', $record['stato_lavori'], $rigo);
+		$rigo = str_ireplace('§7', $record['record_cancellabile_dal'], $rigo);
 		$ret .= "\n".$rigo;
 	}
     return $ret;

@@ -206,7 +206,7 @@ Class AlbumDettagli {
 		if (isset($_COOKIE['consultatore_id'])){
 			$create = 'INSERT INTO ' . self::nome_tabella
 			. ' (  record_id_padre,  chiave,  valore,  consultatore_id ) VALUES '
-			. ' ( :record_id_padre, :chiave, :valore, :consultatore_id\ ) ';
+			. ' ( :record_id_padre, :chiave, :valore, :consultatore_id ) ';
 		}
 
 		// dati obbligatori

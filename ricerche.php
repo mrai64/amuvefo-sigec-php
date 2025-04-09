@@ -4,11 +4,11 @@
  * @author Massimo Rainato <maxrainato@libero.it>
  * 
  * Centralino router delle ricerche 
- * https://archivio.athesis77.it/ricerche.php/album
- * https://archivio.athesis77.it/ricerche.php/fotografie
- * https://archivio.athesis77.it/ricerche.php/video
+ * https://www.fotomuseoathesis.it/ricerche.php/album
+ * https://www.fotomuseoathesis.it/ricerche.php/fotografie
+ * https://www.fotomuseoathesis.it/ricerche.php/video
  * 
- * Invece la pagina che espone il modulo di ricerca è
+ * Invece la pagina che espone il modulo fi ricerca è
  * /ricerca.php 
  * 
  * La gestione delle chiavi di ricerca, quelle che danno un 
@@ -35,7 +35,10 @@ $pezzi=route_from_uri($uri, '/ricerche.php/');
 $richiesta=$pezzi['operazioni'][0];
 switch($richiesta){
 	case 'album':
+	case 'album-semplice':
 	case 'fotografie':
+	case 'fotografie-semplice':
+//case 'video':
 		break; 
 
 	// resto no 
@@ -84,9 +87,21 @@ if ($ricerca_id== 0 && !isset($_POST['esegui_ricerca'])){
 	exit(1);
 }
 
+if ($richiesta=='album-semplice') {
+	// passa alla ricerca_album che ritorna json con errore o con dati
+	echo get_lista_album_semplice( $_POST );
+	exit(0);
+}
+
 if ($richiesta=='album') {
 	// passa alla ricerca_album che ritorna html con elenco di album
 	echo get_lista_album( $_POST );
+	exit(0);
+}
+
+if ($richiesta=='fotografie-semplice') {
+	// passa alla ricerca e ritorna json con errore o dati
+	echo get_lista_fotografie_semplice( $_POST );
 	exit(0);
 }
 

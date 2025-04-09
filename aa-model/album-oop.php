@@ -682,6 +682,7 @@ Class Album {
 			'ok'      => true,
 			'message' => 'Aggiornamento eseguito'
 		]; 
+		return $ret;
 	} // set_stato_lavori_album()
 
 

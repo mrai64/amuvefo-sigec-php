@@ -26,8 +26,8 @@
 							json_in['data'].forEach(element => {
 								console.log('element', element);
 								album_html_item = '<tr>'
-								+'<td><a href="/album.php/leggi/'+element.record_id+'"><i class="bi bi-archive" style="font-size:1rem;color: #'+element.tinta_rgb+'"></i></a>&nbsp;</td>'
-								+'<td><a href="/album.php/leggi/'+element.record_id+'" style="text-decoration: none;"><span style="font-size:1rem;color: #'+element.tinta_rgb+'">'+element.titolo_album+'</span></a><br>'
+								+'<td><a href="/album.php/leggi/'+element.record_id+'" target="_blank" ><i class="bi bi-archive" style="font-size:1rem;color: #'+element.tinta_rgb+'"></i></a>&nbsp;</td>'
+								+'<td><a href="/album.php/leggi/'+element.record_id+'" target="_blank" style="text-decoration: none;"><span style="font-size:1rem;color: #'+element.tinta_rgb+'">'+element.titolo_album+'</span></a><br>'
 								+'<span class="h6 small text-secondary text-wrap"><em>Siete in: </em>'+element.percorso_completo.replace('/', ' / ')+'</span></td>'
 								+'</tr>';
 								console.log('tr', album_html_item);
@@ -65,7 +65,7 @@
 
 								foto_html_item = '<div style="display:block;width:200px;height:200px;" class="float-start">'
 								+ '<a href="/fotografie.php/leggi/'+element.record_id+'" '
-								+ 'title="'+element.titolo_fotografia+' ">'
+								+ 'title="'+element.titolo_fotografia+' " target="_blank" >'
 								+ '<img src="https://fotomuseoathesis.it'+element.percorso_completo+'" '
 								+ 'style="max-width:200px; max-height:200px;" '
 								+ 'loading="lazy"  class="d-block w-100" />'

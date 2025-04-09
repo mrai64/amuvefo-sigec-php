@@ -65,7 +65,9 @@
 						<tr>
 							<th scope="col">Chiave ricerca</th>
 							<th scope="col">Valore</th>
-							<th scope="col"><a href="<?= $aggiungi_dettaglio; ?>" title="aggiungi dettaglio"><i class="h2 bi bi-pencil-square"></i></a></th>
+							<th scope="col"><a href="<?=$aggiungi_dettaglio; ?>" 
+							<?php echo ($_COOKIE['abilitazione'] > SOLALETTURA)? '' : ' class="link-secondary" ' ;?>
+							title="aggiungi dettaglio"><i class="h2 bi bi-pencil-square"></i></a></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -79,16 +81,16 @@
 								echo '<td scope="row">'.$dettaglio['chiave'].'</td>'."\n";
 								echo '<td>'.$dettaglio['valore'].'</td>'."\n";
 								if ($_COOKIE['abilitazione'] > SOLALETTURA ){
-									echo '<td><a href="'.URLBASE.'fotografie.php/modifica_dettaglio/'.$dettaglio['record_id'].'?f='.$dettaglio['record_id_padre'].'" '
-									. 'title="modifica dettaglio"><i class="h2 bi bi-pencil-square"></i></a>'
+									echo '<td nowrap><a href="'.URLBASE.'fotografie.php/modifica_dettaglio/'.$dettaglio['record_id'].'?f='.$dettaglio['record_id_padre'].'" '
+									. 'title="modifica dettaglio"><i class="h4 bi bi-pencil-square"></i></a>'
 									. '<a href="'.URLBASE.'fotografie.php/elimina_dettaglio/'.$dettaglio['record_id'].'?f='.$dettaglio['record_id_padre'].'" '
-									. 'title="elimina dettaglio"><i class="h2 bi bi-eraser-fill"></i></a></td>'."\n";
+									. 'title="elimina dettaglio"><i class="h4 bi bi-eraser-fill"></i></a></td>'."\n";
 									
 								} else {
-									echo '<td><a href="#sololettura" '
-									. 'title="modifica dettaglio"><i class="h2 bi bi-pencil-square"></i></a>'
-									. '<a href="#sololettura" '
-									. 'title="elimina dettaglio"><i class="h2 bi bi-eraser-fill"></i></a></td>'."\n";
+									echo '<td nowrap><a class="link-secondary" href="#sololettura" '
+									. 'title="modifica dettaglio"><i class="h4 bi bi-pencil-square"></i></a>'
+									. '<a class="link-secondary" href="#sololettura" '
+									. 'title="elimina dettaglio"><i class="h4 bi bi-eraser-fill"></i></a></td>'."\n";
 
 								}
 								echo '</tr>'."\n";
