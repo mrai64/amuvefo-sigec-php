@@ -27,8 +27,8 @@
 			<a href='/ricerca.php'><i class="h2 bi bi-search" ></i></a>
 			<?php // per sola consultazione non appare
 			if ($_COOKIE['abilitazione'] > SOLALETTURA){
-				echo "&nbsp;|&nbsp; ";
-				echo '<a href="'. $richiesta_originali . '" '
+				echo "&nbsp;|&nbsp; "
+				. '<a href="'. $richiesta_originali . '" '
 				. 'title="[Richiesta foto]" ><i class="h2 bi bi-bookmark-check"></i></a>'."\n";
 			}
 			?>
@@ -52,9 +52,18 @@
 			<a href="<?=$foto_precedente; ?>" title="[prev in album]"><i class="h2 bi bi-arrow-left-square-fill"></i></a>
 			<a href="<?=$foto_seguente;   ?>" title="[next in album]"><i class="h2 bi bi-arrow-right-square-fill"></i></a>
 			<?php // didascalia
+			if ($didascalia_id>0){
+				// modifica
+				echo "<a href='".URLBASE.'didascalie.php/aggiorna/'.$didascalia_id."' title='Modifica didascalia'>"
+				. '<i class="h2 bi bi-pencil-square"></i></a>';
+			} else {
+				// aggiungi
+				echo "<a href='".URLBASE.'didascalie.php/aggiungi/fotografie/'.$fotografia['record_id']."' title='Aggiungi didascalia'>"
+				. '<i class="h2 bi bi-plus-square-fill"></i></a>';
+			}
 			if ($leggimi>""){
 				echo '<div>'.PHP_EOL;
-				echo htmlspecialchars($leggimi);
+				echo preg_replace('/[^\p{L}\p{N}\p{Zs}\p{P}]/u', '', htmlspecialchars($leggimi) );
 				echo '</div>'.PHP_EOL;
 			}
 			?>

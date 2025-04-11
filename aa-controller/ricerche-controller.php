@@ -490,7 +490,7 @@ function get_lista_album_semplice(array $dati_ricerca) : string {
 		$ret=[
 			'error'   => true,
 			'message' => "KO - serve utilizzare il modulo di ricerca semplificata, "
-			. "clicca qui: https://fotomuseoathesis.it/ricerca.php?#."
+			. "clicca qui: ".URLBASE."ricerca.php?#."
 		];
 		return json_encode($ret);
 	}
@@ -498,7 +498,7 @@ function get_lista_album_semplice(array $dati_ricerca) : string {
 		$ret=[
 			'error'   => true,
 			'message' => "KO - serve utilizzare il modulo di ricerca semplificata, "
-			. "clicca qui: https://fotomuseoathesis.it/ricerca.php?#."
+			. "clicca qui: ".URLBASE."ricerca.php?#."
 		];
 		return json_encode($ret);
 	}
