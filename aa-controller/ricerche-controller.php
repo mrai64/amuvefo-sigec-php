@@ -507,6 +507,7 @@ function get_lista_album_semplice(array $dati_ricerca) : string {
 	$alb_h  = New Album($dbh);
 	$adet_h = New AlbumDettagli($dbh);
 	$scan_h = New ScansioniDisco($dbh);
+	$dida_h = New Didascalie($dbh);
 
 	/**
 	 * Elenco dei termini - viene fatta una intersezione
@@ -519,6 +520,9 @@ function get_lista_album_semplice(array $dati_ricerca) : string {
 	/**
 	 * ricerca nella tabella album_dettagli 
 	 */
+	/**
+	 * versione con AND
+	 */
 	$query = 'SELECT DISTINCT record_id_padre from album_dettagli ' // . AlbumDettagli::nome_tabella 
 	.' WHERE record_cancellabile_dal = :record_cancellabile_dal ';
 	foreach ($elenco_termini as $valore_parziale) {
@@ -529,6 +533,14 @@ function get_lista_album_semplice(array $dati_ricerca) : string {
 		. ') ';
 	}
 	$query .= ' ORDER BY record_id_padre ';
+
+	/**
+	 * versione con FULLTEXT 
+	 */
+	$query = 'SELECT DISTINCT record_id_padre '
+	. ' FROM ' . AlbumDettagli::nome_tabella 
+	. " WHERE MATCH(valore) AGAINST ('".$dati_ricerca['valore']."') "
+	. ' AND record_cancellabile_dal = :record_cancellabile_dal ';
 
 	$campi=[];
 	$campi['query']=$query;
@@ -582,6 +594,10 @@ function get_lista_album_semplice(array $dati_ricerca) : string {
 	 * predisposta non consente di farlo, si opera solo su tabelle singole.
 	 * 
 	 */
+
+	/**
+	 * versione  con AND + OR
+	 */
 	//. ' AND record_id > :ultimo_id_precedente ' // uso paginazione 
 	$query = 'SELECT record_id FROM scansioni_disco '
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
@@ -589,25 +605,36 @@ function get_lista_album_semplice(array $dati_ricerca) : string {
 	foreach ($elenco_termini as $valore_parziale) {
 		$valore_parziale= addslashes($valore_parziale); // non per sanificare
 		$query .= " AND ( disco  like '%".$valore_parziale."%' "
-		          . " OR  livello1 like '%".$valore_parziale."%' "
-		          . " OR  livello2 like '%".$valore_parziale."%' "
-		          . " OR  livello3 like '%".$valore_parziale."%' "
-		          . " OR  livello4 like '%".$valore_parziale."%' "
-		          . " OR  livello5 like '%".$valore_parziale."%' "
-		          . " OR  livello6 like '%".$valore_parziale."%' "
-		        . ') ';
+		. " OR  livello1 like '%".$valore_parziale."%' "
+		. " OR  livello2 like '%".$valore_parziale."%' "
+		. " OR  livello3 like '%".$valore_parziale."%' "
+		. " OR  livello4 like '%".$valore_parziale."%' "
+		. " OR  livello5 like '%".$valore_parziale."%' "
+		. " OR  livello6 like '%".$valore_parziale."%' "
+		. ') ';
 	} // foreach
 	$query .= ' ORDER BY record_id ';
+	
+	/**
+	 * FULLTEXT
+	 */
+	$query = 'SELECT record_id '
+	. ' FROM ' . ScansioniDisco::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. " AND nomefile = '/' "
+	. " AND MATCH(livello1, livello2, livello3, "
+	. " livello4, livello5, livello6) AGAINST('".$dati_ricerca['valore']."') ";
+	
 	$campi=[];
 	$campi['query']= $query;
 	$campi['record_cancellabile_dal']= $dbh->get_datetime_forever();
-
+	
 	$ret_scan = $scan_h->leggi($campi);
-
+	
 	if (isset($ret_scan['error'])){
 		return json_encode($ret_scan);
 	}
-
+	
 	if (isset($ret_scan['numero']) && $ret_scan['numero']>0){
 		// lista dei record_in_scansioni_disco
 		$ret_id_list = $ret_scan['data']; // quelli di deposito
@@ -636,8 +663,27 @@ function get_lista_album_semplice(array $dati_ricerca) : string {
 		$ret_scan=$ret_alb;
 	}
 	
+	/**
+	 * didascalie album
+	 */
+	$query = "SELECT record_id_padre "
+	. " FROM " . Didascalie::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. " AND tabella_padre = 'album' "
+	. " AND MATCH(didascalia) AGAINST('".$dati_ricerca['valore']."') ";
+
+	$campi=[];
+	$campi['query']= $query;
+	$campi['record_cancellabile_dal']= $dbh->get_datetime_forever();
+	
+	$ret_dida = $dida_h->leggi($campi);
+	
+	if (isset($ret_dida['error'])){
+		return json_encode($ret_dida);
+	}
+
 	// la somma degli insiemi
-	if (isset($ret_adet['numero']) && $ret_adet['numero']==0 && isset($ret_scan['numero']) && $ret_scan['numero']==0){
+	if (isset($ret_adet['numero']) && $ret_adet['numero']==0 && isset($ret_scan['numero']) && $ret_scan['numero']==0 && isset($ret_dida['numero']) && $ret_dida['numero']==0){
 		$ret=[
 			'error'   => true,
 			'message' => "Nessun album trovato [8]"
@@ -646,12 +692,13 @@ function get_lista_album_semplice(array $dati_ricerca) : string {
 	}
 	
 	// alzo di un livello i dati - mi servono solo album.record_id
-	// qui si mette un limitatore a 20 senza gestione paginazione 
+	// qui si mette un limitatore a 20+20+20 senza gestione paginazione 
 	// senza limitatore for ($i=0; $i<count($ret_id_list);$i++){
 	// per la paginazione in avanti dentro al loop
 	// if ($ret_id_list[$i]['record_id/id_padre'] <= $ultimo_precedente ) {
 	//   continue;
 	// }
+	// Nota: esiste array_merge ma non posso usarlo
 	$ret_id_list = ($ret_adet['numero']==0) ? [] : $ret_adet['data']; // quelli di album_dettagli 
 	$album_id_list = [];
 	for ($i=0; $i<20 && $i<count($ret_id_list); $i++){
@@ -661,6 +708,11 @@ function get_lista_album_semplice(array $dati_ricerca) : string {
 	for ($i=0; $i<20 && $i<count($ret_id_list); $i++){
 		$album_id_list[]=$ret_id_list[$i]['record_id'];
 	}
+	$ret_id_list = ($ret_dida['numero']==0) ? [] : $ret_dida['data']; // quelli di didascalie
+	for ($i=0; $i<20 && $i<count($ret_id_list); $i++){
+		$album_id_list[]=$ret_id_list[$i]['record_id_padre'];
+	}
+	// si tolgono i doppioni
 	asort($album_id_list);
 	$album_id_list = array_unique($album_id_list);
 	
@@ -746,6 +798,7 @@ function get_lista_fotografie_semplice(array $dati_ricerca) : string {
 	$foto_h = New Fotografie($dbh);
 	$fdet_h = New FotografieDettagli($dbh);
 	$scan_h = New ScansioniDisco($dbh);
+	$dida_h = New Didascalie($dbh);
 
 	/**
 	 * Elenco dei termini
@@ -801,6 +854,16 @@ function get_lista_fotografie_semplice(array $dati_ricerca) : string {
 			        . ') ';
 	} // foreach
 	$query .= ' ORDER BY record_id ';
+	/**
+	 * versione FULLTEXT
+	 */
+	$query = 'SELECT record_id '
+	. ' FROM ' . ScansioniDisco::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. " AND nomefile <> '/' "
+	. " AND MATCH(livello1, livello2, livello3, livello4, livello5, livello6) "
+	. " AGAINST('".$dati_ricerca['valore']."') ";
+	 
 	$campi=[];
 	$campi['query']= $query;
 	$campi['record_cancellabile_dal']= $dbh->get_datetime_forever();
@@ -827,6 +890,7 @@ function get_lista_fotografie_semplice(array $dati_ricerca) : string {
 		. ' AND record_id IN ( '
 		. implode(', ', $deposito_id_list)
 		. ' ) ORDER BY record_id ';
+
 		$campi=[];
 		$campi['query']=$query;
 		$campi['record_cancellabile_dal']= $dbh->get_datetime_forever();
@@ -853,6 +917,13 @@ function get_lista_fotografie_semplice(array $dati_ricerca) : string {
 		. ') ';
 	}
 	$query .= ' ORDER BY record_id_padre';
+	/**
+	 * versine FULLTEXT
+	 */
+	$query = "SELECT DISTINCT record_id_padre "
+	. " FROM " . FotografieDettagli::nome_tabella
+	. " WHERE MATCH(valore) AGAINST('".$dati_ricerca['valore']."') "
+	. " AND record_cancellabile_dal = :record_cancellabile_dal ";
 
 	$campi=[];
 	$campi['query']=$query;
@@ -863,8 +934,29 @@ function get_lista_fotografie_semplice(array $dati_ricerca) : string {
 	if (isset($ret_fdet['error'])){
 		return json_encode($ret_fdet);
 	}
+
+	/**
+	 * didascalie fotografie
+	 */
+	$query = "SELECT record_id_padre "
+	. " FROM " . Didascalie::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. " AND tabella_padre = 'fotografie' "
+	. " AND MATCH(didascalia) AGAINST('".$dati_ricerca['valore']."') ";
+
+	$campi=[];
+	$campi['query']= $query;
+	$campi['record_cancellabile_dal']= $dbh->get_datetime_forever();
+	
+	$ret_dida = $dida_h->leggi($campi);
+	
+	if (isset($ret_dida['error'])){
+		return json_encode($ret_dida);
+	}
+
+
 	// la somma degli insiemi
-	if (isset($ret_fdet['numero']) && $ret_fdet['numero']==0 && isset($ret_scan['numero']) && $ret_scan['numero']==0){
+	if (isset($ret_fdet['numero']) && $ret_fdet['numero']==0 && isset($ret_scan['numero']) && $ret_scan['numero']==0 && isset($ret_dida['numero']) && $ret_dida['numero']==0){
 		$ret=[
 			'error'   => true,
 			'message' => "Nessuna fotografia trovata [8]"
@@ -872,14 +964,14 @@ function get_lista_fotografie_semplice(array $dati_ricerca) : string {
 		return json_encode($ret);
 	}
 	// alzo di un livello i dati - mi servono solo album.record_id
-	// qui si mette un limitatore a 24 senza gestione paginazione 
+	// qui si mette un limitatore a 24+24+24 senza gestione paginazione 
 	// senza limitatore for ($i=0; $i<count($ret_id_list);$i++){
 	// per la paginazione in avanti dentro al loop
 	// if ($ret_id_list[$i]['record_id/id_padre'] <= $ultimo_precedente ) {
 	//   continue;
 	// }
-	$ret_id_list = ($ret_fdet['numero']==0) ? [] : $ret_fdet['data']; // quelli di fotografie_dettagli 
 	$foto_id_list = [];
+	$ret_id_list  = ($ret_fdet['numero']==0) ? [] : $ret_fdet['data']; // quelli di fotografie_dettagli 
 	for ($i=0; $i<24 && $i<count($ret_id_list); $i++){
 		$foto_id_list[]=$ret_id_list[$i]['record_id_padre'];
 	}
@@ -887,6 +979,11 @@ function get_lista_fotografie_semplice(array $dati_ricerca) : string {
 	for ($i=0; $i<24 && $i<count($ret_id_list); $i++){
 		$foto_id_list[]=$ret_id_list[$i]['record_id'];
 	}
+	$ret_id_list  = ($ret_dida['numero']==0) ? [] : $ret_dida['data']; // quelli di didascalie 
+	for ($i=0; $i<24 && $i<count($ret_id_list); $i++){
+		$foto_id_list[]=$ret_id_list[$i]['record_id_padre'];
+	}
+	
 	asort($foto_id_list);
 	$foto_id_list = array_unique($foto_id_list);
 

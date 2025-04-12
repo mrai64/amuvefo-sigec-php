@@ -115,7 +115,7 @@
   <p class="text-center">
     La consultazione è consigliata a schermi di risoluzione FullHD<br>
     L'accesso è soggetto a <a class="map-point" href="<?=URLBASE; ?>man/termini-di-servizio-e-condizioni-duso/" >Termini e Condizioni</a>
-  </p>      
+  </p>
 </footer>
   <script>
     $(document).ready(function() {

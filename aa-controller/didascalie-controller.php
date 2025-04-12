@@ -24,9 +24,8 @@ include_once(ABSPATH . 'aa-model/video-oop.php');
 /**
  * @param  int   didascalia_id 
  * @param  array dati_input 
- * @return array 'ok' + message | 'error' + message 
  */
-function aggiorna_didascalia( int $didascalia_id, $dati_input):array{
+function aggiorna_didascalia( int $didascalia_id, array $dati_input) {
   if ($didascalia_id < 1){
     $ret = [
       'error'   => true,
@@ -39,7 +38,11 @@ function aggiorna_didascalia( int $didascalia_id, $dati_input):array{
     .$ret['message'].'</p>';
     exit(1);
   }
-  // se i dati mancano passo a vedere i dati
+  //dbg echo '<p style="font-family:monospace;color:red;">'
+  //dbg . 'input id: '  . $didascalia_id 
+  //dbg . '<br>input: ' . str_ireplace(';', '; ', serialize($dati_input))
+  //dbg . '</p>';
+// se i dati mancano passo a vedere i dati
   $dbh     = New DatabaseHandler();
   $dida_h  = New Didascalie($dbh);
   if (!isset($dati_input['aggiorna_didascalia'])){
@@ -87,7 +90,7 @@ function aggiorna_didascalia( int $didascalia_id, $dati_input):array{
     . "e consulta il manuale in caso di dubbi.";
 		require_once( ABSPATH . 'aa-view/didascalie-edit-view.php');
 		exit(0); 
-  }
+  } // non è il modulo 
 
   // passo a usare i dati del modulo
   if (!isset($dati_input['tabella_padre'])){
@@ -100,7 +103,7 @@ function aggiorna_didascalia( int $didascalia_id, $dati_input):array{
     echo '<p style="font-family:monospace;color:red;">'
     .$ret['message'].'</p>';
     exit(1);  
-  }
+  } // tabella_padre
   if (!isset($dati_input['record_id_padre']) || $dati_input['record_id_padre'] < 1){
     $ret = [
       'error'   => true,
@@ -111,7 +114,7 @@ function aggiorna_didascalia( int $didascalia_id, $dati_input):array{
     echo '<p style="font-family:monospace;color:red;">'
     .$ret['message'].'</p>';
     exit(1);  
-  }
+  } // record_id_padre 
 	$alb_h   = New Album($dbh);
 	$foto_h  = New Fotografie($dbh);
 	$vid_h   = New Video($dbh);
@@ -120,10 +123,16 @@ function aggiorna_didascalia( int $didascalia_id, $dati_input):array{
   $tabella_padre = strtolower($dati_input['tabella_padre']);
   $dida_h->set_tabella_padre($tabella_padre);
   $tabella_padre= $dida_h->get_tabella_padre();
+  //dbg echo '<p style="font-family:monospace;color:red;">'
+  //dbg . 'tabella_padre: ' . $tabella_padre
+  //dbg . '</p>';
   
   $record_id_padre = $dati_input['record_id_padre'];
   $dida_h->set_record_id_padre($record_id_padre);
   $record_id_padre = $dida_h->get_record_id_padre();
+  //dbg echo '<p style="font-family:monospace;color:red;">'
+  //dbg . 'record_id_padre: ' . $record_id_padre
+  //dbg . '</p>';
 
   if ($tabella_padre == Didascalie::padre_album){
     $campi=[];
@@ -160,6 +169,9 @@ function aggiorna_didascalia( int $didascalia_id, $dati_input):array{
 
     $ret_padre = $vid_h->leggi($campi);
   } // video
+  //dbg echo '<p style="font-family:monospace;color:red;">'
+  //dbg . '<br>ret_padre: ' . str_ireplace(';', '; ', serialize($ret_padre))
+  //dbg . '</p>';
 
   if (isset($ret_padre['error'])){
     $ret = [
@@ -194,6 +206,9 @@ function aggiorna_didascalia( int $didascalia_id, $dati_input):array{
   $campi['record_id'] = $didascalia_id;
   $campi['record_cancellabile_dal'] = $dbh->get_datetime_now();
   $ret_del = $dida_h->modifica($campi);
+  //dbg echo '<p style="font-family:monospace;color:red;">'
+  //dbg . '<br>ret_del: ' . str_ireplace(';', '; ', serialize($ret_del))
+  //dbg . '</p>';
 
   if (isset($ret_del['error'])){
     $ret = [
@@ -242,15 +257,9 @@ function aggiorna_didascalia( int $didascalia_id, $dati_input):array{
     exit(1);  
   } // registra didascalia
 
-  $ret = [
-    'ok'        => true,
-    'record_id' => $ret_ins['record_id'],
-    'message'   => __FUNCTION__ . ' ' . __LINE__
-    . '<br>Didascalia aggiornata. '
-    . '<br>ret: ' . str_ireplace(';', '; ', serialize($ret_ins)) 
-  ];
-  return $ret;
-
+  // passa alla pagina che viene aggiornata 
+  header('Location: '.URLBASE.$campi['tabella_padre'].'.php/leggi/'.$campi['record_id_padre']);
+  exit(0);
 } // aggiorna_didascalia
 
 /**

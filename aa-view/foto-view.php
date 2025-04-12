@@ -54,11 +54,13 @@
 			<?php // didascalia
 			if ($didascalia_id>0){
 				// modifica
-				echo "<a href='".URLBASE.'didascalie.php/aggiorna/'.$didascalia_id."' title='Modifica didascalia'>"
+				echo "<a href='".URLBASE.'didascalie.php/aggiorna/'.$didascalia_id."' "
+				. "title='Modifica didascalia' target='_blank' >"
 				. '<i class="h2 bi bi-pencil-square"></i></a>';
 			} else {
 				// aggiungi
-				echo "<a href='".URLBASE.'didascalie.php/aggiungi/fotografie/'.$fotografia['record_id']."' title='Aggiungi didascalia'>"
+				echo "<a href='".URLBASE.'didascalie.php/aggiungi/fotografie/'.$fotografia['record_id']."' "
+				. "title='Aggiungi didascalia' target='_blank' >"
 				. '<i class="h2 bi bi-plus-square-fill"></i></a>';
 			}
 			if ($leggimi>""){

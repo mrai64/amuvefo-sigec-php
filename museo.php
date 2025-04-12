@@ -27,7 +27,7 @@ $ingresso = str_replace('<?=URLBASE; ?>', URLBASE, $ingresso);
 
 // applicazione dei link in base al contenuto di _COOKIE['abilitazione']
 // abilitazione lettura
-$ingresso = str_replace('#originali_athesis',             'https://www.athesis77.it/', $ingresso);
+$ingresso = str_replace('#originali_athesis',             'https://www.athesis77.it/',              $ingresso);
 // quello più lungo ha la precedenza
 $ingresso = str_replace('#consultazione_autori_fondi',    URLBASE.'deposito.php/cartella/2AUTOF/',  $ingresso);
 $ingresso = str_replace('#consultazione_autori',          URLBASE.'deposito.php/cartella/1AUTORI/', $ingresso);
@@ -40,17 +40,17 @@ $ingresso = str_replace('#consultazione_scuola',          URLBASE.'deposito.php/
 $ingresso = str_replace('#consultazione_terrisaurum',     URLBASE.'deposito.php/cartella/9TERRI/',  $ingresso);
 $ingresso = str_replace('#consultazione_video',           URLBASE.'deposito.php/cartella/10VIDEO/', $ingresso);
 
-$ingresso = str_replace('#consultazione_amuvefo',         URLBASE.'man/', $ingresso);
-$ingresso = str_replace('#consultazione_fiaf',            'https://fiaf.net/veneto/',  $ingresso);
-$ingresso = str_replace('#consultazione_athesis',         'https://www.athesis77.it/', $ingresso);
-$ingresso = str_replace('#ricerca_avanzata',              URLBASE.'/ricerca.php',      $ingresso);
+$ingresso = str_replace('#consultazione_amuvefo',         URLBASE.'man/',                           $ingresso);
+$ingresso = str_replace('#consultazione_fiaf',            'https://fiaf.net/veneto/',               $ingresso);
+$ingresso = str_replace('#consultazione_athesis',         'https://www.athesis77.it/',              $ingresso);
+$ingresso = str_replace('#ricerca_avanzata',              URLBASE.'/ricerca.php',                   $ingresso);
 
 // applicazione dei link in base al contenuto di _COOKIE['abilitazione']
 // abilitazione modifica 
-$cookie_abilitazione      = str_replace("'", '', $_COOKIE['abilitazione']);
 $abilitazione_solalettura = str_replace("'", '', constant('SOLALETTURA'));
 $abilitazione_modifica    = str_replace("'", '', constant('MODIFICA'));
 $abilitazione_modificaplus= str_replace("'", '', constant('MODIFICAPLUS'));
+$cookie_abilitazione      = (isset($_COOKIE['abilitazione'])) ? str_replace("'", '', $_COOKIE['abilitazione']) : $abilitazione_solalettura;
 
 if (strncmp($cookie_abilitazione, $abilitazione_solalettura, 2) > 0){ // A > B 
 	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
@@ -59,7 +59,7 @@ if (strncmp($cookie_abilitazione, $abilitazione_solalettura, 2) > 0){ // A > B
 // applicazione dei link in base al contenuto di _COOKIE['abilitazione']
 // abilitazione modifica / accesso ad con aruba drive (in sola lettura) 
 if (strncmp($cookie_abilitazione, $abilitazione_modifica, 2) > 0){ // A > B 
-	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
+	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php',                  $ingresso);
 	$ingresso = str_replace('#originali_autori_fondi',      'https://www.athesis1977.it/s/NKGJ7DytF9LXRmL', $ingresso);
 	$ingresso = str_replace('#originali_autori',            'https://www.athesis1977.it/s/4bsSwmHiWW8XbQe', $ingresso);
 	$ingresso = str_replace('#originali_fondi',             'https://www.athesis1977.it/s/Z7doaewN5yab5XR', $ingresso);
@@ -70,7 +70,7 @@ if (strncmp($cookie_abilitazione, $abilitazione_modifica, 2) > 0){ // A > B
 	$ingresso = str_replace('#originali_scuole',            'https://www.athesis1977.it/s/8AqRLfFkqZG3qDz', $ingresso);
 	$ingresso = str_replace('#originali_terrisaurum',       'https://www.athesis1977.it/s/RNZ8kZw6fkagzXg', $ingresso);
 	$ingresso = str_replace('#originali_video',             'https://www.athesis1977.it/s/Y8EEto8ekW6TQK5', $ingresso);
-	$ingresso = str_replace('#consultazione_athesis',       'https://www.athesis77.it/', $ingresso);
+	$ingresso = str_replace('#consultazione_athesis',       'https://www.athesis77.it/',                    $ingresso);
 }
 
 // applicazione dei link in base al contenuto di _COOKIE['abilitazione']
@@ -81,4 +81,6 @@ if (strncmp($cookie_abilitazione, $abilitazione_modificaplus, 2) > 0){ // A > B
 
 // tutto pronto, si espone
 echo $ingresso;
+//dbg echo '<hr />';
+//dbg echo var_dump($_COOKIE);
 exit(0);

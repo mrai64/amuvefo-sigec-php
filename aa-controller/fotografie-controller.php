@@ -458,6 +458,13 @@ function leggi_fotografie_per_id( int $fotografie_id){
 	 * 1. cerca se è presente un file sidecar
 	 *    trovato: lo carica in tabella didascalie ed espone
 	 * 2. cerca se è presente un record in tabella didascalie 
+	 * 
+	 * Nota: il contenuto della didascalia si chiama leggimi, 
+	 * perché nel caricamento delle cartelle viene inserito
+	 * un file _leggimi.txt con la descrizione del contenuto
+	 * della cartella-album. "didascalia" viene riservato al 
+	 * record della tabella didascalie, che contiene una colonna
+	 * didascalia.
 	 */
 	$didascalia_id = 0;
 	$leggimi = "";
