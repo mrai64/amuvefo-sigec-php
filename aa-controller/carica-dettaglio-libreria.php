@@ -89,14 +89,9 @@ function get_data_evento(string $titolo) : string {
 } // get_data_evento
 
 /**
- * luogo viene memorizzato in un vocabolario collegato alla chiave luogo/comune
- * Serve ordinare per lunghezza decrescente in modo che 
- * Boara Polesine si identificata come Boara Polesine e non come Boara
- * Boara Pisani sia identificata come Boara e non come Boara Pisani 
- * (scelta del comitato di gestione, non capisco ma mi adeguo) 
- * 
- * @param string $titolo 
- * @return string $luogo | ""
+ * !TODO dove veniva usata come ricerca luogo/comune va tolta e deve 
+ * !TODO diventare la ricerca di chiave E valore unendo la ricerca di 
+ * !TODO chiave like luogo/% 
  */
 function get_luogo(string $titolo) : string {
 	return get_luogo_comune($titolo);
@@ -246,6 +241,23 @@ function get_autore_sigla_6(string $titolo) : string {
 		}
 	}
 	return $sigla;  
+}
+
+/**
+ * elenco autori Cognome, nome 
+ * elenco autori Cognome, nome (nascita - morte) per gli scomparsi 
+ * elenco autori Cognome, nome (nascita - ) per gli omonimi 
+ * nome file ... Cognome nome ... 
+ * nome file ... nome cognome ... 
+ * 
+ * La funzione deve separare tutti i termini del nomefile
+ * e andare a fare una ricerca per ciascun termine in elenco autori
+ * 
+ * @param  string titolo o nome file
+ * @return string "" oppure un cognome, nome da elenco autori
+ */
+function get_autore(string $titolo) : string {
+	return "";
 }
 
 function get_durata(string $titolo) : string{

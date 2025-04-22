@@ -6,6 +6,8 @@
  * Centralino router delle ricerche 
  * https://archivio.athesis77.it/chiavi.php/aggiungi
  * https://archivio.athesis77.it/chiavi.php/modifica/{id}
+ * https://archivio.athesis77.it/chiavi.php/elenco-datalist
+ * https://archivio.athesis77.it/chiavi.php/elenco
  * 
  */
 if (!defined('ABSPATH')){

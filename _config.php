@@ -18,6 +18,8 @@ $durata_sessione = 7200; // settemiladuecento secondi 120 minuti 2 ore - rinnova
 @setcookie(session_name(), session_id(), time() - $durata_sessione, "/"); // cancella vecchia
 @setcookie(session_name(), session_id(), time() + $durata_sessione, "/"); // scrive nuova
 
+$debug_buffer = ''; // per non esporre dati prima dei sent_header
+
 if ( !defined( 'ABSPATH' ) ) {
 	$debug_buffer .= '<br>ABSPATH undefined';
 	
@@ -39,7 +41,6 @@ if ( !defined( 'ABSPATH' ) ) {
 			// localhost
 			define( 'ABSPATH', '/Users/massimorainato/Sites/AMUVEFO-sigec-php/' ); 
 			define( 'URLBASE', 'http://localhost:8888/AMUVEFO-sigec-php/' ); 
-			define( 'BASEURL', 'http://localhost:8888/AMUVEFO-sigec-php/' ); 
 			define( 'URLZERO', '/AMUVEFO-sigec-php'); // la sottocartella che contiene il sito 
 			break;
 
