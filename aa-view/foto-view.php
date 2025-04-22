@@ -30,6 +30,10 @@
 				echo "&nbsp;|&nbsp; "
 				. '<a href="'. $richiesta_originali . '" '
 				. 'title="[Richiesta foto]" ><i class="h2 bi bi-bookmark-check"></i></a>'."\n";
+			} else {
+				echo "&nbsp;|&nbsp; "
+				. '<a href="#solalettura" '
+				. 'title="[Richiesta foto]" ><i class="h2 bi bi-bookmark-check link-secondary"></i></a>'."\n";
 			}
 			?>
 			&nbsp;|&nbsp; 
@@ -51,21 +55,26 @@
 			</ul>
 			<a href="<?=$foto_precedente; ?>" title="[prev in album]"><i class="h2 bi bi-arrow-left-square-fill"></i></a>
 			<a href="<?=$foto_seguente;   ?>" title="[next in album]"><i class="h2 bi bi-arrow-right-square-fill"></i></a>
-			<?php // didascalia
-			if ($didascalia_id>0){
-				// modifica
-				echo "<a href='".URLBASE.'didascalie.php/aggiorna/'.$didascalia_id."' "
-				. "title='Modifica didascalia' target='_blank' >"
-				. '<i class="h2 bi bi-pencil-square"></i></a>';
+			<?php // didascalia - 
+			if ($_COOKIE['abilitazione'] > SOLALETTURA){
+				if ($didascalia_id > 0){
+					// modifica
+					echo "<a href='".URLBASE.'didascalie.php/aggiorna/'.$didascalia_id."' title='Modifica didascalia'>"
+					. '<i class="h2 bi bi-pencil-square"></i></a>';
+				} else {
+					// si può aggiungere
+					echo "<a href='".URLBASE.'didascalie.php/aggiungi/fotografie/'.$fotografia['record_id']."' title='Aggiungi didascalia'>"
+					. '<i class="h2 bi bi-plus-square-fill"></i></a>';
+				}
 			} else {
-				// aggiungi
-				echo "<a href='".URLBASE.'didascalie.php/aggiungi/fotografie/'.$fotografia['record_id']."' "
-				. "title='Aggiungi didascalia' target='_blank' >"
-				. '<i class="h2 bi bi-plus-square-fill"></i></a>';
+				// aggiugni ma non funzionante
+				echo "<a href='#solalettura' title='Gestione didascalia'>"
+				. '<i class="h2 bi bi-pencil-square link-secondary"></i></a>';
 			}
+			// espongo la didascalia (ex _leggimi.txt della cartella e sidecar dei file)
 			if ($leggimi>""){
-				echo '<div>'.PHP_EOL;
-				echo preg_replace('/[^\p{L}\p{N}\p{Zs}\p{P}]/u', '', htmlspecialchars($leggimi) );
+				echo '<div class="">'.PHP_EOL;
+				echo nl2br($leggimi);
 				echo '</div>'.PHP_EOL;
 			}
 			?>
@@ -91,7 +100,7 @@
 								echo '<tr>'."\n";
 								echo '<td scope="row">'.$dettaglio['chiave'].'</td>'."\n";
 								echo '<td>'.$dettaglio['valore'].'</td>'."\n";
-								if ($_COOKIE['abilitazione'] > SOLALETTURA ){
+								if (isset($_COOKIE['abilitazione']) && $_COOKIE['abilitazione'] > SOLALETTURA ){
 									echo '<td nowrap><a href="'.URLBASE.'fotografie.php/modifica_dettaglio/'.$dettaglio['record_id'].'?f='.$dettaglio['record_id_padre'].'" '
 									. 'title="modifica dettaglio"><i class="h4 bi bi-pencil-square"></i></a>'
 									. '<a href="'.URLBASE.'fotografie.php/elimina_dettaglio/'.$dettaglio['record_id'].'?f='.$dettaglio['record_id_padre'].'" '

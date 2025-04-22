@@ -130,10 +130,15 @@ Class Ricerche{
   public function set_richiesta(string $richiesta){
     $richiesta = preg_replace('/[^\p{L}\p{N}\p{Zs}\p{P}]/u', '', $richiesta);
     $richiesta = htmlspecialchars($richiesta);
+  	$richiesta = str_ireplace(['.', ':', ';', '#', "'", '"'], '', $richiesta); // punteggiatura deprecata 
+  	$richiesta = str_ireplace(['select ', 'delete ', 'update '], '', $richiesta); // comandi per sql injection 
+  	$richiesta = mb_substr($richiesta, 0, 2000); // ritaglio
     $this->richiesta = $richiesta;
   }
   public function set_richiesta_array(array $richiesta){
-    $this->richiesta = json_encode($richiesta);
+  	$richiesta = json_encode($richiesta);
+  	$richiesta = mb_substr($richiesta, 0, 2000); // ritaglio
+    $this->richiesta = $richiesta;
   }
 
   public function set_risultato(string $risultato){
@@ -180,7 +185,7 @@ Class Ricerche{
   /**
    * CREATE 
    */
-  public function aggiungi(array $campi =[] ):array{
+  public function aggiungi(array $campi = [] ):array{
     /**
      * record_id
      * ultimo aggiornamento_record
@@ -273,7 +278,7 @@ Class Ricerche{
    * @param  array $campi 
    * @return array 'ok' + numero + data[] | 'error' + message 
    */
-  public function leggi(array$campi=[]) : array{
+  public function leggi(array $campi = []) : array{
     if (!isset($campi['query'])){
       $ret = [
         "error"=> true, 
@@ -363,7 +368,7 @@ Class Ricerche{
   /**
    * MODIFICA ma anche SOFT DELETE
    */
-  public function modifica( array $campi=[]) : array{
+  public function modifica(array $campi=[]) : array{
     $dbh = $this->conn; // a PDO object thru Database class
     if ($dbh === false){
       $ret = [

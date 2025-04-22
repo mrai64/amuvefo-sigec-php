@@ -19,17 +19,17 @@
 					</div>
 				</div>
 			<form action="#" method="POST" id="moduloRicerca">
+				<input type="text" name="ricerca_id"     value="0" hidden aria-hidden="">
 				<input type="text" name="esegui_ricerca" value="1" hidden aria-hidden="">
+				<input type="text" name="semplice"       value="1" hidden aria-hidden="">
 				<input class="form-control" type="text" name="valore" 
 					placeholder="Cliccate qui e scrivere cosa cercate."
 					value="" required>
 				<div class="col-12 mt-2 text-center">
-					<button type="submit" name="esegui_ricerca_" 
+					<button type="submit" name="esegui_ricerca" 
 					class="btn btn-primary mx-auto">Ricerca</button>
 				</div>
 			</form>
-
-			<!-- chiedi a Massimo -->
 			<div class="row">
 				<div class="col-12 text-center">
 					<a aria-label="chiedi aiuto a massimo con una chat whatsapp."  target='_blank' 

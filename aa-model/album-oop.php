@@ -143,8 +143,8 @@ Class Album {
 		if (!in_array($stato_lavori, self::stato_lavori_validi)){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
 			. ' stato_lavori invalid value, out of set. ' );
+			$this->stato_lavori = $stato_lavori; 
 		}
-		$this->stato_lavori = $stato_lavori; 
 	}
 
 	// se cercate set_stato_valori_album è più avanti
@@ -552,7 +552,7 @@ Class Album {
 				'error'   => true, 
 				'message' => 'La cancellazione di record '
 				. 'non si può fare senza connessione archivio '
-				. 'per: ' . self::nomeTabella 
+				. 'per: ' . self::nome_tabella 
 			];
 			return $ret;
 		}

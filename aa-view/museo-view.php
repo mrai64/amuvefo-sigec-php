@@ -41,8 +41,8 @@
   </a><a class="map-point" xlink:href="#originali_localita" 
 		data-title="riservato comitato di gestione accesso cartella disco originali sola-lettura">
     <rect x="654" y="378" fill="#fff" opacity="0" width="65" height="140"></rect>
-  </a><a class="map-point" xlink:href="#ricerca_avanzata" 
-		data-title="ricerca avanzata">
+  </a><a class="map-point" xlink:href="#ricerca_semplice" 
+		data-title="ricerca semplice">
     <rect x="825" y="553" fill="#fff" opacity="0" width="88" height="82"></rect>
   </a><a class="map-point" xlink:href="#originali_amuvefo" 
 		data-title="riservato comitato di gestione accesso cartella disco originali sola-lettura">
@@ -115,7 +115,7 @@
   <p class="text-center">
     La consultazione è consigliata a schermi di risoluzione FullHD<br>
     L'accesso è soggetto a <a class="map-point" href="<?=URLBASE; ?>man/termini-di-servizio-e-condizioni-duso/" >Termini e Condizioni</a>
-  </p>
+  </p>   
 </footer>
   <script>
     $(document).ready(function() {
