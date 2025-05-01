@@ -388,11 +388,13 @@ if (isset($_GET['test']) &&
  * LEGGI 
  */
 include_once(ABSPATH . 'aa-model/fotografie-dettagli-oop.php');
+include_once(ABSPATH . 'aa-model/didascalie-oop.php');
 
 function leggi_fotografie_per_id( int $fotografie_id){
 	$dbh    = New DatabaseHandler();
 	$foto_h = New Fotografie($dbh);
 	$fdet_h = New FotografieDettagli($dbh); 
+	$dida_h = New Didascalie($dbh); 
 
 	// 
 	$foto_h->set_record_id($fotografie_id); // fa anche validazione
@@ -451,19 +453,78 @@ function leggi_fotografie_per_id( int $fotografie_id){
 		$aggiungi_dettaglio  = '#solalettura';
 	}
 
-	/*
-	Si deve verificare: se nella cartella fisicamente
-	collocata in livello1/livello2/... è presente un file _leggimi.txt
-	e proporlo, in alternativa si può leggere una didascalia
-	associata alla tabella scansioni disco + id
-	*/
+	/**
+	 * didascalia della fotografia
+	 * 1. cerca se è presente un file sidecar
+	 *    trovato: lo carica in tabella didascalie ed espone
+	 * 2. cerca se è presente un record in tabella didascalie 
+	 * 
+	 * Nota: il contenuto della didascalia si chiama leggimi, 
+	 * perché nel caricamento delle cartelle viene inserito
+	 * un file _leggimi.txt con la descrizione del contenuto
+	 * della cartella-album. "didascalia" viene riservato al 
+	 * record della tabella didascalie, che contiene una colonna
+	 * didascalia.
+	 */
+	$didascalia_id = 0;
 	$leggimi = "";
+
 	$leggimi_file = ABSPATH.$fotografia['percorso_completo'];
 	$leggimi_file = str_replace('+', ' ', $leggimi_file);
-	$leggimi_file = str_replace(['.JPG', '.jpg', '.jpeg', '.TIF', '.tif', '.psd'] , '.txt' , $leggimi_file);
-	if (is_file($leggimi_file)){
-		$leggimi = file_get_contents($leggimi_file);
+	// verifica se esiste il file sidecar, e si passa il nomefile della fotografia
+	$ret_dida = $dida_h->recupera_didascalia($leggimi_file);
+	// se torna qualcosa si va a inserire in tabella didascalie 
+	if (isset($ret_dida['ok'])){
+		$campi=[];
+		$campi['tabella_padre']  = 'fotografie';
+		$campi['record_id_padre']= $fotografia['record_id'];
+		$campi['didascalia']     = $ret_dida['data'][0]['didascalia'];
+		$ret_ins_dida = $dida_h->aggiungi($campi);
+		if (isset($ret_ins_dida['error'])){
+			echo '<p style="font-family:monospace;color: red;">Non è riuscito l inserimento della didascalia '
+			. '<br>ret: ' . str_ireplace(';', '; ', serialize($ret_ins_dida))
+			. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
+			. '</p>';
+			exit(1);
+		}
+		// inserito in didascalie 
+		$didascalia_id = $ret_ins_dida['record_id'];
+		$leggimi       = $ret_dida['data'][0]['didascalia'];
+		// inserito in didascalie, si elimina il file sidecar txt
+		if (!$dida_h->elimina_file_didascalia($leggimi_file)){
+			// didascalia non cancellata, perché?
+			echo '<p style="font-family:monospace;color: red;">Non è riuscita la cancellazione del file contenente la didascalia '
+			. '<br>Verifica file: ' . $leggimi_file
+			. '</p>';
+			exit(1);
+		}
 	}
+	$ret_dida=[];
+	// Si cerca se c'è in didascalie 
+	if ($didascalia_id == 0){
+		$campi=[];
+		$campi['tabella_padre']          = 'fotografie';
+		$campi['record_id_padre']        = $fotografia['record_id'];
+		$campi['record_cancellabile_dal']= $dbh->get_datetime_forever();
+		$campi['query'] = "SELECT * FROM " . Didascalie::nome_tabella
+		. " WHERE record_cancellabile_dal = :record_cancellabile_dal "
+		. " AND tabella_padre = :tabella_padre "
+		. " AND record_id_padre = :record_id_padre "
+		. " ORDER BY record_id DESC ";
+		$ret_dida = $dida_h->leggi($campi);
+		if (isset($ret_dida['error'])){
+			echo '<p style="font-family:monospace;color: red;">'
+			. 'Non è riuscita la lettura della didascalia '
+			. '<br>campi: ' . str_ireplace(';', '; ', serialize($ret_dida))
+			. '</p>';
+			exit(1);
+		}
+		if ($ret_dida['numero']> 0){
+			$didascalia=$ret_dida['data'][0];
+			$didascalia_id = $didascalia['record_id'];
+			$leggimi       = $didascalia['didascalia'];
+		}
+	} // lettura didascalia_id e leggimi dalla tabella didascalie
 
 	// dettagli 
 	$campi=[];
@@ -1184,10 +1245,11 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		echo $ret;
 		// proseguo per dati su file dal nome file 
 	}
-	echo '<p style="font-family:monospace;">Sono stati rintracciati dati exif <br>';
+	echo '<p style="font-family:monospace;width:90%;max-width:90%;">Sono stati rintracciati dati exif <br>';
 	$exif_str = serialize($exif);
 	$re = '/[^a-zA-Z0-9_\-,\s\/:";%]/i';
-	$exif_str = preg_replace($re, '.', $exif_str);
+	$exif_str = preg_replace($re, '. ', $exif_str);
+	$exif_str = str_ireplace('s:',' s:',$exif_str);
 	echo $exif_str . '</p>';
 
 	// oltre i 300dpi sono scansioni 800 dpi 1200 dpi 4000 dpi 
@@ -1229,6 +1291,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	// Se è uguale non si inserisce un doppione
 	if (isset($exif['EXIF']['DateTimeOriginal'])){
 		$date_det = $exif['EXIF']['DateTimeOriginal'];
+		$date_det = data_exif_in_timestamp($date_det); // aaaa:mm:gg > aaaa-mm-gg 
 		if($data_evento_prima < $date_det){
 			$ret_det  = carico_dettaglio( $fotografia_id, 'data/scansione', $date_det);
 			$aggiunti[] = "'data/scansione': ".$date_det;
@@ -1250,6 +1313,16 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	// Si verifica il caso che il dato c'è ma vale " "
 	if (isset($exif['IFD0']['Copyright'])){
 		$copy_det = $exif['IFD0']['Copyright'];
+		$copy_det = trim($copy_det);
+		if ($copy_det>''){
+			$ret_det   = carico_dettaglio( $fotografia_id, 'nome/diritti', $copy_det);
+			$aggiunti[] = "'nome/diritti': ".$copy_det;
+		}
+	} // $exif['IFD0']['Copyright']
+
+	// Si verifica il caso che il dato c'è ma vale " "
+	if (isset($exif['IFD0']['Artist'])){
+		$copy_det = $exif['IFD0']['Artist'];
 		$copy_det = trim($copy_det);
 		if ($copy_det>''){
 			$ret_det   = carico_dettaglio( $fotografia_id, 'nome/diritti', $copy_det);
@@ -1294,14 +1367,38 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	// codice/autore/athesis
 	echo '<p style="font-family:monospace">inizio esame codice/autore/athesis';
 	$sigla_autore = get_autore_sigla_6($nome_file);
-	if ($sigla_autore>''){
-		$ret_det   = carico_dettaglio( $fotografia_id, 'codice/autore/athesis', $sigla_autore);
-		// sfilo 
-		$nome_file = str_replace($sigla_autore, '', $nome_file);
-		$nome_file = trim($nome_file);
-		echo "<br>Per effetto dell'inserimento di codice/autore/athesis, ora nomefile è: " .$nome_file.'<br>';
-		$aggiunti[] = "'codice/autore/athesis': ".$sigla_autore;
-	} // codice/autore/sigla 
+	// valori predefiniti se manca 
+	if ($sigla_autore==''){
+		$foto_file_maiuscole = strtoupper($foto_file);
+		if (str_contains($foto_file_maiuscole, '1AUTORI')){
+			$sigla_autore='AAA001';
+		} elseif (str_contains($foto_file_maiuscole, '2AUTOF')){
+			$sigla_autore='AAA002';
+		} elseif (str_contains($foto_file_maiuscole, '3FONDI')){
+			$sigla_autore='AAA003';
+		} elseif (str_contains($foto_file_maiuscole, '4LIBRI')){
+			$sigla_autore='AAA004';
+		} elseif (str_contains($foto_file_maiuscole, '5LOCA')){
+			$sigla_autore='AAA005';
+		} elseif (str_contains($foto_file_maiuscole, '6LOCA')){
+			$sigla_autore='AAA006';
+		} elseif (str_contains($foto_file_maiuscole, '7DATI')){
+			$sigla_autore='AAA007';
+		} elseif (str_contains($foto_file_maiuscole, '8SCUOLA')){
+			$sigla_autore='AAA008';
+		} elseif (str_contains($foto_file_maiuscole, '9TERRI')){
+			$sigla_autore='AAA009';
+		} elseif (str_contains($foto_file_maiuscole, '10VIDEO')){
+			$sigla_autore='AAA010';
+		}
+	}
+	$ret_det   = carico_dettaglio( $fotografia_id, 'codice/autore/athesis', $sigla_autore);
+	// sfilo 
+	$nome_file = str_replace($sigla_autore, '', $nome_file);
+	$nome_file = trim($nome_file);
+	echo "<br>Per effetto dell'inserimento di codice/autore/athesis, ora nomefile è: " .$nome_file.'<br>';
+	$aggiunti[] = "'codice/autore/athesis': ".$sigla_autore;
+	// codice/autore/sigla 
 	echo '<br>Fine esame codice/autore/athesis</p>';
 	
 	// nome/ente-societa

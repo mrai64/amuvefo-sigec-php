@@ -319,6 +319,7 @@ Class Autori {
    * @param array $campi Deve contenere un campo
    */
   public function modifica(array $campi=[]) : array {
+
     $dbh = $this->conn; // a PDO object thru Database class
     if ($dbh === false){
       $ret = [
@@ -361,6 +362,7 @@ Class Autori {
     }
     $update = $campi["update"];
 
+    if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }		
     try {
       $aggiorna = $dbh->prepare($update);
       if (isset($campi["record_id"])){
@@ -386,7 +388,12 @@ Class Autori {
       }
 
       $aggiorna->execute();
+			$dbh->commit();
+
     } catch (\Throwable $th) {
+ 			//throw $th;
+			$dbh->rollBack(); 
+
       $ret = [
         "error" => true,
         "message" => __CLASS__ . ' ' . __FUNCTION__ . ' ' 

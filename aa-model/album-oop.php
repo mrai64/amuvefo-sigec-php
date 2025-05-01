@@ -552,7 +552,7 @@ Class Album {
 				'error'   => true, 
 				'message' => 'La cancellazione di record '
 				. 'non si può fare senza connessione archivio '
-				. 'per: ' . self::nomeTabella 
+				. 'per: ' . self::nome_tabella 
 			];
 			return $ret;
 		}
@@ -682,6 +682,7 @@ Class Album {
 			'ok'      => true,
 			'message' => 'Aggiornamento eseguito'
 		]; 
+		return $ret;
 	} // set_stato_lavori_album()
 
 

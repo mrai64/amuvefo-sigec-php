@@ -201,7 +201,7 @@ Class FotografieDettagli {
 		if (isset($_COOKIE['consultatore_id'])){
 			$create = 'INSERT INTO ' . self::nome_tabella
 			. ' (  record_id_padre,  chiave,  valore,  consultatore_id ) VALUES '
-			. ' ( :record_id_padre, :chiave, :valore, :consultatore_id\ ) ';
+			. ' ( :record_id_padre, :chiave, :valore, :consultatore_id ) ';
 		}
 
 		// dati obbligatori
@@ -568,7 +568,7 @@ Class FotografieDettagli {
 				$cancella->bindValue('valore', $this->valore);
 			}
 			if (isset($campi['consultatore_id'])){
-				$aggiorna->bindValue('consultatore_id', $this->consultatore_id, PDO::PARAM_INT);
+				$cancella->bindValue('consultatore_id', $this->consultatore_id, PDO::PARAM_INT);
 			}
 			if (isset($campi['ultima_modifica_record'])){
 				$cancella->bindValue('ultima_modifica_record', $this->ultima_modifica_record);

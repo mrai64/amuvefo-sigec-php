@@ -112,8 +112,9 @@ function accesso_checkpoint(array $dati_input){
     $_SESSION['messaggio']="Si è verificato un errore nell'accesso "
     . "all'archivio dei consultatori.<br><b>Non proseguire</b> e inviare "
     . "questa schermata al comitato di gestione."
-    . "<br>". str_replace(';' , '; ', serialize($campi))
-    . "<br><br>". str_replace(';' , '; ', serialize($ret_acc['data']))
+    // . "<br>". $pass
+    // . "<br>campi: ". str_ireplace(';' , '; ', serialize($campi))
+    // . "<br><br>".    str_ireplace(';' , '; ', serialize($ret_acc['data']))
     . "<br><br> Record non trovato o scaduto. [2]";
     sleep(rand(2,7));
     require_once(ABSPATH.'aa-view/consultatori-accesso-view.php');

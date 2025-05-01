@@ -19,7 +19,7 @@
  *   e mostrare la schermata cartella + sotto-cartelle 
  * - verifica_cartella_contiene_album
  * - lista_cartelle_sospese 
- * - set_stato_scansione 
+ * - set_stato_lavori 
  * - carica_cartelle_in_scansioni_disco 
  *   carica in scansioni_disco partendo da scansioni_cartelle 
  * - carica_cartelle_in_scansioni_cartelle
@@ -40,7 +40,7 @@ include_once(ABSPATH . 'aa-model/scansioni-cartelle-oop.php');//  Class Cartelle
 
 
 /**
- * @return string elenco delle cartelle codificato in html
+ * @return string html - elenco delle cartelle | messaggio di errore
  */
 function lista_cartelle_sospese() : string {
 	$dbh        = New DatabaseHandler();
@@ -49,56 +49,58 @@ function lista_cartelle_sospese() : string {
 
 	$campi=[];
 	$campi['query'] = 'SELECT * FROM ' . Cartelle::nomeTabella 
-	. ' WHERE stato_scansione < ' . Cartelle::statoCompletato 
-	. ' ORDER BY stato_scansione, record_id ';
+	. " WHERE stato_lavori < '" . Cartelle::stato_completati . "' "
+	. ' ORDER BY stato_lavori, record_id ';
 	$ret_cartelle = $cartelle_h->leggi($campi);
 	//dbg echo '<pre style="max-width: 50rem;">'."\n";
 	//dbg echo var_dump($campi);
 
-	if ( isset($ret_cartelle['error']) || $ret_cartelle['numero'] == 0){
-		$res = '<p class="h3 text-warning-text text-center mt-5">Nessuna cartella da lavorare in sospeso</p>';
+	if ( isset($ret_cartelle['error']) ){
+		$res = '<p class="h3 text-warning-text text-center mt-5">'.
+		"Si è verificato l'errore "
+		. $ret_cartelle['message']
+		. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
+		. '</p>';
+		return $res;
+	}
+	if ($ret_cartelle['numero'] == 0){
+		$res = '<p class="h3 text-warning-text text-center mt-5">'
+		. 'Nessuna cartella da lavorare in sospeso</p>';
 		return $res;
 	}
 	$cartelle=$ret_cartelle['data'];
+
+	// si compone l'elenco 
 	$res = "<table class='table table-bordered table-striped'>"
 	. "<thead> <tr>"
-	. "<td>#</td>"
-	. "<td>Status</td>"
-	. "<td>Disco</td>"
-	. "<td>Percorso completo</td>"
-	. "<td>Azione</td>"
+	. "<td scope='col'>#</td>"
+	. "<td scope='col'>Status</td>"
+	. "<td scope='col'>Disco</td>"
+	. "<td scope='col'>Percorso completo</td>"
+	. "<td scope='col' nowrap>Azione</td>"
 	. "</tr> </thead>\n\n<tbody>\n";
+
 	foreach ($cartelle as $cartella) {
-		$res .= "<tr><td>".$cartella['record_id']."</td>";
-		switch ($cartella['stato_scansione']) {
-			case '0':
-				$res .= "<td>Da fare</td>";
-				break;
-			
-			case '1':
-				$res .= "<td>In corso</td>";
-				break;
-			
-			case '2':
-				$res .= "<td>Completato</td>";
-				break;
-			
-			default:
-				$res .= "<td>".$cartella['stato_scansioni']."</td>";
-				break;
-		}
+		$res .= "<tr><td scope='row'>".$cartella['record_id']."</td>";
+		$res .= "<td>".$cartella['stato_lavori']."</td>";
 		$res .= "<td>".$cartella['disco']."</td>";
 		$res .= "<td>".$cartella['percorso_completo']."</td>";
-		if ($cartella['stato_scansione'] == 0) {
-			// era /95-archiviazione-cartella.php?id=
-			$res .= "<td><a href='/cartelle.php/archivia-cartella/"
-			. $cartella['record_id'] . "' target='_blank' "
-			. "class='btn btn-secondary float-end'>Scansiona</a></td>".PHP_EOL;
+
+		if ($cartella['stato_lavori'] == Cartelle::stato_da_fare) {
+			$res .= "<td><a href='".URLBASE."cartelle.php/archivia-cartella/".$cartella['record_id']."' "
+			. "target='_blank' class='btn btn-secondary float-end' >"
+			. "<i class='bi bi-square'></i></a></td>".PHP_EOL;
+
+		} elseif ($cartella['stato_lavori'] == Cartelle::stato_in_corso)  {
+			$res .= "<td> <i class='bi bi-square-half'></i> </td>".PHP_EOL;
+
 		} else {
-			$res .= "<td>--</td>".PHP_EOL;
+			$res .= "<td> <i class='bi bi-square-fill'></i> </td>".PHP_EOL;
 		}
+
 		$res .= "</tr>".PHP_EOL;
-	}
+	} // foreach
+
 	$res .= "\n<tbody>\n</table>";
 	return $res;
 } // lista_cartelle_sospese()
@@ -117,31 +119,39 @@ if (isset($_GET['test']) &&
 }
 
 /**
- * @param  int  $cartella_id 
- * @param  int  $stato_scansione 
- * @return bool true = stato cambiato 
+ * @param  int     $cartella_id 
+ * @param  string  $stato_lavori 
+ * @return bool    true = stato cambiato 
  */
-function set_stato_scansione(int $cartella_id, int $stato_scansione) : bool {
+function set_stato_lavori(int $cartella_id, string $stato_lavori) : bool {
 	$dbh        = New DatabaseHandler(); // nessun parametro dedicato
 	$cartelle_h = New Cartelle($dbh);
+	$record_cancellabile_dal = ($stato_lavori == Cartelle::stato_completati) ? $dbh->get_datetime_now() : $dbh->get_datetime_forever();
 
 	$campi=[];
 	$campi['update'] = 'UPDATE scansioni_cartelle '  
-	. ' SET stato_scansione = :stato_scansione'
+	. ' SET stato_lavori = :stato_lavori, '
+	. ' record_cancellabile_dal = :record_cancellabile_dal '
 	. ' WHERE record_id = :record_id ';
-	$campi['stato_scansione'] = $stato_scansione;
-	$campi['record_id']       = $cartella_id;
+	$campi['stato_lavori']            = $stato_lavori;
+	$campi['record_id']               = $cartella_id;
+	$campi['record_cancellabile_dal'] = $record_cancellabile_dal;
+
 	$ret_sta = $cartelle_h->modifica($campi);
+
 	return (isset($ret_sta['ok']));
-} // set_stato_scansione()
+} // set_stato_lavori()
 
 
 
 /**
- * @param  int $cartella_id - facoltativo
- *   Si tratta del record in scansioni_cartelle, se non viene passato, 
- *   o viene passato 0, la funzione va a cercare un primo record da elaborare
- * @return void 
+ * Carica in scansioni_disco una cartella dalla tabella scansioni_cartelle
+ * 
+ * @param  int $cartella_id | 0 
+ *   Se non viene passato o viene passato 0,
+ *   la funzione va a cercare un primo record da elaborare
+ * 
+ * @return void però espone codice html che traccia la funzione svolta 
  * 
  * TODO diventerà carica_deposito_da_cartelle
  */
@@ -150,72 +160,90 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 	$cartelle_h = New Cartelle($dbh);
 	$errori = '';
 
-	// Se non viene passato un id si recupera "il primo che capita" 
+	echo '<h2 style="font-family:monospace;">Carica in scansioni_disco da scansioni_cartelle</h2>';
+
+	// Si recupera "il primo che capita" 
 	if ($cartella_id == 0){
-		// TODO diventa una funzione del model get_cartella_da_elaborare() : int
+
 		$campi=[];
 		$campi['query'] = 'SELECT * FROM ' . Cartelle::nomeTabella 
-		. ' WHERE stato_scansione IN ( :stato_scansione ) LIMIT 1 ';
-		$campi['stato_scansione']=Cartelle::statoDaFare;
+		. ' WHERE stato_lavori IN ( :stato_lavori ) LIMIT 1 ';
+		$campi['stato_lavori']=Cartelle::stato_da_fare;
+	
 	} else {
-		// viene ignorato lo stato scansione
+		// lo stato_lavori viene ignorato, intenzionalmente 
 		$cartelle_h->set_record_id($cartella_id);
 		$campi=[];
 		$campi['query'] = 'SELECT * FROM ' . Cartelle::nomeTabella
 		. ' WHERE record_id = :record_id ';
 		$campi['record_id'] = $cartelle_h->get_record_id();	
+
 	}
 
-	echo '<h2 style="font-family:monospace;">Carica in scansioni_disco da scansioni_cartelle</h2>';
 	$ret_car = $cartelle_h->leggi($campi);
-
 	// arrivati errori
 	if (isset($ret_car['error'])){
 		http_response_code(404);
-		$ret = __FUNCTION__ 
-		. '<br>Album non trovato per un errore:'
-		. '<br>'. $ret_car['message'] 
-		. '<br>campi: ' . serialize($campi);
-		echo $ret; 
+		$res = '<p class="h3 text-warning-text text-center mt-5">'.
+		'Si è verificato l\'errore '
+		. $ret_car['message']
+		. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
+		. '</p>';
 		exit(1);
 	}
 
 	// nessun errore ma nessun record
 	if ($ret_car['numero'] == 0){
 		http_response_code(404);
-		$ret = "<p style='font-family:monospace;'>".
-		"Nessun caricamento in deposito della cartella id: $cartella_id "
-		. " (0 = la prima che c'è)<br>Nessun lavoro in sospeso o Cartella non trovata."
+		$res = "<p style='font-family:monospace;'>"
+		. "Nessun caricamento in deposito della cartella id: $cartella_id "
+		. "(0 = la prima che c'è)."
+		. "<br>Nessun lavoro in sospeso o Cartella non trovata."
 		. "<br>Chiudere e passare al prossimo step.".'</p>';
-		echo $ret; 
+		echo $res; 
 		exit(1);
 	}
 
-	$cartella = $ret_car['data'][0];
-	$cartella_id=$cartella['record_id'];
+	/** 
+	 * Posso lavorare solo le cartelle "da fare" o 
+	 * posso lavorare le cartelle che non sono "completati"
+	 */
+	$cartella    = $ret_car['data'][0];
+	$cartella_id = $cartella['record_id'];
+
 	echo '<p style="font-family:monospace">Cartella: '.$cartella_id;
 	echo '<br>'. str_replace(';', '; ', serialize($cartella)) . '</p>';
-	if ($cartella['stato_scansione'] != Cartelle::statoDaFare ){
+	if ($cartella['stato_lavori'] == Cartelle::stato_in_corso ) {
+		http_response_code(404);
+		$res = "<p style='font-family:monospace;'>ATTENZIONE "
+		. "$cartella_id è con stato_lavori: " . $cartella['stato_lavori'] 
+		. ' procedo ugualmente MA POTREBBERO CREARSI DEI DOPPIONI </p>';
+		echo $res;
+		exit(1);
+	}
+	if ($cartella['stato_lavori'] == Cartelle::stato_completati ) {
 		http_response_code(404);
 		$ret = "<p style='font-family:monospace;'>Album "
-		. " $cartella_id non lavorabile. stato_scansione: " 
-		. $cartella['stato_scansione'] .'</p>';
+		. "$cartella_id NON LAVORABILE. C'è stato_lavori: " 
+		. $cartella['stato_lavori'] .'</p>';
 		echo $ret;
 		exit(1);
 	}
 	$ret_car=[];
 
-	// cambio status 
-	if (!set_stato_scansione( $cartella['record_id'], Cartelle::statoLavoriInCorso )){
+	// cambio status, vediamo se va bene 
+	if (!set_stato_lavori( $cartella['record_id'], Cartelle::stato_in_corso )){
 		http_response_code(404);
-		$ret = "<p style='font-family:monospace;'>Non è "
-		. "stato variato lo stato della cartella $cartella_id. </p>";
-		echo $ret;
+		$res = "<p style='font-family:monospace;'>Non è "
+		. "stato cambiato in ".Cartelle::stato_in_corso
+		. " lo stato della cartella $cartella_id. "
+		. "<br>STOP LAVORI </p>";
+		echo $res;
 		exit(1);
 	}
 
 	/**
-	 * caricamento cartella (da scansioni_cartelle) in scansioni_disco 
+	 * main - caricamento cartella da scansioni_cartelle in scansioni_disco 
 	 * fs_cartella quello del server 
 	 */
 	$disco   = $cartella['disco'];
@@ -255,30 +283,33 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 			http_response_code(404); // cambiare codice
 			echo "<p style='font-family:monospace;'>"
 			. "Non è stata inserita la cartella in scansioni_disco.<br>"
-			. $ret_car['message']."</p>";
+			. $ret_car['message']
+			. "<br>STOP LAVORI</p>";
 			exit(1);
 		}
-		$ret_car=[];
 
+		$ret_car=[];
 		/**
 		 * scansiono elemento per elemento 
 		 * il contenuto della directory percorso_fs_cartella
+		 * e carico in scansioni_disco 
 		 */
 		$contenuto_fs = dir($percorso_con_abspath);
 		if ( $contenuto_fs === false){
-			if (!set_stato_scansione( $cartella['record_id'], Cartelle::statoCompletato )){
-				$errori .= '<br>Non è stato possibile cambiare stato_scansione in completato.';
+			if (!set_stato_lavori( $cartella['record_id'], Cartelle::statoCompletato )){
+				$errori .= '<br>Non è stato possibile cambiare stato_lavori in completato.';
 			}
 			http_response_code(404); // cambiare codice
-			echo "<p style='font-family:monospace;'>Non è stato letto il contenuto di $percorso_fs_cartella.</p>";
+			echo "<p style='font-family:monospace;'>"
+			. "Non è stato letto il contenuto di $percorso_fs_cartella.</p>";
 			exit(1);
 		}
+		// escludo i file che iniziano con '.' 
+		// . 
+		// .. 
+		// ._nomefile 
+		// .DS_Store ecc 
 		while ($elemento = $contenuto_fs->read()) {
-			// escludo i file che iniziano con '.' 
-			// . 
-			// .. 
-			// ._nomefile 
-			// .DS_Store ecc 
 			if ($elemento[0] == '.' ){
 				continue; // 
 			} 
@@ -372,16 +403,17 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 					. '<br>' . $ret_car['message']
 					. ' campi: ' . serialize($campi);
 				} else {
-					echo "\n".'<p style="font-family:monospace;">Caricamento eseguito in scansioni_disco <br>' 
-					. str_replace(';', '; ',serialize($campi)) . '<br>'
-					. str_replace(';', '; ',serialize($ret_car)) . '</p>';
+					echo "\n".'<p style="font-family:monospace;">'
+					. 'Caricamento eseguito in scansioni_disco <br>' 
+					. str_ireplace(';', '; ',serialize($campi)) . '<br>'
+					. str_ireplace(';', '; ',serialize($ret_car)) . '</p>';
 				}
 			} // is_file($percorso_piu_elemento)
 
 		} // while() - lettura directory - folder
 		echo "\n".'<br>caricamento directory completato';
-		if (!set_stato_scansione( $cartella['record_id'], Cartelle::statoCompletato )){
-			$errori .= '<br>Non è stato possibile cambiare stato_scansione in completato.';
+		if (!set_stato_lavori( $cartella['record_id'], Cartelle::stato_completati )){
+			$errori .= '<br>Non è stato possibile cambiare stato_lavori in completato.';
 		}
 	} // is_dir()
 
@@ -414,7 +446,8 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 		$campi['livello6'] = $livello6;
 		$campi['nome_file']  = $elemento;
 		$campi['estensione'] = $estensione;
-		$campi['codice_verifica'] = md5_file($percorso_piu_elemento); // prende tempo...
+		// valutare lo spostamento del calcolo nella funzione di carico dettagli del file 
+		$campi['codice_verifica'] = md5_file($percorso_piu_elemento); // rischio timeout
 		$campi['tinta_rgb']  = '000000';
 		$ret_car = $disco_h->aggiungi($campi);
 
@@ -426,9 +459,9 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 
 	} // is_file()
 
-	// cambio status - la cartella in scansione_cartelle non viene rielaborata
-	if (!set_stato_scansione( $cartella['record_id'], Cartelle::statoCompletato )){
-		$errori .= '<br>Non è stato possibile cambiare stato_scansione in completato.';
+	// cambio status - la cartella in scansioni_cartelle non viene rielaborata
+	if (!set_stato_lavori( $cartella['record_id'], Cartelle::stato_completati )){
+		$errori .= '<br>Non è stato possibile cambiare stato_lavori in completato.';
 	}
 
 	if ($errori){
@@ -436,7 +469,7 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 		echo '<pre>'.$errori;
 		exit(1);
 	}
-	echo "<p style='font-family:monospace;'>Lavoro eseguito</p>";
+	echo "<p style='font-family:monospace;'>OK, lavoro eseguito.</p>";
 	exit(0);
 
 } // carica_cartelle_in_scansioni_disco()
@@ -480,7 +513,7 @@ function carica_cartelle_in_scansioni_cartelle(array $dati_input = [] ){
 		if ($_SESSION['messaggio']==''){
 			$campi=[];
 			$campi['disco']    = $dati_input['disco'];
-			$percorso_completo = $dati_input['cartella'].'/'; // prima lo aggiungo 
+			$percorso_completo = '/'.$dati_input['cartella'].'/'; // prima lo aggiungo 
 			$percorso_completo = str_replace('%20', ' ', $percorso_completo);
 			$percorso_completo = str_replace('+', ' ', $percorso_completo);
 			$percorso_completo = str_replace('//', '/', $percorso_completo);

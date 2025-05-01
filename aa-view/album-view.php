@@ -12,7 +12,7 @@
 <body>
 <div class="container">
 <div class="row">
-		<?php
+		<?php // messaggio
 			include(ABSPATH.'aa-controller/mostra-messaggio-sessione.php');
 		?>
 	</div>
@@ -30,15 +30,41 @@
 				echo '<a href="'. $richieste_originali .'" '
 				. 'title="[Richiesta album]" ><i class="h2 bi bi-bookmark-check"></i></a>'."\n";
 			} else {
-				echo '<a href="#solalettura" title="[Richiesta album]" '
-				. '><i class="h2 bi bi-bookmark-check"></i></a>'."\n";
+				echo '<a href="#solalettura" '
+				. 'title="[Richiesta album]" ><i class="h2 bi bi-bookmark-check link-secondary"></i></a>'."\n";
 			}
 			?>
 			&nbsp;|&nbsp; <i class="bi bi-geo-alt" 
 			style='font-size:1.75rem;color:<?=$cartella_radice["tinta_rgb"]; ?>' ></i><?=$siete_in; ?>
-
 		</div>
   </div>
+	<div class="row">
+		<div class="col-9">
+			<?php // didascalia - 
+				if ($_COOKIE['abilitazione'] > SOLALETTURA){
+					if ($didascalia_id > 0){
+						// modifica
+						echo "<a href='".URLBASE.'didascalie.php/aggiorna/'.$didascalia_id."' title='Modifica didascalia'>"
+						. '<i class="h2 bi bi-pencil-square"></i></a>';
+					} else {
+						// si può aggiungere
+						echo "<a href='".URLBASE.'didascalie.php/aggiungi/album/'.$album['record_id']."' title='Aggiungi didascalia'>"
+						. '<i class="h2 bi bi-plus-square-fill"></i></a>';
+					}
+				} else {
+					// aggiungi ma non funzionante
+					echo "<a href='#solalettura' title='Gestione didascalia'>"
+					. '<i class="h2 bi bi-pencil-square link-secondary"></i></a>';
+				}
+				// espongo la didascalia (ex _leggimi.txt della cartella e sidecar dei file)
+				if ($leggimi>""){
+					echo '<div class="">'.PHP_EOL;
+					echo nl2br($leggimi);
+					echo '</div>'.PHP_EOL;
+				}
+			?>
+		</div>
+	</div>
 	<div class="grid clearfix overflow-auto">
 		<?=$float_foto; ?> 
 		<?=$float_video; ?> 

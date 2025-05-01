@@ -62,6 +62,7 @@ include_once(ABSPATH . 'aa-model/video-oop.php');
 include_once(ABSPATH . 'aa-model/scansioni-disco-oop.php');
 include_once(ABSPATH . 'aa-model/richieste-oop.php');
 include_once(ABSPATH . 'aa-model/chiavi-oop.php');
+include_once(ABSPATH . 'aa-model/didascalie-oop.php');
 
 include_once(ABSPATH . 'aa-controller/controller-base.php');
 include_once(ABSPATH . 'aa-controller/carica-dettaglio-libreria.php');
@@ -196,6 +197,7 @@ function leggi_album_per_id(int $album_id){
 	$foto_h = New Fotografie($dbh);
 	$vid_h  = New Video($dbh);
 	$scan_h = New ScansioniDisco($dbh);
+	$dida_h = New Didascalie($dbh);
 
 	//dbg echo '<p style="font-family:monospace;">' . __FUNCTION__ 
 	//dbg . '<br>input album_id: '.$album_id.' </p>';
@@ -341,6 +343,69 @@ function leggi_album_per_id(int $album_id){
 	}
 
 	$torna_sala = $torna_su;
+	/**
+	 * didascalia
+	 * Verifica se è presente una didascalie e la espone
+	 */
+	$didascalia_id=0;
+	$leggimi=""; 
+
+	$leggimi_file = ABSPATH . $album['percorso_completo'].'_leggimi.txt';
+	// verifica se esiste il file e se lo trova lo inserisce in tabella didascalie
+	$ret_dida = $dida_h->recupera_didascalia($leggimi_file);
+	if (isset($ret_dida['ok'])){
+		$campi=[];
+		$campi['tabella_padre']  = 'album';
+		$campi['record_id_padre']= $album['record_id'];
+		$campi['didascalia']     = $ret_dida['data'][0]['didascalia'];
+		$ret_ins_dida = $dida_h->aggiungi($campi);
+		if (isset($ret_ins_dida['error'])){
+			echo '<p style="font-family:monospace;color: red;">'
+			. "Non è riuscito l'inserimento della didascalia "
+			. '<br>ret: '   . str_ireplace(';', '; ', serialize($ret_ins_dida))
+			. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
+			. '</p>';
+			exit(1);
+		}
+		// inserito in didascalie 
+		$didascalia_id = $ret_ins_dida['record_id'];
+		$leggimi       = $ret_dida['data'][0]['didascalia'];
+		// inserito in didascalie, si elimina il file sidecar txt
+		if (!$dida_h->elimina_file_didascalia($leggimi_file)){
+			// didascalia non cancellata, perché?
+			echo '<p style="font-family:monospace;color: red;">'
+			. 'Non è riuscita la cancellazione del file contenente la didascalia '
+			. '<br>Verifica file: ' . $leggimi_file
+			. '</p>';
+			exit(1);
+		}
+	} // file leggimi trovato e inserito in didascalie
+	$ret_dida=[];
+	// Si cerca se c'è nella tabella didascalie 
+	if ($didascalia_id == 0){
+		$campi=[];
+		$campi['tabella_padre']          = 'album';
+		$campi['record_id_padre']        = $album['record_id'];
+		$campi['record_cancellabile_dal']= $dbh->get_datetime_forever();
+		$campi['query'] = "SELECT * FROM " . Didascalie::nome_tabella
+		. " WHERE record_cancellabile_dal = :record_cancellabile_dal "
+		. " AND tabella_padre = :tabella_padre "
+		. " AND record_id_padre = :record_id_padre "
+		. " ORDER BY record_id DESC "; // nel caso fossero almeno 2 prendo l'ultimo
+		$ret_dida = $dida_h->leggi($campi);
+		if (isset($ret_dida['error'])){
+			echo '<p style="font-family:monospace;color: red;">'
+			. 'Non è riuscita la lettura della didascalia '
+			. '<br>campi: ' . str_ireplace(';', '; ', serialize($ret_dida))
+			. '</p>';
+			exit(1);
+		}
+		$didascalia=$ret_dida['data'][0];
+		$didascalia_id = $didascalia['record_id'];
+		$leggimi       = $didascalia['didascalia'];
+	} // lettura didascalia_id e leggii dalla tabella didascalie
+
+	// tutto pronto si passa ad esporre
 	include_once(ABSPATH.'aa-view/album-view.php');
 	exit(0);
 } // leggi_album_per_id 

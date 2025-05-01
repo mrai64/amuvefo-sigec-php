@@ -16,6 +16,17 @@
 Class Cartelle {
 	private $conn = false; // connessione 
 	public const nomeTabella = 'scansioni_cartelle'; // self::nomeTabella oppure
+	// nuovi
+	public const stato_da_fare      = '0 da fare';
+	public const stato_in_corso     = '1 in corso';
+	public const stato_completati   = '2 completati';
+	public const stato_lavori_validi = [
+		self::stato_da_fare,
+		self::stato_in_corso,
+		self::stato_completati
+	];
+
+	// da rimuovere 
 	public const statoDaFare        = 0; //             Cartelle::nomeTabella
 	public const statoLavoriInCorso = 1;
 	public const statoCompletato    = 2;
@@ -26,11 +37,13 @@ Class Cartelle {
 	];
 
 	// 
-	public $record_id; //                bigint 20 assegnato primary key
-	public $disco; //                    char(12) riferimento disco fisico
+	public $record_id; //                bigint(20) unsigned AUTO+ PRIMARY
+	public $disco; //                    char(12) riferimento disco fisico MASTER
 	public $percorso_completo; //        varchar(2000) - esagerato, max: 1506 = 250 * 6 + 6 '/'
-	public $stato_scansione; //          tinyint codice stato
-	public $ultima_modifica_record; //         datetime data creazione record uso backup
+	public $stato_scansione; //          int codice stato sostituire
+	public $stato_lavori; //             enum 
+	public $ultima_modifica_record; //   datetime data creazione record uso backup
+	public $record_cancellabile_dal; //  datetime DEF '9999-12-31 23:59:59'
 	
 	/**
 	* @param database PDO db connection 
@@ -38,11 +51,13 @@ Class Cartelle {
 	public function __construct(DatabaseHandler $dbh){
 		$this->conn               = $dbh;
 
-		$this->record_id          = 0; // invalido 
+		$this->record_id          = 0; //  invalido 
 		$this->disco              = ''; // invalido
 		$this->percorso_completo  = ''; // invalido 
-		$this->stato_scansione    = 0; // da fare 
+		$this->stato_scansione    = self::statoDaFare; // da fare 
+		$this->stato_lavori       = self::stato_da_fare; // da fare 
 		$this->ultima_modifica_record   = $dbh->get_datetime_now();
+		$this->record_cancellabile_dal  = $dbh->get_datetime_forever();
 	} // __construct
 		
 	// GETTER 
@@ -55,14 +70,30 @@ Class Cartelle {
 	public function get_percorso_completo() : string {
 		return $this->percorso_completo;
 	}
+	// rimuovere
 	public function get_stato_scansione() : int {
 		return $this->stato_scansione;
 	}
+
+	public function get_stato_lavori() : string {
+		return $this->stato_lavori;
+	}
+
 	public function get_ultima_modifica_record() : string {
 		return $this->ultima_modifica_record;
 	}
+
+	/**
+	 * @return string datetime 
+	 */
+	public function get_record_cancellabile_dal() : string {
+		return $this->record_cancellabile_dal;
+	}
 	
 	// SETTER
+	/**
+	 * @param int unsigned int 
+	 */
 	public function set_record_id( int $record_id ){
 		if ($record_id < 1){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
@@ -100,6 +131,7 @@ Class Cartelle {
 		$this->percorso_completo = $chiave;
 	}
 	
+	// rimuovere
 	public function set_stato_scansione( int $stato_scansione ) {
 		// validazione
 		if (!in_array($stato_scansione, self::statiValidi)){
@@ -107,6 +139,14 @@ Class Cartelle {
 			. ' stato_scansione Cannot be out of valid set status. ' );
 		}
 		$this->stato_scansione = $stato_scansione;
+	}
+
+	public function set_stato_lavori(string $stato_lavori ){
+		if ( !in_array( $stato_lavori, self::stato_lavori_validi)){
+			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
+			. ' stato lavori must be in the valid set, is: '. $stato_lavori );
+		}
+		$this->stato_lavori = $stato_lavori;
 	}
 	
 	/**
@@ -120,6 +160,18 @@ Class Cartelle {
 		}
 		$this->ultima_modifica_record = $ultima_modifica_record;
 	}
+
+	/**
+	 * @param string datetime yyyy-mm-dd hh:mm:ss
+	 */
+	public function set_record_cancellabile_dal( string $record_cancellabile_dal ){
+		if (!($this->conn->is_datetime($record_cancellabile_dal))){
+			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
+			. ' no for: '. $record_cancellabile_dal . '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss ');
+		}
+		$this->record_cancellabile_dal = $record_cancellabile_dal;
+	}
+	
 	
 	/**
 	 * CREATE aggiungi 
@@ -129,8 +181,10 @@ Class Cartelle {
 	 */
 	public function aggiungi(array $campi) : array {
 		// record_id               viene assegnato automaticamente 
-		// stato_scansione         viene assegnato automaticamenteo
-		// ultima_modifica_record        viene assegnato automaticamente 
+		// stato_scansione         viene assegnato automaticamente
+		// stato_lavori            viene assegnato automaticamente
+		// ultima_modifica_record  viene assegnato automaticamente 
+		// record_cancellabile_dal viene assegnato automaticamente 
 		$create = 'INSERT INTO ' . self::nomeTabella  
 		. ' (  disco,  percorso_completo ) VALUES '
 		. ' ( :disco, :percorso_completo ) ';
@@ -165,12 +219,13 @@ Class Cartelle {
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Inserimento non riuscito per campi mancanti : ' 
 				. self::nomeTabella
-				.' campi: ' . serialize($campi)
+				.' campi: ' . str_ireplace(';', '; ', serialize($campi))
 			];
 			return $ret;
 		}
 		$this->set_percorso_completo($campi['percorso_completo']);
-		$dbh->beginTransaction();
+
+		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }		
 		try {
 			$aggiungi = $dbh->prepare($create);
 			$aggiungi->bindValue('disco',             $this->get_disco());
@@ -179,24 +234,29 @@ Class Cartelle {
 			$aggiungi->execute();
 			$record_id = $dbh->lastInsertId();
 			$dbh->commit();
+
 		} catch (\Throwable $th) {
 			$dbh->rollBack();
+
 			$ret = [
 				'record_id' => 0, 
 				'error'     => true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . str_ireplace(';', '; ', serialize($campi))
 				. ' istruzione SQL: ' . $create 
 			];
 			return $ret;
-		}
+		} // try catch
 
 		$ret = [
-			'ok' => true, 
-			'record_id' => $record_id
+			'ok'        => true, 
+			'record_id' => $record_id,
+			'message'   => __CLASS__ . ' ' . __FUNCTION__ 
+			. ' Inserimento record effettuato, nuovo id: ' . $record_id 
 		];
 		return $ret;
+
 	} // aggiungi 
 	
 	
@@ -222,11 +282,12 @@ Class Cartelle {
 				'error'=> true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. "Deve essere definita l'istruzione SELECT in ['query']: " 
-				. serialize($campi)
+				. ' campi: ' . str_ireplace(';', '; ', serialize($campi))
 			];
 			return $ret;
 		}
 		$read = $campi['query'];
+		// convalida campi 
 		if (isset($campi['record_id'])) {
 			$this->set_record_id($campi['record_id']);
 		}
@@ -239,8 +300,14 @@ Class Cartelle {
 		if (isset($campi['stato_scansione'])) {
 			$this->set_stato_scansione($campi['stato_scansione']);
 		}
+		if (isset($campi['stato_lavori'])) {
+			$this->set_stato_lavori($campi['stato_lavori']);
+		}
 		if (isset($campi['ultima_modifica_record'])) {
 			$this->set_ultima_modifica_record($campi['ultima_modifica_record']);
+		}
+		if (isset($campi['record_cancellabile_dal'])){
+			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']); 
 		}
 
 		try {
@@ -257,11 +324,14 @@ Class Cartelle {
 			if (isset($campi['stato_scansione'])){
 				$lettura->bindValue('stato_scansione', $this->stato_scansione, PDO::PARAM_INT);  
 			}
-			if (isset($campi['record_id'])){
-				$lettura->bindValue('record_id', $this->record_id, PDO::PARAM_INT); // gli altri campi sono tipo string 
+			if (isset($campi['stato_lavori'])){
+				$lettura->bindValue('stato_lavori', $this->stato_lavori ); 
 			}
 			if (isset($campi['ultima_modifica_record'])){
 				$lettura->bindValue('ultima_modifica_record', $this->ultima_modifica_record);  
+			}
+			if (isset($campi['record_cancellabile_dal'])){
+				$lettura->bindValue('record_cancellabile_dal', $this->record_cancellabile_dal ); 
 			}
 			$lettura->execute();
 
@@ -270,20 +340,23 @@ Class Cartelle {
 			$ret = [
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' ' . $th->getMessage() . ' campi: ' . serialize($campi)
+				. ' ' . $th->getMessage() 
+				. ' campi: ' . str_ireplace(';', '; ', serialize($campi))
 				. ' istruzione SQL: ' . $read
 			];
 			return $ret;
 		}
-		$conteggio = 0;
+
+		$numero = 0;
 		$dati_di_ritorno = [];
 		while($record = $lettura->fetch(PDO::FETCH_ASSOC)){
 			$dati_di_ritorno[] = $record;
-			$conteggio++;
+			$numero++;
 		}
+
 		$ret = [
 			'ok'     => true,
-			'numero' => $conteggio,
+			'numero' => $numero,
 			'data'   => $dati_di_ritorno 
 		];
 		return $ret;
@@ -316,7 +389,7 @@ Class Cartelle {
 				'error'=> true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Aggiornamento record senza UPDATE: ' 
-				. serialize($campi) 
+				. str_ireplace(';', '; ', serialize($campi))
 			];
 			return $ret;
 		}
@@ -333,10 +406,17 @@ Class Cartelle {
 		if (isset($campi['stato_scansione'])) {
 			$this->set_stato_scansione($campi['stato_scansione']);
 		}
+		if (isset($campi['stato_lavori'])){
+			$this->set_stato_lavori($campi['stato_lavori']); 
+		}
 		if (isset($campi['ultima_modifica_record'])) {
 			$this->set_ultima_modifica_record($campi['ultima_modifica_record']);
 		}
-		$dbh->beginTransaction();
+		if (isset($campi['record_cancellabile_dal'])){
+			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']); 
+		}
+
+		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }		
 		try {
 			$aggiorna=$dbh->prepare($update);
 			if (isset($campi['record_id'])){
@@ -351,8 +431,14 @@ Class Cartelle {
 			if (isset($campi['stato_scansione'])){
 				$aggiorna->bindValue('stato_scansione', $this->stato_scansione, PDO::PARAM_INT); // gli altri campi sono tipo string 
 			}
+			if (isset($campi['stato_lavori'])){
+				$aggiorna->bindValue('stato_lavori', $this->stato_lavori); 
+			}
 			if (isset($campi['ultima_modifica_record'])){
-				$aggiorna->bindValue('ultima_modifica_record', $this->ultima_modifica_record);  
+				$aggiorna->bindValue('ultima_modifica_record', $this->ultima_modifica_record); 
+			}
+			if (isset($campi['record_cancellabile_dal'])){
+				$aggiorna->bindValue('record_cancellabile_dal', $this->record_cancellabile_dal); 
 			}
 			$aggiorna->execute();
 			$dbh->commit();
@@ -364,11 +450,12 @@ Class Cartelle {
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage()
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . str_ireplace(';', '; ', serialize($campi))
 				. ' istruzione SQL: ' . $update
 			];
 			return $ret;
 		}		
+
 		$ret = [
 			'ok' => true,
 			'message' => 'Aggiornamento eseguito'
@@ -380,7 +467,8 @@ Class Cartelle {
 	 * DELETE - elimina 
 	 * 
 	 * $campi deve avere un campo DELETE che contiene una istruzione SQL 
-	 * di cancellazione fisica 
+	 * di cancellazione fisica - cancellazione soft-delete con modifica
+	 * di record_cancellabile_dal 
 	 * 
 	 * @param  array  $campi 
 	 * @return array  $ret 'ok' + message | 'error' + message 
@@ -420,10 +508,17 @@ Class Cartelle {
 		if (isset($campi['stato_scansione'])) {
 			$this->set_stato_scansione($campi['stato_scansione']);
 		}
-		if (isset($campi['ultima_modifica_record'])) {
+		if (isset($campi['stato_lavori'])){
+			$this->set_stato_lavori($campi['stato_lavori']); 
+		}
+		if (isset($campi['ultima_modifica_record'])){
 			$this->set_ultima_modifica_record($campi['ultima_modifica_record']);
 		}
-		$dbh->beginTransaction();
+		if (isset($campi['record_cancellabile_dal'])){
+			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']);
+		}
+
+		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }		
 		try {
 			//code...
 			$cancella=$dbh->prepare($delete);
@@ -439,8 +534,14 @@ Class Cartelle {
 			if (isset($campi['stato_scansione'])){
 				$cancella->bindValue('stato_scansione', $this->stato_scansione, PDO::PARAM_INT); // gli altri campi sono tipo string 
 			}
-			if (isset($campi['ultima_modifica_record'])){
-				$cancella->bindValue('ultima_modifica_record', $this->ultima_modifica_record);  
+			if (isset($campi['stato_lavori'])){
+				$cancella->bindValue('stato_lavori', $this->stato_lavori); 
+			}
+			if (isset($campi['ultima_modifica_record'])){ 
+				$cancella->bindValue('ultima_modifica_record', $this->ultima_modifica_record); 
+			}
+			if (isset($campi['record_cancellabile_dal'])){
+				$cancella->bindValue('record_cancellabile_dal', $this->record_cancellabile_dal); 
 			}
 			$cancella->execute();
 			$dbh->commit();
@@ -453,7 +554,7 @@ Class Cartelle {
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage()
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . str_ireplace(';', '; ', serialize($campi))
 				. ' istruzione SQL: ' . $delete
 			];
 			return $ret;
