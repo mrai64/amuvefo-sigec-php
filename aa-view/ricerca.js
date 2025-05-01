@@ -31,7 +31,7 @@ $(function(){
     } else {
       primo_album = primo_album - tot_album;
     }
-    var url = 'https://www.fotomuseoathesis.it/ricerche-v2.php/indietro/' + ricerca_id + '/album/' + primo_album + '/' + tot_album
+    var url = 'https://www.fotomuseoathesis.it/ricerche.php/indietro/' + ricerca_id + '/album/' + primo_album + '/' + tot_album
     $.get( url )
     .done(function(html_ret){
       console.log('indietroAlbum click()');
@@ -56,7 +56,7 @@ $(function(){
       return false;
     }
     
-    var url = 'https://www.fotomuseoathesis.it/ricerche-v2.php/avanti/' + ricerca_id + '/album/' + ultimo_album + '/' + tot_album ;
+    var url = 'https://www.fotomuseoathesis.it/ricerche.php/avanti/' + ricerca_id + '/album/' + ultimo_album + '/' + tot_album ;
     // per l'accademia la lettura dati si fa usando GET
     $.get( url )
     .done(function(html_ret){
@@ -88,7 +88,7 @@ $(function(){
     } else {
       prima_foto = prima_foto - tot_foto;
     }
-    var url = 'https://www.fotomuseoathesis.it/ricerche-v2.php/indietro/' + ricerca_id + '/fotografie/' + prima_foto + '/' + tot_foto
+    var url = 'https://www.fotomuseoathesis.it/ricerche.php/indietro/' + ricerca_id + '/fotografie/' + prima_foto + '/' + tot_foto
     $.get( url )
     .done(function(html_ret){
       console.log('indietroFoto click()');
@@ -117,7 +117,7 @@ $(function(){
       tot_foto = foto_trovate - ultima_foto;
     }
     
-    var url = 'https://www.fotomuseoathesis.it/ricerche-v2.php/avanti/' + ricerca_id + '/fotografie/' + ultima_foto + '/' + tot_foto
+    var url = 'https://www.fotomuseoathesis.it/ricerche.php/avanti/' + ricerca_id + '/fotografie/' + ultima_foto + '/' + tot_foto
     //dbg alert('url: [' + url + ']' );
     $.get( url )
     .done(function(html_ret){
@@ -147,7 +147,7 @@ $(function(){
     } else {
       primo_video = primo_video - tot_video;
     }
-    var url = 'https://www.fotomuseoathesis.it/ricerche-v2.php/indietro/' + ricerca_id + '/video/' + primo_video + '/' + tot_video
+    var url = 'https://www.fotomuseoathesis.it/ricerche.php/indietro/' + ricerca_id + '/video/' + primo_video + '/' + tot_video
     $.get( url )
     .done(function(html_ret){
       console.log('indietroVideo click()');
@@ -172,7 +172,7 @@ $(function(){
       return false;
     }
     
-    var url = 'https://www.fotomuseoathesis.it/ricerche-v2.php/avanti/' + ricerca_id + '/video/' + ultimo_video + '/' + tot_video
+    var url = 'https://www.fotomuseoathesis.it/ricerche.php/avanti/' + ricerca_id + '/video/' + ultimo_video + '/' + tot_video
     //dbg alert('url: [' + url + ']' );
     $.post(
       url,

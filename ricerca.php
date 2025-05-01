@@ -11,6 +11,5 @@ if (!defined('ABSPATH')){
 }
 include_once(ABSPATH.'aa-model/database-handler.php'); // $con non oop
 
-//require_once(ABSPATH.'aa-view/ricerca-per-chiavi.php');
-require_once(ABSPATH.'aa-view/ricerca-semplice.php');
+require_once(ABSPATH.'aa-view/ricerca-chiedi-view.php');
 exit(0);

@@ -14,6 +14,13 @@
 	<div class="row">
 		<?php
 			include(ABSPATH.'aa-controller/mostra-messaggio-sessione.php');
+			if (!isset($cartella_radice)){
+				$cartella_radice=[];
+				$cartella_radice["tinta_rbg"]= "000000";
+			} 
+			if (!isset($cartella_radice["tinta_rgb"])){
+				$cartella_radice["tinta_rbg"]= "000000";
+			}
 		?>
 	</div>
 	<div class="row">
@@ -41,7 +48,7 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-6 dropdown">
+		<div class="col-8 dropdown">
 			<a href="#" class="dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 			<figure class="figure mh-50" >
 				<img id="foto" class="d-block w-100" alt="..." src="<?= $fotografia_src; ?>" > 
@@ -53,8 +60,11 @@
 				<li><hr class="dropdown-divider"></li>
 				<li><a href="<?=URLBASE; ?>ingresso.php" class="dropdown-item">Accesso non anonimo</a></li>
 			</ul>
+			<br style="clear:both;"/>
 			<a href="<?=$foto_precedente; ?>" title="[prev in album]"><i class="h2 bi bi-arrow-left-square-fill"></i></a>
+			&nbsp;&nbsp;&nbsp;
 			<a href="<?=$foto_seguente;   ?>" title="[next in album]"><i class="h2 bi bi-arrow-right-square-fill"></i></a>
+			&nbsp;&nbsp;&nbsp;
 			<?php // didascalia - 
 			if ($_COOKIE['abilitazione'] > SOLALETTURA){
 				if ($didascalia_id > 0){
@@ -79,7 +89,7 @@
 			}
 			?>
 		</div>
-		<div class="col-5">
+		<div class="col-4">
 				<table class="table table-striped border-secondary"> 
 					<thead>
 						<tr>
@@ -98,8 +108,9 @@
 						} else{
 							foreach($dettagli as $dettaglio){
 								echo '<tr>'."\n";
-								echo '<td scope="row">'.$dettaglio['chiave'].'</td>'."\n";
-								echo '<td>'.$dettaglio['valore'].'</td>'."\n";
+								echo '<td class="fs-6" scope="row">'.$dettaglio['chiave'].'</td>'."\n";
+								echo '<td class="fs-6">'.$dettaglio['valore'].'</td>'."\n";
+
 								if (isset($_COOKIE['abilitazione']) && $_COOKIE['abilitazione'] > SOLALETTURA ){
 									echo '<td nowrap><a href="'.URLBASE.'fotografie.php/modifica_dettaglio/'.$dettaglio['record_id'].'?f='.$dettaglio['record_id_padre'].'" '
 									. 'title="modifica dettaglio"><i class="h4 bi bi-pencil-square"></i></a>'

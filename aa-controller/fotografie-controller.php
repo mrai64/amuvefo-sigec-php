@@ -500,7 +500,7 @@ function leggi_fotografie_per_id( int $fotografie_id){
 		}
 	}
 	$ret_dida=[];
-	// Si cerca cse c'è in didascalie 
+	// Si cerca se c'è in didascalie 
 	if ($didascalia_id == 0){
 		$campi=[];
 		$campi['tabella_padre']          = 'fotografie';
@@ -519,10 +519,12 @@ function leggi_fotografie_per_id( int $fotografie_id){
 			. '</p>';
 			exit(1);
 		}
-		$didascalia=$ret_dida['data'][0];
-		$didascalia_id = $didascalia['record_id'];
-		$leggimi       = $didascalia['didascalia'];
-	} // lettura didascalia_id e leggii dalla tabella didascalie
+		if ($ret_dida['numero']> 0){
+			$didascalia=$ret_dida['data'][0];
+			$didascalia_id = $didascalia['record_id'];
+			$leggimi       = $didascalia['didascalia'];
+		}
+	} // lettura didascalia_id e leggimi dalla tabella didascalie
 
 	// dettagli 
 	$campi=[];
@@ -1243,10 +1245,11 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		echo $ret;
 		// proseguo per dati su file dal nome file 
 	}
-	echo '<p style="font-family:monospace;">Sono stati rintracciati dati exif <br>';
+	echo '<p style="font-family:monospace;width:90%;max-width:90%;">Sono stati rintracciati dati exif <br>';
 	$exif_str = serialize($exif);
 	$re = '/[^a-zA-Z0-9_\-,\s\/:";%]/i';
-	$exif_str = preg_replace($re, '.', $exif_str);
+	$exif_str = preg_replace($re, '. ', $exif_str);
+	$exif_str = str_ireplace('s:',' s:',$exif_str);
 	echo $exif_str . '</p>';
 
 	// oltre i 300dpi sono scansioni 800 dpi 1200 dpi 4000 dpi 
@@ -1288,6 +1291,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	// Se è uguale non si inserisce un doppione
 	if (isset($exif['EXIF']['DateTimeOriginal'])){
 		$date_det = $exif['EXIF']['DateTimeOriginal'];
+		$date_det = data_exif_in_timestamp($date_det); // aaaa:mm:gg > aaaa-mm-gg 
 		if($data_evento_prima < $date_det){
 			$ret_det  = carico_dettaglio( $fotografia_id, 'data/scansione', $date_det);
 			$aggiunti[] = "'data/scansione': ".$date_det;
@@ -1309,6 +1313,16 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	// Si verifica il caso che il dato c'è ma vale " "
 	if (isset($exif['IFD0']['Copyright'])){
 		$copy_det = $exif['IFD0']['Copyright'];
+		$copy_det = trim($copy_det);
+		if ($copy_det>''){
+			$ret_det   = carico_dettaglio( $fotografia_id, 'nome/diritti', $copy_det);
+			$aggiunti[] = "'nome/diritti': ".$copy_det;
+		}
+	} // $exif['IFD0']['Copyright']
+
+	// Si verifica il caso che il dato c'è ma vale " "
+	if (isset($exif['IFD0']['Artist'])){
+		$copy_det = $exif['IFD0']['Artist'];
 		$copy_det = trim($copy_det);
 		if ($copy_det>''){
 			$ret_det   = carico_dettaglio( $fotografia_id, 'nome/diritti', $copy_det);

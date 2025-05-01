@@ -10,8 +10,8 @@
 		<!-- icone bootstrap  --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
 	</head>
 	<body>
-		<!-- TEST	https://archivio.athesis77.it/ricerca-v2.php 	-->
-		<!-- TEST	https://fotomuseoathesis.it/ricerca-v2.php 	-->
+		<!-- TEST	https://archivio.athesis77.it/ricerca.php 	-->
+		<!-- TEST	https://fotomuseoathesis.it/ricerca.php 	-->
 		<div class="container pt-5">
 			<div class="row">
 				<div class="col-12">
@@ -25,7 +25,7 @@
 					<p class="" id="terminiRicerca"><?=$termini_ricerca; ?></p>
 				</div>
 				<div class="col-1">
-				<a href="<?=URLBASE; ?>ricerche-v2.php/ricerca" 
+				<a href="<?=URLBASE; ?>ricerche.php/ricerca" 
 					title="Nuova ricerca"><i class="h2 bi bi-search"></i></a>
 				</div>
 			</div>
@@ -75,7 +75,7 @@
 				</p>
 			</footer>
 		</div>
-		<script src="<?=URLBASE; ?>aa-view/ricerca-v2.js"></script>
+		<script src="<?=URLBASE; ?>aa-view/ricerca.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 	</body>
 </html>

@@ -10,15 +10,15 @@
 		<!-- icone bootstrap  --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
 	</head>
 	<body>
-		<!-- TEST	https://archivio.athesis77.it/ricerca-v2.php 	-->
-		<!-- TEST	https://fotomuseoathesis.it/ricerca-v2.php 	-->
+		<!-- TEST	https://archivio.athesis77.it/ricerca.php 	-->
+		<!-- TEST	https://fotomuseoathesis.it/ricerca.php 	-->
 			<div class="container pt-5">
 				<div class="row">
 					<div class="col-12">
 						<h4 class="text-center">FotoMuseoAthesis</h4>
 					</div>
 				</div>
-				<form action="<?=URLBASE; ?>ricerche-v2.php/ricerca/" method="POST" id="moduloRicerca">
+				<form action="<?=URLBASE; ?>ricerche.php/ricerca/" method="POST" id="moduloRicerca">
 					<input type="text" name="ricerca_id"     value="0" hidden aria-hidden="">
 					<input type="text" name="esegui_ricerca" value="1" hidden aria-hidden="">
 					<input type="text" name="semplice"       value="1" hidden aria-hidden="">

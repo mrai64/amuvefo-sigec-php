@@ -43,7 +43,7 @@ $ingresso = str_replace('#consultazione_video',           URLBASE.'deposito.php/
 $ingresso = str_replace('#consultazione_amuvefo',         URLBASE.'man/',                           $ingresso);
 $ingresso = str_replace('#consultazione_fiaf',            'https://fiaf.net/veneto/',               $ingresso);
 $ingresso = str_replace('#consultazione_athesis',         'https://www.athesis77.it/',              $ingresso);
-$ingresso = str_replace('#ricerca_avanzata',              URLBASE.'/ricerca.php',                   $ingresso);
+$ingresso = str_replace('#ricerca_semplice',              URLBASE.'ricerca.php',                    $ingresso);
 
 // applicazione dei link in base al contenuto di _COOKIE['abilitazione']
 // abilitazione modifica 

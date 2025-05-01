@@ -9,17 +9,20 @@
  * Inoltre mantiene o imposta i cookie per identificare consultatori 
  * e amministratori del sistema.
  *
- * versione online 
+ * versione online per fotomuseoathesis.it
  */
 
 // PHPSESSONID
-$durata_sessione = 7200; // settemiladuecento secondi 120 minuti 2 ore - rinnovabili 
-@session_start();
+$durata_sessione = 1800; // i secondi di 30 minuti 30 * 60  
+if (session_status() !== PHP_SESSION_ACTIVE){
+	@session_start(); // @ suppress warning message 
+}
 @setcookie(session_name(), session_id(), time() - $durata_sessione, "/"); // cancella vecchia
 @setcookie(session_name(), session_id(), time() + $durata_sessione, "/"); // scrive nuova
-
-$debug_buffer = ''; // per non esporre dati prima dei sent_header
-
+/**
+ * debug_buffer per quelo che non si può mostrare prima di header_sent()
+ */
+$debug_buffer='<p style="font-family:monospace;">Debug buffer</p>';
 if ( !defined( 'ABSPATH' ) ) {
 	$debug_buffer .= '<br>ABSPATH undefined';
 	
@@ -41,29 +44,27 @@ if ( !defined( 'ABSPATH' ) ) {
 			// localhost
 			define( 'ABSPATH', '/Users/massimorainato/Sites/AMUVEFO-sigec-php/' ); 
 			define( 'URLBASE', 'http://localhost:8888/AMUVEFO-sigec-php/' ); 
+			// define( 'BASEURL', 'http://localhost:8888/AMUVEFO-sigec-php/' ); 
 			define( 'URLZERO', '/AMUVEFO-sigec-php'); // la sottocartella che contiene il sito 
 			break;
 
 	} // switch set ABSPATH
-	// debug_buffer serve per memorizzare senza fare echo perché più avanti
-	// viene testato se header_sent
-	$debug_buffer .= '<br>ABSPATH: '.ABSPATH;
-	$debug_buffer .= '<br>URLBASE: '.URLBASE;
-	$debug_buffer .= '<br>URLZERO: '.URLZERO;
-	
-	// definizione FUTURO / record valido, quello che 
-	// ha nel campo record_cancellabile_dal questo valore futuro 
+
+/**
+ * Questo valore FUTURO nel campo record_cancellabile_dal lo rende "attivo",
+ * quando invece è impostato a un timestamp del passato è soft-deleted
+ * e mantenuto in archivio in attesa di prima backup e poi rimozione fisica
+ */	
 	define( 'FUTURO', "9999-12-31 23:59:59" ); // 
 	
-	// definizione di abilitazione lettura che non consente 
-	// la richiesta originali e la modifica dei dati 
-	// da confrontare con $_COOKIE['abilitazione']
+	/**
+	 * Livelli di abilitazione previsti da inserire nel 
+	 * $_COOKIE['abilitazione']
+	 */
 	define( 'SOLALETTURA',  '1 lettura');
 	define( 'MODIFICA',     '3 modifica');
 	define( 'MODIFICAPLUS', '5 modifica originali');
 	define( 'AMMINISTRA',   '7 amministrazione');
-	$debug_buffer .= '<br>SOLALETTURA: '.SOLALETTURA;
-	$debug_buffer .= '<br>COOKIE: '.str_replace(';', '; <br>', serialize($_COOKIE));
 	
 	// cookie 
 	$scadenza = time()+3*86400; // 3*24*60*60; i secondi di 3 giorni 
@@ -127,9 +128,11 @@ if ( !defined( 'ABSPATH' ) ) {
 	unset($env, $lines);
 
 } // costante ABSPATH non definita 
-$debug_buffer .= '<br>COOKIE[2]: '.str_replace(';', '; <br>', serialize($_COOKIE));
 
-// recupero parametri per password da wordpress
+/**
+ * sistema di codifica delle password mutuato da wordpress
+ * installato per ospitare il manuale utente del sistema
+ */
 include_once( ABSPATH . 'man/wp-config.php');
 
 //dbg echo '<p style="font-family:monospace">';

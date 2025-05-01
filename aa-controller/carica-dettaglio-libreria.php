@@ -6,6 +6,17 @@
  * Funzioni in comune tra più "worker" dedicati al caricamento 
  * dettagli, in album ma potenzialmente anche in fotografie e video 
  * 
+ * - data_exif_in_timestamp
+ * - get_autore
+ * - get_autore_sigla_6
+ * - get_data_evento
+ * - get_durata 
+ * - get_ente_societa
+ * - get_fondo
+ * - get_luogo
+ * - get_luogo_comune
+ * - get_luogo_localita
+ * - get_titolo_album
  * 
  */
 if (!defined('ABSPATH')){
@@ -52,6 +63,14 @@ function get_data_evento(string $titolo) : string {
 	// check 1: aaaa mm gg ...
 	if (preg_match('/\d{4} \d{2} \d{2} /', $titolo, $match)){
 		$data_evento = str_replace(' ', '-', trim($match[0]));
+		if (str_contains($data_evento, '-00')){
+			$data_evento .= ' DP';
+		}
+		return $data_evento; // aaaa-mm-gg oppure aaaa-mm-gg DP
+	}
+	// check 2: aaaa:mm:gg ...
+	if (preg_match('/\d{4}:\d{2}:\d{2} /', $titolo, $match)){
+		$data_evento = str_replace(':', '-', trim($match[0]));
 		if (str_contains($data_evento, '-00')){
 			$data_evento .= ' DP';
 		}
@@ -290,3 +309,12 @@ function get_fondo(string $titolo) : string {
 	return $fondo; 
 
 } // get_fondo
+
+function data_exif_in_timestamp(string $data_exif) : string {
+	@list($data_samg, $ora_hms) = explode(' ',$data_exif);
+	if (preg_match('/\d{4}:\d{2}:\d{2}/i', $data_samg, $match)){
+		$data_samg = str_ireplace(':', '-', $data_samg);
+		return $data_samg.' '.$ora_hms; // aaaa-mm-gg hh:mm:ss 
+	}
+	return $data_exif;
+} // data_exif_in_timestamp
