@@ -3,6 +3,8 @@
  *	@source /aa-controller/controllo-abilitazione.php 
  *	@author Massimo Rainato <maxrainato@libero.it>
  *
+ * ATTENZIONE: FA ACCESSO DIRETTO e non tramite OOP 
+ * 
  * 1. Verifica se sono impostati i parametri $_COOKIE['consultatore']
  * e $_SESSION['consultatore']
  * 2. Accede alla tabella delle abilitazioni per verificare 
@@ -15,8 +17,12 @@
 if (!defined('ABSPATH')){
   include_once('../_config.php');
 }
-if ( !isset($_SESSION['consultatore']) ){
-	session_start(); // se già dato crea un warning
+if (session_status() !== PHP_SESSION_ACTIVE){
+	session_start();
+	$_SESSION['messaggio'] = "Non risulta presente un consultatore "
+	. '<br>' . serialize($_COOKIE);
+	header("Location: ".URLBASE."consultatori.php/accesso/?p=3&return_to=".urlencode($_SERVER['REQUEST_URI']) );
+	exit(0);
 }
 if (!isset($_COOKIE['abilitazione'])){
 	$_SESSION['messaggio'] = "Non risulta presente un consultatore "
@@ -102,4 +108,5 @@ unset($abilitazione_richiesta);
 unset($cookie_abilitazione);
 unset($record_letti);
 unset($letti);
+unset($con);
 // tutto ok e continua...

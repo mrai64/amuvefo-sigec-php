@@ -6,6 +6,17 @@
  * Funzioni in comune tra più "worker" dedicati al caricamento 
  * dettagli, in album ma potenzialmente anche in fotografie e video 
  * 
+ * - data_exif_in_timestamp
+ * - get_autore
+ * - get_autore_sigla_6
+ * - get_data_evento
+ * - get_durata 
+ * - get_ente_societa
+ * - get_fondo
+ * - get_luogo
+ * - get_luogo_comune
+ * - get_luogo_localita
+ * - get_titolo_album
  * 
  */
 if (!defined('ABSPATH')){
@@ -57,6 +68,14 @@ function get_data_evento(string $titolo) : string {
 		}
 		return $data_evento; // aaaa-mm-gg oppure aaaa-mm-gg DP
 	}
+	// check 2: aaaa:mm:gg ...
+	if (preg_match('/\d{4}:\d{2}:\d{2} /', $titolo, $match)){
+		$data_evento = str_replace(':', '-', trim($match[0]));
+		if (str_contains($data_evento, '-00')){
+			$data_evento .= ' DP';
+		}
+		return $data_evento; // aaaa-mm-gg oppure aaaa-mm-gg DP
+	}
 
 	// vocabolario 
 	$dbh = New DatabaseHandler(); // no connessioni dedicate 
@@ -89,14 +108,9 @@ function get_data_evento(string $titolo) : string {
 } // get_data_evento
 
 /**
- * luogo viene memorizzato in un vocabolario collegato alla chiave luogo/comune
- * Serve ordinare per lunghezza decrescente in modo che 
- * Boara Polesine si identificata come Boara Polesine e non come Boara
- * Boara Pisani sia identificata come Boara e non come Boara Pisani 
- * (scelta del comitato di gestione, non capisco ma mi adeguo) 
- * 
- * @param string $titolo 
- * @return string $luogo | ""
+ * !TODO dove veniva usata come ricerca luogo/comune va tolta e deve 
+ * !TODO diventare la ricerca di chiave E valore unendo la ricerca di 
+ * !TODO chiave like luogo/% 
  */
 function get_luogo(string $titolo) : string {
 	return get_luogo_comune($titolo);
@@ -248,6 +262,23 @@ function get_autore_sigla_6(string $titolo) : string {
 	return $sigla;  
 }
 
+/**
+ * elenco autori Cognome, nome 
+ * elenco autori Cognome, nome (nascita - morte) per gli scomparsi 
+ * elenco autori Cognome, nome (nascita - ) per gli omonimi 
+ * nome file ... Cognome nome ... 
+ * nome file ... nome cognome ... 
+ * 
+ * La funzione deve separare tutti i termini del nomefile
+ * e andare a fare una ricerca per ciascun termine in elenco autori
+ * 
+ * @param  string titolo o nome file
+ * @return string "" oppure un cognome, nome da elenco autori
+ */
+function get_autore(string $titolo) : string {
+	return "";
+}
+
 function get_durata(string $titolo) : string{
 		// check 00h00m00s
 		$durata = '';
@@ -278,3 +309,12 @@ function get_fondo(string $titolo) : string {
 	return $fondo; 
 
 } // get_fondo
+
+function data_exif_in_timestamp(string $data_exif) : string {
+	@list($data_samg, $ora_hms) = explode(' ',$data_exif);
+	if (preg_match('/\d{4}:\d{2}:\d{2}/i', $data_samg, $match)){
+		$data_samg = str_ireplace(':', '-', $data_samg);
+		return $data_samg.' '.$ora_hms; // aaaa-mm-gg hh:mm:ss 
+	}
+	return $data_exif;
+} // data_exif_in_timestamp

@@ -412,6 +412,10 @@ function leggi_cartella_per_percorso( string $percorso ){
 	//dbg echo var_dump($campi);
 
 	$ret = $scan->leggi($campi);
+	//dbg echo '<p style="cont-family:monospace;">'
+	//dbg . 'campi: ' . str_ireplace(';', '; ', serialize($campi))
+	//dbg . '<br>ret: ' . str_ireplace(';', '; ', serialize($ret))
+	//dbg .'</p>';
 	if (isset($ret['error'])){
 		http_response_code(404);
 		exit("<p style='font-family:monospace;'>$percorso non trovato. <br>" . $ret['message'] .'</p>');

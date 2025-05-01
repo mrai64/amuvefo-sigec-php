@@ -660,7 +660,7 @@ Class Fotografie {
 				$cancella->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco, PDO::PARAM_INT); 
 			}
 			if (isset($campi['stato_lavori'])){
-				$aggiorna->bindValue('stato_lavori', $this->stato_lavori); 
+				$cancella->bindValue('stato_lavori', $this->stato_lavori); 
 			}
 			if (isset($campi['ultima_modifica_record'])){ 
 				$cancella->bindValue('ultima_modifica_record', $this->ultima_modifica_record); 
@@ -680,7 +680,7 @@ Class Fotografie {
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage()
 				. ' campi: ' . serialize($campi)
-				. ' istruzione SQL: ' . $update
+				. ' istruzione SQL: ' . $delete
 			];
 			return $ret;
 		}

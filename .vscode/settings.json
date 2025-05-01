@@ -1,9 +1,13 @@
 {
   "cSpell.words": [
+    "adet",
+    "FULLTEXT",
     "massimorainato",
     "MODIFICAPLUS",
     "sigec",
     "SOLALETTURA",
     "sololettura"
-  ]
+  ],
+  "php.debug.executablePath": "/Applications/MAMP/bin/php/php8.3.14/bin/php",
+  "php.validate.executablePath": "/Applications/MAMP/bin/php/php8.3.14/bin/php",
 }
