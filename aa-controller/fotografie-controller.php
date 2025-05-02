@@ -1094,8 +1094,25 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	$foto_file = htmlspecialchars_decode($foto_file); // &039; > '
 	$foto_file = str_replace('//', '/', ABSPATH.$foto_file);
 
+	/**
+	 * restart pagina web dopo 5 secondi
+	 */
+	echo "<!doctype html>"
+	. "\r\n<html lang='it'>"
+	. "\r\n<head>"
+	. "\r\n  <meta charset='utf-8'>"
+	. "\r\n  <meta name='viewport' content='width=device-width, initial-scale=1'>"
+	. "\r\n  <meta name='robots' content='noindex, nofollow' />"
+	. "\r\n  <meta http-equiv='refresh' content='5' />"
+	. "\r\n  <title>Caricamento dettagli | Foto Singola | AMUVEFO</title>"
+	. "\r\n  <!-- jquery --><script src='https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js'></script>"
+	. "\r\n  <!-- bootstrap --><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet' >"
+	. "\r\n  <!-- icone --><link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css' rel='stylesheet' >"
+	. "\r\n</head>"
+	. "\r\n<body>";
+
 	echo '<p style="font-family:monospace;">';
-	echo 'Elaborazone fotografia id:' . $fotografia_id . '<br>file: "' . $foto_file . '"';
+	echo 'Elaborazione fotografia, id:' . $fotografia_id . '<br>file: "' . $foto_file . '"';
 	//dbg echo '<br>is_file: ' . (is_file($foto_file) ? 'true' : 'false');
 	echo '</p>';
 

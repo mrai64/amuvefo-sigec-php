@@ -507,9 +507,9 @@ function get_backup_cartelle(string $ultimo_backup) : string {
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
 	$riempire = "INSERT INTO `scansioni_cartelle` (`record_id`, `disco`, "
-	. "`percorso_completo`, `stato_scansione`, `ultima_modifica_record`"
-	. "`stato_lavori`, `record_cancellabile_dal` ) "
-	. "VALUES(§1, '§2', '§3', §4, '§5', '§6', '§7' );";
+	. "`percorso_completo`, `stato_lavori`, "
+	. " `ultima_modifica_record`, `record_cancellabile_dal` ) "
+	. "VALUES(§1, '§2', '§3', '§4', '§5', '§6' );";
 
 	$leggi = 'SELECT * FROM scansioni_cartelle ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -532,10 +532,9 @@ function get_backup_cartelle(string $ultimo_backup) : string {
 		$rigo = str_ireplace('§1', $record['record_id'], $riempire);
 		$rigo = str_ireplace('§2', $record['disco'], $rigo);
 		$rigo = str_ireplace('§3', $record['percorso_completo'], $rigo);
-		$rigo = str_ireplace('§4', $record['stato_scansione'], $rigo);
+		$rigo = str_ireplace('§4', $record['stato_lavori'], $rigo);
 		$rigo = str_ireplace('§5', $record['ultima_modifica_record'], $rigo);
-		$rigo = str_ireplace('§6', $record['stato_lavori'], $rigo);
-		$rigo = str_ireplace('§7', $record['record_cancellabile_dal'], $rigo);
+		$rigo = str_ireplace('§6', $record['record_cancellabile_dal'], $rigo);
 		$ret .= "\n".$rigo;
 	}
     return $ret;
