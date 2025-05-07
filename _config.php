@@ -14,7 +14,7 @@
 
 
 /**
- * debug_buffer per quelo che non si può mostrare prima di header_sent()
+ * debug_buffer Quello che non si può mostrare prima di header_sent()
  */
 $debug_buffer='<p style="font-family:monospace;">Debug buffer</p>';
 if ( !defined( 'ABSPATH' ) ) {

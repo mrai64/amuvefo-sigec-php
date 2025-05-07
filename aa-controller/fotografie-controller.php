@@ -443,7 +443,7 @@ function leggi_fotografie_per_id( int $fotografie_id){
 	$siete_in = dirname($siete_in);
 	$siete_in = str_replace('/', ' / ', $siete_in);
 	
-	if (isset($_COOKIE['abilitazione']) && $_COOKIE['abilitazione'] > SOLALETTURA ){
+	if (get_set_abilitazione() > SOLALETTURA ){
 		$richiesta_originali = URLBASE . 'fotografie.php/richiesta/' . $fotografia['record_id'] 
 		. '?return_to=' . urlencode($_SERVER['REQUEST_URI']); // TODO vedi /01-scansioni-disco_richiesta.php come esempio
 		
@@ -588,7 +588,7 @@ function carica_richiesta_fotografie_per_id( int $fotografie_id) : bool {
 	$fotografia = $ret_foto['data'][0]; // è sempre un array
 
 
-	if ($_COOKIE['abilitazione'] <= SOLALETTURA ){
+	if (get_set_abilitazione() <= SOLALETTURA ){
 		$_SESSION['messaggio'] = 'Operazione non consentita';
 		return false;
 	}
@@ -1342,6 +1342,8 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		$copy_det = $exif['IFD0']['Artist'];
 		$copy_det = trim($copy_det);
 		if ($copy_det>''){
+			// TODO usare il vocabolario per la conversione delle sigle usate nelle fotocamere
+			// TODO es.: Anto > Zambon, Antonello; Dino Angeli > Angeli, Dino
 			$ret_det   = carico_dettaglio( $fotografia_id, 'nome/diritti', $copy_det);
 			$aggiunti[] = "'nome/diritti': ".$copy_det;
 		}
@@ -1380,42 +1382,56 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	//dbg echo $nome_file;
 	
 	
+	// codice/autore/athesis
+	echo '<p style="font-family:monospace">inizio esame nome/autore';
+		$autore='';
+		$sigla_autore='';
+		@list( $autore, $sigla_autore) = get_autore($nome_file);
+		echo '<br>autore:'.$autore;
+		echo '<br>sigla:'.$sigla_autore;
+		if ($autore>''){
+			$ret_det   = carico_dettaglio( $fotografia_id, 'nome/autore', $autore);
+			$aggiunti[] = "'nome/autore': ".$autore;
+		}
+	echo '<br>Fine esame nome/autore: '.$autore.'</p>';
 	
 	// codice/autore/athesis
 	echo '<p style="font-family:monospace">inizio esame codice/autore/athesis';
-	$sigla_autore = get_autore_sigla_6($nome_file);
-	// valori predefiniti se manca 
-	if ($sigla_autore==''){
-		$foto_file_maiuscole = strtoupper($foto_file);
-		if (str_contains($foto_file_maiuscole, '1AUTORI')){
-			$sigla_autore='AAA001';
-		} elseif (str_contains($foto_file_maiuscole, '2AUTOF')){
-			$sigla_autore='AAA002';
-		} elseif (str_contains($foto_file_maiuscole, '3FONDI')){
-			$sigla_autore='AAA003';
-		} elseif (str_contains($foto_file_maiuscole, '4LIBRI')){
-			$sigla_autore='AAA004';
-		} elseif (str_contains($foto_file_maiuscole, '5LOCA')){
-			$sigla_autore='AAA005';
-		} elseif (str_contains($foto_file_maiuscole, '6LOCA')){
-			$sigla_autore='AAA006';
-		} elseif (str_contains($foto_file_maiuscole, '7DATI')){
-			$sigla_autore='AAA007';
-		} elseif (str_contains($foto_file_maiuscole, '8SCUOLA')){
-			$sigla_autore='AAA008';
-		} elseif (str_contains($foto_file_maiuscole, '9TERRI')){
-			$sigla_autore='AAA009';
-		} elseif (str_contains($foto_file_maiuscole, '10VIDEO')){
-			$sigla_autore='AAA010';
+		if ($sigla_autore==''){
+			$sigla_autore = get_autore_sigla_6($nome_file);
 		}
-	}
-	$ret_det   = carico_dettaglio( $fotografia_id, 'codice/autore/athesis', $sigla_autore);
-	// sfilo 
-	$nome_file = str_replace($sigla_autore, '', $nome_file);
-	$nome_file = trim($nome_file);
-	echo "<br>Per effetto dell'inserimento di codice/autore/athesis, ora nomefile è: " .$nome_file.'<br>';
-	$aggiunti[] = "'codice/autore/athesis': ".$sigla_autore;
-	// codice/autore/sigla 
+		// valori predefiniti se manca 
+		if ($sigla_autore==''){
+			$foto_file_maiuscole = strtoupper($foto_file);
+			if (str_contains($foto_file_maiuscole, '1AUTORI')){
+				$sigla_autore='AAA001';
+			} elseif (str_contains($foto_file_maiuscole, '2AUTOF')){
+				$sigla_autore='AAA002';
+			} elseif (str_contains($foto_file_maiuscole, '3FONDI')){
+				$sigla_autore='AAA003';
+			} elseif (str_contains($foto_file_maiuscole, '4LIBRI')){
+				$sigla_autore='AAA004';
+			} elseif (str_contains($foto_file_maiuscole, '5LOCA')){
+				$sigla_autore='AAA005';
+			} elseif (str_contains($foto_file_maiuscole, '6LOCA')){
+				$sigla_autore='AAA006';
+			} elseif (str_contains($foto_file_maiuscole, '7DATI')){
+				$sigla_autore='AAA007';
+			} elseif (str_contains($foto_file_maiuscole, '8SCUOLA')){
+				$sigla_autore='AAA008';
+			} elseif (str_contains($foto_file_maiuscole, '9TERRI')){
+				$sigla_autore='AAA009';
+			} elseif (str_contains($foto_file_maiuscole, '10VIDEO')){
+				$sigla_autore='AAA010';
+			}
+		}
+		$ret_det   = carico_dettaglio( $fotografia_id, 'codice/autore/athesis', $sigla_autore);
+		// sfilo 
+		$nome_file = str_replace($sigla_autore, '', $nome_file);
+		$nome_file = trim($nome_file);
+		echo "<br>Per effetto dell'inserimento di codice/autore/athesis, ora nomefile è: " .$nome_file.'<br>';
+		$aggiunti[] = "'codice/autore/athesis': ".$sigla_autore;
+		// codice/autore/sigla 
 	echo '<br>Fine esame codice/autore/athesis</p>';
 	
 	// nome/ente-societa

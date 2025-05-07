@@ -89,7 +89,8 @@ include_once(ABSPATH . 'aa-controller/video-controller.php');
 	$ret  = '<div class="float-start">'."\n";
 	$ret .= '<a href="'.URLBASE.'fotografie.php/leggi/'.$fotografia['record_id'].'" ';
 	$ret .=    'title="'.$fotografia['titolo_fotografia'].'" >'."\n";
-	$fotografia_src  = str_ireplace('//' , '/' , ABSPATH.$fotografia['percorso_completo']);
+	// $fotografia_src  = str_ireplace('//' , '/' , ABSPATH.$fotografia['percorso_completo']);
+	$fotografia_src  = $fotografia['percorso_completo'];
 
 	$fotografia_src = html_entity_decode($fotografia_src); // per gli ' nel nome file &amp:039; > &039;
 	$fotografia_src = html_entity_decode($fotografia_src); // per gli ' nel nome file &039; > '
@@ -98,23 +99,43 @@ include_once(ABSPATH . 'aa-controller/video-controller.php');
 	// jpg abbinato al tif, quando c'è
 	$fotografia_jpg  = str_ireplace('.psd', '.jpg', $fotografia_src);
 	$fotografia_jpg  = str_ireplace('.tif', '.jpg', $fotografia_jpg);
-	if (is_file($fotografia_jpg)) {
+	if (is_file(ABSPATH.$fotografia_jpg)) {
 		$fotografia_src=$fotografia_jpg;
-		//dbg echo '<p style="font-family:monospace">'. __FUNCTION__ 
-		//dbg . '<br>is_file: ' . $fotografia_jpg .'</p>';
 	}
 	
+	$ret .= '<img src="'.URLBASE.$fotografia['percorso_completo'].'" ';
 	// l'immagine viene "intarsiata" nella pagina per dissuadere lo scarico
-	$fotografia_src  = 'data:image/jpeg;base64,'.base64_encode(file_get_contents($fotografia_src));
-
-	// $ret .= '<img src="'.URLBASE.$fotografia['percorso_completo'].'" ';
-	$ret .= '<img src="'.$fotografia_src.'" ';
+	// $fotografia_src  = 'data:image/jpeg;base64,'.base64_encode(file_get_contents($fotografia_src));
+	// $ret .= '<img src="'.$fotografia_src.'" ';
 	$ret .=       'style="min-width:200px; min-height:200px; max-width:200px; max-height:200px;" ';
 	$ret .=       'loading="lazy"  class="d-block w-100" />'."\n";
 	$ret .= '</a>'."\n";
 	$ret .= '</div>'."\n";
 	return $ret; 
 } // get_item_foto_griglia()
+
+/**
+ * Elemento fotografia da esporre in carosello
+ */
+function get_carousel_foto(array $fotografia) : string{
+	//$fotografia_src  = str_ireplace('//' , '/' , URLBASE.$fotografia['percorso_completo']);
+	$fotografia_src = $fotografia['percorso_completo'];
+	$fotografia_src = html_entity_decode($fotografia_src); // per gli ' nel nome file &amp;039; > &039;
+	$fotografia_src = html_entity_decode($fotografia_src); // per gli ' nel nome file &039; > '
+	// jpg abbinato al psd, quando c'è
+	// jpg abbinato al tif, quando c'è
+	$fotografia_jpg  = str_ireplace('.psd', '.jpg', $fotografia_src);
+	$fotografia_jpg  = str_ireplace('.tif', '.jpg', $fotografia_jpg);
+	if (is_file($fotografia_jpg)) {
+		$fotografia_src=$fotografia_jpg;
+	}
+
+	$ret = "\n".'    <div class="carousel-item active">'
+	     . "\n".'      <img src="'.URLBASE.$fotografia_src.'" class="d-block w-100" '
+			       .'alt="'.$fotografia['titolo_fotografia'].'">'
+			 . "\n".'    </div>';
+	return $ret;
+} // get_carousel_foto
 
 /**
  * Elemento video da esporre in griglia
@@ -159,7 +180,7 @@ include_once(ABSPATH . 'aa-controller/video-controller.php');
 	$ret  = "\t".'<tr>'."\n"
 	. "\t\t".'<td scope="row">'.$dettaglio['chiave'].'</td>'."\n"
 	. "\t\t".'<td>'.$dettaglio['valore'].'</td>'."\n";
-	if ($_COOKIE['abilitazione'] > SOLALETTURA ){
+	if (get_set_abilitazione() > SOLALETTURA ){
 		$ret .= "\t\t".'<td>'
 		. '<a href="'.URLBASE.'album.php/modifica_dettaglio/'.$dettaglio['record_id'].'" '
 		. 'title="modifica dettaglio"><i class="h2 bi bi-pencil-square"></i></a>'
@@ -185,7 +206,8 @@ include_once(ABSPATH . 'aa-controller/video-controller.php');
  * 
  * Legge la scheda dell'album, quella delle fotografie e dei video correlati 
  * tramite la chiave esterna record_id_in_album 
- * e carica la View 
+ * e carica la View
+ * Prepara in piedipagina della view un CAROUSEL per bootstrap
  * 
  * @param   int    id    chiave tabella album 
  * @return  void   espone la pagina ed esce con exit()
@@ -226,7 +248,7 @@ function leggi_album_per_id(int $album_id){
 	$album = $ret_album['data'][0]; // $album['record_id'], $album['titolo_album'] ecc.
 	$siete_in = str_replace('/' , ' / ', $album['percorso_completo']);
 
-	if (isset($_COOKIE['abilitazione']) && $_COOKIE['abilitazione'] > SOLALETTURA ){
+	if ( get_set_abilitazione() > SOLALETTURA ){
 		$richieste_originali = URLBASE . 'album.php/richiesta/'. $album['record_id'];
 		$aggiungi_dettaglio  = URLBASE . 'album.php/aggiungi_dettaglio/'.$album['record_id'];
 	} else {
@@ -249,7 +271,7 @@ function leggi_album_per_id(int $album_id){
 	if ($torna_su == '' && $ultima_barra_al>0){
 		$percorso_quasi_completo = substr($album['percorso_completo'], 0, $ultima_barra_al);
 		$campi=[];
-		$campi['query'] = 'SELECT * FROM album '
+		$campi['query'] = 'SELECT * FROM ' . Album::nome_tabella
 		. ' WHERE percorso_completo = :percorso_completo '
 		. ' AND record_cancellabile_dal = :record_cancellabile_dal ';
 		$campi['percorso_completo'] = $percorso_quasi_completo.'/';	
@@ -281,8 +303,21 @@ function leggi_album_per_id(int $album_id){
 	
 	// si vanno a leggere fotografie e video presenti in album
 	$float_foto='';
+	/**
+	 * Carousel - in bootstrap serve realizzare una serie di elementi
+	 * div class carousel-item di cui almeno uno active 
+	 * racchiusi da un paio di div 
+	 * div class carousel slide carousel-fade 
+	 *   div class carousel inner 
+	 *     (lista di carousel-item)
+	 *   /div
+	 *   bottone precedente
+	 *   bottone seguente 
+	 * /div
+	 */
+
 	$campi=[];
-	$campi['query'] = 'SELECT * FROM fotografie '
+	$campi['query'] = 'SELECT * FROM ' . Fotografie::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id_in_album = :record_id_in_album '
 	. ' ORDER BY titolo_fotografia, record_id ';
@@ -296,20 +331,37 @@ function leggi_album_per_id(int $album_id){
 	//dbg . str_replace(';', '; ', serialize($ret_foto)).'</p>';
 
 	$float_foto='';
+	$carousel_foto = '<div id="carouselAlbum" class="carousel slide carousel-fade" '
+	                .' data-bs-ride="true"  data-bs-interval="10000" >'
+	          . "\n".'  <div class="carousel-inner">';
+	$carousel_active = ' active';
 	if ( isset($ret_foto['numero']) && $ret_foto['numero'] > 0 ){
 		$foto = $ret_foto['data']; // è sempre un array 
 		//dbg echo var_dump($foto);
 		for ($i=0; $i < count($foto) ; $i++) { 
 			$float_foto .= get_item_foto_griglia($foto[$i]);
+			$carousel_item= get_carousel_foto($foto[$i]);
+			$carousel_item = str_ireplace(' active', $carousel_active, $carousel_item);
+			$carousel_active = '';
+			$carousel_foto .= $carousel_item;
 		}
 		//dbg echo var_dump($float_foto);
 	}
-	//dbg echo '<p style="font-family:monospace">Composizione elenco foto: <br>'
-	//dbg . str_replace('gt;', 'gt;<br>', htmlspecialchars($float_foto)).'</p>';
+	// chiusura carosello
+	$carousel_foto .= "\n".'  </div>' // carousel-inner 
+	. "\n".'  <button class="carousel-control-prev" type="button" data-bs-target="#carouselAlbum" data-bs-slide="prev">'
+	. "\n".'    <span class="carousel-control-prev-icon" aria-hidden="true"></span>'
+	. "\n".'    <span class="visually-hidden">Precedente</span>'
+	. "\n".'  </button>'
+	. "\n".'  <button class="carousel-control-next" type="button" data-bs-target="#carouselAlbum" data-bs-slide="next">'
+	. "\n".'    <span class="carousel-control-next-icon" aria-hidden="true"></span>'
+	. "\n".'    <span class="visually-hidden">Seguente</span>'
+	. "\n".'  </button>'
+	. "\n".'</div>';  // carouselAlbum 
 
 	$float_video='';
 	$campi=[];
-	$campi['query'] = 'SELECT * FROM video '
+	$campi['query'] = 'SELECT * FROM ' . Video::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id_in_album = :record_id_in_album '
 	. ' ORDER BY titolo_video, record_id ';
@@ -326,7 +378,7 @@ function leggi_album_per_id(int $album_id){
 	// lettura dettagli album 
 	$table_dettagli='<tr><td colspan="3">Nessun dettaglio caricato</td></tr>';
 	$campi=[];
-	$campi['query'] = 'SELECT * FROM album_dettagli '
+	$campi['query'] = 'SELECT * FROM ' . AlbumDettagli::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id_padre = :record_id_padre ' // quello dell'album per album_dettagli 
 	. ' ORDER BY chiave, valore, record_id '
@@ -400,10 +452,12 @@ function leggi_album_per_id(int $album_id){
 			. '</p>';
 			exit(1);
 		}
-		$didascalia=$ret_dida['data'][0];
-		$didascalia_id = $didascalia['record_id'];
-		$leggimi       = $didascalia['didascalia'];
-	} // lettura didascalia_id e leggii dalla tabella didascalie
+		if ($ret_dida['numero'] > 0){
+			$didascalia=$ret_dida['data'][0];
+			$didascalia_id = $didascalia['record_id'];
+			$leggimi       = $didascalia['didascalia'];
+		}
+	} // lettura didascalia_id e leggimi dalla tabella didascalie
 
 	// tutto pronto si passa ad esporre
 	include_once(ABSPATH.'aa-view/album-view.php');
@@ -414,21 +468,20 @@ function leggi_album_per_id(int $album_id){
  * Test 
  * https://www.fotomuseoathesis.it/aa-controller/album-controller.php?id=137&test=leggi_album_per_id
  * https://archivio.athesis77.it/aa-controller/album-controller.php?id=17&test=leggi_album_per_id
- * 
+ *
+	if ( isset($_GET['test']) && 
+			isset($_GET['id']) && 
+			$_GET['test'] == 'leggi_album_per_id' ) {
+		echo '<pre style="max-width:50rem;">debug on'."\n";
+		echo 'id: '. $_GET['id'] ."\n";
+		$ret = leggi_album_per_id($_GET['id']);
+		echo var_dump($ret);
+		echo 'fine'."\n";
+	}
+ *  
  */
-if ( isset($_GET['test']) && 
-		 isset($_GET['id']) && 
-		 $_GET['test'] == 'leggi_album_per_id' ) {
-	echo '<pre style="max-width:50rem;">debug on'."\n";
-	echo 'id: '. $_GET['id'] ."\n";
-	$ret = leggi_album_per_id($_GET['id']);
-	echo var_dump($ret);
-	echo 'fine'."\n";
-}
-//
 
-
-
+	
 
 /**
  * Va a inserire SOLO l'album partendo da un record di scansioni_disco 
@@ -443,9 +496,6 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 	$scan_h = New ScansioniDisco($dbh);
 	$alb_h  = New Album($dbh);
 	
-	echo '<h2 style="font-family:monospace">'. __FUNCTION__ . '</h2>';
-	echo '<p>input: '.$scansioni_id.'</p>';
-
 	if ($scansioni_id == 0){
 		// cerca il primo che c'è
 		$campi=[];
@@ -470,6 +520,23 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 		$campi['stato_lavori'] = ScansioniDisco::stato_da_fare;
 		$campi['record_id'] = $scansioni_id;
 	}
+
+	/**
+	 * restart pagina web dopo 5 secondi
+	 */
+	echo "<!doctype html>"
+	. "\r\n<html lang='it'>"
+	. "\r\n<head>"
+	. "\r\n  <meta charset='utf-8'>"
+	. "\r\n  <meta name='viewport' content='width=device-width, initial-scale=1'>"
+	. "\r\n  <meta name='robots' content='noindex, nofollow' />"
+	. "\r\n  <meta http-equiv='refresh' content='5' />"
+	. "\r\n  <title>Caricamento Album da deposito | Album | AMUVEFO</title>"
+	. "\r\n  <!-- jquery --><script src='https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js'></script>"
+	. "\r\n  <!-- bootstrap --><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet' >"
+	. "\r\n  <!-- icone --><link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css' rel='stylesheet' >"
+	. "\r\n</head>"
+	. "\r\n<body>";
 	echo '<p style="font-family:monospace">Ricerca >in: <br>'
 	. str_replace(';', '; ', serialize($campi)).'</p>';
 
@@ -652,7 +719,7 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 /** TEST 
  * 
  * https://www.fotomuseoathesis.it/aa-controller/album-controller.php?id=66&test=carica_album_da_scansioni_disco
- */
+ * 
 	if ( isset($_GET['test']) && 
 		 isset($_GET['id']) && 
 	   $_GET['test'] == 'carica_album_da_scansioni_disco') {
@@ -660,7 +727,8 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 		$ret = carica_album_da_scansioni_disco($_GET['id']);
 		echo 'fine'."\n";
 	}
-//
+ * 
+ */
 
 
 /** 
@@ -681,9 +749,6 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 function carica_album_dettagli_foto_video(int $scansioni_id){
 	$dbh    = New DatabaseHandler();
 	$alb_h  = New Album($dbh);
-
-	echo '<p style="font-family:monospace;">'
-	. 'Caricato album da: '.$scansioni_id . "</p>\n";
 
 	// legge scansioni_disco e carica album 
 	$ret_a = carica_album_da_scansioni_disco($scansioni_id);
@@ -719,6 +784,25 @@ function carica_album_dettagli_foto_video(int $scansioni_id){
 	} // ret_a ma senza record_id 
 
 	$album_id=$ret_a['record_id'];
+
+	/**
+	 * restart pagina web dopo 5 secondi
+	 */
+	echo "<!doctype html>"
+	. "\r\n<html lang='it'>"
+	. "\r\n<head>"
+	. "\r\n  <meta charset='utf-8'>"
+	. "\r\n  <meta name='viewport' content='width=device-width, initial-scale=1'>"
+	. "\r\n  <meta name='robots' content='noindex, nofollow' />"
+	. "\r\n  <meta http-equiv='refresh' content='5' />"
+	. "\r\n  <title>Caricamento Album | Album da deposito | AMUVEFO</title>"
+	. "\r\n  <!-- jquery --><script src='https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js'></script>"
+	. "\r\n  <!-- bootstrap --><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet' >"
+	. "\r\n  <!-- icone --><link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css' rel='stylesheet' >"
+	. "\r\n</head>"
+	. "\r\n<body>";
+
+	echo '<p class="h3" style="font-family:monospace;"> '. __FUNCTION__ .'</p>';
 	echo '<p style="font-family:monospace;">Caricato album_id: '
 	. $album_id . "<br>Passo ai dettagli</p>\n";
 	
@@ -792,19 +876,18 @@ function carica_album_dettagli_foto_video(int $scansioni_id){
  * https://www.fotomuseoathesis.it/aa-controller/album-controller.php?id=2199&test=carica_album_dettagli_foto_video
  * https://archivio.athesis77.it/aa-controller/album-controller.php?id=13&test=carica_album_dettagli_foto_video
  * 
+	if ( isset($_GET['test']) && 
+			isset($_GET['id']) && 
+			$_GET['test'] == 'carica_album_dettagli_foto_video' ) {
+		echo '<pre>debug on'."\n";
+		echo 'id: '. $_GET['id'] ."\n";
+		$ret = carica_album_dettagli_foto_video($_GET['id']);
+		echo var_dump($ret);
+		echo 'fine'."\n";
+		die(1);
+	}
+ * 
  */
-if ( isset($_GET['test']) && 
-	   isset($_GET['id']) && 
-		 $_GET['test'] == 'carica_album_dettagli_foto_video' ) {
-	echo '<pre>debug on'."\n";
-	echo 'id: '. $_GET['id'] ."\n";
-	$ret = carica_album_dettagli_foto_video($_GET['id']);
-	echo var_dump($ret);
-	echo 'fine'."\n";
-	die(1);
-}
-
-// dbg_here
 
 /**
  * Inserimento richiesta di accesso all'originale per tutto l'album 
@@ -817,7 +900,7 @@ function carica_richiesta_album(int $album_id){
 	$alb_h  = New Album($dbh);
 	$ric_h  = New Richieste($dbh);
 
-	if ($_COOKIE['abilitazione'] <= SOLALETTURA ){
+	if (get_set_abilitazione() <= SOLALETTURA ){
 		http_response_code(404);
 		echo '<pre style="color: red;"><strong>Operazione non consentita</strong></pre>'."\n";
 		exit(1);
@@ -1002,18 +1085,20 @@ function aggiungi_dettagli_album_da_album( int $album_id ) : array {
 } // aggiungi_dettagli_album_da_album()
 
 /**
+ * TEST
  * https://www.fotomuseoathesis.it/aa-controller/album-controller.php?id=13&test=aggiungi_dettagli_album_da_album
  * 
+	if ( isset($_GET['test']) && 
+				isset($_GET['id']) && 
+				$_GET['test'] == 'aggiungi_dettagli_album_da_album' ) {
+		echo '<pre>debug on'."\n";
+		echo 'id: '. $_GET['id'] ."\n";
+		$ret = aggiungi_dettagli_album_da_album($_GET['id']);
+		echo var_dump($ret);
+		echo 'fine'."\n";
+	}
+ * 
  */
- if ( isset($_GET['test']) && 
-			isset($_GET['id']) && 
-			$_GET['test'] == 'aggiungi_dettagli_album_da_album' ) {
-	echo '<pre>debug on'."\n";
-	echo 'id: '. $_GET['id'] ."\n";
-	$ret = aggiungi_dettagli_album_da_album($_GET['id']);
-	echo var_dump($ret);
-	echo 'fine'."\n";
-}
 
 
 /**

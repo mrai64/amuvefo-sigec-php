@@ -272,19 +272,69 @@ function get_autore_sigla_6(string $titolo) : string {
  * La funzione deve separare tutti i termini del nomefile
  * e andare a fare una ricerca per ciascun termine in elenco autori
  * 
+ * Potrebbe seguire la filosofia della funzione leggi() del model 
+ * e tornare un array di record
  * @param  string titolo o nome file
- * @return string "" oppure un cognome, nome da elenco autori
+ * @return array {0: autore, 1: sigla}
  */
-function get_autore(string $titolo) : string {
-	return "";
-}
+function get_autore(string $titolo) : array {
+	$autore='';
+	$sigla='';
+	// confronto senza maiuscole e minuscole
+	$titolo = strtolower($titolo);
+	// Autori
+	$dbh = New DatabaseHandler(); // no connessioni dedicate 
+	$auh = New Autori($dbh); // auh non auth perché sarebbe frainteso
+	$campi=[];
+	$campi["query"] = 'SELECT record_id, cognome_nome, sigla_6 FROM autori_elenco '
+	. "WHERE sigla_6 > '' "
+	. 'ORDER BY cognome_nome, sigla_6 ';
+	$ret_autori = $auh->leggi($campi);
+	if ( isset($ret_autori['error']) || $ret_autori['numero'] == 0 ){
+		return [$autore, $sigla];
+	}
+	$elenco_sigle   = [];
+	$elenco_cognomi = [];
+	$elenco_nomi    = [];
+	for ($i=0; $i < count($ret_autori["data"]); $i++) { 
+		$cognome_nome = $ret_autori['data'][$i]['cognome_nome'];
+		$cognome_nome = strtolower($cognome_nome);
+		$cognome_nome = preg_replace('/[^a-zA-Z0-9\'\,\s]/u', ' ', $cognome_nome);
+		@list($cognome, $nome)=explode(', ', $cognome_nome);
+		$elenco_cognomi[$i]=$cognome.' '.$nome;
+		$elenco_nomi[$i]   =$nome.' '.$cognome;
+		$elenco_sigle[$i]  =$ret_autori['data'][$i]['sigla_6'];
+	}
+	foreach($elenco_nomi as $id => $nome){
+		if (str_contains($titolo, $nome)){
+			$sigla = $elenco_sigle[$id];
+			$autore= $ret_autori['data'][$id]['cognome_nome'];
+			return [$autore, $sigla];
+		}
+	}
+	foreach($elenco_cognomi as $id => $cognome){
+		if (str_contains($titolo, $cognome)){
+			$sigla = $elenco_sigle[$id];
+			$autore= $ret_autori['data'][$id]['cognome_nome'];
+			return [$autore, $sigla];
+		}
+	}
+	foreach($elenco_sigle as $id => $sigla){
+		if (str_contains($titolo, $sigla)){
+			$sigla = $elenco_sigle[$id];
+			$autore= $ret_autori['data'][$id]['cognome_nome'];
+			return [$autore, $sigla];
+		}
+	}
+	return [$autore, $sigla];
+} // get_autore()
 
 function get_durata(string $titolo) : string{
 		// check 00h00m00s
 		$durata = '';
-		if (preg_match('/\d{2}h\d{2}m\d{2}s/', $titolo, $match)){
+		if (preg_match('/\d{2}h\d{2}m\d{2}s/u', $titolo, $match)){
 			$durata = trim($match[0]);
-		} elseif (preg_match('/\dh\d{2}m\d{2}s/', $titolo, $match)){
+		} elseif (preg_match('/\dh\d{2}m\d{2}s/u', $titolo, $match)){
 			$durata = '0'.trim($match[0]);
 		}
 		return $durata;

@@ -160,16 +160,15 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 	$cartelle_h = New Cartelle($dbh);
 	$errori = '';
 
-	echo '<h2 style="font-family:monospace;">Carica in scansioni_disco da scansioni_cartelle</h2>';
-
+	
 	// Si recupera "il primo che capita" 
 	if ($cartella_id == 0){
-
+		
 		$campi=[];
 		$campi['query'] = 'SELECT * FROM ' . Cartelle::nomeTabella 
 		. ' WHERE stato_lavori IN ( :stato_lavori ) LIMIT 1 ';
 		$campi['stato_lavori']=Cartelle::stato_da_fare;
-	
+		
 	} else {
 		// lo stato_lavori viene ignorato, intenzionalmente 
 		$cartelle_h->set_record_id($cartella_id);
@@ -177,9 +176,9 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 		$campi['query'] = 'SELECT * FROM ' . Cartelle::nomeTabella
 		. ' WHERE record_id = :record_id ';
 		$campi['record_id'] = $cartelle_h->get_record_id();	
-
+		
 	}
-
+	
 	$ret_car = $cartelle_h->leggi($campi);
 	// arrivati errori
 	if (isset($ret_car['error'])){
@@ -191,7 +190,7 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 		. '</p>';
 		exit(1);
 	}
-
+	
 	// nessun errore ma nessun record
 	if ($ret_car['numero'] == 0){
 		http_response_code(404);
@@ -203,7 +202,25 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 		echo $res; 
 		exit(1);
 	}
-
+	
+	/**
+	 * restart pagina web dopo 5 secondi
+	 */
+	echo "<!doctype html>"
+	. "\r\n<html lang='it'>"
+	. "\r\n<head>"
+	. "\r\n  <meta charset='utf-8'>"
+	. "\r\n  <meta name='viewport' content='width=device-width, initial-scale=1'>"
+	. "\r\n  <meta name='robots' content='noindex, nofollow' />"
+	. "\r\n  <meta http-equiv='refresh' content='5' />"
+	. "\r\n  <title>Caricamento in tabella deposito | Cartelle da aggiungere | AMUVEFO</title>"
+	. "\r\n  <!-- jquery --><script src='https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js'></script>"
+	. "\r\n  <!-- bootstrap --><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet' >"
+	. "\r\n  <!-- icone --><link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css' rel='stylesheet' >"
+	. "\r\n</head>"
+	. "\r\n<body>";
+	
+	echo '<h2 style="font-family:monospace;">Carica in scansioni_disco da scansioni_cartelle</h2>';
 	/** 
 	 * Posso lavorare solo le cartelle "da fare" o 
 	 * posso lavorare le cartelle che non sono "completati"
@@ -311,10 +328,15 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 		// .DS_Store ecc 
 		while ($elemento = $contenuto_fs->read()) {
 			if ($elemento[0] == '.' ){
-				continue; // 
+				continue;
 			} 
 
 			$percorso_piu_elemento = str_ireplace( '//', '/', $percorso_con_abspath.'/'.$elemento);
+			if (!is_dir($percorso_piu_elemento) && !is_file($percorso_piu_elemento)){
+				echo "<p style='font-family:monospace;'>"
+				. "Non è dir, non è file ...che è? $percorso_piu_elemento</p>";
+				exit(1);
+			}
 
 			// aggiunta alla tabella scansioni_cartelle 
 			if (is_dir($percorso_piu_elemento) ){
@@ -417,11 +439,11 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 		}
 	} // is_dir()
 
-	if (is_file($percorso_piu_elemento)){
+	if (is_file($percorso_con_abspath)){
 		// Però però però dovrebbe essere una cartella però... 
 
 		// recupero estensione 
-		$punto_estensione = strrpos($percorso_piu_elemento, '.');
+		$punto_estensione = strrpos($percorso_con_abspath, '.');
 		if ($punto_estensione===false){
 			$estensione='?';
 		} else {
@@ -447,7 +469,7 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 		$campi['nome_file']  = $elemento;
 		$campi['estensione'] = $estensione;
 		// valutare lo spostamento del calcolo nella funzione di carico dettagli del file 
-		$campi['codice_verifica'] = md5_file($percorso_piu_elemento); // rischio timeout
+		$campi['codice_verifica'] = md5_file($percorso_con_abspath); // rischio timeout
 		$campi['tinta_rgb']  = '000000';
 		$ret_car = $disco_h->aggiungi($campi);
 
