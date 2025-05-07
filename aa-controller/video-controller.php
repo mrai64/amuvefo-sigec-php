@@ -84,7 +84,7 @@ function leggi_video_per_id(int $video_id){
 
 	$richiesta_originali = '#solalettura';
 	$aggiungi_dettaglio  = '#sololettura';
-	if (isset($_COOKIE['abilitazione']) && $_COOKIE['abilitazione'] > SOLALETTURA){
+	if (get_set_abilitazione() > SOLALETTURA){
 		$richiesta_originali = URLBASE.'video.php/richiesta/'
 		. $video['record_id']
 		. '?return_to=' . urlencode($_SERVER['REQUEST_URI']);

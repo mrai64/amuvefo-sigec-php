@@ -49,7 +49,7 @@ if ($richiesta === 'elenco-autori'){
 // operazioni ricercate amministratore - sostituisce controllo-abilitazione.php
 // può essere "1 lettura" ma anche "'1 lettura'"
 // ("'7 amministrazione'" < "1 lettura" ) === true
-$abilitazione_cookie   = str_replace("'", '', $_COOKIE['abilitazione']);
+$abilitazione_cookie   = get_set_abilitazione();
 $abilitazione_modifica = str_replace("'", '', constant('MODIFICA'));
 if (strncmp($abilitazione_cookie, $abilitazione_modifica, 2) < 0){
 	http_response_code(401); // Unauthorized

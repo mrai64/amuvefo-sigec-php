@@ -33,7 +33,7 @@
 			&nbsp;|&nbsp; 
 			<a href='/ricerca.php'><i class="h2 bi bi-search" ></i></a>
 			<?php // per sola consultazione non appare
-			if ($_COOKIE['abilitazione'] > SOLALETTURA){
+			if (get_set_abilitazione() > SOLALETTURA){
 				echo "&nbsp;|&nbsp; "
 				. '<a href="'. $richiesta_originali . '" '
 				. 'title="[Richiesta foto]" ><i class="h2 bi bi-bookmark-check"></i></a>'."\n";
@@ -66,7 +66,7 @@
 			<a href="<?=$foto_seguente;   ?>" title="[next in album]"><i class="h2 bi bi-arrow-right-square-fill"></i></a>
 			&nbsp;&nbsp;&nbsp;
 			<?php // didascalia - 
-			if ($_COOKIE['abilitazione'] > SOLALETTURA){
+			if (get_set_abilitazione() > SOLALETTURA){
 				if ($didascalia_id > 0){
 					// modifica
 					echo "<a href='".URLBASE.'didascalie.php/aggiorna/'.$didascalia_id."' title='Modifica didascalia'>"
@@ -96,7 +96,7 @@
 							<th scope="col">Chiave ricerca</th>
 							<th scope="col">Valore</th>
 							<th scope="col"><a href="<?=$aggiungi_dettaglio; ?>" 
-							<?php echo ($_COOKIE['abilitazione'] > SOLALETTURA)? '' : ' class="link-secondary" ' ;?>
+							<?php echo (get_set_abilitazione() > SOLALETTURA)? '' : ' class="link-secondary" ' ;?>
 							title="aggiungi dettaglio"><i class="h2 bi bi-pencil-square"></i></a></th>
 						</tr>
 					</thead>
@@ -111,7 +111,7 @@
 								echo '<td class="fs-6" scope="row">'.$dettaglio['chiave'].'</td>'."\n";
 								echo '<td class="fs-6">'.$dettaglio['valore'].'</td>'."\n";
 
-								if (isset($_COOKIE['abilitazione']) && $_COOKIE['abilitazione'] > SOLALETTURA ){
+								if (get_set_abilitazione() > SOLALETTURA ){
 									echo '<td nowrap><a href="'.URLBASE.'fotografie.php/modifica_dettaglio/'.$dettaglio['record_id'].'?f='.$dettaglio['record_id_padre'].'" '
 									. 'title="modifica dettaglio"><i class="h4 bi bi-pencil-square"></i></a>'
 									. '<a href="'.URLBASE.'fotografie.php/elimina_dettaglio/'.$dettaglio['record_id'].'?f='.$dettaglio['record_id_padre'].'" '

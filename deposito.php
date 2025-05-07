@@ -87,12 +87,7 @@ if ($richiesta === 'cartella'){
 }
 
 // check 2 - livello abilitazione per tutte le richieste: almeno modifica
-if (!isset($_COOKIE['abilitazione'])){
-	http_response_code(404); // know not found
-	echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non autorizzata.</strong></pre>'."\n";
-	exit(1);	
-}
-$cookie_abilitazione = str_replace("'", '', $_COOKIE['abilitazione']);
+$cookie_abilitazione = get_set_abilitazione();
 $abilitazione_richiesta = str_replace("'", '', constant('MODIFICA'));
 if (strcmp($cookie_abilitazione, $abilitazione_richiesta) < 0){
 	http_response_code(404); // know not found

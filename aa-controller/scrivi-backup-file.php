@@ -11,6 +11,11 @@
  * Se la data è convenzionalmente 1976-01-01 00:00:00
  * il backup della tabella è totale, altrimenti 
  * si parte dal datetime indicato per >= 
+ * 
+ * Nota: Accesso diretto alle tabelle, non si passa per i model.
+ * I model ci son per tanti ma non per tutti, serve realizzare un 
+ * generatore di php che scriva il model in automatico partendo
+ * da una tabella bidimensionale di dati - definizioni campi
  */
 if (!defined('ABSPATH')){
 	include_once('../_config.php');
