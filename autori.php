@@ -24,6 +24,7 @@ $richiesta=$pezzi['operazioni'][0];
 switch($richiesta){
 	// queste si
 	case 'elenco-autori':
+	case 'aggiungi':
 	case 'modifica':
 		break;
 
@@ -67,13 +68,26 @@ if (count($pezzi['operazioni']) < 2){
 // check 2 - il parametro dev'essere intero senza segno 
 $autore_id = $pezzi['operazioni'][1];
 
+// aggiungi 1 di 2 
+// espone il modulo  
+if ($richiesta == 'aggiungi' && !isset($_POST['aggiungi_autore'])){
+	aggiungi_autore([]);
+	exit(0);
+} 
+// aggiungi 2 di 2 
+// aggiungi dal modulo  
+if ($richiesta == 'aggiungi' ){
+	aggiungi_autore($_POST);
+	exit(0);
+}
+
 // modifica 1 di 2 
 // espone il modulo  
 if ($richiesta == 'modifica' && !isset($_POST['aggiorna_autore'])){
 	modifica_autore($autore_id, []);
 	exit(0);
 } 
-// modifica_dettaglio 2 di 2 
+// modifica 2 di 2 
 // aggiorna dal modulo  
 if ($richiesta == 'modifica' ){
 	modifica_autore($autore_id, $_POST);

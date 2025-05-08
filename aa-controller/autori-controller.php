@@ -156,3 +156,46 @@ function modifica_autore(int $autore_id, array $dati_input){
   exit(0);
 
 } // modifica_autore()
+
+/**
+ * 
+ */
+function aggiungi_autore(array $dati_input){
+  // necessari 
+  // se non ci sono i dati si espone il modulo di modifica 
+  if (!isset($dati_input['cognome_nome'])){
+    require_once(ABSPATH.'aa-view/autori-aggiungi-view.php');
+    exit(0);
+  }
+  // se ci sono si va ad inserire
+  $dbh   = new DatabaseHandler();
+  $aut_h = new Autori($dbh);
+  $aut_h->set_cognome_nome($dati_input['cognome_nome']);
+  $aut_h->set_detto($dati_input['detto']);
+  $aut_h->set_fisica_giuridica($dati_input['fisica_giuridica']);
+  $aut_h->set_url_autore($dati_input['url_autore']);
+  $campi=[];
+  $campi['cognome_nome'] = $aut_h->get_cognome_nome();
+  $campi['detto'] = $aut_h->get_detto();
+  $campi['fisica_giuridica'] = $aut_h->get_fisica_giuridica();
+  $campi['url_autore'] = $aut_h->get_url_autore();
+  $ret_ins = $aut_h->aggiungi($campi);
+  if (isset($ret_ins['error'])){
+    $_SESSION['messaggio']="Si è verificato un errore nell'insermento "
+    . "dei dati dell'autore.<br>Non proseguire e inviare "
+    . "questa schermata al comitato di gestione."
+    . "<br>" . $ret_ins['message'];
+    require_once(ABSPATH.'aa-view/autori-aggiungi-view.php');
+    exit(0);
+  }
+  // Tutto bene
+  $_SESSION['messaggio']="Inserimento eseguito.";
+  $autore['cognome_nome'] = $aut_h->get_cognome_nome();
+  $autore['detto'] = $aut_h->get_detto();
+  $autore['fisica_giuridica'] = $aut_h->get_fisica_giuridica();
+  $autore['url_autore'] = $aut_h->get_url_autore();
+  require_once(ABSPATH.'aa-view/autori-aggiungi-view.php');
+  exit(0);
+
+} // modifica_autore()
+
