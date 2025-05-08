@@ -1051,7 +1051,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		. ' LIMIT 1 ';
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 		$campi['stato_lavori'] = Fotografie::stato_da_fare;
-
+		
 	} else {
 		// cerca se la fotografia_id è in tabella fotografie
 		$foto_h->set_record_id($fotografia_id);
@@ -1062,12 +1062,13 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 		$campi['record_id'] = $foto_h->get_record_id(); 		
 	}	
+	// esegui ricerca 
 	$ret_foto = $foto_h->leggi($campi);
 	if (isset($ret_foto['error'])){
-		$ret = '<h2>Errore </h2>' 
-		. '<p>Non è stato possibile rintracciare la fotografia </p>'
-		. '<pre>campi: ' . serialize($campi)
-		. '<br>' .(isset($ret_foto['message'])?$ret_foto['message']:'');
+		$ret = '<h2 style="font-family:monospace;">Errore </h2>' 
+		. '<p style="font-family:monospace;">Non è stato possibile rintracciare la fotografia indicata.'
+		. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
+		. '<br>' .$ret_foto['message'];
 		http_response_code(404);
 		echo $ret;
 		exit(1);
@@ -1080,9 +1081,10 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		exit(0);
 	}
 	if ($ret_foto['numero'] == 0 ){
-		$ret = '<h2>Errore</h2>' 
-		. '<p>Non è stata rintracciata la fotografia richiesta.</p>'
-		. '<pre>campi: ' . serialize($campi);
+		$ret = '<h2 style="font-family:monospace;">Errore </h2>' 
+		. '<p style="font-family:monospace;">Non è stato possibile rintracciare la fotografia indicata.'
+		. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
+		. '<br>ret: ' . str_ireplace(';', '; ', serialize($ret_foto));
 		http_response_code(404);
 		echo $ret;
 		exit(1);
@@ -1213,7 +1215,11 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		echo $ret;
 	}
 
-	// cerca se in fotografie_dettagli ci sono già dettagli dedicati exif 
+	/**
+	 * EXIF - inizio
+	 */
+	echo '<p style="font-family:monospace;">Dati EXIF.</p>';
+	// 1. cerca se in fotografie_dettagli ci sono già dettagli dedicati exif 
 	$campi=[];
 	$campi['query']= 'SELECT * FROM '. FotografieDettagli::nome_tabella 
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
@@ -1222,15 +1228,16 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 	$campi['record_id_padre']         = $foto_h->get_record_id(); 
 	$ret_det = $fdet_h->leggi($campi);
+	// 2. errore n lettura
 	if (isset($ret_det['error'])){
-		// cambio stato al record 
+		// cambio stato al record - non lavorabile
 		$ret_stato = $foto_h->set_stato_lavori_in_fotografie($fotografia_id, Fotografie::stato_completati);
 		if (isset($ret_stato['error'])){
 			$ret = '<h2>Errore</h2>'
 			. '<p>Non è stato possibile cambiare stato_lavori alla fotografia ['. $fotografia_id .']</p>'
 			. '<p>Per: ' . $ret_stato['message'];
 			echo $ret;
-		}
+		} // errore nel cambio stato 
 
 		// ret_det error
 		$ret = '<h2>Errore</h2>'
@@ -1241,18 +1248,16 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		http_response_code(404);
 		echo $ret;
 		exit(1);
-	}
+	} // errore in lettura fotografie_dettagli 
+	// 3. dati già presenti 
 	if ($ret_det['numero'] > 0){
 		echo '<h3 style="font-family:monospace;">Avviso</h3>';
 		echo '<p style="font-family:monospace;">Saranno aggiunti '
-		. 'dettagli ai dettagli già presenti.<br>'
-		. str_replace(';', '; ', serialize($ret_det['data'])).'</p>';
-
+		. 'dettagli ai dettagli già presenti che sono elencati qui sotto.<br>'
+		. str_ireplace(';', '; ', serialize($ret_det['data'])).'</p>';
 	}
-	echo '<p style="font-family:monospace;">Dati EXIF.</p>';
 
-	// considerazioni sui dati exif - incrociate 
-	// exif FILE FileName - escluso già presente nei dati 
+	// 4. lettura dati nel file jpg
 	$exif = exif_read_data($foto_file, null, true, false );
 	if ($exif === false){
 		$ret = '<h2 style="font-family:monospace;">Errore</h2>'
@@ -1265,8 +1270,8 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	echo '<p style="font-family:monospace;width:90%;max-width:90%;">Sono stati rintracciati dati exif <br>';
 	$exif_str = serialize($exif);
 	$re = '/[^a-zA-Z0-9_\-,\s\/:";%]/i';
-	$exif_str = preg_replace($re, '. ', $exif_str);
-	$exif_str = str_ireplace('s:',' s:',$exif_str);
+	$exif_str = preg_replace($re, ' ', $exif_str); // sostituisco i caratteri non stampabili con spazi
+	$exif_str = str_ireplace('s:',' s:',$exif_str); // separo gli indicatori di stringa:lunghezza per consentire l'a-capo
 	echo $exif_str . '</p>';
 
 	// oltre i 300dpi sono scansioni 800 dpi 1200 dpi 4000 dpi 
@@ -1285,24 +1290,31 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 			// scansioni
 			$ret_det = carico_dettaglio( $fotografia_id, 'materia/tecnica', 'diapositiva/pellicola');
 			$ret_det = carico_dettaglio( $fotografia_id, 'dimensione/unita-di-misura', 'mm');
-			$ret_det = carico_dettaglio( $fotografia_id, 'dimensione/altezza-larghezza', '24 x 36');
+			$ret_det = carico_dettaglio( $fotografia_id, 'dimensione/altezza',  '24 mm');
+			$ret_det = carico_dettaglio( $fotografia_id, 'dimensione/larghezza','36 mm');
 			$aggiunti[] = "'materia/tecnica': 'diapositiva/pellicola'";
 			$aggiunti[] = "'dimensione/unita-di-misura': 'mm'";
-			$aggiunti[] = "'dimensione/altezza-larghezza': '24 x 36'";
+			$aggiunti[] = "'dimensione/altezza': '24 mm'";
+			$aggiunti[] = "'dimensione/larghezza': '36 mm'";
 		}
 	} // $exif['IFD0']['Make'] 
 
 	// sequenza di dettagli exif 
-	if (isset($exif['COMPUTED'])){
-		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/unita-di-misura', 'px');
-		$altezza   = $exif['COMPUTED']['Height'];
-		$larghezza = $exif['COMPUTED']['Width'];
-		// TODO scaglioni 800px 1080px 1440px 1920px 2500px 3000px 4000px 6000px
-		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/altezza', $altezza);		
-		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/larghezza', $larghezza);		
-		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/altezza-larghezza', $altezza . ' x ' . $larghezza);
-		$aggiunti[] = "'dimensione/altezza-larghezza': '$altezza x $larghezza'";
-	} // exif
+	/**
+	 * Per le scansioni non interessano i dati di scansione, per le foto native digitali 
+	 * non interessano le dimensioni del sensore, insomma non interessano.
+		if (isset($exif['COMPUTED'])){
+			$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/unita-di-misura', 'px');
+			$altezza   = $exif['COMPUTED']['Height'];
+			$larghezza = $exif['COMPUTED']['Width'];
+			// TODO scaglioni 800px 1080px 1440px 1920px 2500px 3000px 4000px 6000px
+			$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/altezza', $altezza);		
+			$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/larghezza', $larghezza);		
+			$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/altezza-larghezza', $altezza . ' x ' . $larghezza);
+			$aggiunti[] = "'dimensione/altezza-larghezza': '$altezza x $larghezza'";
+		} // exif
+	 * 
+	 */
 	
 	// data scansione, spesso
 	// Se è uguale non si inserisce un doppione
@@ -1328,6 +1340,8 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	} // $exif['FILE']['FileDateTime']
 	
 	// Si verifica il caso che il dato c'è ma vale " "
+	// TODO tabella conversioni per identificare le sigle nelle macchine digitali che
+	// TODO   vanno convertite in un valore nome/diritti
 	if (isset($exif['IFD0']['Copyright'])){
 		$copy_det = $exif['IFD0']['Copyright'];
 		$copy_det = trim($copy_det);
@@ -1349,38 +1363,54 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		}
 	} // $exif['IFD0']['Copyright']
 	
-	/*
-	 * Fine dati EXIF 
+	/**
+	 * EXIF - fine
 	 */
 	echo '<p style="font-family:monospace;">Fine esame dati exif</p>';
 	
-	echo '<p style="font-family:monospace">inizio esame luogo/area-geografica';
-	$luogo = get_luogo_localita($nome_file);
-	if ($luogo>''){
-		$ret_det   = carico_dettaglio( $fotografia_id, 'luogo/area-geografica', $luogo);
-		// sfilo 
-		$nome_file = str_ireplace($luogo, '', $nome_file);
-		$nome_file = trim($nome_file);
-		echo "<br>Per effetto dell'inserimento di luogo/area-geografica, ora nomefile è: " .$nome_file.'<br>';
-		$aggiunti[] = "'luogo/area-geografica': ".$luogo;
-	} // luogo/area-geografica 
-	echo '<br>Fine esame luogo/area-geografica: '.$luogo.'.</p>';
-	//dbg echo $nome_file;
-	
-	// luogo/comune 
-	echo '<p style="font-family:monospace">inizio esame luogo/comune';
-	$luogo = get_luogo_comune($nome_file);
-	if ($luogo>''){
-		$ret_det   = carico_dettaglio( $fotografia_id, 'luogo/comune', $luogo);
-		// sfilo 
-		$nome_file = str_ireplace($luogo, '', $nome_file);
-		$nome_file = trim($nome_file);
-		echo "<br>Per effetto dell'inserimento di luogo/comune, ora nomefile è: " .$nome_file.'<br>';
-		$aggiunti[] = "'luogo/comune': ".$luogo;
-	} // luogo/comune 
-	echo '<br>Fine esame luogo/comune: '.$luogo.'.</p>';
-	//dbg echo $nome_file;
-	
+	/**
+	 * LUOGO are-geografica, comune, nazione, provincia 
+	 * 
+		echo '<p style="font-family:monospace">inizio esame luogo/area-geografica';
+		$luogo = get_luogo_localita($nome_file);
+		if ($luogo>''){
+			$ret_det   = carico_dettaglio( $fotografia_id, 'luogo/area-geografica', $luogo);
+			// sfilo 
+			$nome_file = str_ireplace($luogo, '', $nome_file);
+			$nome_file = trim($nome_file);
+			echo "<br>Per effetto dell'inserimento di luogo/area-geografica, ora nomefile è: " .$nome_file.'<br>';
+			$aggiunti[] = "'luogo/area-geografica': ".$luogo;
+		} // luogo/area-geografica 
+		echo '<br>Fine esame luogo/area-geografica: '.$luogo.'.</p>';
+		//dbg echo $nome_file;
+
+		// luogo/comune 
+		echo '<p style="font-family:monospace">inizio esame luogo/comune';
+		$luogo = get_luogo_comune($nome_file);
+		if ($luogo>''){
+			$ret_det   = carico_dettaglio( $fotografia_id, 'luogo/comune', $luogo);
+			// sfilo 
+			$nome_file = str_ireplace($luogo, '', $nome_file);
+			$nome_file = trim($nome_file);
+			echo "<br>Per effetto dell'inserimento di luogo/comune, ora nomefile è: " .$nome_file.'<br>';
+			$aggiunti[] = "'luogo/comune': ".$luogo;
+		} // luogo/comune 
+		echo '<br>Fine esame luogo/comune: '.$luogo.'.</p>';
+		//dbg echo $nome_file;
+	 * 
+	 */
+	echo '<p style="font-family:monospace">inizio esame luogo/*';
+		$kv = get_luogo($nome_file);
+		if (isset($kv['chiave']) && $kv['chiave'] > ""){
+			if (isset($kv['luogo']) && $kv['luogo'] > ""){
+				echo '<br>'.$kv['chiave'].': '.$kv['luogo'];
+				$ret_det   = carico_dettaglio( $fotografia_id, $kv['chiave'], $kv['luogo']);
+				$aggiunti[] = "'".$kv['chiave']."': ".$kv['luogo'];
+				}
+		}
+		// TODO Serve trovare il modo di stabilire che la località è in testa al $titolo 
+		// TODO   per rimuoverla dal $titolo 
+	echo '<br>Fine esame luogo/*: '.(isset($kv['luogo']) ? $kv['luogo'] : "").'</p>';	
 	
 	// codice/autore/athesis
 	echo '<p style="font-family:monospace">inizio esame nome/autore';
