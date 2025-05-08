@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?= $album["titolo_album"] ?> | Album | AMUVEFO</title>
+	<title><?=$album["titolo_album"]; ?> | Album | AMUVEFO</title>
 	<meta name='robots' content='noindex, nofollow' />
 	<!-- jquery --><script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 	<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" >
@@ -66,7 +66,7 @@
 		<p class="fs-2">Fotografie
 			<a data-bs-toggle="collapse" href="#fotoList" aria-expanded="false" aria-controls="Lista fotografie dell'album"><i class="fs-4 bi bi-eye-fill"></i></a>
 		</p>
-		<div id="fotoList" class="collapse grid clearfix">
+		<div id="fotoList" class="collapse.show grid clearfix">
 			<?=$float_foto; ?> 
 		</div><!-- griglia foto -->
 	</div>
@@ -82,7 +82,7 @@
 		<p class="fs-2">Dati dettagli
 			<a href="#dettagliList" data-bs-toggle="collapse" aria-expanded="false" aria-controls="Lista dettagli album"><i class="fs-4 bi bi-eye-fill"></i></a>	
 		</p>
-		<div id="dettagliList">
+		<div id="dettagliList" class="collapse">
 			<table class="table table-striped border-secondary"> 
 				<thead>
 					<tr>
@@ -104,7 +104,7 @@
 			<a data-bs-toggle="collapse" href="#carosello" aria-expanded="false" aria-controls="Carosello foto dell'album"><i class="fs-4 bi bi-eye-fill"></i></a>
 		</p>
 	</div>
-	<div id="carosello">
+	<div id="carosello" class="collapse">
 		<?=$carousel_foto; ?>
 	</div>
 </div>
