@@ -1433,34 +1433,26 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		// valori predefiniti se manca 
 		if ($sigla_autore==''){
 			$foto_file_maiuscole = strtoupper($foto_file);
-			if (str_contains($foto_file_maiuscole, '1AUTORI')){
-				$sigla_autore='AAA001';
-			} elseif (str_contains($foto_file_maiuscole, '2AUTOF')){
-				$sigla_autore='AAA002';
-			} elseif (str_contains($foto_file_maiuscole, '3FONDI')){
-				$sigla_autore='AAA003';
-			} elseif (str_contains($foto_file_maiuscole, '4LIBRI')){
-				$sigla_autore='AAA004';
-			} elseif (str_contains($foto_file_maiuscole, '5LOCA')){
-				$sigla_autore='AAA005';
-			} elseif (str_contains($foto_file_maiuscole, '6LOCA')){
-				$sigla_autore='AAA006';
-			} elseif (str_contains($foto_file_maiuscole, '7DATI')){
-				$sigla_autore='AAA007';
-			} elseif (str_contains($foto_file_maiuscole, '8SCUOLA')){
-				$sigla_autore='AAA008';
-			} elseif (str_contains($foto_file_maiuscole, '9TERRI')){
-				$sigla_autore='AAA009';
-			} elseif (str_contains($foto_file_maiuscole, '10VIDEO')){
-				$sigla_autore='AAA010';
-			}
+			$sigla_autore = match (true) {
+				str_contains($foto_file_maiuscole, '1AUTORI') => 'AAA001',
+				str_contains($foto_file_maiuscole, '2AUTOF')  => 'AAA002',
+				str_contains($foto_file_maiuscole, '3FONDI')  => 'AAA003',
+				str_contains($foto_file_maiuscole, '4LIBRI')  => 'AAA004',
+				str_contains($foto_file_maiuscole, '5LOCA')   => 'AAA005',
+				str_contains($foto_file_maiuscole, '6LOCA')   => 'AAA006<',
+				str_contains($foto_file_maiuscole, '7DATI')   => 'AAA007',
+				str_contains($foto_file_maiuscole, '8SCUOLA') => 'AAA008',
+				str_contains($foto_file_maiuscole, '9TERRI')  => 'AAA009',
+				str_contains($foto_file_maiuscole, '10VIDEO') => 'AAA010',
+			};
 		}
 		$ret_det   = carico_dettaglio( $fotografia_id, 'codice/autore/athesis', $sigla_autore);
+		$aggiunti[]= "'codice/autore/athesis': ".$sigla_autore;
+
 		// sfilo 
 		$nome_file = str_replace($sigla_autore, '', $nome_file);
 		$nome_file = trim($nome_file);
 		echo "<br>Per effetto dell'inserimento di codice/autore/athesis, ora nomefile è: " .$nome_file.'<br>';
-		$aggiunti[] = "'codice/autore/athesis': ".$sigla_autore;
 		// codice/autore/sigla 
 	echo '<br>Fine esame codice/autore/athesis</p>';
 	
@@ -1511,15 +1503,20 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	$dimensioni="";
 	if (preg_match('/cm_\d{2}x\d{2}/', $nome_file, $match)){
 		$dimensioni = trim($match[0]);
+
 		$dimensioni = str_ireplace('cm_', '', $dimensioni);
-	}
-	if ($dimensioni>''){
+		[ $altezza, $larghezza ] = explode('x', $dimensioni);
+		$dimensioni = str_ireplace('x', ' x ', $dimensioni);
+		$dimensioni .= ' cm';
+
 		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/unita-di-misura', 'cm');
 		$aggiunti[] = 'dimensione/unita-di-misura: cm';
-		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/altezza-larghezza', $dimensioni);
-		$aggiunti[] = 'dimensione/unita-di-misura: '.$dimensioni;
+		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/altezza', $altezza.' cm');
+		$aggiunti[] = 'dimensione/altezza: '.$altezza.' cm';
+		$ret_det   = carico_dettaglio( $fotografia_id, 'dimensione/larghezza', $larghezza.' cm');
+		$aggiunti[] = 'dimensione/larghezza: '.$larghezza.' cm';
 		// sfilo 
-		$nome_file = trim(str_ireplace('cm_'.$dimensioni, '', $nome_file));		
+		$nome_file = trim(str_ireplace('cm_'.$match[0], '', $nome_file));		
 		echo "<br>Per effetto dell'inserimento di dimensioni, ora nomefile è: " .$nome_file.'<br>';
 	}
 	echo '<br>Fine esame cm_* : '.$dimensioni.'</p>';
