@@ -266,6 +266,10 @@ function get_ente_societa(string $titolo) : string {
  * che sono archiviati. Si è deciso di assegnare un codice
  * simile al codice fiscale, e viene riportato nel nome di
  * ogni cartella.
+ * 
+ * @param  string $titolo nome file 
+ * @return string $sigla_6 codice ABCABC basato su cognome e nome
+ * 
  */
 function get_autore_sigla_6(string $titolo) : string {
 	// Autori
@@ -291,6 +295,45 @@ function get_autore_sigla_6(string $titolo) : string {
 	}
 	return "";
 } // get_autore_sigla_6
+
+ /** 
+ * La sigla_6 è un codice composto da 3 lettere del cognome e 3 lettere
+ * del nome, oppure AAAnnn per autore anonimo nelle 10 sale di consultazione.
+ * Se viene identificata la sigla nel nome file vengono tornati il dato
+ * sigla_6 e il cognome, nome dell'autore. 
+ * 
+ * @param  string $titolo nome file della cartella o immagine 
+ * @return array  $ret['autore', 'sigla_6'] | ["", ""]
+ */
+function get_autore_e_sigla(string $titolo) : array{
+	$ret = ['autore' => "", 'sigla_6' => ""];
+
+	// crea elenco 
+	$dbh   = New DatabaseHandler(); // no connessioni dedicate
+	$aut_h = New Autori($dbh);
+	$campi=[];
+	$campi['query']= 'SELECT cognome_nome, sigla_6 FROM ' . Autori::nome_tabella
+	. " WHERE sigla_6 > '' ";
+	$ret_aut = $aut_h->leggi($campi);
+	if (isset($ret_aut['error'])){
+		return $ret;
+	}
+	if (isset($ret_aut['error']) || $ret_aut['numero'] < 1){
+		return $ret;
+	}
+	// loop di ricerca in $titolo di $sigla
+	$titolo = strtoupper($titolo);
+	$i_max  = count($ret_aut['data']);
+	for ($i=0; $i < $i_max; $i++) { 
+		$sigla  = $ret_aut['data'][$i]['sigla_6'];
+		if (str_contains( $titolo, $sigla)){
+			$ret['autore'] = $ret_aut['data'][$i]['cognome_nome'];
+			$ret['sigla_6'] = $sigla;
+			return $ret;
+		}
+	}
+	return $ret;
+} // get_autore_e_sigla
 
 /**
  * elenco autori Cognome, nome

@@ -1412,23 +1412,36 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		// TODO   per rimuoverla dal $titolo 
 	echo '<br>Fine esame luogo/*: '.(isset($kv['luogo']) ? $kv['luogo'] : "").'</p>';	
 	
-	// codice/autore/athesis
+	// nome/autore
 	echo '<p style="font-family:monospace">inizio esame nome/autore';
-		$autore='';
-		$sigla_autore='';
-		@list( $autore, $sigla_autore) = get_autore($nome_file);
-		echo '<br>autore:'.$autore;
-		echo '<br>sigla:'.$sigla_autore;
+		$ret         = get_autore($nome_file);
+		$autore      = $ret[0];
+		$sigla_autore= $ret[1];
+		echo '<br>autore: '.$autore;
+		echo '<br>sigla: ' .$sigla_autore;
 		if ($autore>''){
 			$ret_det   = carico_dettaglio( $fotografia_id, 'nome/autore', $autore);
-			$aggiunti[] = "'nome/autore': ".$autore;
+			$aggiunti[]= "'nome/autore': ".$autore;
 		}
 	echo '<br>Fine esame nome/autore: '.$autore.'</p>';
 	
 	// codice/autore/athesis
 	echo '<p style="font-family:monospace">inizio esame codice/autore/athesis';
-		if ($sigla_autore==''){
-			$sigla_autore = get_autore_sigla_6($nome_file);
+		// se ho già trovato autore e sigla $sigla_autore c'è
+		if ($sigla_autore == ''){
+			// $sigla_autore = get_autore_sigla_6($nome_file);
+			$ret = get_autore_e_sigla($nome_file);
+			echo '<br>messaggio ['.$_SESSION['messaggio'].']';
+			echo '<br>nome_file ['.$nome_file.']';
+			echo '<br>ret '.str_ireplace(';', '; ',serialize($ret));
+			$autore2 = $ret['autore'];
+			$sigla_autore = $ret['sigla_6'];
+			echo '<br>2 autore: '.$autore2;
+			echo '<br>2 sigla: '.$sigla_autore;
+			if ($autore2>'' && $autore == ''){
+				$ret_det   = carico_dettaglio( $fotografia_id, 'nome/autore', $autore2);
+				$aggiunti[] = "'nome/autore': ".$autore2;
+			}
 		}
 		// valori predefiniti se manca 
 		if ($sigla_autore==''){
@@ -1445,6 +1458,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 				str_contains($foto_file_maiuscole, '9TERRI')  => 'AAA009',
 				str_contains($foto_file_maiuscole, '10VIDEO') => 'AAA010',
 			};
+			echo '<br>sigla: '.$sigla_autore;
 		}
 		$ret_det   = carico_dettaglio( $fotografia_id, 'codice/autore/athesis', $sigla_autore);
 		$aggiunti[]= "'codice/autore/athesis': ".$sigla_autore;
