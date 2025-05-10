@@ -122,17 +122,20 @@ function modifica_autore(int $autore_id, array $dati_input){
   $aut_h->set_cognome_nome($dati_input['cognome_nome']);
   $aut_h->set_detto($dati_input['detto']);
   $aut_h->set_fisica_giuridica($dati_input['fisica_giuridica']);
+  $aut_h->set_sigla_6($dati_input['sigla_6']);
   $aut_h->set_url_autore($dati_input['url_autore']);
   $campi=[];
   $campi['update'] = "UPDATE " . Autori::nome_tabella
   . " SET cognome_nome = :cognome_nome "
   . " , detto = :detto "
   . " , fisica_giuridica = :fisica_giuridica "
+  . " , sigla_6 = :sigla_6 "
   . " , url_autore = :url_autore "
   . " WHERE record_id = :record_id ";
   $campi['cognome_nome'] = $aut_h->get_cognome_nome();
   $campi['detto'] = $aut_h->get_detto();
   $campi['fisica_giuridica'] = $aut_h->get_fisica_giuridica();
+  $campi['sigla_6'] = $aut_h->get_sigla_6();
   $campi['url_autore'] = $aut_h->get_url_autore();
   $campi['record_id'] = $aut_h->get_record_id();
   $ret_aut=[];
@@ -150,6 +153,7 @@ function modifica_autore(int $autore_id, array $dati_input){
   $autore['cognome_nome'] = $aut_h->get_cognome_nome();
   $autore['detto'] = $aut_h->get_detto();
   $autore['fisica_giuridica'] = $aut_h->get_fisica_giuridica();
+  $autore['sigla_6'] = $aut_h->get_sigla_6();
   $autore['url_autore'] = $aut_h->get_url_autore();
   $autore['record_id'] = $aut_h->get_record_id();
   require_once(ABSPATH.'aa-view/autori-modifica-view.php');
@@ -173,11 +177,13 @@ function aggiungi_autore(array $dati_input){
   $aut_h->set_cognome_nome($dati_input['cognome_nome']);
   $aut_h->set_detto($dati_input['detto']);
   $aut_h->set_fisica_giuridica($dati_input['fisica_giuridica']);
+  $aut_h->set_sigla_6($dati_input['sigla_6']);
   $aut_h->set_url_autore($dati_input['url_autore']);
   $campi=[];
   $campi['cognome_nome'] = $aut_h->get_cognome_nome();
   $campi['detto'] = $aut_h->get_detto();
   $campi['fisica_giuridica'] = $aut_h->get_fisica_giuridica();
+  $campi['sigla_6'] = $aut_h->get_sigla_6();
   $campi['url_autore'] = $aut_h->get_url_autore();
   $ret_ins = $aut_h->aggiungi($campi);
   if (isset($ret_ins['error'])){
@@ -193,9 +199,50 @@ function aggiungi_autore(array $dati_input){
   $autore['cognome_nome'] = $aut_h->get_cognome_nome();
   $autore['detto'] = $aut_h->get_detto();
   $autore['fisica_giuridica'] = $aut_h->get_fisica_giuridica();
+  $autore['sigla_6'] = $aut_h->get_sigla_6();
   $autore['url_autore'] = $aut_h->get_url_autore();
   require_once(ABSPATH.'aa-view/autori-aggiungi-view.php');
   exit(0);
 
-} // modifica_autore()
+} // aggiungi_autore()
 
+/**
+ * Si verifica se manca la sigla_6, ma se per un errore 
+ * non è possibile verificarlo si fa ipotesi che ci sia
+ * interrompendo inserimento.
+ * @param  array  $dati_input $_POST
+ * @return string 'present' | 'absent' 
+ */
+function verifica_sigla_6(array $dati_input) : string {
+  if (!isset($dati_input['sigla_6'])){
+    return 'present';
+  }
+  // verifica presenza
+  $dbh   = new DatabaseHandler();
+  $aut_h = new Autori($dbh);
+  $aut_h->set_sigla_6($dati_input['sigla_6']);
+  $campi=[];
+  $campi['sigla_6'] = $aut_h->get_sigla_6();
+  if ($campi['sigla_6'] == ""){
+    return 'present';
+  }
+  // modifica vs inserisci 
+  if (isset($dati_input['record_id']) && $dati_input['record_id'] > 0){
+    $aut_h->set_record_id($dati_input['record_id']);
+    $campi['query'] = 'SELECT 1 FROM '. Autori::nome_tabella 
+    . ' WHERE sigla_6 = :sigla_6 '
+    . ' AND record_id <> :record_id '
+    . ' LIMIT 1 ';
+    $campi['record_id'] = $aut_h->get_record_id();
+  } else {
+    $campi['query'] = 'SELECT 1 FROM '. Autori::nome_tabella 
+    . ' WHERE sigla_6 = :sigla_6 '
+    . ' LIMIT 1 ';
+  }
+  $ret_aut = $aut_h->leggi($campi);
+  if (isset($ret_aut['error']) || $ret_aut['numero'] > 0){
+    return 'present';
+  }
+  return 'absent';
+
+} // verifica_sigla_6()

@@ -38,8 +38,7 @@ Class Autori {
     'F', 'G'
   ];
   
-  public function __construct(DatabaseHandler $dbh)
-  {
+  public function __construct(DatabaseHandler $dbh) {
     $this->conn = $dbh;
     $this->record_id        = 0; //  invalido 
     $this->cognome_nome     = ""; // invalido 
@@ -61,7 +60,9 @@ Class Autori {
     return $this->detto;
   }
   public function get_sigla_6() : string {
-    return $this->sigla_6;
+    $sigla_6 = $this->sigla_6; 
+    $sigla_6 = html_entity_decode($sigla_6, ENT_QUOTES, "UTF-8" );
+    return $sigla_6;
   }
   public function get_fisica_giuridica() : string {
     return $this->fisica_giuridica;
@@ -93,12 +94,40 @@ Class Autori {
     $detto = mb_substr($detto, 0, 100);
     $this->detto = $detto;
   }
+  /**
+   * @param  string $sigla_6 
+   * @return void
+   * 
+   * Validazione:
+   * 1. "" (vuoto)
+   * 2. "AAA001".."AAA010"
+   * 3. 6 caratteri maiuscoli 
+   *    "/[A-Z]{6}/"
+   * Se non conforme viene avviata una eccezione? No, viene forzato a ""
+   */
   public function set_sigla_6(string $sigla_6){
-    // ritaglio a misura
+    // regola base - 6 caratteri maiuscoli
+    $regola_base = '/[A-Z]{6}/u';
+    // lista eccezioni 
+    $eccezioni_accettate = [
+      '',
+      'AAA001', 'AAA002', 'AAA003', 'AAA004', 'AAA005',
+      'AAA006', 'AAA007', 'AAA008', 'AAA009', 'AAA010'
+    ];
+
+    // sanificazione e ritaglio a misura
     $sigla_6 = htmlspecialchars(strip_tags($sigla_6));
     $sigla_6 = mb_substr($sigla_6, 0, 6);
-    $this->sigla_6 = $sigla_6;
+    $sigla_6 = strtoupper($sigla_6);
+    if (in_array($sigla_6, $eccezioni_accettate)) {
+      $this->sigla_6 = $sigla_6;
+    } elseif (preg_match($regola_base, $sigla_6) === 1){
+      $this->sigla_6 = $sigla_6;
+    } else {
+      $this->sigla_6 = "";
+    }
   }
+  
   public function set_fisica_giuridica(string $fisica_giuridica){
     // ritaglio a misura
     $fisica_giuridica = htmlspecialchars(strip_tags($fisica_giuridica));
@@ -108,6 +137,7 @@ Class Autori {
     }
     $this->fisica_giuridica = $fisica_giuridica;
   }
+
   public function set_url_autore(string $url_autore){
     // ritaglio a misura
     $url_autore = htmlspecialchars(strip_tags($url_autore));
@@ -126,6 +156,7 @@ Class Autori {
     }
     $this->ultima_modifica_record = $ultima_modifica_record;
   }
+
   // CRUD 
   /**
    * CREATE 
@@ -408,8 +439,6 @@ Class Autori {
     ];
     return $ret;
   } // modifica 
-
-
 
   /**
    * Esegue la cancellazione fisica del record, non la cancellazione logica

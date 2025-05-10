@@ -22,6 +22,7 @@
             <h4>Aggiunta scheda Autore
               <a href="<?=URLBASE; ?>autori.php/elenco-autori/" class="btn btn-secondary float-end">Elenco Autori</a>
             </h4>
+            <p class="fs-6"><i>I campi Cognome, nome - Sigla Athesis - Persona fisica / gruppo sono obbligatori.</i></p>
           </div>
           <div class="card-body">
             <form action="<?=URLBASE; ?>autori.php/aggiungi/" method="POST">
@@ -34,11 +35,13 @@
                     <input type="text" name="detto" value="" class="form-control">
                 </div>
                 <div class="mb-3">
-                    <label for="sigla_6">Sigla Athesis 6</label>
-                    <input type="text" name="sigla_6" value="" placeholder="ABCABC" maxlength="6" class="form-control">
+                    <label for="sigla_6"><strong>Sigla Athesis 6</strong>
+                      | <a href="<?=URLBASE; ?>man/2-chiavi-di-ricerca/2-1-autori/2-1-1-codice-autore-athesis/" target="_blank" rel="noopener noreferrer"><i class="bi bi-info-square"></i></a>
+                    </label>
+                    <input type="text" name="sigla_6" value="" placeholder="ABCABC" maxlength="6" id="sigla_autore" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                  <label for="fisica_giuridica"><strong>persona fisica o gruppo</strong></label>
+                  <label for="fisica_giuridica"><strong>Persona fisica o gruppo</strong></label>
                   <br style="clear:both;">
                   <!-- input type="text" name="fisica_giuridica" value="F" class="form-control" -->
                   <div class="form-check form-check-inline">
@@ -64,5 +67,37 @@
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script>
+    function urlbase(){
+      var protocol = window.location.protocol;
+      var domain   = window.location.hostname;
+      var urlzero  = (domain.includes("localhost")) ? ":8888/AMUVEFO-sigec-php/" : "/";
+      var urlbase  = protocol + '//' + domain + urlzero;
+      return urlbase;
+    }
+    // jQuery 
+    $( function(){
+      // verifica server-side del campo sigla_6 quando si esce dal focus 
+      $("#sigla_autore").on('focusout', function(){
+        $("#sigla_autore").removeClass("is-valid").removeClass("is-invalid");
+        $.post(
+          urlbase()+'autori.php/verifica',
+          { sigla_6 : $("#sigla_autore").val() }
+        )
+        .done(function(risultato){
+          if (risultato == 'present') {
+            $("#sigla_autore").removeClass('is-invalid');
+          } else {
+            $("#sigla_autore").removeClass('is-valid');
+          }
+        })
+        .fail(function(response){
+          console.log('Verifica sigla ko, response', response);
+          $("#sigla_autore").empty().addClass('is-invalid');
+    		});
+      }); // sigla_autore on 
+
+    }); // jQuery document ready
+  </script>
   </body>
 </html>

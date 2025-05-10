@@ -26,6 +26,7 @@ switch($richiesta){
 	case 'elenco-autori':
 	case 'aggiungi':
 	case 'modifica':
+	case 'verifica':
 		break;
 
 	// resto no 
@@ -56,6 +57,13 @@ if (strncmp($abilitazione_cookie, $abilitazione_modifica, 2) < 0){
 	http_response_code(401); // Unauthorized
 	echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non supportata</strong></pre>'."\n";
 	exit(1);
+}
+
+// la verifica finché è solo su sigla_6 non richieste parametri 
+// risposta present | absent 
+if ($richiesta == 'verifica'){
+	echo verifica_sigla_6($_POST);
+	exit(0);
 }
 
 // 

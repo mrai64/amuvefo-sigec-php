@@ -22,12 +22,13 @@
             <h4>Modifica scheda Autore
               <a href="<?=URLBASE; ?>autori.php/elenco-autori/" class="btn btn-secondary float-end">Elenco Autori</a>
             </h4>
+            <p class="fs-6"><i>I campi Cognome, nome - Sigla Athesis - Persona fisica / gruppo sono obbligatori.</i></p>
           </div>
           <div class="card-body">
             <form action="<?=URLBASE; ?>autori.php/modifica/<?=$autore['record_id']; ?>" method="POST">
-                <input type="hidden" name="record_id" value="<?=$autore['record_id']; ?>">
+                <input type="hidden" name="record_id" value="<?=$autore['record_id']; ?>" id="record_id">
                 <div class="mb-3">
-                    <label for="cognome_nome"> Cognome, Nome</label>
+                    <label for="cognome_nome"><strong>Cognome, Nome</strong> </label>
                     <input type="text" name="cognome_nome" value="<?=$autore['cognome_nome']; ?>" class="form-control" required>
                 </div>
                 <div class="mb-3">
@@ -35,17 +36,19 @@
                     <input type="text" name="detto" value="<?=$autore['detto']; ?>" class="form-control">
                 </div>
                 <div class="mb-3">
-                    <label for="sigla_6"> Sigla Athesis 6</label>
-                    <input type="text" name="sigla_6" value="<?=$autore['sigla_6']; ?>" class="form-control">
+                    <label for="sigla_6"><strong>Sigla Athesis 6</strong>
+                      | <a href="<?=URLBASE; ?>man/2-chiavi-di-ricerca/2-1-autori/2-1-1-codice-autore-athesis/" target="_blank" rel="noopener noreferrer"><i class="bi bi-info-square"></i></a>
+                    </label>
+                    <input type="text" name="sigla_6" value="<?=$autore['sigla_6']; ?>" placeholder="ABCABC" maxlength="6" id="sigla_autore" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label for="fisica_giuridica"> F/G</label>
-                    <input type="text" name="fisica_giuridica" value="<?=$autore['fisica_giuridica']; ?>" class="form-control">
+                    <label for="fisica_giuridica"><strong>Persona fisica o gruppo</strong></label>
+                    <input type="text" name="fisica_giuridica" value="<?=$autore['fisica_giuridica']; ?>" maxlength="1" class="form-control">
                 </div>
                 <div class="mb-3">
                     <label for="url_autore"> URL bio autore</label>
                     <input type="text" name="url_autore" value="<?=$autore['url_autore']; ?>" class="form-control">
-                </div>
+              </div>
                 <div class="mb-3">
                     <button type="submit" name="aggiorna_autore" class="btn btn-primary">Aggiorna autore</button>
                 </div>
@@ -56,5 +59,39 @@
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script>
+    function urlbase(){
+      var protocol = window.location.protocol;
+      var domain   = window.location.hostname;
+      var urlzero  = (domain.includes("localhost")) ? ":8888/AMUVEFO-sigec-php/" : "/";
+      var urlbase  = protocol + '//' + domain + urlzero;
+      return urlbase;
+    }
+    // jQuery 
+    $( function(){
+      // verifica server-side del campo sigla_6 quando si esce dal focus 
+      $("#sigla_autore").on('focusout', function(){
+        $("#sigla_autore").removeClass("is-valid").removeClass("is-invalid");
+        $.post(
+          urlbase()+'autori.php/verifica',
+          { sigla_6 : $("#sigla_autore").val(), 
+            record_id: $("#record_id").val()
+          }
+        )
+        .done(function(risultato){
+          if (risultato == 'present') {
+            $("#sigla_autore").addClass('is-invalid');
+          } else {
+            $("#sigla_autore").addClass('is-valid');
+          }
+        })
+        .fail(function(response){
+          console.log('Verifica sigla ko, response', response);
+          $("#sigla_autore").empty().addClass('is-invalid');
+    		});
+      }); // sigla_autore on 
+
+    }); // jQuery document ready
+  </script>
   </body>
 </html>
