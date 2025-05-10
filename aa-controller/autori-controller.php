@@ -95,7 +95,7 @@ function modifica_autore(int $autore_id, array $dati_input){
     . "questa schermata al comitato di gestione."
     . "<br>" . $ret_aut['message'];
     $elenco_autori = '<tr>' . PHP_EOL 
-    . '<td colspan="5">Autore non repeibile</td>'
+    . '<td colspan="5">Autore non reperibile</td>'
     . '</tr>' . PHP_EOL;
     require_once(ABSPATH.'aa-view/autori-elenco-view.php');
     exit(0);
@@ -106,7 +106,7 @@ function modifica_autore(int $autore_id, array $dati_input){
     . "questa schermata al comitato di gestione."
     . "<br>Non trovato";
     $elenco_autori = '<tr>' . PHP_EOL 
-    . '<td colspan="5">Autore non repeibile</td>'
+    . '<td colspan="5">Autore non reperibile</td>'
     . '</tr>' . PHP_EOL;
     require_once(ABSPATH.'aa-view/autori-elenco-view.php');
     exit(0);
@@ -187,7 +187,7 @@ function aggiungi_autore(array $dati_input){
   $campi['url_autore'] = $aut_h->get_url_autore();
   $ret_ins = $aut_h->aggiungi($campi);
   if (isset($ret_ins['error'])){
-    $_SESSION['messaggio']="Si è verificato un errore nell'insermento "
+    $_SESSION['messaggio']="Si è verificato un errore nell'inserimento "
     . "dei dati dell'autore.<br>Non proseguire e inviare "
     . "questa schermata al comitato di gestione."
     . "<br>" . $ret_ins['message'];

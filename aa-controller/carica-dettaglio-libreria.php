@@ -53,6 +53,7 @@ function get_titolo_album( int $album_id) : string {
  * Data_evento può essere espressa con aaaa mm gg, indicando anche mm == 00
  * e gg == 00 per le date non certe, oltreche essere una delle terminologie
  * comprese nel vocabolario per il dettaglio data/evento
+ * La data 0000 00 00 viene considerata ""
  * @param  string $titolo
  * @return string $data_evento | ""
  */
@@ -60,6 +61,9 @@ function get_data_evento(string $titolo) : string {
 	// check 1: aaaa mm gg ...
 	if (preg_match('/\d{4} \d{2} \d{2} /', $titolo, $match)){
 		$data_evento = str_replace(' ', '-', trim($match[0]));
+		if (trim($data_evento == '0000 00 00')) {
+			return "";
+		}
 		if (str_contains($data_evento, '-00')){
 			$data_evento .= ' DP';
 		}
