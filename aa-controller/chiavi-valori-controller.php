@@ -13,7 +13,7 @@ if (!defined('ABSPATH')){
   include_once('../_config.php');
 }
 include_once(ABSPATH . 'aa-model/database-handler-oop.php');
-include_once(ABSPATH . 'aa-model/chiavi-valori-oop.php');
+include_once(ABSPATH . 'aa-model/vocabolario-oop.php');
 
 function get_vocabolario(string $chiave ) string {
   if ($chiave == ""){

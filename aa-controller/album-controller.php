@@ -56,7 +56,7 @@ if (!defined('ABSPATH')){
 include_once(ABSPATH . 'aa-model/database-handler-oop.php');
 include_once(ABSPATH . 'aa-model/album-oop.php');
 include_once(ABSPATH . 'aa-model/album-dettagli-oop.php');
-include_once(ABSPATH . 'aa-model/chiavi-valori-oop.php'); // vocabolario 
+include_once(ABSPATH . 'aa-model/vocabolario-oop.php'); // vocabolario 
 include_once(ABSPATH . 'aa-model/fotografie-oop.php');
 include_once(ABSPATH . 'aa-model/video-oop.php');
 include_once(ABSPATH . 'aa-model/scansioni-disco-oop.php');

@@ -23,7 +23,7 @@ if (!defined('ABSPATH')){
 	include_once("../_config.php");
 }
 include_once(ABSPATH . 'aa-model/database-handler-oop.php');
-include_once(ABSPATH . 'aa-model/chiavi-valori-oop.php');
+include_once(ABSPATH . 'aa-model/vocabolario-oop.php');
 include_once(ABSPATH . 'aa-model/autori-oop.php');
 include_once(ABSPATH . 'aa-model/album-oop.php');
 
@@ -78,7 +78,7 @@ function get_data_evento(string $titolo) : string {
 	}
 	// vocabolario
 	$dbh = New DatabaseHandler(); // no connessioni dedicate
-	$vh  = New ChiaviValori($dbh);
+	$vh  = New Vocabolario($dbh);
 	$campi=[];
 	$campi["chiave"]='data/evento';
 	$campi["record_cancellabile_dal"]=$dbh->get_datetime_forever(); // record valido
@@ -116,7 +116,7 @@ function get_luogo(string $titolo) : array {
 	$ret = [ 'chiave' => "", 'valore' => ""];
 	// vocabolario
 	$dbh = New DatabaseHandler(); // no connessioni dedicate
-	$vh  = New ChiaviValori($dbh);
+	$vh  = New Vocabolario($dbh);
 	
 	$campi=[];
 	$campi["chiave"]='luogo/%';
@@ -157,7 +157,7 @@ function get_luogo(string $titolo) : array {
 function get_luogo_comune(string $titolo) : string {
 	// vocabolario
 	$dbh = New DatabaseHandler(); // no connessioni dedicate
-	$vh  = New ChiaviValori($dbh);
+	$vh  = New Vocabolario($dbh);
 	$campi=[];
 	$campi["chiave"]='luogo/comune';
 	$campi["record_cancellabile_dal"]=$dbh->get_datetime_forever(); // record valido
@@ -194,7 +194,7 @@ function get_luogo_comune(string $titolo) : string {
 function get_luogo_localita(string $titolo) : string {
 	// vocabolario
 	$dbh = New DatabaseHandler(); // no connessioni dedicate
-	$vh  = New ChiaviValori($dbh);
+	$vh  = New Vocabolario($dbh);
 	$campi=[];
 	$campi["chiave"]='luogo/area-geografica';
 	$campi["record_cancellabile_dal"]=$dbh->get_datetime_forever(); // record valido
@@ -230,7 +230,7 @@ function get_luogo_localita(string $titolo) : string {
 function get_ente_societa(string $titolo) : string {
 	// vocabolario
 	$dbh = New DatabaseHandler(); // no connessioni dedicate
-	$vh  = New ChiaviValori($dbh);
+	$vh  = New Vocabolario($dbh);
 	$campi=[];
 	$campi["chiave"]='nome/ente-societa';
 	$campi["record_cancellabile_dal"]=$dbh->get_datetime_forever(); // record valido

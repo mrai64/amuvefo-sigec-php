@@ -1,9 +1,9 @@
 <?php
 /**
- * @source /aa-model/chiavi-valori-oop.php
+ * @source /aa-model/vocabolario-oop.php
  * @author Massimo Rainato <maxrainato@libero.it>
  * 
- * Classe ChiaviValori
+ * Classe Vocabolario
  * 
  *	dipendenze: DatabaseHandler connessione archivio PDO 
  *	dipendenze: Chiavi tabella padre 
@@ -37,9 +37,9 @@
  * OTHERS
  * 
  */
-Class ChiaviValori {
+Class Vocabolario {
   private $conn    = false;
-  private $tabella = 'chiavi_valori_vocabolario';
+  public const nome_tabella = 'chiavi_valori_vocabolario';
   
   public $record_id; //         
   public $chiave; //            
@@ -151,6 +151,7 @@ Class ChiaviValori {
   
   // CRUD 
   /**
+   * Aggiungi CREATE 
    * @param  array campi 
    * @return array ret  ok + record_id | error + message 
    */
@@ -158,7 +159,7 @@ Class ChiaviValori {
     // record_id               viene assegnato automaticamente pertanto non è in elenco 
     // ultima_modifica_record        viene assegnato automaticamente 
     // record_cancellabile_dal viene assegnato automaticamente 
-    $create = 'INSERT INTO ' . $this->tabella 
+    $create = 'INSERT INTO ' . self::nome_tabella 
     . ' ( chiave,  valore ) VALUES '
     . ' (:chiave, :valore ) ';
 
@@ -169,7 +170,7 @@ Class ChiaviValori {
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . " Inserimento record senza connessione archivio per: " 
-        . $this->tabella 
+        . self::nome_tabella 
       ];
       return $ret;
     }
@@ -192,7 +193,7 @@ Class ChiaviValori {
       ];
       return $ret;
     }
-    $this->set_valore($valore);
+    $this->set_valore($campi['valore']);
 
     try{
       $aggiungi = $dbh->prepare($create);
@@ -212,9 +213,9 @@ Class ChiaviValori {
     } // try catch 
 
     $ret = [
-      "ok"=> true, 
-      "record_id" => $record_id,
-      "message" => __CLASS__ . ' ' . __FUNCTION__ 
+      'ok'        => true, 
+      'record_id' => $record_id,
+      'message'   => __CLASS__ . ' ' . __FUNCTION__ 
       . " Inserimento record effettuato, nuovo id: " . $record_id 
     ];
     return $ret;
@@ -222,6 +223,7 @@ Class ChiaviValori {
 
 
   /**   
+   * leggi READ
    * @param   array $campi - deve contenere un $campi["query"] con una istruzione SQL SELECT
    * @return  array $ret   'ok'|'error' + 'message'| data
    */
@@ -230,10 +232,10 @@ Class ChiaviValori {
     $dbh = $this->conn; // a PDO object thru Database class
     if ($dbh === false){
       $ret = [
-        "error"=> true, 
-        "message" => __CLASS__ . ' ' . __FUNCTION__ 
+        'error'   => true, 
+        'message' => __CLASS__ . ' ' . __FUNCTION__ 
         . " lettura record senza connessione archivio per: " 
-        . $this->tabella
+        . self::nome_tabella
       ];
       return $ret;
     }
@@ -288,6 +290,7 @@ Class ChiaviValori {
         $lettura->bindValue('record_cancellabile_dal', $this->record_cancellabile_dal); 
       }
       $lettura->execute();
+
     } catch( \Throwable $th ) {
       $ret = [
         "error" => true,
@@ -313,6 +316,8 @@ Class ChiaviValori {
   
 
   /**
+   * Modifica UPDATE 
+   * SOFT DELETE aggiornando il campo record_cancellabile_dal 
    * ATTENZIONE: La modifica del campo "record_cancellabile_dal" viene 
    *             gestita come cancellazione logica, in attesa di una fase
    *             di scarico e cancellazione fisica.
@@ -328,7 +333,7 @@ Class ChiaviValori {
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . " Modifica senza connessione archivio per: " 
-        . $this->tabella 
+        . self::nome_tabella 
       ];
       return $ret;
     }
@@ -342,19 +347,19 @@ Class ChiaviValori {
       return $ret;
     }
     if (isset($campi["record_id"])){
-      set_record_id($campi["record_id"]);
+      $this->set_record_id($campi["record_id"]);
     }
     if (isset($campi["chiave"])){
-      set_chiave($campi["chiave"]);
+      $this->set_chiave($campi["chiave"]);
     }
     if (isset($campi["valore"])){
-      set_valore($campi["valore"]);
+      $this->set_valore($campi["valore"]);
     }
     if (isset($campi["ultima_modifica_record"])){
-      set_ultima_modifica_record($campi["ultima_modifica_record"]);
+      $this->set_ultima_modifica_record($campi["ultima_modifica_record"]);
     }
     if (isset($campi["record_cancellabile_dal"])){
-      set_record_cancellabile_dal($campi["record_cancellabile_dal"]);
+      $this->set_record_cancellabile_dal($campi["record_cancellabile_dal"]);
     }
     // fine dei controlli 
     $update = $campi["update"];
@@ -412,7 +417,7 @@ Class ChiaviValori {
         "error"=> true, 
         "message" => "La cancellazione di record "
         . "non si può fare senza connessione archivio "
-        . "per: " . $this->tabella 
+        . "per: " . self::nome_tabella 
       ];
       return $ret;
     }
@@ -427,19 +432,19 @@ Class ChiaviValori {
     }
     // verifiche campi passati, se ci sono
     if (isset($campi["record_id"])){
-      set_record_id($campi["record_id"]);
+      $this->set_record_id($campi["record_id"]);
     }
     if (isset($campi["chiave"])){
-      set_chiave($campi["chiave"]);
+      $this->set_chiave($campi["chiave"]);
     }
     if (isset($campi["valore"])){
-      set_valore($campi["valore"]);
+      $this->set_valore($campi["valore"]);
     }
     if (isset($campi["ultima_modifica_record"])){
-      set_ultima_modifica_record($campi["ultima_modifica_record"]);
+      $this->set_ultima_modifica_record($campi["ultima_modifica_record"]);
     }
     if (isset($campi["record_cancellabile_dal"])){
-      set_record_cancellabile_dal($campi["record_cancellabile_dal"]);
+      $this->set_record_cancellabile_dal($campi["record_cancellabile_dal"]);
     }
     //
     $cancellazione = $campi["delete"];
@@ -481,4 +486,4 @@ Class ChiaviValori {
   } // elimina
 
 
-} // ChiaviValori
+} // Vocabolario

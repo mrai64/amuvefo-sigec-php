@@ -6,7 +6,8 @@
     "MODIFICAPLUS",
     "sigec",
     "SOLALETTURA",
-    "sololettura"
+    "sololettura",
+    "voca"
   ],
   "php.debug.executablePath": "/Applications/MAMP/bin/php/php8.3.14/bin/php",
   "php.validate.executablePath": "/Applications/MAMP/bin/php/php8.3.14/bin/php",
