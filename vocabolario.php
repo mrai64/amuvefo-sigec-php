@@ -20,7 +20,7 @@ $pezzi=route_from_uri($uri, '/vocabolario.php/');
 $richiesta=$pezzi['operazioni'][0];
 switch($richiesta){
 	case 'elenco-generale':
-	case 'elenco':
+	case 'aggiungi':
 		break; 
 
 	// resto no 
@@ -44,10 +44,18 @@ if ($richiesta==='elenco-generale'){
 }
 
 // parametro chiave 
-$chiave = str_ireplace('/vocabolario.php/elenco/', '', $uri);
-// ottiene la pagina elenco della chiavi
-if ($richiesta==='elenco'){
-	echo "\n<br>". $chiave;
+$chiave = str_ireplace('/vocabolario.php/aggiungi/', '', $uri);
+if (isset($_POST['chiave'])){
+	$chiave = $_POST['chiave'];
+}
+// aggiunge un valore all'elenco delle chiavi
+if ($richiesta==='aggiungi' && isset($_POST['aggiungi_vocabolario'])){
+	aggiungi_chiave_valore($chiave, $_POST);
+	exit(0); // Qui non dovrebbe arrivarci, però.
+}
+// espone il modulo per chiedere il valore
+if ($richiesta==='aggiungi'){
+	aggiungi_chiave_valore($chiave, []);
 	exit(0); // Qui non dovrebbe arrivarci, però.
 }
 

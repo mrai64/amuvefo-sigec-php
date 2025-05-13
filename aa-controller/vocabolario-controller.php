@@ -10,6 +10,9 @@
  * - get_elenco_generale 
  *   realizza il codice html per la pubblicazione dell'elenco
  *   di tutte le chiavi e del loro vocabolario 
+ * - aggiungi_chiave_valore
+ *   espone il modulo per chiedere il dato oppure 
+ *   esegue l'inserimento in chiavi_valori_vocabolario 
  * 
  * 
  */
@@ -18,10 +21,13 @@ if (!defined('ABSPATH')){
 }
 include_once(ABSPATH . 'aa-model/database-handler-oop.php');
 include_once(ABSPATH . 'aa-model/vocabolario-oop.php');
+include_once(ABSPATH . 'aa-model/chiavi-oop.php');
 include_once(ABSPATH . 'aa-controller/controller-base.php');
 
 /**
  * Espone la pagina con l'elenco generale
+ * @param void
+ * @return void - espone html 
  */
 function get_elenco_generale(){
 	$ret = '';
@@ -96,4 +102,68 @@ function get_elenco_generale(){
 	$elenco_generale = $ret;
 	require(ABSPATH.'aa-view/vocabolario-elenco-generale-view.php');
 	exit(0);
-}
+} // get_elenco_generale()
+
+/**
+ * Aggiungi a vocabolario
+ * 
+ * @param  string $chiave 
+ * @param  array  $dati_input 
+ * @return void   Espone le pagine web
+ */
+function aggiungi_chiave_valore(string $chiave = '', array $dati_input = []){
+	// se mancano i dati del modulo passo a esporre il modulo 
+	$dbh    = New DatabaseHandler();
+	$chi_h  = New Chiavi($dbh);
+	$voca_h = New Vocabolario($dbh);
+	
+	$chiave = strtolower($chiave);
+	$chiave = strip_tags($chiave);
+	$chiave = htmlentities($chiave);
+
+	$campi=[];
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['chiave'] = strtolower($chiave);
+	$campi['query'] = 'SELECT 1 FROM ' . Chiavi::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND chiave = :chiave '
+	. ' LIMIT 1 ';
+	$ret_chi = $chi_h->leggi($campi);
+	if (isset($ret_chi['error'])){
+		// non si fa niente, però per debug 
+		$ret = 'Non è stata rintracciata la chiave fornita. '
+		. '<br>' . $ret_chi['message'];
+		$_SESSION['messaggio'] = $ret;
+		require(ABSPATH.'aa-view/vocabolario-aggiungi-view.php');
+		exit(0);
+	}
+	if ($ret_chi['numero'] < 1){
+		// non si fa niente, però per debug 
+		$ret = 'Non è stata rintracciata la chiave fornita. ';
+		$_SESSION['messaggio'] = $ret;
+		require(ABSPATH.'aa-view/vocabolario-aggiungi-view.php');
+		exit(0);
+	}
+	// Se mancano i dati si espone il modulo 
+	if (!isset($dati_input['aggiungi_vocabolario'])){
+		$_SESSION['messaggio'] = "L'inserimento di un nuovo dato dev'essere fatto "
+		. "con competenza e aggiornando nel caso il manuale.";
+		require(ABSPATH.'aa-view/vocabolario-aggiungi-view.php');
+		exit(0);
+	}
+	// Si passa all'inserimento 
+	$campi=[];
+	$campi['chiave'] = $chiave;
+	$campi['valore'] = $dati_input['valore'];
+	$ret_voca = $voca_h->aggiungi($campi);
+	if (isset($ret_voca['error'])){
+		$_SESSION['messaggio'] = "NO, si è verificato qualcosa durante l'inserimento."
+		. "<br>".$ret_voca['message'];
+		require(ABSPATH.'aa-view/vocabolario-aggiungi-view.php');
+		exit(0);
+	} 
+	// Ok, fatto e avanti il prossimo
+	$_SESSION['messaggio'] = "Coppia chiave-valore aggiunta al vocabolario";
+	require(ABSPATH.'aa-view/vocabolario-aggiungi-view.php');
+	exit(0);
+} // aggiungi_chiave_valore()
