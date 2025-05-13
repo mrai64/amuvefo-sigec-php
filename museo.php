@@ -81,6 +81,4 @@ if (strncmp($cookie_abilitazione, $abilitazione_modificaplus, 2) > 0){ // A > B
 
 // tutto pronto, si espone
 echo $ingresso;
-//dbg echo '<hr />';
-//dbg echo var_dump($_COOKIE);
 exit(0);
