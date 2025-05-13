@@ -983,15 +983,17 @@ function aggiungi_dettagli_album_da_album( int $album_id ) : array {
 		$campi['record_id_padre'] = $album_id;
 		$campi['chiave'] = 'data/evento';
 		$campi['valore'] = $data_evento; 
-		$ret_aggiungi = $alb_dh->aggiungi($campi);
-		//dbg echo '<br>data_evento si: '. $data_evento . "\n";
-		//dbg echo '<br>ret_aggiungi: '; 
-		//dbg echo var_dump($ret_aggiungi);
-		if (isset($ret_aggiungi['ok'])){
-			$aggiunti[] = $campi['chiave'] .': '. $campi['valore'];
-		}
+		// escludo data 0000-00-00 
+		if (!str_contains($data_evento, '0000-')){
+			$ret_aggiungi = $alb_dh->aggiungi($campi);
+			//dbg echo '<br>data_evento si: '. $data_evento . "\n";
+			//dbg echo '<br>ret_aggiungi: '; 
+			//dbg echo var_dump($ret_aggiungi);
+			if (isset($ret_aggiungi['ok'])){
+				$aggiunti[] = $campi['chiave'] .': '. $campi['valore'];
+			}
+		} // diverso da 0000-*
 		// sfilo 
-		$titolo_album = str_replace($data_evento, '', $titolo_album);
 		if (str_contains($data_evento, ' DP')){
 			$data_evento = str_replace(' DP', '', $data_evento);
 			$titolo_album = str_replace($data_evento, '', $titolo_album);
@@ -1000,6 +1002,7 @@ function aggiungi_dettagli_album_da_album( int $album_id ) : array {
 			$data_evento = str_replace('-', ' ', $data_evento);
 			$titolo_album = str_replace($data_evento, '', $titolo_album);
 		}
+		$titolo_album = str_replace($data_evento, '', $titolo_album);
 		$titolo_album = trim($titolo_album);
 	}
 	//dbg echo '<br>album_id: ' . $album_id . ' data_evento: ' . $data_evento. '<br>';

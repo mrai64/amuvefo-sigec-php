@@ -1,5 +1,8 @@
 <?php
 /**
+ * @source /aa-controller/fotografie-controller.php
+ * @author Massimo rainato <maxrainato@libero.it>
+ * 
  * FOTOGRAFIE controller
  * 
  * Si occupa delle funzioni che riguardano la tabella fotografie 
@@ -1158,30 +1161,37 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	$data_evento = get_data_evento($nome_file);
 	echo '<p style="font-family:monospace">data_evento: '.$data_evento .'</p>'; 
 	if ($data_evento>''){
-		$data_evento_album= '';
-		//verificare se è già presente nell'album 
-		$campi=[];
-		$campi['query']='SELECT * FROM album_dettagli '
-		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
-		. ' AND record_id_padre = :record_id_padre '
-		. ' AND chiave = :chiave ';
-		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-		$campi['record_id_padre']         = $album_id;
-		$campi['chiave']                  = 'data/evento';
-		$ret_adet = $adet_h->leggi($campi);
-		if (isset($ret_adet['error'])){
-			$ret = 'Non è stato trovato un dettaglio album legato a data/evento ' 
-			. "per l'errore: " . $ret_adet['error'];
-			echo $ret;
-		} elseif ($ret_adet['numero']>0) {
-			$data_evento_album = $ret_adet['data'][0]['valore'];
-			$ret = 'È stato trovato un dettaglio album legato a data/evento ' 
-			. "per l'album: " . $data_evento_album;
-			echo $ret;
-		}
-		if ($data_evento != $data_evento_album){
-			$ret_det   = carico_dettaglio( $fotografia_id, 'data/evento', $data_evento);
-		}
+		$data_evento_album = '';
+		// Verificare se è già presente nell'album un dettaglio data/evento e che valore ha
+			$campi=[];
+			$campi['query']='SELECT * FROM ' . AlbumDettagli::nome_tabella 
+			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+			. ' AND record_id_padre = :record_id_padre '
+			. ' AND chiave = :chiave ';
+			$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+			$campi['record_id_padre']         = $album_id;
+			$campi['chiave']                  = 'data/evento';
+			$ret_adet = $adet_h->leggi($campi);
+			if (isset($ret_adet['error'])){
+				$ret = 'Non è stato trovato un dettaglio album legato a data/evento ' 
+				. "per l'errore: " . $ret_adet['error'];
+				echo $ret;
+				// no exit()
+			} elseif ($ret_adet['numero']>0) {
+				$data_evento_album = $ret_adet['data'][0]['valore'];
+				$ret = 'È stato trovato un dettaglio album legato a data/evento ' 
+				. "per l'album: " . $data_evento_album;
+				echo $ret;
+				//no exit()
+			}
+			// assente o presente ma diverso, inserisco
+			if ($data_evento != $data_evento_album){
+				// escludo data 0000-00-00 
+				if (!str_contains($data_evento, '0000-')){
+					$ret_det   = carico_dettaglio( $fotografia_id, 'data/evento', $data_evento);
+
+				}
+			}
 		// sfilo 
 		$nome_file = str_replace($data_evento, '', $nome_file);
 		if (str_contains($data_evento, ' DP')){
@@ -1197,7 +1207,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		}
 		$nome_file = trim($nome_file);
 		echo "<br>Per effetto dell'inserimento di data/elenco, ora nomefile è: " .$nome_file.'<br>';
-	} // data/evento 
+	} // data/evento - viene escluso 0000-00-00 
 	echo '<p style="font-family:monospace">Fine esame data/evento</p>';
 	$data_evento_prima = $data_evento;
 	if ( str_contains($data_evento, 'decennio')){

@@ -301,14 +301,15 @@ function leggi_video_precedente(int $video_id) : int {
 		$ret = '<p>' . __FILE__ .' '. __FUNCTION__
 		. '<br>Si è verificato un errore nella lettura di ' . Video::nome_tabella
 		. '<br>' . $ret_video['message']
-		. '<br>Campi: ' . serialize($campi) . '</p>';
+		. '<br>id: ' . $video_id . '</p>';
 		echo $ret;
 		exit(1);
 	}
 	if ($ret_video['numero']==0){
 		$ret = '<p>' . __FILE__ .' '. __FUNCTION__
 		. '<br>Si è verificato un errore nella lettura di ' . Video::nome_tabella
-		. '<br>Campi: ' . serialize($campi) . '</p>';
+		. '<br>Non trovato'
+		. '<br>id: ' . $video_id . '</p>';
 		echo $ret;
 		exit(1);
 	}
@@ -398,7 +399,7 @@ function carica_video_da_album( int $album_id) : array{
 	$vid_h  = new Video($dbh);
 
 	// verifica album_id 
-	// echo '<br>albm_id: ' . $album_id; 
+	// echo '<br>album_id: ' . $album_id; 
 	$alb_h->set_record_id($album_id);
 	$campi['query'] = ' SELECT * FROM ' . Album::nome_tabella 
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
@@ -715,27 +716,76 @@ function carica_dettagli_video_da_video(int $video_id){
 	
 	// aaaa mm gg luogo manifestazione-soggetto durata sigla_autore
 	//            luogo manifestazione-soggetto durata sigla_autore
-	// luogo/comune 
-	$luogo = get_luogo($nome_file);
-	if ($luogo > ''){
-		echo '<br>Luogo:'.$luogo;
-		$ret_det   = carico_dettaglio_video( $video_id, 'luogo/comune', $luogo);
-		// sfilo 
-		$nome_file = str_replace($luogo, '', $nome_file);
-		$nome_file = trim($nome_file);
-	} // luogo/comune 
+	/**
+	 * sostituito dalla ricerca luogo e chiave 
+	 * 
+		// luogo/comune 
+		$luogo = get_luogo($nome_file);
+		if ($luogo > ''){
+			echo '<br>Luogo:'.$luogo;
+			$ret_det   = carico_dettaglio_video( $video_id, 'luogo/comune', $luogo);
+			// sfilo 
+			$nome_file = str_replace($luogo, '', $nome_file);
+			$nome_file = trim($nome_file);
+		} // luogo/comune 
+	 * 
+	 * 
+	 */
+	// luogo/comune
+	// luogo-area-geografica
+	// luogo-nazione
+	$kv = get_luogo($nome_file);
+	if (isset($kv['chiave']) && $kv['chiave'] > ""){
+		if (isset($kv['luogo']) && $kv['luogo'] > ""){
+			echo '<br>'.$kv['chiave'].': '.$kv['luogo'];
+			$ret_det   = carico_dettaglio( $video_id, $kv['chiave'], $kv['luogo']);
+			$aggiunti[] = "'".$kv['chiave']."': ".$kv['luogo'];
+			}
+	}
+	// TODO Serve trovare il modo di stabilire che la località è in testa al $titolo 
+	// TODO   per rimuoverla dal $titolo 
 
 	//            luogo manifestazione-soggetto durata sigla_autore
 	//                  manifestazione-soggetto durata sigla_autore
+	/**
+	 * 
+	 * 
+		$sigla_autore = get_autore_sigla_6($nome_file);
+		if ($sigla_autore>''){
+			$ret_det   = carico_dettaglio_video( $video_id, 'codice/autore/athesis', $sigla_autore);
+			// sfilo 
+			$nome_file = str_replace($sigla_autore, '', $nome_file);
+			$nome_file = trim($nome_file);
+		} // codice/autore/sigla 
+	 * 
+	 */
 	// codice/autore/athesis
-	$sigla_autore = get_autore_sigla_6($nome_file);
-	if ($sigla_autore>''){
-		$ret_det   = carico_dettaglio_video( $video_id, 'codice/autore/athesis', $sigla_autore);
-		// sfilo 
-		$nome_file = str_replace($sigla_autore, '', $nome_file);
-		$nome_file = trim($nome_file);
-	} // codice/autore/sigla 
+	$ret = get_autore_e_sigla($nome_file);
+	$autore = $ret['autore'];
+	$sigla_autore = $ret['sigla_6'];
+	if ($autore >''){
+		$ret_det   = carico_dettaglio( $video_id, 'nome/autore', $autore );
+	}
+	// valori predefiniti se manca 
+	if ($sigla_autore==''){
+		$video_file_maiuscole = strtoupper($video_file);
+		$sigla_autore = match (true) {
+			str_contains($video_file_maiuscole, '1AUTORI') => 'AAA001',
+			str_contains($video_file_maiuscole, '2AUTOF')  => 'AAA002',
+			str_contains($video_file_maiuscole, '3FONDI')  => 'AAA003',
+			str_contains($video_file_maiuscole, '4LIBRI')  => 'AAA004',
+			str_contains($video_file_maiuscole, '5LOCA')   => 'AAA005',
+			str_contains($video_file_maiuscole, '6LOCA')   => 'AAA006<',
+			str_contains($video_file_maiuscole, '7DATI')   => 'AAA007',
+			str_contains($video_file_maiuscole, '8SCUOLA') => 'AAA008',
+			str_contains($video_file_maiuscole, '9TERRI')  => 'AAA009',
+			str_contains($video_file_maiuscole, '10VIDEO') => 'AAA010',
+		};
+	}
+	$ret_det   = carico_dettaglio( $video_id, 'codice/autore/athesis', $sigla_autore);
+	// codice/autore/athesis
 	//                  manifestazione-soggetto durata sigla_autore
+
 	//                  manifestazione-soggetto durata  
 	
 	// dimensione/durata 

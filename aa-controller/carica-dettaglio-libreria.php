@@ -61,9 +61,7 @@ function get_data_evento(string $titolo) : string {
 	// check 1: aaaa mm gg ...
 	if (preg_match('/\d{4} \d{2} \d{2} /', $titolo, $match)){
 		$data_evento = str_replace(' ', '-', trim($match[0]));
-		if (trim($data_evento == '0000 00 00')) {
-			return "";
-		}
+		$data_evento = trim($data_evento);
 		if (str_contains($data_evento, '-00')){
 			$data_evento .= ' DP';
 		}
@@ -72,6 +70,7 @@ function get_data_evento(string $titolo) : string {
 	// check 2: aaaa:mm:gg ...
 	if (preg_match('/\d{4}:\d{2}:\d{2} /', $titolo, $match)){
 		$data_evento = str_replace(':', '-', trim($match[0]));
+		$data_evento = trim($data_evento);
 		if (str_contains($data_evento, '-00')){
 			$data_evento .= ' DP';
 		}
