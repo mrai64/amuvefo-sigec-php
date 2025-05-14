@@ -14,19 +14,11 @@
 	<div class="row">
 		<?php
 			include(ABSPATH.'aa-controller/mostra-messaggio-sessione.php');
-			if (!isset($cartella_radice)){
-				$cartella_radice=[];
-				$cartella_radice["tinta_rbg"]= "000000";
-			} 
-			if (!isset($cartella_radice["tinta_rgb"])){
-				$cartella_radice["tinta_rbg"]= "000000";
-			}
 		?>
 	</div>
 	<div class="row">
 		<div class="col-12">
-			<a href='<?=URLBASE; ?>museo.php'><i class="h2 bi bi-house-up" 
-				style='color:<?=$cartella_radice["tinta_rgb"]; ?> !important' ></i></a>
+			<a href='<?=URLBASE; ?>museo.php'><i class="h2 bi bi-house-up"></i></a>
 			&nbsp; 
 			<a href="<?= $torna_all_album; ?>" 
 				title="[Torna all'album]" ><i class="h2 bi bi-arrow-left-square" ></i></a>

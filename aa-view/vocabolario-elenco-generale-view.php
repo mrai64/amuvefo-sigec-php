@@ -15,7 +15,9 @@
     include(ABSPATH.'aa-controller/mostra-messaggio-sessione.php');
     ?>
       <div class="row">
-        <h2>Elenco vocabolario</h2>
+        <h2>Elenco vocabolario
+          <a href="<?=URLBASE; ?>chiavi.php/elenco/" class="btn btn-secondary float-end ">Elenco chiavi</a>
+        </h2>
         <p class="fs-6">Album, fotografie e video vengono archiviati e catalogati 
           con l'uso di coppie chiave-valore in cui sono accoppiati 
           il <i>"cos'è"</i> e il <i>"vale"</i>.

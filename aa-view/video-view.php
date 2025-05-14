@@ -25,8 +25,7 @@
 			}
 			?>
 		&nbsp;|&nbsp; 
-		<a href='/ricerca.php'><i class="bi bi-search" 
-			style='font-size:1.75rem;color:<?=$cartella_radice["tinta_rgb"]; ?>' ></i></a>
+		<a href='/ricerca.php'><i class="bi bi-search"></i></a>
 		</div>
 		<div class="col-10 h3">
 			Siete in: <?= $siete_in; ?>
