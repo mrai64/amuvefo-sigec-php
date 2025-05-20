@@ -31,6 +31,10 @@
  * TODO cambiare in . carica_richiesta_album
  *   per l'album aggiunge una richiesta nella tabella richieste
  * 
+ * . modifica_titolo_album
+ *   espone il modulo per la modifica del titolo album
+ *   sostituisce il titolo nella scheda dell'album
+ * 
  * ALBUMDETTAGLI
  * Estrazione dati da scansioni_disco
  * . aggiungi_dettagli_album_da_album
@@ -1379,3 +1383,93 @@ function modifica_dettaglio_album_da_modulo(int $dettaglio_id, array $dati_input
 	leggi_album_per_id($album_id);
 	exit(0);
 } // modifica_dettaglio_album_da_modulo()
+
+
+/**
+ * Modifica titolo album 
+ * propone il modulo per modificare il titolo dell'album e 
+ * se son stati passati i dati del modulo, effettua la registrazione della modifica
+ * Nota: a uso registrazione vecchio - nuovo, viene 
+ * inserito un record in album ma con lo stato di già cancellato. 
+ * 
+ * @param   int $album_id 
+ * @param array $dati_input (quelli del modulo online)
+ * @return void (html page exposed)
+ */
+function modifica_titolo_album(int $album_id, array $dati_input ){
+	$dbh   = new DatabaseHandler();
+	$alb_h = new Album($dbh);
+
+	$view  = ABSPATH . 'aa-view/album-titolo-modifica-view.php';
+	$leggi_album = 'n.d.';
+	$aggiorna_titolo = 'n.d.';
+	$titolo_originale = 'n.d.';
+
+	$alb_h->set_record_id($album_id);
+	$campi=[];
+	$campi['query']= 'SELECT * FROM ' . Album::nome_tabella 
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id = :record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id'] = $alb_h->get_record_id();
+	$ret_alb = $alb_h->leggi($campi);
+	if (isset($ret_alb['error'])){
+		$_SESSION['messaggio'] = "Nel reperire l'album si è verificato un problema. "
+		. '<br>campi: '. str_ireplace(';', '; ', serialize($campi))
+		. '<br>ret: '. str_ireplace(';', '; ', serialize($ret_alb));
+		require_once($view);
+		exit(1);
+	}
+	if ($ret_alb['numero'] < 1){
+		$_SESSION['messaggio'] = "Nel reperire l'album si è verificato un problema. "
+		. '<br>campi: '. str_ireplace(';', '; ', serialize($campi))
+		. '<br>Non trovato.';
+		require_once($view);
+		exit(1);
+	}
+	$aggiorna_titolo  = URLBASE.'album.php/modifica_titolo/'.$ret_alb['data'][0]['record_id'];
+	$leggi_album      = URLBASE.'album.php/leggi/'.$ret_alb['data'][0]['record_id'];
+	$titolo_originale = $ret_alb['data'][0]['titolo_album'];
+	if (!isset($dati_input['aggiorna_titolo'])){
+		$_SESSION['messaggio'] = "Modificate il titolo dell'album.";
+		require_once($view);
+		exit(0);
+	}
+	// Se c'è cambio nel titolo registro il record precedente come fosse stato 
+	// cancellato, già cancellato, a uso backup
+	$campi=[];
+	$campi['titolo_album']                 = $ret_alb['data'][0]['titolo_album'];
+	$campi['disco']                        = $ret_alb['data'][0]['disco'];
+	$campi['percorso_completo']            = $ret_alb['data'][0]['percorso_completo'];
+	$campi['record_id_in_scansioni_disco'] = $ret_alb['data'][0]['record_id_in_scansioni_disco'];
+	$campi['stato_lavori']                 = $ret_alb['data'][0]['stato_lavori'];
+	$campi['record_cancellabile_dal']      = $dbh->get_datetime_now();
+	$ret_ins = $alb_h->aggiungi($campi);
+	if (isset($ret_ins['error'])){
+		$_SESSION['messaggio'] = "Nell'aggiornare l'album si è verificato un problema. "
+		. '<br>Msg: '. $ret_ins['message']
+		. '<br>ret: '. str_ireplace(';', '; ', serialize($ret_ins));
+		require_once($view);
+		exit(1);
+	}
+	$campi=[];
+	$campi['update'] = 'UPDATE ' . Album::nome_tabella 
+	. ' SET titolo_album = :titolo_album '
+	. ' WHERE record_id = :record_id ';
+	$titolo_nuovo = strip_tags($dati_input['titolo']);
+	$titolo_nuovo = str_ireplace(';', ';§', $titolo_nuovo);
+	$campi['titolo_album'] = $titolo_nuovo;
+	$campi['record_id']    = $ret_alb['data'][0]['record_id'];
+	$ret_upd = $alb_h->modifica($campi);
+	$titolo_originale = $dati_input['titolo'];
+	if (isset($ret_upd['error'])){
+		$_SESSION['messaggio'] = "Nell'aggiornare l'album si è verificato un problema. "
+		. '<br>Msg: '. $ret_upd['message']
+		. '<br>ret: '. str_ireplace(';', '; ', serialize($ret_upd));
+		require_once($view);
+		exit(1);
+	}
+	$_SESSION['messaggio'] = "Aggiornamento eseguito.";
+	require_once($view);
+	exit(0);	
+} // modifica_titolo_album()

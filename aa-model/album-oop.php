@@ -6,8 +6,8 @@
  *	Classe Album
  *
  *	dipendenze: DatabaseHandler connessione archivio PDO 
- *	dipendenze: AlbumDettagli tabella figlio 
- *	dipendenze: Descrizioni tabella di lunghi testi 
+ *	dipendenze: AlbumDettagli   tabella figlio 
+ *	dipendenze: Descrizioni     tabella di lunghi testi 
  *	dipendenze: ScansioniDisco 
  *
  * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/album/
@@ -213,8 +213,10 @@ Class Album {
 	public function aggiungi( array $campi = [] ){ 
 		// record_id               viene assegnato automaticamente pertanto non è in elenco 
 		// stato_lavori            viene assegnato automaticamente 
+		//                         eccezione per: modifica_titolo
 		// ultima_modifica_record  viene assegnato automaticamente 
 		// record_cancellabile_dal viene assegnato automaticamente 
+		//                         eccezione per: modifica_titolo
 	
 		$create = 'INSERT INTO ' . self::nome_tabella 
 		. ' (  titolo_album,  disco,  percorso_completo,  record_id_in_scansioni_disco ) VALUES '
@@ -225,7 +227,7 @@ Class Album {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo titolo_album: " . serialize($campi) 
+				. " Serve campo titolo_album: " . str_ireplace(';', '; ', serialize( $campi)) 
 			];
 			return $ret;
 		}
@@ -235,7 +237,7 @@ Class Album {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo disco: " . serialize($campi) 
+				. " Serve campo disco: " . str_ireplace(';', '; ', serialize( $campi)) 
 			];
 			return $ret;
 		}
@@ -245,7 +247,7 @@ Class Album {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo percorso_completo: " . serialize($campi) 
+				. " Serve campo percorso_completo: " . str_ireplace(';', '; ', serialize( $campi)) 
 			];
 			return $ret;
 		}
@@ -255,11 +257,39 @@ Class Album {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo record_id_in_scansioni_disco: " . serialize($campi) 
+				. " Serve campo record_id_in_scansioni_disco: " . str_ireplace(';', '; ', serialize( $campi)) 
 			];
 			return $ret;
 		}
 		$this->set_record_id_in_scansioni_disco($campi['record_id_in_scansioni_disco']);
+
+		// special guest - modifica_titolo 
+		if (isset($campi['record_cancellabile_dal'])){
+			$create = 'INSERT INTO ' . self::nome_tabella 
+			. ' (  titolo_album,  disco,  percorso_completo,  record_id_in_scansioni_disco,'
+			.   '  stato_lavori,  record_cancellabile_dal ) VALUES '
+			. ' ( :titolo_album, :disco, :percorso_completo, :record_id_in_scansioni_disco,'
+			.   ' :stato_lavori, :record_cancellabile_dal ) ';
+
+			if (!isset($campi['stato_lavori'])){
+				$ret = [
+					"error"=> true, 
+					"message" => __CLASS__ . ' ' . __FUNCTION__ 
+					. " Serve campo stato_lavori: " . str_ireplace(';', '; ', serialize( $campi)) 
+				];
+				return $ret;
+			}
+			$this->set_stato_lavori($campi['stato_lavori']);
+			if (!isset($campi['record_cancellabile_dal'])){
+				$ret = [
+					"error"=> true, 
+					"message" => __CLASS__ . ' ' . __FUNCTION__ 
+					. " Serve campo record_cancellabile_dal: " . str_ireplace(';', '; ', serialize( $campi)) 
+				];
+				return $ret;
+			}
+			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']);
+		} // campi['record_cancellabile_dal']
 
 		$dbh = $this->conn; // a PDO object thru Database class
 		if ($dbh === false){
@@ -278,6 +308,12 @@ Class Album {
 			$aggiungi->bindValue('disco', $this->disco);
 			$aggiungi->bindValue('percorso_completo', $this->percorso_completo);
 			$aggiungi->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco);
+			if (isset($campi['stato_lavori'])){
+				$aggiungi->bindValue('stato_lavori', $this->stato_lavori);					
+			}
+			if (isset($campi['record_cancellabile_dal'])){
+				$aggiungi->bindValue('record_cancellabile_dal', $this->record_cancellabile_dal);					
+			}
 			$aggiungi->execute();
 			$record_id = $dbh->lastInsertID();
 			$dbh->commit();
@@ -289,7 +325,7 @@ Class Album {
 				"error"   => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. " campi: " . serialize($campi)
+				. " campi: " . str_ireplace(';', '; ', serialize( $campi))
 				. ' istruzione SQL: ' . $create 
 			];
 			return $ret;      
@@ -337,7 +373,7 @@ Class Album {
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. "Deve essere definita l'istruzione SELECT in ['query']: " 
-				. serialize($campi)
+				. str_ireplace(';', '; ', serialize( $campi))
 			];
 			return $ret;
 		}
@@ -401,7 +437,7 @@ Class Album {
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . str_ireplace(';', '; ', serialize( $campi))
 				. ' istruzione SQL: ' . $read
 			];
 			return $ret;
@@ -457,7 +493,7 @@ Class Album {
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. " Aggiornamento record senza UPDATE: " 
-				. serialize($campi) 
+				. str_ireplace(';', '; ', serialize( $campi)) 
 			];
 			return $ret;
 		}
@@ -523,7 +559,7 @@ Class Album {
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. '<br>' . $th->getMessage() 
-				. '<br>campi: ' . serialize($campi)
+				. '<br>campi: ' . str_ireplace(';', '; ', serialize( $campi))
 				. '<br>istruzione SQL: ' . $update
 			];
 			return $ret;
@@ -561,7 +597,7 @@ Class Album {
 				'error'   => true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. " Deve essere definita l'istruzione DELETE in ['delete']: " 
-				. serialize($campi)
+				. str_ireplace(';', '; ', serialize( $campi))
 			];
 			return $ret;
 		}
@@ -627,7 +663,7 @@ Class Album {
 			$ret = [
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ . ' ' 
-				. $th->getMessage() . " campi: " . serialize($campi)
+				. $th->getMessage() . " campi: " . str_ireplace(';', '; ', serialize( $campi))
 				. ' istruzione SQL: ' . $delete
 			];
 			return $ret;
