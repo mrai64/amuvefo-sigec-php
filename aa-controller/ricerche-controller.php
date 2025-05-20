@@ -476,6 +476,7 @@ function get_album_list(array $dati_input) : array {
 		        . " OR  livello4 like '%".$termine."%' "
 		        . " OR  livello5 like '%".$termine."%' "
 		        . " OR  livello6 like '%".$termine."%' "
+		    . " OR  titolo_album like '%".$termine."%' "
 		        . ') ';
 	} // foreach
 	// $query .= ' ORDER BY record_id ';
@@ -574,7 +575,7 @@ function get_fotografie_list(array $dati_input = []): array{
 	$fotografie_id=[];
 
 	$dbh    = New DatabaseHandler();
-	$alb_h  = New Album($dbh);
+//$alb_h  = New Album($dbh);
 	$foto_h = New Fotografie($dbh);
 	$fdet_h = New FotografieDettagli($dbh);
 	$scan_h = New ScansioniDisco($dbh);
@@ -625,6 +626,7 @@ function get_fotografie_list(array $dati_input = []): array{
 		. " OR  livello4 like '%".$termine."%' "
 		. " OR  livello5 like '%".$termine."%' "
 		. " OR  livello6 like '%".$termine."%' "
+		. " OR titolo_fotografia like '%".$termine."%' "
 		. " OR nome_file like '%".$termine."%' "
 		. ') ';
 	} // foreach
@@ -724,7 +726,7 @@ function get_video_list(array $dati_input = []): array{
 	$video_id=[];
 
 	$dbh    = New DatabaseHandler();
-	$alb_h  = New Album($dbh);
+//$alb_h  = New Album($dbh);
 	$vid_h  = New Video($dbh);
 	$vdet_h = New VideoDettagli($dbh);
 	$scan_h = New ScansioniDisco($dbh);
@@ -772,6 +774,7 @@ function get_video_list(array $dati_input = []): array{
 		       . " OR  livello4 like '%".$termine."%' "
 		       . " OR  livello5 like '%".$termine."%' "
 		       . " OR  livello6 like '%".$termine."%' "
+		       . " OR titolo_video like '%".$termine."%' "
 		       . " OR nome_file like '%".$termine."%' "
 		       . ') ';
 	} // foreach
