@@ -6,6 +6,28 @@
  *   Compila ed espone la pagina dell'intera lista autori
  *   (no datalist)
  * 
+ * - modifica_autore 
+ *   Espone un modulo o gestisce i dati del modulo per
+ *   modificare un autore già presente in autori_elenco 
+ * 
+ * - aggiungi_autore
+ *   Espone un modulo o gestisce i dati del modulo per aggiungere
+ *   un autore in autori_elenco 
+ * 
+ * - verifica_sigla_6
+ *   Verifica la presenta in tabella della sigla autore Athesis, che si ottiene 
+ *   da 3 lettere del cognome e 3 lettere del nome come viene 
+ *   fatto per il codice fiscale. Qualora il codice sia già 
+ *   presente per un altro autore va cambiata una lettera del nome 
+ *   o del cognome per creare un codice unico in archivio.
+ * 
+ * - estrai_consonanti
+ * - estrai_vocali
+ * - gen_sigla_6 
+ *   Partendo dal dato cognome_nome come previsto in elenco
+ *   cognome, nome (anno nascita - anno morte)
+ *   genera un code autore athesis di 6 lettere maiuscole.
+ *   Non verifica sia già presente in archivio
  */
 if (!defined('ABSPATH')){
 	include_once('../_config.php');
@@ -14,7 +36,11 @@ include_once(ABSPATH . 'aa-model/database-handler-oop.php');
 include_once(ABSPATH . 'aa-model/autori-oop.php');
 
 /**
+ * Mostra Elenco Autori  
  * Espone una pagina con l'elenco autori 
+ * 
+ * @param void 
+ * @return void (espone html)
  */
 function elenco_autori(){
   $dbh   = new DatabaseHandler();
@@ -162,7 +188,7 @@ function modifica_autore(int $autore_id, array $dati_input){
 } // modifica_autore()
 
 /**
- * 
+ * Ottiene i dati dalla pagina e li aggiunge all'elenco autori
  */
 function aggiungi_autore(array $dati_input){
   // necessari 
@@ -207,10 +233,11 @@ function aggiungi_autore(array $dati_input){
 } // aggiungi_autore()
 
 /**
- * Si verifica se manca la sigla_6, ma se per un errore 
- * non è possibile verificarlo si fa ipotesi che ci sia
- * interrompendo inserimento.
- * @param  array  $dati_input $_POST
+ * Non effettua verifica formale del dato ma la presenza in archivio 
+ * per evitare l'inserimento di doppioni. Al posto del true/false
+ * si è preferito un valore stringa per usarlo nei test in jQuery
+ * 
+ * @param  array  $dati_input ($_POST)
  * @return string 'present' | 'absent' 
  */
 function verifica_sigla_6(array $dati_input) : string {
@@ -246,3 +273,45 @@ function verifica_sigla_6(array $dati_input) : string {
   return 'absent';
 
 } // verifica_sigla_6()
+
+/**
+ * Dal cognome nome crea una sigla 
+ * La sigla può già essere presente nella tabella autori_elenco
+ * ma la verifica viene demandata ad altre funzioni
+ */
+function estrai_consonanti(string $stringa) : string {
+    return preg_replace('/[^BCDFGHJKLMNPQRSTVWXYZ]/i', '', strtoupper($stringa));
+}
+
+// Funzione per estrarre vocali
+function estrai_vocali(string $stringa) : string {
+    return preg_replace('/[^AEIOU]/i', '', strtoupper($stringa));
+}
+
+function gen_sigla_6(string $cognome_nome) : string {
+  // Rainato, Massimo (1964 - 2024)
+  $cognome_nome = preg_replace('/[\(|\)|\-]/i', '', $cognome_nome);
+  // Rainato, Massimo 1964  2024
+  $cognome_nome = preg_replace('/[0-9]/i', '', $cognome_nome);
+  // "Rainato, Massimo    "
+  $cognome_nome = trim($cognome_nome);
+  // "Rainato, Massimo"
+  [$cognome, $nome ]= explode(',', $cognome_nome);
+  $cognome = strtoupper(trim($cognome)); // Rainato
+  $nome    = strtoupper(trim($nome));    // Massimo 
+
+  // Elaborazione cognome
+  $consonanti_cognome = estrai_consonanti($cognome);
+  $vocali_cognome = estrai_vocali($cognome);
+  $parte_cognome = substr($consonanti_cognome . $vocali_cognome . 'XXX', 0, 3);
+
+  // Elaborazione nome
+  $consonanti_nome = estrai_consonanti($nome);
+  if (strlen($consonanti_nome) > 3) {
+      $consonanti_nome = $consonanti_nome[0] . $consonanti_nome[2] . $consonanti_nome[3];
+  }
+  $vocali_nome = estrai_vocali($nome);
+  $parte_nome = substr($consonanti_nome . $vocali_nome . 'XXX', 0, 3);
+  // TODO fare check codice già presente in archivio
+  return $parte_cognome . $parte_nome;
+}

@@ -21,6 +21,7 @@
           <div class="card-header">
             <h4>Elenco AUTORI</h4>
             <p>in ordine alfabetico, tutti.
+              <a href="<?=URLBASE; ?>autori.php/aggiungi/0" class="btn btn-secondary float-end">Aggiungi</a>
             </p>
           </div>
           <div class="card-body">
