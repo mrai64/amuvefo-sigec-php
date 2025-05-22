@@ -1425,13 +1425,16 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	// nome/autore
 	echo '<p style="font-family:monospace">inizio esame nome/autore';
 		$ret         = get_autore($nome_file);
+		echo (isset($_SESSION['messaggio'])) ? '<br>messaggio ['.$_SESSION['messaggio'].']' : '';
+		echo '<br>nome_file ['.$nome_file.']';
+		echo '<br>ret '.str_ireplace(';', '; ',serialize($ret));
 		$autore      = $ret[0];
 		$sigla_autore= $ret[1];
-		echo '<br>autore: '.$autore;
-		echo '<br>sigla: ' .$sigla_autore;
+		echo '<br>autore: ' . $autore;
+		echo '<br>sigla: '  . $sigla_autore;
 		if ($autore>''){
 			$ret_det   = carico_dettaglio( $fotografia_id, 'nome/autore', $autore);
-			$aggiunti[]= "'nome/autore': ".$autore;
+			$aggiunti[]= "'nome/autore': ".$autore .' [1]';
 		}
 	echo '<br>Fine esame nome/autore: '.$autore.'</p>';
 	
@@ -1441,7 +1444,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		if ($sigla_autore == ''){
 			// $sigla_autore = get_autore_sigla_6($nome_file);
 			$ret = get_autore_e_sigla($nome_file);
-			echo '<br>messaggio ['.$_SESSION['messaggio'].']';
+			echo (isset($_SESSION['messaggio'])) ? '<br>messaggio ['.$_SESSION['messaggio'].']' : '';
 			echo '<br>nome_file ['.$nome_file.']';
 			echo '<br>ret '.str_ireplace(';', '; ',serialize($ret));
 			$autore2 = $ret['autore'];
@@ -1450,7 +1453,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 			echo '<br>2 sigla: '.$sigla_autore;
 			if ($autore2>'' && $autore == ''){
 				$ret_det   = carico_dettaglio( $fotografia_id, 'nome/autore', $autore2);
-				$aggiunti[] = "'nome/autore': ".$autore2;
+				$aggiunti[] = "'nome/autore': ".$autore2 . ' [2]';
 			}
 		}
 		// valori predefiniti se manca 

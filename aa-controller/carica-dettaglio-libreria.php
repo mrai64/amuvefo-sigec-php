@@ -312,36 +312,36 @@ function get_autore_e_sigla(string $titolo) : array{
 	$dbh   = New DatabaseHandler(); // no connessioni dedicate
 	$aut_h = New Autori($dbh);
 	$campi=[];
-	$campi['query']= 'SELECT cognome_nome, sigla_6 FROM ' . Autori::nome_tabella
+	$campi['query']= 'SELECT cognome_nome, sigla_6'
+	. ' FROM ' . Autori::nome_tabella
 	. " WHERE sigla_6 > '' ";
 	$ret_aut = $aut_h->leggi($campi);
 	if (isset($ret_aut['error'])){
-		return $ret;
+		return $ret; // vuoto
 	}
-	if (isset($ret_aut['error']) || $ret_aut['numero'] < 1){
-		return $ret;
+	for ($i=0; $i < count($ret_aut['data']); $i++) { 
+		$ret_data[] = $ret_aut['data'][$i];
 	}
-	array_push($ret_data, $ret_aut['data']);
 	// detto 
 	$campi=[];
-	$campi['query']= 'SELECT detto AS cognome_nome, sigla_6 FROM ' . Autori::nome_tabella
+	$campi['query']= 'SELECT detto AS cognome_nome,'
+	. ' sigla_6 FROM ' . Autori::nome_tabella
 	. " WHERE detto > '' AND sigla_6 > '' ";
+	$ret_aut=[];
 	$ret_aut = $aut_h->leggi($campi);
 	if (isset($ret_aut['error'])){
-		return $ret;
+		return $ret; // vuoto
 	}
-	if (isset($ret_aut['error']) || $ret_aut['numero'] < 1){
-		return $ret;
+	for ($i=0; $i < count($ret_aut['data']); $i++) { 
+		$ret_data[] = $ret_aut['data'][$i];
 	}
-	array_push($ret_data, $ret_aut['data']);
-	
+
 	// loop di ricerca in $titolo di $sigla
 	$titolo = strtoupper($titolo);
-	$i_max  = count($ret_data);
-	for ($i=0; $i < $i_max; $i++) { 
-		$sigla  = $ret_data[$i]['sigla_6'];
-		if (str_contains( $titolo, $sigla)){
-			$ret['autore'] = $ret_aut['data'][$i]['cognome_nome'];
+	for ($i=0; $i < count($ret_data); $i++) { 
+		$sigla = $ret_data[$i]['sigla_6'];
+		if (str_contains($titolo, $sigla)){
+			$ret['autore']  = $ret_data[$i]['cognome_nome'];
 			$ret['sigla_6'] = $sigla;
 			return $ret;
 		}
@@ -369,13 +369,15 @@ function get_autore(string $titolo) : array {
 	$sigla='';
 	// confronto senza maiuscole e minuscole
 	$titolo = strtolower($titolo);
+
 	// Autori
 	$dbh = New DatabaseHandler(); // no connessioni dedicate
 	$auh = New Autori($dbh); // auh non auth perché sarebbe frainteso
 	$campi=[];
-	$campi["query"] = 'SELECT record_id, cognome_nome, sigla_6 FROM autori_elenco '
-	. "WHERE sigla_6 > '' "
-	. 'ORDER BY cognome_nome, sigla_6 ';
+	$campi["query"] = 'SELECT record_id, cognome_nome,'
+	. ' sigla_6 FROM ' . Autori::nome_tabella
+	. " WHERE sigla_6 > '' "
+	. ' ORDER BY cognome_nome, sigla_6 ';
 	$ret_autori = $auh->leggi($campi);
 	if ( isset($ret_autori['error']) || $ret_autori['numero'] == 0 ){
 		return [$autore, $sigla];
@@ -383,7 +385,7 @@ function get_autore(string $titolo) : array {
 	$elenco_sigle   = [];
 	$elenco_cognomi = [];
 	$elenco_nomi    = [];
-	for ($i=0; $i < count($ret_autori["data"]); $i++) {
+	for ($i=0; $i < count($ret_autori['data']); $i++) {
 		$elenco_sigle[$i] =$ret_autori['data'][$i]['sigla_6'];
 		$cognome_nome     =$ret_autori['data'][$i]['cognome_nome'];
 

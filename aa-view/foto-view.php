@@ -40,6 +40,16 @@
 		</div>
 	</div>
 	<div class="row">
+		<div class="col-12 fs-4"><?php 
+			echo $fotografia['titolo_fotografia'];
+			if (get_set_abilitazione() > SOLALETTURA){
+				echo '&nbsp;|&nbsp;<a href="'.URLBASE.'fotografie.php/modifica_titolo/'.$fotografia['record_id'].'"'
+				. ' title="Modifica titolo"><i class="fs-2 bi bi-keyboard"></i></a>'."\n";
+			}
+		?>			
+		</div>
+	</div>
+	<div class="row">
 		<div class="col-8 dropdown">
 			<a href="#" class="dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 			<figure class="figure mh-50" >
