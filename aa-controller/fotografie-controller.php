@@ -47,12 +47,11 @@ if (!defined('ABSPATH')){
 include_once(ABSPATH . 'aa-model/database-handler-oop.php');
 include_once(ABSPATH . 'aa-model/fotografie-oop.php');
 include_once(ABSPATH . 'aa-model/scansioni-disco-oop.php');
-include_once(ABSPATH . 'aa-controller/controller-base.php');
-include_once(ABSPATH . 'aa-controller/carica-dettaglio-libreria.php');
 include_once(ABSPATH . 'aa-model/richieste-oop.php');
 include_once(ABSPATH . 'aa-model/album-dettagli-oop.php');
-
-
+include_once(ABSPATH . 'aa-model/chiavi-oop.php');
+include_once(ABSPATH . 'aa-controller/controller-base.php');
+include_once(ABSPATH . 'aa-controller/carica-dettaglio-libreria.php');
 
 /**
  * CREATE - aggiungi 
@@ -578,9 +577,9 @@ function carica_richiesta_fotografie_per_id( int $fotografie_id) : bool {
 	// 
 	$foto_h->set_record_id($fotografie_id); // fa anche validazione
 	$campi=[];
-	$campi['query']= 'SELECT * from fotografie '
-	. 'WHERE record_cancellabile_dal = :record_cancellabile_dal '
-	. 'AND record_id = :record_id ';
+	$campi['query']= 'SELECT * from ' . Fotografie::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id = :record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 	$campi['record_id']               = $foto_h->get_record_id();
 	$ret_foto = $foto_h->leggi($campi);
@@ -645,9 +644,9 @@ if (isset($_GET['test']) &&
 	$foto_h = New Fotografie($dbh);
 
 	$campi=[];
-	$campi['query'] = 'SELECT * from fotografie '
-	. 'WHERE record_cancellabile_dal = :record_cancellabile_dal '
-	. 'AND record_id = :record_id ';
+	$campi['query'] = 'SELECT * from ' . Fotografie::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id = :record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 	$campi['record_id']      = $fotografie_id;
 	//dbg echo var_dump($campi);
@@ -662,7 +661,7 @@ if (isset($_GET['test']) &&
 	// l'ordinamento è quello in uso nella funzione 
 	// leggi_album_per_id dentro album-controller.php 
 	$campi=[];
-	$campi['query'] = 'SELECT * FROM fotografie '
+	$campi['query'] = 'SELECT * FROM ' . Fotografie::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id_in_album = :record_id_in_album '
 	. ' AND titolo_fotografia  < :titolo_fotografia '
@@ -697,9 +696,9 @@ function leggi_fotografia_seguente( int $fotografie_id ) : int {
 	$foto_h = New Fotografie($dbh);
 
 	$campi=[];
-	$campi['query'] = 'SELECT * from fotografie '
-	. 'WHERE record_cancellabile_dal = :record_cancellabile_dal '
-	. 'AND record_id = :record_id ';
+	$campi['query'] = 'SELECT * from ' . Fotografie::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id = :record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 	$campi['record_id']      = $fotografie_id;
 	//dbg echo var_dump($campi);
@@ -714,7 +713,7 @@ function leggi_fotografia_seguente( int $fotografie_id ) : int {
 	// l'ordinamento è quello in uso nella funzione 
 	// leggi_album_per_id dentro album-controller.php 
 	$campi=[];
-	$campi['query'] = 'SELECT * FROM fotografie '
+	$campi['query'] = 'SELECT * FROM ' . Fotografie::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id_in_album = :record_id_in_album '
 	. ' AND titolo_fotografia  > :titolo_fotografia '
@@ -744,7 +743,7 @@ function modifica_dettaglio_fotografia( int $dettaglio_id ){
 	$fdet_h = New FotografieDettagli($dbh); 
 	
 	$campi=[];
-	$campi['query'] = 'SELECT * from fotografie_dettagli '
+	$campi['query'] = 'SELECT * from ' . FotografieDettagli::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id = :record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
@@ -792,7 +791,7 @@ function aggiorna_dettaglio_fotografia(int $dettaglio_id){
 				exit(0);
 	}
 
-	$campi['query'] = 'SELECT * from fotografie_dettagli '
+	$campi['query'] = 'SELECT * from ' . FotografieDettagli::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id = :record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
@@ -847,7 +846,7 @@ function elimina_dettaglio_fotografia( int $dettaglio_id){
 	$fdet_h = New FotografieDettagli($dbh); 
 	
 	$campi=[];
-	$campi['query'] = 'SELECT * from fotografie_dettagli '
+	$campi['query'] = 'SELECT * from ' . FotografieDettagli::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id = :record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
@@ -905,7 +904,7 @@ function aggiungi_dettaglio_fotografia(int $fotografia_id){
 	$chi_h  = New Chiavi($dbh);
 
 	$campi=[];
-	$campi['query'] = 'SELECT * FROM fotografie ' // TODO foto_h::tabella
+	$campi['query'] = 'SELECT * FROM ' . Fotografie::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id = :record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
@@ -962,6 +961,9 @@ function aggiungi_dettaglio_fotografia(int $fotografia_id){
  * CREATE - aggiungi
  * 3 parametri per eseguire un compito ripetitivo 
  * chiamare FotografieDettagli->aggiungi()
+ * Aggiornamento: aggiunta lettura Chiavi per stabilire se sia un parametro ripetibile 
+ * Aggiunto cancellazione eventuali dettagli gia presenti  
+ *  
  * @param  int    $fotografia_id 
  * @param  string $chiave
  * @param  string $valore 
@@ -969,9 +971,56 @@ function aggiungi_dettaglio_fotografia(int $fotografia_id){
  */
 function carico_dettaglio(int $fotografia_id, string $chiave, string $valore) : array {
 	$dbh    = New DatabaseHandler(); // verificare se funziona global 
-	$fdet_h = New FotografieDettagli($dbh); 
-	global $aggiunti;
-
+	$fdet_h = New FotografieDettagli($dbh);
+	$chi_h  = New Chiavi($dbh);
+	// 1. check chiave 
+	$chi_h->set_chiave($chiave);
+	$campi=[];
+	$campi['query']  = 'SELECT unico FROM ' . Chiavi::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND chiave = :chiave ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['chiave'] = $chi_h->get_chiave();
+	$ret_chi = $chi_h->leggi($campi);
+	if (isset($ret_chi['error'])){
+		$ret = '<h2>Errore</h2>'
+		. '<p>Non è stato possibile aggiungere un dettaglio<br>'
+		. 'errore: ' . $ret_chi['message'] . '<br>'
+		. 'campi: ' . serialize($campi) .'</p>';
+		echo $ret;
+		return $ret_chi;
+	}
+	if ($ret_chi['numero'] < 1 ){
+		$ret = '<h2>Errore</h2>'
+		. '<p>Non è stato possibile aggiungere un dettaglio<br>'
+		. 'errore: Non trovato' . '<br>'
+		. 'campi: ' . serialize($campi) .'</p>';
+		echo $ret;
+		return $ret_chi;
+	}
+	// 2. se dettaglio "unico" cancello quelli che fossero già presenti
+	if ($ret_chi['data'][0]['unico'] == 'unico'){
+		$fdet_h->set_record_id_padre($fotografia_id);
+		$campi=[];
+		$campi['update'] = 'UPDATE ' . FotografieDettagli::nome_tabella
+		. ' SET record_cancellabile_dal = :record_cancellabile_dal '
+		. ' WHERE record_id_padre = :record_id_padre '
+		. " AND record_cancellabile_dal = '9999-12-31 23:59:59' "
+		. ' AND chiave = :chiave ';
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_now();
+		$campi['record_id_padre'] = $fdet_h->get_record_id_padre();
+		$campi['chiave'] = $chi_h->get_chiave();
+		$ret_upd = $fdet_h->modifica($campi);
+		if (isset($ret_upd['error'])){
+			$ret = '<h2>Errore</h2>'
+			. '<p>Non è stato possibile aggiungere un dettaglio<br>'
+			. 'errore: ' . $ret_upd['message'] . '<br>'
+			. 'campi: ' . serialize($campi) .'</p>';
+			echo $ret;
+			return $ret_upd;
+		}
+	}
+	// 3. aggiungo o inserisco dettaglio
 	$fdet_h->set_record_id_padre($fotografia_id);
 	$fdet_h->set_chiave($chiave);
 	$fdet_h->set_valore($valore);
@@ -1307,6 +1356,18 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 			$aggiunti[] = "'dimensione/altezza': '24 mm'";
 			$aggiunti[] = "'dimensione/larghezza': '36 mm'";
 		}
+		if ($marca   == 'NIKON CORPORATION' && 
+				$modello == 'NIKON D100'){
+			// scansioni
+			$ret_det = carico_dettaglio( $fotografia_id, 'materia/tecnica', 'file');
+			$aggiunti[] = "'materia/tecnica': 'file'";
+
+			$date_det = $exif['EXIF']['DateTimeOriginal'];
+			$date_det = data_exif_in_timestamp($date_det); // aaaa:mm:gg > aaaa-mm-gg 
+			$ret_det  = carico_dettaglio( $fotografia_id, 'data/evento', $date_det);
+			$aggiunti[] = "'data/evento': ".$date_det;
+		}
+
 	} // $exif['IFD0']['Make'] 
 
 	// sequenza di dettagli exif 
