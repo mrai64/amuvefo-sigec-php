@@ -555,7 +555,7 @@ function get_backup_deposito(string $ultimo_backup) : string {
 	. "`livello1`, `livello2`, `livello3`, `livello4`, `livello5`, `livello6`, "
 	. "`nome_file`, `estensione`, `modificato_il`, `codice_verifica`, "
 	. "`tinta_rgb`, `stato_lavori`, `ultima_modifica_record`, "
-	. "`record_da_esaminare`, `record_cancellabile_dal`) "
+	. "`record_cancellabile_dal`) "
 	. "VALUES(§01, '§02', '§03', '§04', '§05', '§06', '§07', '§08', '§09', "
 	. "'§10', '§11', '§12', '§13', '§14', '§15', '§16', '§17');";
 
@@ -592,8 +592,7 @@ function get_backup_deposito(string $ultimo_backup) : string {
 		$rigo = str_ireplace('§13', $record['tinta_rgb'], $rigo);
 		$rigo = str_ireplace('§14', $record['stato_lavori'], $rigo);
 		$rigo = str_ireplace('§15', $record['ultima_modifica_record'], $rigo);
-		$rigo = str_ireplace('§16', $record['record_da_esaminare'], $rigo);
-		$rigo = str_ireplace('§17', $record['record_cancellabile_dal'], $rigo);
+		$rigo = str_ireplace('§16', $record['record_cancellabile_dal'], $rigo);
 		$ret .= "\n".$rigo;
 	}
     return $ret;
