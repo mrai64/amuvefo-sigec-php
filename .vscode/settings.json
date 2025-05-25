@@ -1,12 +1,17 @@
 {
   "cSpell.words": [
     "adet",
+    "AEIOU",
+    "ALBUMDETTAGLI",
+    "BCDFGHJKLMNPQRSTVWXYZ",
     "FULLTEXT",
     "massimorainato",
     "MODIFICAPLUS",
     "sigec",
+    "SMPTE",
     "SOLALETTURA",
-    "sololettura"
+    "sololettura",
+    "voca"
   ],
   "php.debug.executablePath": "/Applications/MAMP/bin/php/php8.3.14/bin/php",
   "php.validate.executablePath": "/Applications/MAMP/bin/php/php8.3.14/bin/php",

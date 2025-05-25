@@ -50,7 +50,7 @@ $ingresso = str_replace('#ricerca_semplice',              URLBASE.'ricerca.php',
 $abilitazione_solalettura = str_replace("'", '', constant('SOLALETTURA'));
 $abilitazione_modifica    = str_replace("'", '', constant('MODIFICA'));
 $abilitazione_modificaplus= str_replace("'", '', constant('MODIFICAPLUS'));
-$cookie_abilitazione      = (isset($_COOKIE['abilitazione'])) ? str_replace("'", '', $_COOKIE['abilitazione']) : $abilitazione_solalettura;
+$cookie_abilitazione      = get_set_abilitazione();
 
 if (strncmp($cookie_abilitazione, $abilitazione_solalettura, 2) > 0){ // A > B 
 	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
@@ -81,6 +81,4 @@ if (strncmp($cookie_abilitazione, $abilitazione_modificaplus, 2) > 0){ // A > B
 
 // tutto pronto, si espone
 echo $ingresso;
-//dbg echo '<hr />';
-//dbg echo var_dump($_COOKIE);
 exit(0);

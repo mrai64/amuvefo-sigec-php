@@ -19,38 +19,46 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-            <h4>Modifica scheda Autore
+            <h4>Aggiunta scheda Autore
               <a href="<?=URLBASE; ?>autori.php/elenco-autori/" class="btn btn-secondary float-end">Elenco Autori</a>
             </h4>
             <p class="fs-6"><i>I campi Cognome, nome - Sigla Athesis - Persona fisica / gruppo sono obbligatori.</i></p>
           </div>
           <div class="card-body">
-            <form action="<?=URLBASE; ?>autori.php/modifica/<?=$autore['record_id']; ?>" method="POST">
-                <input type="hidden" name="record_id" value="<?=$autore['record_id']; ?>" id="record_id">
+            <form action="<?=URLBASE; ?>autori.php/aggiungi/" method="POST">
                 <div class="mb-3">
-                    <label for="cognome_nome"><strong>Cognome, Nome</strong> </label>
-                    <input type="text" name="cognome_nome" value="<?=$autore['cognome_nome']; ?>" class="form-control" required>
+                    <label for="cognome_nome"><strong>Cognome, Nome</strong></label>
+                    <input type="text" name="cognome_nome" value="" class="form-control" placeholder="Cognome, Nome" required>
                 </div>
                 <div class="mb-3">
                     <label for="detto"> Detto</label>
-                    <input type="text" name="detto" value="<?=$autore['detto']; ?>" class="form-control">
+                    <input type="text" name="detto" value="" class="form-control">
                 </div>
                 <div class="mb-3">
                     <label for="sigla_6"><strong>Sigla Athesis 6</strong>
                       | <a href="<?=URLBASE; ?>man/2-chiavi-di-ricerca/2-1-autori/2-1-1-codice-autore-athesis/" target="_blank" rel="noopener noreferrer"><i class="bi bi-info-square"></i></a>
                     </label>
-                    <input type="text" name="sigla_6" value="<?=$autore['sigla_6']; ?>" placeholder="ABCABC" maxlength="6" id="sigla_autore" class="form-control" required>
+                    <input type="text" name="sigla_6" value="" placeholder="ABCABC" maxlength="6" id="sigla_autore" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label for="fisica_giuridica"><strong>Persona fisica o gruppo</strong></label>
-                    <input type="text" name="fisica_giuridica" value="<?=$autore['fisica_giuridica']; ?>" maxlength="1" class="form-control">
+                  <label for="fisica_giuridica"><strong>Persona fisica o gruppo</strong></label>
+                  <br style="clear:both;">
+                  <!-- input type="text" name="fisica_giuridica" value="F" class="form-control" -->
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="fisica_giuridica" value="F" checked>
+                    <label class="form-check-label" for="inlineCheckbox1">Fisica</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox2" name="fisica_giuridica" value="G">
+                    <label class="form-check-label" for="inlineCheckbox2">Gruppo o Ente</label>
+                  </div>
                 </div>
                 <div class="mb-3">
-                    <label for="url_autore"> URL bio autore</label>
-                    <input type="text" name="url_autore" value="<?=$autore['url_autore']; ?>" class="form-control">
-              </div>
+                  <label for="url_autore"> URL bio autore</label>
+                  <input type="text" name="url_autore" value="" class="form-control" placeholder="https://sito.local/url_biografia">
+                </div>                  
                 <div class="mb-3">
-                    <button type="submit" name="aggiorna_autore" class="btn btn-primary">Aggiorna autore</button>
+                  <button type="submit" name="aggiungi_autore" class="btn btn-primary">Aggiungi autore</button>
                 </div>
             </form>
           </div>
@@ -74,15 +82,13 @@
         $("#sigla_autore").removeClass("is-valid").removeClass("is-invalid");
         $.post(
           urlbase()+'autori.php/verifica',
-          { sigla_6 : $("#sigla_autore").val(), 
-            record_id: $("#record_id").val()
-          }
+          { sigla_6 : $("#sigla_autore").val() }
         )
         .done(function(risultato){
           if (risultato == 'present') {
-            $("#sigla_autore").addClass('is-invalid');
+            $("#sigla_autore").removeClass('is-invalid');
           } else {
-            $("#sigla_autore").addClass('is-valid');
+            $("#sigla_autore").removeClass('is-valid');
           }
         })
         .fail(function(response){

@@ -11,6 +11,7 @@
 	</head>
 	<body>
 		<!-- TEST	https://archivio.athesis77.it/ricerca.php 	-->
+		<!-- TEST	http://localhost:8888/amuvefo-sigec-php/ricerca.php 	-->
 		<!-- TEST	https://fotomuseoathesis.it/ricerca.php 	-->
 		<div class="container pt-5">
 			<div class="row">
@@ -42,39 +43,48 @@
 			?>
 			<div class="row" >
 				<h4 class="">Album</h4>
-				<div class="col-1"><?=$indietro_album; ?></div>
-				<div class="col-10 vh-50 overflow-auto " id="listaRisultatiAlbum">
+				<div class="col-1" ><?=$indietro_album; ?></div>
+				<div class="col-10"><?=$contatore_album; ?></div>
+				<div class="col-1" ><?=$avanti_album; ?></div>
+			</div>
+			<div class="row">
+				<div class="col-12 vh-50 overflow-auto " id="listaRisultatiAlbum">
 					<?=$html_album; ?>
 				</div>
-				<div class="col-1"><?=$avanti_album; ?></div>
 			</div>
 			<div class="row" >
 				<h4 class="">Fotografie</h4>
-				<div class="col-1"><?=$indietro_fotografie; ?></div>
-				<div class="col-10 vh-50 grid clearfix overflow-auto " id="listaRisultatiFotografie">
+				<div class="col-1" ><?=$indietro_fotografie; ?></div>
+				<div class="col-10"><?=$contatore_fotografie; ?></div>
+				<div class="col-1" ><?=$avanti_fotografie; ?></div>
+			</div>
+			<div class="row">
+				<div class="col-12 vh-50 grid clearfix overflow-auto " id="listaRisultatiFotografie">
 					<?=$html_fotografie; ?>
 				</div>
-				<div class="col-1"><?=$avanti_fotografie; ?></div>
 			</div>
 			<div class="row" >
 				<h4 class="">Video</h4>
-				<div class="col-1"><?=$indietro_video; ?></div>
+				<div class="col-1" ><?=$indietro_video; ?></div>
+				<div class="col-10"><?=$contatore_video; ?></div>
+				<div class="col-1" ><?=$avanti_video; ?></div>
+			</div>
+			<div class="row">				
 				<div class="col-10 vh-50 grid clearfix overflow-auto " id="listaRisultatiVideo">
 					<?=$html_video; ?>	
 				</div>
-				<div class="col-1"><?=$avanti_video; ?></div>
 			</div>
-			<footer class="p-3">
-				<p class="fw-light text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
-				<p class="fw-light text-center text-body-secondary">
-					Il materiale presente nell'archivio non è di pubblico dominio
-					<br>e non è consentita la pubblicazione in altri luoghi
-					<br>senza consenso scritto del Comitato di gestione 
-					di Athesis Museo Veneto Fotografia.
-					<br>Utilizzando la ricerca accettate esplicitamente i <a href="https://www.fotomuseoathesis.it/man/termini-di-servizio-e-condizioni-duso/" class=""> Termini d'Uso </a>.
-				</p>
-			</footer>
 		</div>
+		<footer class="p-3">
+			<p class="fw-light text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
+			<p class="fw-light text-center text-body-secondary">
+				Il materiale presente nell'archivio non è di pubblico dominio
+				<br>e non è consentita la pubblicazione in altri luoghi
+				<br>senza consenso scritto del Comitato di gestione 
+				di Athesis Museo Veneto Fotografia.
+				<br>Utilizzando la ricerca accettate esplicitamente i <a href="https://www.fotomuseoathesis.it/man/termini-di-servizio-e-condizioni-duso/" class=""> Termini d'Uso </a>.
+			</p>
+		</footer>
 		<script src="<?=URLBASE; ?>aa-view/ricerca.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 	</body>

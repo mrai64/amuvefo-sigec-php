@@ -37,6 +37,10 @@
  *   di un modulo oppure 
  *   carica e presenta il modulo per la modifica 
  * 
+ * /album.php/modifica_titolo/{album_id}
+ *   modifica il titolo dell'album che a differenza
+ *   del nome cartella può contenere lettere accentate e altro 
+ * 
  */
 //dbg echo '<pre style="max-width:50rem;">debug on'."\n";
 if (!defined('ABSPATH')){
@@ -59,6 +63,7 @@ switch($richiesta){
 	case 'modifica_dettaglio':
 	case 'aggiorna_dettaglio':
 	case 'elimina_dettaglio':
+	case 'modifica_titolo':
 		break;
 
 	// resto no 
@@ -109,7 +114,7 @@ if ($richiesta == 'leggi'){
 /**
  * sbarramento abilitazione 
  */
-if ($_COOKIE['abilitazione'] <= SOLALETTURA){
+if (get_set_abilitazione() <= SOLALETTURA){
 	http_response_code(404); // know not found
 	echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non abilitata</strong></pre>'."\n";
 	exit(1);
@@ -163,6 +168,19 @@ if ($richiesta == 'elimina_dettaglio'){
 	elimina_dettaglio_album($dettaglio_id);
 	exit(0);
 }
+
+/**
+ * Modifica titolo
+ */
+if ($richiesta == 'modifica_titolo' && !isset($_POST['titolo'])){
+	modifica_titolo_album($album_id, []);
+	exit(0);
+} 
+if ($richiesta == 'modifica_titolo' ){
+	modifica_titolo_album($album_id, $_POST);
+	exit(0);
+}
+
 
 // Anche qui non dovrebbe arrivarci, però...
 http_response_code(404); // know not found

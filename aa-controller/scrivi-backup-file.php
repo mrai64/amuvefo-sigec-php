@@ -11,6 +11,11 @@
  * Se la data è convenzionalmente 1976-01-01 00:00:00
  * il backup della tabella è totale, altrimenti 
  * si parte dal datetime indicato per >= 
+ * 
+ * Nota: Accesso diretto alle tabelle, non si passa per i model.
+ * I model ci son per tanti ma non per tutti, serve realizzare un 
+ * generatore di php che scriva il model in automatico partendo
+ * da una tabella bidimensionale di dati - definizioni campi
  */
 if (!defined('ABSPATH')){
 	include_once('../_config.php');
@@ -265,8 +270,8 @@ function get_backup_chiavi(string $ultimo_backup) : string {
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
 	$riempire = "INSERT INTO `chiavi_elenco` (`record_id`, `chiave`, "
-	. "`url_manuale`, `ultima_modifica_record`, `record_cancellabile_dal`) "
-	. "VALUES(§1, '§2', '§3', '§4', '§5');";
+	. "`url_manuale`, `unico`, `ultima_modifica_record`, `record_cancellabile_dal`) "
+	. "VALUES(§1, '§2', '§3', '§4', '§5', '§6');";
 
 	$leggi = 'SELECT * FROM chiavi_elenco ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -287,10 +292,11 @@ function get_backup_chiavi(string $ultimo_backup) : string {
 	. "\n". '--'."\n";
 	while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
 		$rigo = str_ireplace('§1', $record['record_id'], $riempire);
-		$rigo = str_ireplace('§2', $record['chiave'], $rigo);
-		$rigo = str_ireplace('§3', $record['url_manuale'], $rigo);
-		$rigo = str_ireplace('§4', $record['ultima_modifica_record'], $rigo);
-		$rigo = str_ireplace('§5', $record['record_cancellabile_dal'], $rigo);
+		$rigo = str_ireplace('§2', $record['chiave'],                 $rigo);
+		$rigo = str_ireplace('§3', $record['url_manuale'],            $rigo);
+		$rigo = str_ireplace('§4', $record['unico'],                  $rigo);
+		$rigo = str_ireplace('§5', $record['ultima_modifica_record'], $rigo);
+		$rigo = str_ireplace('§6', $record['record_cancellabile_dal'],$rigo);
 		$ret .= "\n".$rigo;
 	}
     return $ret;
@@ -507,9 +513,9 @@ function get_backup_cartelle(string $ultimo_backup) : string {
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
 	$riempire = "INSERT INTO `scansioni_cartelle` (`record_id`, `disco`, "
-	. "`percorso_completo`, `stato_scansione`, `ultima_modifica_record`"
-	. "`stato_lavori`, `record_cancellabile_dal` ) "
-	. "VALUES(§1, '§2', '§3', §4, '§5', '§6', '§7' );";
+	. "`percorso_completo`, `stato_lavori`, "
+	. " `ultima_modifica_record`, `record_cancellabile_dal` ) "
+	. "VALUES(§1, '§2', '§3', '§4', '§5', '§6' );";
 
 	$leggi = 'SELECT * FROM scansioni_cartelle ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -532,10 +538,9 @@ function get_backup_cartelle(string $ultimo_backup) : string {
 		$rigo = str_ireplace('§1', $record['record_id'], $riempire);
 		$rigo = str_ireplace('§2', $record['disco'], $rigo);
 		$rigo = str_ireplace('§3', $record['percorso_completo'], $rigo);
-		$rigo = str_ireplace('§4', $record['stato_scansione'], $rigo);
+		$rigo = str_ireplace('§4', $record['stato_lavori'], $rigo);
 		$rigo = str_ireplace('§5', $record['ultima_modifica_record'], $rigo);
-		$rigo = str_ireplace('§6', $record['stato_lavori'], $rigo);
-		$rigo = str_ireplace('§7', $record['record_cancellabile_dal'], $rigo);
+		$rigo = str_ireplace('§6', $record['record_cancellabile_dal'], $rigo);
 		$ret .= "\n".$rigo;
 	}
     return $ret;

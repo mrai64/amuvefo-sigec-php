@@ -61,7 +61,7 @@ if ($richiesta === 'accesso'){
 }
 
 // sbarramento abilitazioni - sostituisce tabella abilitazioni
-$cookie_abilitazione = str_replace("'", '', $_COOKIE['abilitazione']);
+$cookie_abilitazione = get_set_abilitazione();
 $abilitazione_richiesta = str_replace("'", '', constant('MODIFICAPLUS'));
 if (strcmp($cookie_abilitazione, $abilitazione_richiesta) < 0){
 	http_response_code(404); // know not found

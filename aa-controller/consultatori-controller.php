@@ -43,11 +43,12 @@ function accesso_checkpoint(array $dati_input){
   // manca uno o o entrambi i dati - espone il modulo
   if (!isset($dati_input['accesso_email']) || 
       !isset($dati_input['accesso_password'])){
-    $_SESSION['messaggio']='Inserite i dati';
+    $_SESSION['messaggio']='Inserite i dati [1]';
     sleep(rand(2,7));
     require_once(ABSPATH.'aa-view/consultatori-accesso-view.php');
     exit(0);
   }
+
   // i dati ci sono 1/verifica 
   $dbh = new DatabaseHandler();
   $acc_h = new Consultatori($dbh);
@@ -75,32 +76,33 @@ function accesso_checkpoint(array $dati_input){
     require_once(ABSPATH.'aa-view/consultatori-accesso-view.php');
     exit(0);
   }
+  // 0 record trovati con data inizio attività <= oggi <= data fine attività
   if ($ret_acc['numero'] == 0){
     $_SESSION['messaggio']="Si è verificato un errore nell'accesso "
     . "all'archivio dei consultatori.<br>Non proseguire e inviare "
     . "questa schermata al comitato di gestione."
     // . "<br>". str_replace(';' , '; ', serialize($campi))
-    . "<br> Record non trovato o scaduto.";
+    . "<br> Record non trovato o scaduto. [2]";
     sleep(rand(2,7));
     require_once(ABSPATH.'aa-view/consultatori-accesso-view.php');
     exit(0);
   }
+  // la password in chiaro viene codificata per confrontarla 
   $acc_h->set_password($dati_input['accesso_password']);
   $pass = $acc_h->get_password();
-  // si possono trovare più record
+
+  // si possono trovare più record, è gestito.
   $id_consultatore = 0;
   $abilitazione_consultatore = '';
   $cognome_nome = '';
   $email='';
   foreach ($ret_acc['data'] as $consultatore) {
+    // password diversa - avanti il prossimo
     if (strncmp($consultatore['password'], $pass, 128) != 0){
-      // echo "<br>::".$consultatore['password']."::";
-      // echo "<br>::".$pass."::";
-      // echo "<br>id:".$consultatore['record_id'];
       continue;
     }
     $abilitazione_calendario = str_replace("'", '', $consultatore['abilitazione']);
-    // se abilitazione_calendario è maggiore di ...
+    // se trovo più record tengo "la maggiore" ...
     if (strncmp($abilitazione_consultatore, $abilitazione_calendario, 2) < 0){
       $id_consultatore = $consultatore['record_id'];
       $abilitazione_consultatore = $abilitazione_calendario;
@@ -108,6 +110,7 @@ function accesso_checkpoint(array $dati_input){
       $email = $consultatore['email'];
     }
   } // foreach
+
   if ($id_consultatore == 0){
     $_SESSION['messaggio']="Si è verificato un errore nell'accesso "
     . "all'archivio dei consultatori.<br><b>Non proseguire</b> e inviare "
@@ -120,6 +123,7 @@ function accesso_checkpoint(array $dati_input){
     require_once(ABSPATH.'aa-view/consultatori-accesso-view.php');
     exit(0);
   }
+
   // trovato, settaggio cookie e sessione e rinvio alla pagina 
   session_reset();
   $_SESSION['consultatore']   =$cognome_nome;
@@ -127,22 +131,28 @@ function accesso_checkpoint(array $dati_input){
   $_SESSION['accesso_email']  =$email;
   $_SESSION['consultatore_id']=$id_consultatore;
   // cookie 
-  $scadenza = (int) time()+10*24*60*60; // 10 giorni in secondi 
+  $scadenza = (int) time()+3*86400; // 10 giorni in secondi 
   $expires  = date("D, d M Y H:i:s",$scadenza).' GMT'; // headers setcookie 
   $dominio  = str_replace('https://', '', URLBASE);
   $dominio  = str_replace('http://', '', $dominio);
   $dominio  = substr($dominio, 0, strpos($dominio, '/', 0));
 
+  $cookie_path = (URLZERO > "") ? URLZERO : "/";
+  setcookie("consultatore",    "", time()-3600, $cookie_path, $dominio); 
+  setcookie("abilitazione",    "", time()-3600, $cookie_path, $dominio); 
+  setcookie("accesso_email",   "", time()-3600, $cookie_path, $dominio); 
+  setcookie("consultatore_id", "", time()-3600, $cookie_path, $dominio); 
+
   // servono online 
-  setcookie("consultatore",    $cognome_nome,              $scadenza, "/", $dominio); 
-  setcookie("abilitazione",    $abilitazione_consultatore, $scadenza, "/", $dominio); 
-  setcookie("accesso_email",   $email,                     $scadenza, "/", $dominio); 
-  setcookie("consultatore_id", $id_consultatore,           $scadenza, "/", $dominio); 
+  setcookie("consultatore",    $cognome_nome,              $scadenza, $cookie_path, $dominio); 
+  setcookie("abilitazione",    $abilitazione_consultatore, $scadenza, $cookie_path, $dominio); 
+  setcookie("accesso_email",   $email,                     $scadenza, $cookie_path, $dominio); 
+  setcookie("consultatore_id", $id_consultatore,           $scadenza, $cookie_path, $dominio); 
 
   // si gira alla pagina di destinazione 
-  header("Set-Cookie: consultatore='$cognome_nome'; Expires='$expires'; Path=/; SameSite=None; ", false);
-  header("Set-Cookie: abilitazione='$abilitazione_consultatore'; Expires='$expires'; Path=/; SameSite=None; ", false);
-  header("Set-Cookie: consultatore_id=$id_consultatore; Expires='$expires'; Path=/; SameSite=None; ", false);
+  header("Set-Cookie: consultatore='$cognome_nome'; Expires='$expires'; Path=$cookie_path; SameSite=None; ", false);
+  header("Set-Cookie: abilitazione='$abilitazione_consultatore'; Expires='$expires'; Path=$cookie_path; SameSite=None; ", false);
+  header("Set-Cookie: consultatore_id=$id_consultatore; Expires='$expires'; Path=$cookie_path; SameSite=None; ", false);
   header("Location: ". $return_to );
   exit(0); // tutto ok - termina  
 } // accesso_checkpoint()
@@ -399,7 +409,8 @@ function dettaglio_consultatore(int $consultatore_id){
 
 
 /**
- * 
+ * soft-delete del record a cui viene impostato il valore 
+ * record_cancellabile_dal = current_datetime()
  */
 function cancella_consultatore(int $consultatore_id){
   $dbh = new DatabaseHandler();

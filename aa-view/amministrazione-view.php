@@ -16,6 +16,7 @@
 		</div>
 		<div class="row">
 			<div class="col-4">
+				<!-- /man/ -->
 				<div class="list-group">
 					<a href="<?=URLBASE; ?>man/" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
@@ -41,12 +42,21 @@
 							</div>
 						</div>
 					</a>
-				<!-- /elenchi.php/calendario/0 -->	
+				<!-- /consultatori.php/elenco/ -->	
 					<a href="<?=URLBASE; ?>consultatori.php/elenco/" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
 							<div>
 								<h6 class="mb-0">Consultatori. Elenco Agenda Accessi -</h6>
 								<p class="mb-0 opacity-75">Accrediti per consultazione o modifica e loro calendario</p>
+							</div>
+						</div>
+					</a>
+				<!-- /vocabolario.php/elenco-generale/ -->	
+					<a href="<?=URLBASE; ?>vocabolario.php/elenco-generale/" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+						<div class="d-flex gap-2 w-100 justify-content-between">
+							<div>
+								<h6 class="mb-0">Chiavi - Valori - Elenco alfabetico completo </h6>
+								<p class="mb-0 opacity-75">Nota: per alcune chiavi di ricerca l'elenco non può essere esaustivo, ma riguarda le eccezioni alla regola ammesse; per esempio alle date aaaa-mm-gg.</p>
 							</div>
 						</div>
 					</a>
