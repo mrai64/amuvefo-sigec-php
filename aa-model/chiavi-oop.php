@@ -17,6 +17,10 @@
  *   alternativo alla option list non per input select 
  *   ma per input text con funzioni di autocomplete in carico al browser 
  *   che deve essere aggiornato 
+ * - get_chiave_record_per_id
+ *   legge la tabella e restituisce un record se presente 
+ * - get_chiave_record_per_chiave
+ *   legge la tabella e restituisce un record se presente 
  * 
  * - setter 
  * 
