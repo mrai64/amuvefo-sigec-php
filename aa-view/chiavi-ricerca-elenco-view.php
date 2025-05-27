@@ -39,6 +39,9 @@
 									Link alla pagina del manuale
 								</th>
 								<th>
+									Unico / Ripetibile
+								</th>
+								<th>
 									Azione
 								</th>
 							</tr>
