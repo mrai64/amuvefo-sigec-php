@@ -423,7 +423,7 @@ function remove_record_fotografie(string $ultimo_backup) : array {
 		return $ret;
 	}
 	while ($foto = $lettura_foto->fetch(PDO::FETCH_ASSOC)) {
-		$aggiorna = false;
+		$aggiornare = false;
 		$leggi_dettagli = "SELECT * from fotografie_dettagli "
 		. " WHERE record_id_padre = " .$foto['record_id'] 
 		. " AND record_cancellabile_dal > '".$foto['record_cancellabile_dal']."' "; 
@@ -441,6 +441,7 @@ function remove_record_fotografie(string $ultimo_backup) : array {
 			];
 			return $ret;
 		}
+
 		while ($record = $lettura_dettagli->fetch(PDO::FETCH_ASSOC)) {
 			$aggiornare = true;
 			break;
@@ -683,6 +684,7 @@ function remove_record_video(string $ultimo_backup) : array {
 
 
 function remove_record_tutti(){ 
+
 	// Legge il file contenente il precedente datetime di backup
 	$config_file = ABSPATH.'aa-backup/.config';
 	if (!is_file($config_file)){
@@ -700,6 +702,9 @@ function remove_record_tutti(){
 
 	$ultimo_backup = getenv('ULTIMO_BACKUP'); //esce con gli apici 
 	$ultimo_backup = str_ireplace("'", '', $ultimo_backup);
+
+	require_once(ABSPATH.'aa-view/cancellazione-eseguita.php');
+	// si possono usare le classi bootstrap 
 
 	if ($ultimo_backup >= $dbh->get_datetime_now()){
 		echo '<p style="color:red;font-family:monospace;">'
@@ -746,7 +751,6 @@ function remove_record_tutti(){
 	$scansioni_disco    = remove_record_from('scansioni_disco', $ultimo_backup);
 	echo '<p>Deposito: '. $scansioni_disco['message'] .'</p>';
 
-	require_once(ABSPATH.'aa-view/cancellazione-eseguita.php');
 	exit(0); 					
 } // remove_record_tutti
 
