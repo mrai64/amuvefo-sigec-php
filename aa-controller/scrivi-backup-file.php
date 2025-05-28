@@ -26,7 +26,6 @@ include_once(ABSPATH.'aa-model/database-handler-oop.php');
 
 $elenco_tabelle=[
 	'abilitazioni_elenco',
-	'appunti_sql_elenco',
 	'album',
 	'album_dettagli',
 	'autori_elenco',
@@ -39,7 +38,8 @@ $elenco_tabelle=[
 	'scansioni_cartelle',
 	'scansioni_disco',
 	'video',
-	'video_dettagli'
+	'video_dettagli',
+	'zz_appunti_sql'
 ];
 
 function set_ultimo_backup(string $ultimo_backup){
@@ -183,13 +183,13 @@ function get_backup_album_dettagli(string $ultimo_backup) : string {
 function get_backup_appunti_sql(string $ultimo_backup) : string{
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
-	$riempire = "INSERT INTO `appunti_sql_elenco` (`record_id`, `sinossi`, "
+	$riempire = "INSERT INTO `zz_appunti_sql` (`record_id`, `sinossi`, "
 	. "`appunto_sql`, "
 	. "`ultima_modifica_record`) "
 	. "VALUES(§1, '§2', '§3', '§4');";
 	
 	// il parametro di input viene ignorato 
-	$leggi = 'SELECT * FROM appunti_sql_elenco ' 
+	$leggi = 'SELECT * FROM zz_appunti_sql ' 
 	. " WHERE ultima_modifica_record >= '0001-01-01 01:01:01' ";
 	try{
 		$lettura = $dbh->prepare($leggi);
@@ -205,7 +205,7 @@ function get_backup_appunti_sql(string $ultimo_backup) : string{
 
 	// loop 
 	$ret .= "\n\n".'--'
-	. "\n". '-- Dump dei dati per la tabella `appunti_sql_elenco`'
+	. "\n". '-- Dump dei dati per la tabella `zz_appunti_sql`'
 	. "\n". '--'."\n";
 	while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
 		$rigo = str_ireplace('§1', $record['record_id'], $riempire);
@@ -709,7 +709,6 @@ function get_file_backup(){
 	file_put_contents($backup_file, get_backup_abilitazioni($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_album($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_album_dettagli($ultimo_backup), FILE_APPEND);
-	file_put_contents($backup_file, get_backup_appunti_sql($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_autori($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_chiavi($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_vocabolari($ultimo_backup), FILE_APPEND);
@@ -721,6 +720,7 @@ function get_file_backup(){
 	file_put_contents($backup_file, get_backup_deposito($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_video($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_video_dettagli($ultimo_backup), FILE_APPEND);
+	file_put_contents($backup_file, get_backup_appunti_sql($ultimo_backup), FILE_APPEND);
 	$fine_elenco = "\n--\n-- Fine file backup \n--\n";
 	file_put_contents($backup_file, $fine_elenco, FILE_APPEND);
 
@@ -736,7 +736,7 @@ function get_file_backup(){
 
 	set_ultimo_backup($backup_time); 
 
-	require_once(ABSPATH.'aa-view/backup-eseguito.php');
+	// require_once(ABSPATH.'aa-view/backup-eseguito.php');
 	exit(0); 
 					
 } // get_file_backup
