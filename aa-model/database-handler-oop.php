@@ -83,6 +83,7 @@ class DatabaseHandler extends PDO {
 	 * @return string datetime formatted "now"
 	 */
 	public function get_datetime_now() : string {
+		date_default_timezone_set('Europe/Rome');
 		return date("Y-m-d H:i:s");
 	}
 
