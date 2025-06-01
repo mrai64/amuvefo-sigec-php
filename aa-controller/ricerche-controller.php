@@ -179,7 +179,8 @@ function leggi_ricerca(int $ricerca_id) {
 	$quanti_video  = 12;
 	$video_trovati = count($risultato['video']);
 
-	$html_album     = '<p>Nessun album rintracciato.'
+	$html_album     = '';
+	$contatore_album= '<p>Nessun album rintracciato.'
 	. '<span id="albumTrovati" class="d-none">0</span>'
 	. '<span id="totAlbum"     class="d-none">'.$quanti_album.'</span>'
 	. '<span id="albumPrimo"   class="d-none">1</span>'
@@ -192,7 +193,8 @@ function leggi_ricerca(int $ricerca_id) {
 	. 'class="h2 bi bi-skip-forward-fill text-secondary"></i>'
 	. '</p>';	
 	
-	$html_fotografie    = '<p>Nessuna fotografia rintracciata.'
+	$html_fotografie = '';
+	$contatore_fotografie= '<p>Nessuna fotografia rintracciata.'
 	. '<span id="fotoTrovate" class="d-none">0</span>'
 	. '<span id="totFoto" class="d-none">'.$quante_foto.'</span>'
 	. '<span id="fotoPrima" class="d-none">1</span>'
@@ -205,7 +207,8 @@ function leggi_ricerca(int $ricerca_id) {
 	. 'class="h2 bi bi-skip-backward-fill text-secondary"></i>'
 	. '</p>';	
 		
-	$html_video    = '<p>Nessun video rintracciato.'
+	$html_video    = '';
+	$contatore_video    = '<p>Nessun video rintracciato.'
 	. '<span id="videoTrovati" class="d-none">0</span>'
 	. '<span id="totVideo" class="d-none">'.$quanti_video.'</span>'
 	. '<span id="videoPrimo" class="d-none">1</span>'
@@ -224,7 +227,7 @@ function leggi_ricerca(int $ricerca_id) {
 		$quanti_album = min($quanti_album, $album_trovati);
 		$album_list   = array_slice($risultato['album'], 0, $quanti_album);
 		
-		$html_album  = '<p>In totale sono stati rintracciati '
+		$contatore_album  = '<p>In totale sono stati rintracciati '
 		. '<span id="albumTrovati">'.$album_trovati.'<span> album.'
 		. '<span id="totAlbum"     class="d-none">'.$quanti_album.'</span>'
 		. '</p>';
@@ -290,7 +293,7 @@ function leggi_ricerca(int $ricerca_id) {
 		$quante_foto = min($quante_foto, $foto_trovate);
 		$foto_list   = array_slice($risultato['fotografie'], 0, $quante_foto);
 
-		$html_fotografie  = '<p>In totale sono state rintracciate '
+		$contatore_fotografie  = '<p>In totale sono state rintracciate '
 		. "\n". '<span id="fotoTrovate">'.$foto_trovate.'</span> fotografie.'
 		. "\n". '<span id="totFoto" class="d-none">'.$quante_foto.'</span>'
 		. '</p>';
@@ -352,7 +355,7 @@ function leggi_ricerca(int $ricerca_id) {
 		. '<span id="videoUltimo" class="d-none">'.$quanti_video.'</span>'
 		. '</p>';	
 		
-		$html_video  = '<p>In totale sono stati rintracciati '
+		$contatore_video  = '<p>In totale sono stati rintracciati '
 		. '<span id="videoTrovati">'.$video_trovati.'</span> video.'
 		. '<span id="totVideo" class="d-none">'.$quanti_video.'</span>'
 		. '</p>';
@@ -473,6 +476,7 @@ function get_album_list(array $dati_input) : array {
 		        . " OR  livello4 like '%".$termine."%' "
 		        . " OR  livello5 like '%".$termine."%' "
 		        . " OR  livello6 like '%".$termine."%' "
+		    . " OR  titolo_album like '%".$termine."%' "
 		        . ') ';
 	} // foreach
 	// $query .= ' ORDER BY record_id ';
@@ -571,7 +575,7 @@ function get_fotografie_list(array $dati_input = []): array{
 	$fotografie_id=[];
 
 	$dbh    = New DatabaseHandler();
-	$alb_h  = New Album($dbh);
+//$alb_h  = New Album($dbh);
 	$foto_h = New Fotografie($dbh);
 	$fdet_h = New FotografieDettagli($dbh);
 	$scan_h = New ScansioniDisco($dbh);
@@ -622,6 +626,7 @@ function get_fotografie_list(array $dati_input = []): array{
 		. " OR  livello4 like '%".$termine."%' "
 		. " OR  livello5 like '%".$termine."%' "
 		. " OR  livello6 like '%".$termine."%' "
+		. " OR titolo_fotografia like '%".$termine."%' "
 		. " OR nome_file like '%".$termine."%' "
 		. ') ';
 	} // foreach
@@ -721,7 +726,7 @@ function get_video_list(array $dati_input = []): array{
 	$video_id=[];
 
 	$dbh    = New DatabaseHandler();
-	$alb_h  = New Album($dbh);
+//$alb_h  = New Album($dbh);
 	$vid_h  = New Video($dbh);
 	$vdet_h = New VideoDettagli($dbh);
 	$scan_h = New ScansioniDisco($dbh);
@@ -769,6 +774,7 @@ function get_video_list(array $dati_input = []): array{
 		       . " OR  livello4 like '%".$termine."%' "
 		       . " OR  livello5 like '%".$termine."%' "
 		       . " OR  livello6 like '%".$termine."%' "
+		       . " OR titolo_video like '%".$termine."%' "
 		       . " OR nome_file like '%".$termine."%' "
 		       . ') ';
 	} // foreach
@@ -962,11 +968,8 @@ function get_blocco_ricerca_avanti(array $dati_input) : string {
 	if ($gruppo === 'album'){
 		$blocco_id  = array_slice($risultato['album'], $ultimo, $tot, true);
 		$tot        = count($blocco_id);
-		$html_album = '<p>In totale sono stati rintracciati '
-		. "\n". '<span id="albumTrovati">'.count($risultato['album']).'</span> album.'
-		. "\n". 'Vista da n.'.($ultimo + 1) . ' fino a ' . ($ultimo + $tot) 
-		.       '<span id="totAlbum" class="d-none">'.$tot.'</span> album.'
-		. '</p>';
+		$html_album = '<p>Da n.'.($ultimo + 1) . ' fino a ' . ($ultimo + $tot) 
+		.       ' album.</p>';
 		$html_album .= get_html_album( $blocco_id );
 		// albumPrimo albumUltimo fanno rifermento all'indice cardinale nell'elenco dei risultati
 		// ma se si crea un buco nella lettura (per qualcosa di cancellato) SI CREANO buchi
@@ -979,11 +982,8 @@ function get_blocco_ricerca_avanti(array $dati_input) : string {
 	if ($gruppo === 'fotografie'){
 		$blocco_id  = array_slice($risultato['fotografie'], $ultimo, $tot, true);
 		$tot        = count($blocco_id);
-		$html_fotografie  = '<p>In totale sono state rintracciate '
-		. "\n". '<span id="fotoTrovate">'.count($risultato['fotografie']).'</span> fotografie.'
-		. "\n". 'Vista da n.'.($ultimo + 1) . ' fino a ' . ($ultimo + $tot) 
-		.       '<span id="totFoto" class="d-none">'.$tot.'</span> foto.'
-		. '</p>';
+		$html_fotografie  = '<p>Vista da n.'.($ultimo + 1) . ' fino a ' . ($ultimo + $tot) 
+		. ' foto.</p>';
 		$html_fotografie .= get_html_fotografie( $blocco_id );
 		$html_fotografie .= "\n"
 		. '<span id="fotoPrima"  class="d-none">'.($ultimo+1)     .'</span>'
@@ -993,11 +993,8 @@ function get_blocco_ricerca_avanti(array $dati_input) : string {
 	// restano i video 
 	$blocco_id  = array_slice($risultato['video'], $ultimo, $tot, true);
 	$tot        = count($blocco_id);
-	$html_video = '<p>In totale sono stati rintracciati '
-	. "\n". '<span id="videoTrovati">'.count($risultato['video']).'</span> video.'
-	. "\n". 'Vista da n.'.($ultimo + 1) . ' fino a ' . ($ultimo + $tot) 
-	.       '<span id="totVideo" class="d-none">'.$tot.'</span> video.'
-	. '</p>';
+	$html_video = '<p>Vista da n.'.($ultimo + 1) . ' fino a ' . ($ultimo + $tot) 
+	. ' video.</p>';
 	$html_video .= get_html_video( $blocco_id );
 	$html_video .= "\n"
 	. '<span id="videoPrimo"  class="d-none">' .($ultimo+1)     .'</span>'

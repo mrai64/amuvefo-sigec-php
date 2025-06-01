@@ -3,7 +3,8 @@
  *	@source /aa-controller/controllo-abilitazione.php 
  *	@author Massimo Rainato <maxrainato@libero.it>
  *
- * ATTENZIONE: FA ACCESSO DIRETTO e non tramite OOP 
+ * !TODO ATTENZIONE: FA ACCESSO DIRETTO e non tramite OOP 
+ * !TODO va creato un /aa-model/abilitazioni-oop.php
  * 
  * 1. Verifica se sono impostati i parametri $_COOKIE['consultatore']
  * e $_SESSION['consultatore']
@@ -18,47 +19,19 @@ if (!defined('ABSPATH')){
   include_once('../_config.php');
 }
 if (session_status() !== PHP_SESSION_ACTIVE){
-	session_start();
+	@session_start();
+	$abilitazione = get_set_abilitazione();
 	$_SESSION['messaggio'] = "Non risulta presente un consultatore "
 	. '<br>' . serialize($_COOKIE);
 	header("Location: ".URLBASE."consultatori.php/accesso/?p=3&return_to=".urlencode($_SERVER['REQUEST_URI']) );
 	exit(0);
 }
-if (!isset($_COOKIE['abilitazione'])){
+if (!isset($_SESSION['abilitazione'])){
 	$_SESSION['messaggio'] = "Non risulta presente un consultatore "
 	. '<br>' . serialize($_COOKIE);
 	header("Location: ".URLBASE."consultatori.php/accesso/?p=3&return_to=".urlencode($_SERVER['REQUEST_URI']) );
 	exit(0);
 }
-
-/* 
-	// inoltra alla pagina se i dati mancano o non sono uguali
-	if ( !isset($_COOKIE['consultatore']) || !isset($_SESSION['consultatore']) ){
-		$_SESSION['messaggio'] = "Non risulta presente un consultatore "
-		. '<br>' . serialize($_COOKIE)
-		. '<br>' . serialize($_SESSION);
-		header("Location: ".URLBASE."consultatori.php/accesso/?p=1&return_to=".urlencode($_SERVER['REQUEST_URI']) );
-		exit(0);
-	}
-	if ( empty($_COOKIE['consultatore']) || empty($_SESSION['consultatore']) ){
-		header("Location: ".URLBASE."consultatori.php/accesso/?p=2&return_to=".urlencode($_SERVER['REQUEST_URI']) );
-		exit(0);
-	}
-	if ( ("".$_COOKIE["consultatore"]) != ("".$_SESSION["consultatore"]) ){
-		$_SESSION['messaggio'] = "Non risulta presente un consultatore "
-		. '<br>' . serialize($_COOKIE)
-		. '<br>' . serialize($_SESSION);
-		header("Location: ".URLBASE."consultatori.php/accesso/?p=3&return_to=".urlencode($_SERVER['REQUEST_URI']) );
-		exit(0);
-	}
-	if ( !isset($_COOKIE['abilitazione']) || (!$_COOKIE['abilitazione']) ){
-		header("Location: ".URLBASE."consultatori.php/accesso/?p=4&return_to=".urlencode($_SERVER['REQUEST_URI']) );
-		exit(0);
-	}
-
-	// TODO Valutare se in base al nome dei link sia possibile escludere la tabella abilitazioni
-	// leggi lista aggiorna modifica amministra si ripetono nei link
- */
 
  // legge se l'abilitazione è sufficiente tramite la tabella abilitazioni 
 include(ABSPATH."aa-model/database-handler.php"); // fornisce $con connessione archivio 
@@ -91,7 +64,7 @@ if (mysqli_num_rows($record_letti) < 1) {
 
 // trovato - verifica abilitazione 
 // può essere "1 lettura" ma anche "'1 lettura'"
-$cookie_abilitazione = str_replace("'", '', $_COOKIE['abilitazione']);
+$cookie_abilitazione = get_set_abilitazione();
 
 $abilitazione = mysqli_fetch_array($record_letti);
 $abilitazione_richiesta = str_replace("'", '', $abilitazione['abilitazione']);

@@ -35,6 +35,22 @@
                 <input type="url" name="url_manuale" class="form-control" pattern="https://www.fotomuseoathesis.it/man/.*"   aria-describedby="urlManualeHelpDiv">
                 <div id="urlManualeHelpDiv" class="form-text">Campo facoltativo ma se inserito fate copia incolla dall'indirizzo della pagina cresta per spiegare la chiave di ricerca</div>
               </div>
+              
+              <div class="mb-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="unico" id="unicoUnico" value="unico" checked >
+                  <label class="form-check-label" for="unicoUnico">
+                    Unico, non ripetibile
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="unico" id="unicoRipetibile" value="ripetibile" >
+                  <label class="form-check-label" for="unicoRipetibile">
+                    Ripetibile
+                  </label>
+                </div>
+              </div>
+
               <!-- record_creato_il datetime no: assegnato in automatico -->
               <!-- record_cancellabile_dal no: assegnato in automatico -->
               <!-- fine campi-->

@@ -11,6 +11,11 @@
  * Se la data è convenzionalmente 1976-01-01 00:00:00
  * il backup della tabella è totale, altrimenti 
  * si parte dal datetime indicato per >= 
+ * 
+ * Nota: Accesso diretto alle tabelle, non si passa per i model.
+ * I model ci son per tanti ma non per tutti, serve realizzare un 
+ * generatore di php che scriva il model in automatico partendo
+ * da una tabella bidimensionale di dati - definizioni campi
  */
 if (!defined('ABSPATH')){
 	include_once('../_config.php');
@@ -21,7 +26,6 @@ include_once(ABSPATH.'aa-model/database-handler-oop.php');
 
 $elenco_tabelle=[
 	'abilitazioni_elenco',
-	'appunti_sql_elenco',
 	'album',
 	'album_dettagli',
 	'autori_elenco',
@@ -34,7 +38,8 @@ $elenco_tabelle=[
 	'scansioni_cartelle',
 	'scansioni_disco',
 	'video',
-	'video_dettagli'
+	'video_dettagli',
+	'zz_appunti_sql'
 ];
 
 function set_ultimo_backup(string $ultimo_backup){
@@ -178,13 +183,13 @@ function get_backup_album_dettagli(string $ultimo_backup) : string {
 function get_backup_appunti_sql(string $ultimo_backup) : string{
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
-	$riempire = "INSERT INTO `appunti_sql_elenco` (`record_id`, `sinossi`, "
+	$riempire = "INSERT INTO `zz_appunti_sql` (`record_id`, `sinossi`, "
 	. "`appunto_sql`, "
 	. "`ultima_modifica_record`) "
 	. "VALUES(§1, '§2', '§3', '§4');";
 	
 	// il parametro di input viene ignorato 
-	$leggi = 'SELECT * FROM appunti_sql_elenco ' 
+	$leggi = 'SELECT * FROM zz_appunti_sql ' 
 	. " WHERE ultima_modifica_record >= '0001-01-01 01:01:01' ";
 	try{
 		$lettura = $dbh->prepare($leggi);
@@ -200,7 +205,7 @@ function get_backup_appunti_sql(string $ultimo_backup) : string{
 
 	// loop 
 	$ret .= "\n\n".'--'
-	. "\n". '-- Dump dei dati per la tabella `appunti_sql_elenco`'
+	. "\n". '-- Dump dei dati per la tabella `zz_appunti_sql`'
 	. "\n". '--'."\n";
 	while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
 		$rigo = str_ireplace('§1', $record['record_id'], $riempire);
@@ -265,8 +270,8 @@ function get_backup_chiavi(string $ultimo_backup) : string {
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
 	$riempire = "INSERT INTO `chiavi_elenco` (`record_id`, `chiave`, "
-	. "`url_manuale`, `ultima_modifica_record`, `record_cancellabile_dal`) "
-	. "VALUES(§1, '§2', '§3', '§4', '§5');";
+	. "`url_manuale`, `unico`, `ultima_modifica_record`, `record_cancellabile_dal`) "
+	. "VALUES(§1, '§2', '§3', '§4', '§5', '§6');";
 
 	$leggi = 'SELECT * FROM chiavi_elenco ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -287,10 +292,11 @@ function get_backup_chiavi(string $ultimo_backup) : string {
 	. "\n". '--'."\n";
 	while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
 		$rigo = str_ireplace('§1', $record['record_id'], $riempire);
-		$rigo = str_ireplace('§2', $record['chiave'], $rigo);
-		$rigo = str_ireplace('§3', $record['url_manuale'], $rigo);
-		$rigo = str_ireplace('§4', $record['ultima_modifica_record'], $rigo);
-		$rigo = str_ireplace('§5', $record['record_cancellabile_dal'], $rigo);
+		$rigo = str_ireplace('§2', $record['chiave'],                 $rigo);
+		$rigo = str_ireplace('§3', $record['url_manuale'],            $rigo);
+		$rigo = str_ireplace('§4', $record['unico'],                  $rigo);
+		$rigo = str_ireplace('§5', $record['ultima_modifica_record'], $rigo);
+		$rigo = str_ireplace('§6', $record['record_cancellabile_dal'],$rigo);
 		$ret .= "\n".$rigo;
 	}
     return $ret;
@@ -507,9 +513,9 @@ function get_backup_cartelle(string $ultimo_backup) : string {
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
 	$riempire = "INSERT INTO `scansioni_cartelle` (`record_id`, `disco`, "
-	. "`percorso_completo`, `stato_scansione`, `ultima_modifica_record`"
-	. "`stato_lavori`, `record_cancellabile_dal` ) "
-	. "VALUES(§1, '§2', '§3', §4, '§5', '§6', '§7' );";
+	. "`percorso_completo`, `stato_lavori`, "
+	. " `ultima_modifica_record`, `record_cancellabile_dal` ) "
+	. "VALUES(§1, '§2', '§3', '§4', '§5', '§6' );";
 
 	$leggi = 'SELECT * FROM scansioni_cartelle ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -532,10 +538,9 @@ function get_backup_cartelle(string $ultimo_backup) : string {
 		$rigo = str_ireplace('§1', $record['record_id'], $riempire);
 		$rigo = str_ireplace('§2', $record['disco'], $rigo);
 		$rigo = str_ireplace('§3', $record['percorso_completo'], $rigo);
-		$rigo = str_ireplace('§4', $record['stato_scansione'], $rigo);
+		$rigo = str_ireplace('§4', $record['stato_lavori'], $rigo);
 		$rigo = str_ireplace('§5', $record['ultima_modifica_record'], $rigo);
-		$rigo = str_ireplace('§6', $record['stato_lavori'], $rigo);
-		$rigo = str_ireplace('§7', $record['record_cancellabile_dal'], $rigo);
+		$rigo = str_ireplace('§6', $record['record_cancellabile_dal'], $rigo);
 		$ret .= "\n".$rigo;
 	}
     return $ret;
@@ -550,7 +555,7 @@ function get_backup_deposito(string $ultimo_backup) : string {
 	. "`livello1`, `livello2`, `livello3`, `livello4`, `livello5`, `livello6`, "
 	. "`nome_file`, `estensione`, `modificato_il`, `codice_verifica`, "
 	. "`tinta_rgb`, `stato_lavori`, `ultima_modifica_record`, "
-	. "`record_da_esaminare`, `record_cancellabile_dal`) "
+	. "`record_cancellabile_dal`) "
 	. "VALUES(§01, '§02', '§03', '§04', '§05', '§06', '§07', '§08', '§09', "
 	. "'§10', '§11', '§12', '§13', '§14', '§15', '§16', '§17');";
 
@@ -587,8 +592,7 @@ function get_backup_deposito(string $ultimo_backup) : string {
 		$rigo = str_ireplace('§13', $record['tinta_rgb'], $rigo);
 		$rigo = str_ireplace('§14', $record['stato_lavori'], $rigo);
 		$rigo = str_ireplace('§15', $record['ultima_modifica_record'], $rigo);
-		$rigo = str_ireplace('§16', $record['record_da_esaminare'], $rigo);
-		$rigo = str_ireplace('§17', $record['record_cancellabile_dal'], $rigo);
+		$rigo = str_ireplace('§16', $record['record_cancellabile_dal'], $rigo);
 		$ret .= "\n".$rigo;
 	}
     return $ret;
@@ -705,7 +709,6 @@ function get_file_backup(){
 	file_put_contents($backup_file, get_backup_abilitazioni($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_album($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_album_dettagli($ultimo_backup), FILE_APPEND);
-	file_put_contents($backup_file, get_backup_appunti_sql($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_autori($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_chiavi($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_vocabolari($ultimo_backup), FILE_APPEND);
@@ -717,6 +720,7 @@ function get_file_backup(){
 	file_put_contents($backup_file, get_backup_deposito($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_video($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_video_dettagli($ultimo_backup), FILE_APPEND);
+	file_put_contents($backup_file, get_backup_appunti_sql($ultimo_backup), FILE_APPEND);
 	$fine_elenco = "\n--\n-- Fine file backup \n--\n";
 	file_put_contents($backup_file, $fine_elenco, FILE_APPEND);
 
@@ -732,7 +736,7 @@ function get_file_backup(){
 
 	set_ultimo_backup($backup_time); 
 
-	require_once(ABSPATH.'aa-view/backup-eseguito.php');
+	// require_once(ABSPATH.'aa-view/backup-eseguito.php');
 	exit(0); 
 					
 } // get_file_backup

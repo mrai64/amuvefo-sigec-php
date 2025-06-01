@@ -1,52 +1,57 @@
 <?php
 /**
  * ALBUM controller
+ * ALBUMDETTAGLI controller
  * 
- * Si occupa delle funzioni che riguardano la tabella album 
- * e album_dettagli e fotografie e video e richieste 
+ * Si occupa delle funzioni che riguardano la tabella album
+ * e album_dettagli e fotografie e video e richieste
  * 
- * . get_item_foto_griglia 
- * . get_item_video_griglia 
+ * . get_item_foto_griglia
+ * . get_item_video_griglia
  *   forniscono gli elementi da inserire in miniatura dentro
  *   il pannello dell'album
- * Il file monoscopio è stato fornito da Wikipedia e concesso in pubblico dominio 
+ * Il file monoscopio è stato fornito da Wikipedia e concesso in pubblico dominio
  * perché privo di "elementi creativi" 
  * https://it.wikipedia.org/wiki/Monoscopio#/media/File:SMPTE_Color_Bars.svg
  * 
  * 
- * . get_item_dettagli 
+ * . get_item_dettagli
  *   elenco dettagli chiave-valore da inserire dentro
- *   il pannello dell'album 
+ *   il pannello dell'album
  * 
- * . leggi_album_per_id 
- *   carica, completa ed espone la pagina di vista dell'album 
+ * . leggi_album_per_id
+ *   carica, completa ed espone la pagina di vista dell'album
  * 
  * . carica_album_da_scansioni_disco
- *   carica in tabella album solo il record album partendo 
- *   dal record in scansioni_disco, poi ci son altre funzioni per 
- *   caricare fotografie e per caricare video 
+ *   carica in tabella album solo il record album partendo
+ *   dal record in scansioni_disco, poi ci son altre funzioni per
+ *   caricare fotografie e per caricare video
  * 
- * . carica_richiesta_album_per_id 
- * TODO cambiare in . carica_richiesta_album 
- *   per l'album aggiunge una richiesta nella tabella richieste 
+ * . carica_richiesta_album_per_id
+ * TODO cambiare in . carica_richiesta_album
+ *   per l'album aggiunge una richiesta nella tabella richieste
  * 
- * ALBUMDETTAGLI   
+ * . modifica_titolo_album
+ *   espone il modulo per la modifica del titolo album
+ *   sostituisce il titolo nella scheda dell'album
+ * 
+ * ALBUMDETTAGLI
  * Estrazione dati da scansioni_disco
- * . aggiungi_dettagli_album_da_album 
+ * . aggiungi_dettagli_album_da_album
  *   Suona strano? Sì, però 
  *   album_dettagli è una tabella e album è un'altra tabella, 
- *   in italiano si scrive carica dettaglio dell'album dall'album 
+ *   in italiano si scrive carica dettaglio dell'album dall'album
  * 
  * . elimina_dettaglio_album
- *   esegue la cancellazione non fisica del dettaglio 
+ *   esegue la cancellazione non fisica del dettaglio
  * 
  * . aggiungi_dettaglio_album_da_modulo
- *   espone il modulo per aggiungere un dettaglio 
- *   inserisce il dettaglio che riceve dal modulo 
+ *   espone il modulo per aggiungere un dettaglio
+ *   inserisce il dettaglio che riceve dal modulo
  * 
  * . modifica_dettaglio_album_da_modulo
- *   espone il modulo che serve per modificare un dettaglio 
- *   elimina il dettaglio vecchio e inserisce il dettaglio 
+ *   espone il modulo che serve per modificare un dettaglio
+ *   elimina il dettaglio vecchio e inserisce il dettaglio
  *   modificato come nuovo.
  * 
  */
@@ -56,7 +61,7 @@ if (!defined('ABSPATH')){
 include_once(ABSPATH . 'aa-model/database-handler-oop.php');
 include_once(ABSPATH . 'aa-model/album-oop.php');
 include_once(ABSPATH . 'aa-model/album-dettagli-oop.php');
-include_once(ABSPATH . 'aa-model/chiavi-valori-oop.php'); // vocabolario 
+include_once(ABSPATH . 'aa-model/vocabolario-oop.php');
 include_once(ABSPATH . 'aa-model/fotografie-oop.php');
 include_once(ABSPATH . 'aa-model/video-oop.php');
 include_once(ABSPATH . 'aa-model/scansioni-disco-oop.php');
@@ -73,23 +78,24 @@ include_once(ABSPATH . 'aa-controller/video-controller.php');
  * Elemento fotografia da esporre in griglia nell'album
  * 
  * Per evitare che le immagini siano esportate con facilità 
- * viene sostituito l'indirizzo url con il contenuto della fotografia 
- * Nella pagina un javascript consente di fare richiesta della foto 
- * evitando allo stesso tempo che con il tasto destro del mouse 
- * si passi alla "salva con nome". 
+ * viene sostituito l'indirizzo url con il contenuto della fotografia
+ * Nella pagina un javascript consente di fare richiesta della foto
+ * evitando allo stesso tempo che con il tasto destro del mouse
+ * si passi alla "salva con nome".
  * Nelle direttive del CdGA le immagini devono avere lato lungo 800px
  * 
- * @param  array  $fotografia 
- * @return string $html - porzione di codice 
+ * @param  array  $fotografia
+ * @return string $html - porzione di codice
  */
  function get_item_foto_griglia(array $fotografia) : string {
-	//dbg echo '<p style="font-family:monospace">'. __FUNCTION__ 
+	//dbg echo '<p style="font-family:monospace">'. __FUNCTION__
 	//dbg . '<br>input: ' . str_replace(';', '; ', serialize($fotografia)).'</p>';
 
 	$ret  = '<div class="float-start">'."\n";
 	$ret .= '<a href="'.URLBASE.'fotografie.php/leggi/'.$fotografia['record_id'].'" ';
 	$ret .=    'title="'.$fotografia['titolo_fotografia'].'" >'."\n";
-	$fotografia_src  = str_ireplace('//' , '/' , ABSPATH.$fotografia['percorso_completo']);
+	// $fotografia_src  = str_ireplace('//' , '/' , ABSPATH.$fotografia['percorso_completo']);
+	$fotografia_src  = $fotografia['percorso_completo'];
 
 	$fotografia_src = html_entity_decode($fotografia_src); // per gli ' nel nome file &amp:039; > &039;
 	$fotografia_src = html_entity_decode($fotografia_src); // per gli ' nel nome file &039; > '
@@ -98,34 +104,54 @@ include_once(ABSPATH . 'aa-controller/video-controller.php');
 	// jpg abbinato al tif, quando c'è
 	$fotografia_jpg  = str_ireplace('.psd', '.jpg', $fotografia_src);
 	$fotografia_jpg  = str_ireplace('.tif', '.jpg', $fotografia_jpg);
-	if (is_file($fotografia_jpg)) {
+	if (is_file(ABSPATH.$fotografia_jpg)) {
 		$fotografia_src=$fotografia_jpg;
-		//dbg echo '<p style="font-family:monospace">'. __FUNCTION__ 
-		//dbg . '<br>is_file: ' . $fotografia_jpg .'</p>';
 	}
 	
+	$ret .= '<img src="'.URLBASE.$fotografia['percorso_completo'].'" ';
 	// l'immagine viene "intarsiata" nella pagina per dissuadere lo scarico
-	$fotografia_src  = 'data:image/jpeg;base64,'.base64_encode(file_get_contents($fotografia_src));
-
-	// $ret .= '<img src="'.URLBASE.$fotografia['percorso_completo'].'" ';
-	$ret .= '<img src="'.$fotografia_src.'" ';
+	// $fotografia_src  = 'data:image/jpeg;base64,'.base64_encode(file_get_contents($fotografia_src));
+	// $ret .= '<img src="'.$fotografia_src.'" ';
 	$ret .=       'style="min-width:200px; min-height:200px; max-width:200px; max-height:200px;" ';
 	$ret .=       'loading="lazy"  class="d-block w-100" />'."\n";
 	$ret .= '</a>'."\n";
 	$ret .= '</div>'."\n";
-	return $ret; 
+	return $ret;
 } // get_item_foto_griglia()
 
 /**
+ * Elemento fotografia da esporre in carosello
+ */
+function get_carousel_foto(array $fotografia) : string{
+	//$fotografia_src  = str_ireplace('//' , '/' , URLBASE.$fotografia['percorso_completo']);
+	$fotografia_src = $fotografia['percorso_completo'];
+	$fotografia_src = html_entity_decode($fotografia_src); // per gli ' nel nome file &amp;039; > &039;
+	$fotografia_src = html_entity_decode($fotografia_src); // per gli ' nel nome file &039; > '
+	// jpg abbinato al psd, quando c'è
+	// jpg abbinato al tif, quando c'è
+	$fotografia_jpg  = str_ireplace('.psd', '.jpg', $fotografia_src);
+	$fotografia_jpg  = str_ireplace('.tif', '.jpg', $fotografia_jpg);
+	if (is_file($fotografia_jpg)) {
+		$fotografia_src=$fotografia_jpg;
+	}
+
+	$ret = "\n".'    <div class="carousel-item active">'
+	     . "\n".'      <img src="'.URLBASE.$fotografia_src.'" class="d-block w-100" '
+			       .'alt="'.$fotografia['titolo_fotografia'].'">'
+			 . "\n".'    </div>';
+	return $ret;
+} // get_carousel_foto
+
+/**
  * Elemento video da esporre in griglia
- * Si può sostituire il monoscopio con 
- * video.mp4 -> video_copertina.jpg lato lungo 800px  
- * Usato nella leggi_album_per_id per preparare l'elenco delle immagini cliccabili 
+ * Si può sostituire il monoscopio con
+ * video.mp4 -> video_copertina.jpg lato lungo 800px
+ * Usato nella leggi_album_per_id per preparare l'elenco delle immagini cliccabili
  * 
  * @param  array  $video
- * @return string $html - porzione di codice 
+ * @return string $html - porzione di codice
  * 
- * Il file monoscopio è stato fornito da Wikipedia e concesso in pubblico dominio 
+ * Il file monoscopio è stato fornito da Wikipedia e concesso in pubblico dominio
  * perché privo di "elementi creativi" 
  * https://it.wikipedia.org/wiki/Monoscopio#/media/File:SMPTE_Color_Bars.svg
  * 
@@ -134,32 +160,32 @@ include_once(ABSPATH . 'aa-controller/video-controller.php');
 	
 	$ret  = '<div class="float-start" style="width:200px;height:200px;max-width:200px;max-height:200px;" >'."\n";
 	$ret .= '<a href="'.URLBASE.'video.php/leggi/'.$video['record_id'].'" title="'.$video['titolo_video'].'" >'."\n";
-	// preload none - serve a stoppare troppo tempo per caricare GB 
+	// preload none - serve a stoppare troppo tempo per caricare GB
 	// $ret .= '<video controls preload="none" >'."\n";
 	// $ret .= '<source src="'.URLBASE.$video['percorso_completo'].'" type="video/mp4">'."\n";
 	// $ret .= '</video>'."\n";
 	// niente - non si ridimensiona
-	// $ret .= file_get_contents(ABSPATH.'aa-img/SMPTE_Color_Bars.svg'); // 800 byte 
+	// $ret .= file_get_contents(ABSPATH.'aa-img/SMPTE_Color_Bars.svg'); // 800 byte
 	// 
 	$ret .= '<img src="'.URLBASE.'aa-img/video-segnalino.png" ';
 	$ret .=       'style="min-width:200px; min-height:200px; max-width:200px; max-height:200px;" ';
 	$ret .=       'loading="lazy"  class="d-block w-100" />'."\n";
 	$ret .= '</a>'."\n";
 	$ret .= '</div>'."\n";
-	return $ret; 
+	return $ret;
 } // get_item_video_griglia()
 
 /**
- * Usato nella leggi_album_per_id per preparare l'elenco dei dettagli 
+ * Usato nella leggi_album_per_id per preparare l'elenco dei dettagli
  * 
- * @param  array  $dettaglio da tabella album_dettagli 
- * @return string $html - porzione di codice 
+ * @param  array  $dettaglio da tabella album_dettagli
+ * @return string $html - porzione di codice
  */
  function get_item_dettagli(array $dettaglio) : string {
 	$ret  = "\t".'<tr>'."\n"
 	. "\t\t".'<td scope="row">'.$dettaglio['chiave'].'</td>'."\n"
 	. "\t\t".'<td>'.$dettaglio['valore'].'</td>'."\n";
-	if ($_COOKIE['abilitazione'] > SOLALETTURA ){
+	if (get_set_abilitazione() > SOLALETTURA ){
 		$ret .= "\t\t".'<td>'
 		. '<a href="'.URLBASE.'album.php/modifica_dettaglio/'.$dettaglio['record_id'].'" '
 		. 'title="modifica dettaglio"><i class="h2 bi bi-pencil-square"></i></a>'
@@ -176,18 +202,19 @@ include_once(ABSPATH . 'aa-controller/video-controller.php');
 		. '</td>'."\n";
 	}
 	$ret .= "\t".'</tr>'."\n";
-	return $ret; 
+	return $ret;
 } // get_item_dettagli()
 
 /**
- * Mostra la pagina album 
+ * Mostra la pagina album
  * /album.php/leggi/{album_id}
  * 
- * Legge la scheda dell'album, quella delle fotografie e dei video correlati 
- * tramite la chiave esterna record_id_in_album 
- * e carica la View 
+ * Legge la scheda dell'album, quella delle fotografie e dei video correlati
+ * tramite la chiave esterna record_id_in_album
+ * e carica la View
+ * Prepara in piedipagina della view un CAROUSEL per bootstrap
  * 
- * @param   int    id    chiave tabella album 
+ * @param   int    id    chiave tabella album
  * @return  void   espone la pagina ed esce con exit()
  */
 function leggi_album_per_id(int $album_id){
@@ -199,14 +226,14 @@ function leggi_album_per_id(int $album_id){
 	$scan_h = New ScansioniDisco($dbh);
 	$dida_h = New Didascalie($dbh);
 
-	//dbg echo '<p style="font-family:monospace;">' . __FUNCTION__ 
+	//dbg echo '<p style="font-family:monospace;">' . __FUNCTION__
 	//dbg . '<br>input album_id: '.$album_id.' </p>';
 
-	// 1. lettura album_id in album 
-	// 2. lettura album_id "su di 1 livello" in album 
-	// 3. lettura scansioni_disco in scansioni_disco 
+	// 1. lettura album_id in album
+	// 2. lettura album_id "su di 1 livello" in album
+	// 3. lettura scansioni_disco in scansioni_disco
 
-	// verifica album_id e lettura dati album 
+	// verifica album_id e lettura dati album
 	$campi = [];
 	$campi['query'] = 'SELECT * FROM ' . Album::nome_tabella
 	. ' WHERE record_id = :record_id '
@@ -226,7 +253,7 @@ function leggi_album_per_id(int $album_id){
 	$album = $ret_album['data'][0]; // $album['record_id'], $album['titolo_album'] ecc.
 	$siete_in = str_replace('/' , ' / ', $album['percorso_completo']);
 
-	if (isset($_COOKIE['abilitazione']) && $_COOKIE['abilitazione'] > SOLALETTURA ){
+	if ( get_set_abilitazione() > SOLALETTURA ){
 		$richieste_originali = URLBASE . 'album.php/richiesta/'. $album['record_id'];
 		$aggiungi_dettaglio  = URLBASE . 'album.php/aggiungi_dettaglio/'.$album['record_id'];
 	} else {
@@ -234,7 +261,7 @@ function leggi_album_per_id(int $album_id){
 		$aggiungi_dettaglio = '#sololettura';
 	}
 	
-	// compone il link per andare all'album superiore 
+	// compone il link per andare all'album superiore
 	$torna_su='';
 
 	// percorso_completo termina con /
@@ -249,10 +276,10 @@ function leggi_album_per_id(int $album_id){
 	if ($torna_su == '' && $ultima_barra_al>0){
 		$percorso_quasi_completo = substr($album['percorso_completo'], 0, $ultima_barra_al);
 		$campi=[];
-		$campi['query'] = 'SELECT * FROM album '
+		$campi['query'] = 'SELECT * FROM ' . Album::nome_tabella
 		. ' WHERE percorso_completo = :percorso_completo '
 		. ' AND record_cancellabile_dal = :record_cancellabile_dal ';
-		$campi['percorso_completo'] = $percorso_quasi_completo.'/';	
+		$campi['percorso_completo'] = $percorso_quasi_completo.'/';
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 
 		$ret_album = $alb_h->leggi($campi);
@@ -260,14 +287,14 @@ function leggi_album_per_id(int $album_id){
 		//dbg . str_replace(';', '; ', serialize($ret_album)).'</p>';
 	
 		if ( isset($ret_album['numero']) && $ret_album['numero'] > 0){
-			$torna_su = $ret_album['data'][0]['record_id']; 
+			$torna_su = $ret_album['data'][0]['record_id'];
 			$torna_su = URLBASE.'album.php/leggi/'.$torna_su;
 		} 
 	}
 	//dbg echo '<p style="font-family:monospace;">URL album "superiore": <br>'
 	//dbg . $torna_su . '</p>';
-	// se è rimasto museo.php faccio un ulteriore tentativo sulla tabella 
-	// scansioni_disco 
+	// se è rimasto museo.php faccio un ulteriore tentativo sulla tabella
+	// scansioni_disco
 	if ($torna_su === URLBASE.'museo.php' || $torna_su === ""){
 		$return_to_scansione_id = $scan_h->get_record_id_da_percorso( $percorso_quasi_completo );
 		if ($return_to_scansione_id > 0){
@@ -281,8 +308,21 @@ function leggi_album_per_id(int $album_id){
 	
 	// si vanno a leggere fotografie e video presenti in album
 	$float_foto='';
+	/**
+	 * Carousel - in bootstrap serve realizzare una serie di elementi
+	 * div class carousel-item di cui almeno uno active
+	 * racchiusi da un paio di div
+	 * div class carousel slide carousel-fade
+	 *   div class carousel inner
+	 *     (lista di carousel-item)
+	 *   /div
+	 *   bottone precedente
+	 *   bottone seguente
+	 * /div
+	 */
+
 	$campi=[];
-	$campi['query'] = 'SELECT * FROM fotografie '
+	$campi['query'] = 'SELECT * FROM ' . Fotografie::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id_in_album = :record_id_in_album '
 	. ' ORDER BY titolo_fotografia, record_id ';
@@ -296,20 +336,37 @@ function leggi_album_per_id(int $album_id){
 	//dbg . str_replace(';', '; ', serialize($ret_foto)).'</p>';
 
 	$float_foto='';
+	$carousel_foto = '<div id="carouselAlbum" class="carousel slide carousel-fade" '
+	                .' data-bs-ride="true"  data-bs-interval="10000" >'
+	          . "\n".'  <div class="carousel-inner">';
+	$carousel_active = ' active';
 	if ( isset($ret_foto['numero']) && $ret_foto['numero'] > 0 ){
-		$foto = $ret_foto['data']; // è sempre un array 
+		$foto = $ret_foto['data']; // è sempre un array
 		//dbg echo var_dump($foto);
 		for ($i=0; $i < count($foto) ; $i++) { 
 			$float_foto .= get_item_foto_griglia($foto[$i]);
+			$carousel_item= get_carousel_foto($foto[$i]);
+			$carousel_item = str_ireplace(' active', $carousel_active, $carousel_item);
+			$carousel_active = '';
+			$carousel_foto .= $carousel_item;
 		}
 		//dbg echo var_dump($float_foto);
 	}
-	//dbg echo '<p style="font-family:monospace">Composizione elenco foto: <br>'
-	//dbg . str_replace('gt;', 'gt;<br>', htmlspecialchars($float_foto)).'</p>';
+	// chiusura carosello
+	$carousel_foto .= "\n".'  </div>' // carousel-inner
+	. "\n".'  <button class="carousel-control-prev" type="button" data-bs-target="#carouselAlbum" data-bs-slide="prev">'
+	. "\n".'    <span class="carousel-control-prev-icon" aria-hidden="true"></span>'
+	. "\n".'    <span class="visually-hidden">Precedente</span>'
+	. "\n".'  </button>'
+	. "\n".'  <button class="carousel-control-next" type="button" data-bs-target="#carouselAlbum" data-bs-slide="next">'
+	. "\n".'    <span class="carousel-control-next-icon" aria-hidden="true"></span>'
+	. "\n".'    <span class="visually-hidden">Seguente</span>'
+	. "\n".'  </button>'
+	. "\n".'</div>';  // carouselAlbum
 
 	$float_video='';
 	$campi=[];
-	$campi['query'] = 'SELECT * FROM video '
+	$campi['query'] = 'SELECT * FROM ' . Video::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id_in_album = :record_id_in_album '
 	. ' ORDER BY titolo_video, record_id ';
@@ -323,12 +380,12 @@ function leggi_album_per_id(int $album_id){
 		}
 	}
 
-	// lettura dettagli album 
+	// lettura dettagli album
 	$table_dettagli='<tr><td colspan="3">Nessun dettaglio caricato</td></tr>';
 	$campi=[];
-	$campi['query'] = 'SELECT * FROM album_dettagli '
+	$campi['query'] = 'SELECT * FROM ' . AlbumDettagli::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
-	. ' AND record_id_padre = :record_id_padre ' // quello dell'album per album_dettagli 
+	. ' AND record_id_padre = :record_id_padre ' // quello dell'album per album_dettagli
 	. ' ORDER BY chiave, valore, record_id '
 	. ' ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
@@ -348,7 +405,7 @@ function leggi_album_per_id(int $album_id){
 	 * Verifica se è presente una didascalie e la espone
 	 */
 	$didascalia_id=0;
-	$leggimi=""; 
+	$leggimi="";
 
 	$leggimi_file = ABSPATH . $album['percorso_completo'].'_leggimi.txt';
 	// verifica se esiste il file e se lo trova lo inserisce in tabella didascalie
@@ -367,7 +424,7 @@ function leggi_album_per_id(int $album_id){
 			. '</p>';
 			exit(1);
 		}
-		// inserito in didascalie 
+		// inserito in didascalie
 		$didascalia_id = $ret_ins_dida['record_id'];
 		$leggimi       = $ret_dida['data'][0]['didascalia'];
 		// inserito in didascalie, si elimina il file sidecar txt
@@ -381,7 +438,7 @@ function leggi_album_per_id(int $album_id){
 		}
 	} // file leggimi trovato e inserito in didascalie
 	$ret_dida=[];
-	// Si cerca se c'è nella tabella didascalie 
+	// Si cerca se c'è nella tabella didascalie
 	if ($didascalia_id == 0){
 		$campi=[];
 		$campi['tabella_padre']          = 'album';
@@ -400,39 +457,40 @@ function leggi_album_per_id(int $album_id){
 			. '</p>';
 			exit(1);
 		}
-		$didascalia=$ret_dida['data'][0];
-		$didascalia_id = $didascalia['record_id'];
-		$leggimi       = $didascalia['didascalia'];
-	} // lettura didascalia_id e leggii dalla tabella didascalie
+		if ($ret_dida['numero'] > 0){
+			$didascalia=$ret_dida['data'][0];
+			$didascalia_id = $didascalia['record_id'];
+			$leggimi       = $didascalia['didascalia'];
+		}
+	} // lettura didascalia_id e leggimi dalla tabella didascalie
 
 	// tutto pronto si passa ad esporre
 	include_once(ABSPATH.'aa-view/album-view.php');
 	exit(0);
-} // leggi_album_per_id 
+} // leggi_album_per_id
 
 /**
- * Test 
+ * Test
  * https://www.fotomuseoathesis.it/aa-controller/album-controller.php?id=137&test=leggi_album_per_id
  * https://archivio.athesis77.it/aa-controller/album-controller.php?id=17&test=leggi_album_per_id
- * 
+ *
+	if ( isset($_GET['test']) && 
+			isset($_GET['id']) && 
+			$_GET['test'] == 'leggi_album_per_id' ) {
+		echo '<pre style="max-width:50rem;">debug on'."\n";
+		echo 'id: '. $_GET['id'] ."\n";
+		$ret = leggi_album_per_id($_GET['id']);
+		echo var_dump($ret);
+		echo 'fine'."\n";
+	}
+ *  
  */
-if ( isset($_GET['test']) && 
-		 isset($_GET['id']) && 
-		 $_GET['test'] == 'leggi_album_per_id' ) {
-	echo '<pre style="max-width:50rem;">debug on'."\n";
-	echo 'id: '. $_GET['id'] ."\n";
-	$ret = leggi_album_per_id($_GET['id']);
-	echo var_dump($ret);
-	echo 'fine'."\n";
-}
-//
 
-
-
+	
 
 /**
- * Va a inserire SOLO l'album partendo da un record di scansioni_disco 
- * se viene passato id zero si prende il primo che trova 
+ * Va a inserire SOLO l'album partendo da un record di scansioni_disco
+ * se viene passato id zero si prende il primo che trova
  * con le caratteristiche della cartella (no file) 
  * 
  * @param  int   $scansioni_id
@@ -443,9 +501,6 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 	$scan_h = New ScansioniDisco($dbh);
 	$alb_h  = New Album($dbh);
 	
-	echo '<h2 style="font-family:monospace">'. __FUNCTION__ . '</h2>';
-	echo '<p>input: '.$scansioni_id.'</p>';
-
 	if ($scansioni_id == 0){
 		// cerca il primo che c'è
 		$campi=[];
@@ -458,9 +513,9 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 		$campi['stato_lavori'] = ScansioniDisco::stato_da_fare;
 		
 	} else {
-		// verifica id in scansioni_disco 
+		// verifica id in scansioni_disco
 		$campi=[];
-		$campi['query'] = 'SELECT * FROM scansioni_disco '
+		$campi['query'] = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
 		. 'WHERE record_cancellabile_dal = :record_cancellabile_dal '
 		. ' AND stato_lavori = :stato_lavori '
 		. " AND nome_file = '/' "
@@ -470,6 +525,23 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 		$campi['stato_lavori'] = ScansioniDisco::stato_da_fare;
 		$campi['record_id'] = $scansioni_id;
 	}
+
+	/**
+	 * restart pagina web dopo 5 secondi
+	 */
+	echo "<!doctype html>"
+	. "\r\n<html lang='it'>"
+	. "\r\n<head>"
+	. "\r\n  <meta charset='utf-8'>"
+	. "\r\n  <meta name='viewport' content='width=device-width, initial-scale=1'>"
+	. "\r\n  <meta name='robots' content='noindex, nofollow' />"
+	. "\r\n  <meta http-equiv='refresh' content='5' />"
+	. "\r\n  <title>Caricamento Album da deposito | Album | AMUVEFO</title>"
+	. "\r\n  <!-- jquery --><script src='https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js'></script>"
+	. "\r\n  <!-- bootstrap --><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet' >"
+	. "\r\n  <!-- icone --><link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css' rel='stylesheet' >"
+	. "\r\n</head>"
+	. "\r\n<body>";
 	echo '<p style="font-family:monospace">Ricerca >in: <br>'
 	. str_replace(';', '; ', serialize($campi)).'</p>';
 
@@ -480,8 +552,8 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 	if ( isset($ret_scan['error'])){
 		$ret = [
 			'error' => true,
-			'message' => __FUNCTION__ . ' ' . __LINE__ 
-			. " Non è stato trovato in scansioni_disco il record " . $scansioni_id 
+			'message' => __FUNCTION__ . ' ' . __LINE__
+			. " Non è stato trovato in scansioni_disco il record " . $scansioni_id
 			. '<br>' . $ret_scan['message']
 			. '<br>campi: ' . serialize($campi)
 		];
@@ -514,7 +586,7 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 	echo '<p style="font-family:monospace">Futuro Album: <br>'
 	. str_replace(';', '; ', serialize($futuro_album)).'</p>';
 
-	// Cambio stato - album lavori in corso 
+	// Cambio stato - album lavori in corso
 	$scansioni_id = $futuro_album['record_id'];
 	$ret_stato = $scan_h->set_stato_lavori_in_scansioni_disco($scansioni_id, ScansioniDisco::stato_in_corso);
 	if (isset($ret_stato['error'])){
@@ -529,9 +601,9 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 	echo '<p style="font-family:monospace">Aggiornamento stato lavori in scansioni_disco: <br>'
 	. str_replace(';', '; ', serialize($ret_stato)).'</p>';
 
-	// deve essere presente almeno un record diverso da se stesso 
+	// deve essere presente almeno un record diverso da se stesso
 	$campi=[];
-	$campi['query']= 'SELECT * FROM ' . ScansioniDisco::nome_tabella 
+	$campi['query']= 'SELECT * FROM ' . ScansioniDisco::nome_tabella
 	. " WHERE estensione > '' "
 	. ' AND disco = :disco       AND livello1 = :livello1 ';
 	$campi['disco']     = $futuro_album['disco'];
@@ -574,7 +646,7 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 	. str_replace(';', '; ', serialize($ret_check)).'</p>';
 	
 	if (isset($ret_check['error']) || $ret_check['numero']== 0){
-		// aggiorna stato 
+		// aggiorna stato
 		$ret_stato = $scan_h->set_stato_lavori_in_scansioni_disco($scansioni_id, ScansioniDisco::stato_completati);
 
 		$ret = [
@@ -588,7 +660,7 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 	}
 
 	//
-	// inserimento album - prende il primo 
+	// inserimento album - prende il primo
 	$album=[];
 	$album['disco']= $futuro_album['disco'];
 	$album['titolo_album']= $futuro_album['livello1'];
@@ -615,7 +687,7 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 	}
 	$album['percorso_completo'] .= '/';
 	$album['record_id_in_scansioni_disco'] = $scansioni_id;
-	//dbg echo "\n".'album'; 
+	//dbg echo "\n".'album';
 	//dbg echo var_dump($album);
 
 	$ret_alb = $alb_h->aggiungi($album);
@@ -638,21 +710,21 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 		return $ret;
 	}
 
-	// per caricare le fotografie 
-	// fotografie-controller/ carica_fotografie_da_album 
+	// per caricare le fotografie
+	// fotografie-controller/ carica_fotografie_da_album
 
-	// per caricare i video 
-	// video-controller / carica_video_da_album 
+	// per caricare i video
+	// video-controller / carica_video_da_album
 
 	echo '<h2 style="font-family:monospace">'. __FUNCTION__ . '</h2>';
 	echo '<p>fine</p>';
 	return $ret_alb;
 } // carica_album_da_scansioni_disco
 
-/** TEST 
+/** TEST
  * 
  * https://www.fotomuseoathesis.it/aa-controller/album-controller.php?id=66&test=carica_album_da_scansioni_disco
- */
+ * 
 	if ( isset($_GET['test']) && 
 		 isset($_GET['id']) && 
 	   $_GET['test'] == 'carica_album_da_scansioni_disco') {
@@ -660,32 +732,30 @@ function carica_album_da_scansioni_disco( int $scansioni_id) {
 		$ret = carica_album_da_scansioni_disco($_GET['id']);
 		echo 'fine'."\n";
 	}
-//
+ * 
+ */
 
 
 /** 
  * Quello che è stato caricato in scansioni_disco diventa:
- * - album 
- * - fotografie dell'album 
- * - video dell'album 
+ * - album
+ * - fotografie dell'album
+ * - video dell'album
  * 
  * @param  int  scansioni_id scansioni_disco
  * @return void (eventuali messaggi a video)
  * 
  * Legge scansioni_disco record_id
- * Scrive album 
- * Scrive album_dettagli 
+ * Scrive album
+ * Scrive album_dettagli
  * Scrive fotografie
- * scrive video 
+ * scrive video
  */
 function carica_album_dettagli_foto_video(int $scansioni_id){
 	$dbh    = New DatabaseHandler();
 	$alb_h  = New Album($dbh);
 
-	echo '<p style="font-family:monospace;">'
-	. 'Caricato album da: '.$scansioni_id . "</p>\n";
-
-	// legge scansioni_disco e carica album 
+	// legge scansioni_disco e carica album
 	$ret_a = carica_album_da_scansioni_disco($scansioni_id);
 
 	// torna errore ma è gestibile
@@ -708,17 +778,36 @@ function carica_album_dettagli_foto_video(int $scansioni_id){
 			. $ret_a['message'] . "</p>\n";
 			exit(1);
 		}
-	} // ret_a message 
+	} // ret_a message
 
 	if (!isset($ret_a['record_id'])){
 		// che è?
 			http_response_code(404);
-			echo '<p style="font-family:monospace;color: red;">' .  __FUNCTION__ 
+			echo '<p style="font-family:monospace;color: red;">' .  __FUNCTION__
 			. '<br>' . serialize($ret_a).'</strong></p>'."\n";
 			exit(1);
-	} // ret_a ma senza record_id 
+	} // ret_a ma senza record_id
 
 	$album_id=$ret_a['record_id'];
+
+	/**
+	 * restart pagina web dopo 5 secondi
+	 */
+	echo "<!doctype html>"
+	. "\r\n<html lang='it'>"
+	. "\r\n<head>"
+	. "\r\n  <meta charset='utf-8'>"
+	. "\r\n  <meta name='viewport' content='width=device-width, initial-scale=1'>"
+	. "\r\n  <meta name='robots' content='noindex, nofollow' />"
+	. "\r\n  <meta http-equiv='refresh' content='5' />"
+	. "\r\n  <title>Caricamento Album | Album da deposito | AMUVEFO</title>"
+	. "\r\n  <!-- jquery --><script src='https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js'></script>"
+	. "\r\n  <!-- bootstrap --><link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css' rel='stylesheet' >"
+	. "\r\n  <!-- icone --><link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css' rel='stylesheet' >"
+	. "\r\n</head>"
+	. "\r\n<body>";
+
+	echo '<p class="h3" style="font-family:monospace;"> '. __FUNCTION__ .'</p>';
 	echo '<p style="font-family:monospace;">Caricato album_id: '
 	. $album_id . "<br>Passo ai dettagli</p>\n";
 	
@@ -730,7 +819,7 @@ function carica_album_dettagli_foto_video(int $scansioni_id){
 	echo 'ret_cambio_stato : ' . serialize($ret_cambio_stato).'</p>';
 
 	//
-	// Aggiunta dettagli album da album 
+	// Aggiunta dettagli album da album
 	echo '<p style="font-family:monospace;">Carica dettagli da album </p>'."\n";
 	$ret_a=[];
 	$ret_a = aggiungi_dettagli_album_da_album($album_id);
@@ -747,11 +836,11 @@ function carica_album_dettagli_foto_video(int $scansioni_id){
 	}
 	// dbg echo '<p style="font-family:monospace;">Dettagli album aggiunti? ' . serialize($ret_a).' </p>';
 
-	// carica fotografie dell'album da scansioni_disco 
+	// carica fotografie dell'album da scansioni_disco
 	// fotografie-controller
 	echo '<p style="font-family:monospace;">Carica foto da album '.$album_id.'</p>'."\n";
 	$ret_f = carica_fotografie_da_album($album_id);
-	//  cartella senza immagini - possono anche esserci 0 fotografie 
+	//  cartella senza immagini - possono anche esserci 0 fotografie
 	if (isset($ret_f['message']) && str_contains($ret_f['message'], 'Non ci sono')){
 		echo '<pre style="color: red;"><strong>Inserimento foto per album non effettuato</strong></pre>'."\n";
 		echo '<p style="color: red;">'.$ret_f['message'].'</p>'."\n";
@@ -764,8 +853,8 @@ function carica_album_dettagli_foto_video(int $scansioni_id){
  	} // carica_fotografie_da_album
 	 echo '<p style="font-family:monospace;color: red;">Carica foto da album - fine</p>'."\n";
 
-	// carica video dell'album da scansioni_disco 
-	// video-controller 
+	// carica video dell'album da scansioni_disco
+	// video-controller
 	echo '<pre style="color: red;">Carica video da album </pre>'."\n";
 	$ret_v = carica_video_da_album($album_id);
 	if (isset($ret_v['message']) && str_contains($ret_v['message'], 'Non ci sono')){
@@ -783,7 +872,7 @@ function carica_album_dettagli_foto_video(int $scansioni_id){
 	echo '<pre style="color: red;">Cambio stato lavori all album in 2 completati </pre>'."\n";
 	$alb_h->set_stato_lavori_album($album_id, Album::stato_completati);
 
-	// mostra l'album caricato 
+	// mostra l'album caricato
 	leggi_album_per_id($album_id);
 	exit(0);
 } // carica_album_dettagli_foto_video()
@@ -792,32 +881,31 @@ function carica_album_dettagli_foto_video(int $scansioni_id){
  * https://www.fotomuseoathesis.it/aa-controller/album-controller.php?id=2199&test=carica_album_dettagli_foto_video
  * https://archivio.athesis77.it/aa-controller/album-controller.php?id=13&test=carica_album_dettagli_foto_video
  * 
+	if ( isset($_GET['test']) && 
+			isset($_GET['id']) && 
+			$_GET['test'] == 'carica_album_dettagli_foto_video' ) {
+		echo '<pre>debug on'."\n";
+		echo 'id: '. $_GET['id'] ."\n";
+		$ret = carica_album_dettagli_foto_video($_GET['id']);
+		echo var_dump($ret);
+		echo 'fine'."\n";
+		die(1);
+	}
+ * 
  */
-if ( isset($_GET['test']) && 
-	   isset($_GET['id']) && 
-		 $_GET['test'] == 'carica_album_dettagli_foto_video' ) {
-	echo '<pre>debug on'."\n";
-	echo 'id: '. $_GET['id'] ."\n";
-	$ret = carica_album_dettagli_foto_video($_GET['id']);
-	echo var_dump($ret);
-	echo 'fine'."\n";
-	die(1);
-}
-
-// dbg_here
 
 /**
- * Inserimento richiesta di accesso all'originale per tutto l'album 
+ * Inserimento richiesta di accesso all'originale per tutto l'album
  * 
- * @param  int $album_id 
- * @return void|true 
+ * @param  int $album_id
+ * @return void|true
  */
 function carica_richiesta_album(int $album_id){
 	$dbh    = New DatabaseHandler();
 	$alb_h  = New Album($dbh);
 	$ric_h  = New Richieste($dbh);
 
-	if ($_COOKIE['abilitazione'] <= SOLALETTURA ){
+	if (get_set_abilitazione() <= SOLALETTURA ){
 		http_response_code(404);
 		echo '<pre style="color: red;"><strong>Operazione non consentita</strong></pre>'."\n";
 		exit(1);
@@ -825,7 +913,7 @@ function carica_richiesta_album(int $album_id){
 
 	$alb_h->set_record_id($album_id);
 	$campi=[];
-	$campi['query'] = 'SELECT * FROM album ' // TODO Album::tabella
+	$campi['query'] = 'SELECT * FROM ' . Album::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id = :record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
@@ -849,7 +937,7 @@ function carica_richiesta_album(int $album_id){
 	}
 	$album = $ret_alb['data'][0];
 
-	// inserimento richiesta 
+	// inserimento richiesta
 	$campi=[];
 	$campi['record_id_richiedente'] = $_COOKIE['id_calendario'];
 	$campi['oggetto_richiesta']     = 'album';
@@ -864,7 +952,7 @@ function carica_richiesta_album(int $album_id){
 		exit(1);
 	}
 
-	$_SESSION['messaggio'] = 'Richiesta di accesso alta risoluzione inoltrata'; 
+	$_SESSION['messaggio'] = 'Richiesta di accesso alta risoluzione inoltrata';
 } // carica_richiesta_album_per_id
 
 
@@ -875,7 +963,7 @@ function carica_richiesta_album(int $album_id){
  * 
  */
 function aggiungi_dettagli_album_da_album( int $album_id ) : array {
-	$dbh    = New DatabaseHandler(); 
+	$dbh    = New DatabaseHandler();
 	$alb_dh = New AlbumDettagli($dbh);
 	$aggiunti = [];
 
@@ -885,30 +973,32 @@ function aggiungi_dettagli_album_da_album( int $album_id ) : array {
 		// throw new Exception("Album id:{$album_id} non trovato", 1);
 			$ret = [
 				'error' => true, 
-				'message' => __FILE__ . ' ' . __FUNCTION__ 
+				'message' => __FILE__ . ' ' . __FUNCTION__
 				. ' Non è stato possibile leggere in album il titolo per record_id: ' . $album_id
 			];
-			return $ret;	
+			return $ret;
 	}
 	echo '<br>album_id: ' . $album_id . ' titolo: ' . $titolo_album;
 	echo "<br>Si passa a inserire dettagli per l'album";
 	
-	// data/evento 
+	// data/evento
 	$data_evento = get_data_evento($titolo_album);
 	if ($data_evento > ''){
 		$campi=[];
 		$campi['record_id_padre'] = $album_id;
 		$campi['chiave'] = 'data/evento';
-		$campi['valore'] = $data_evento; 
-		$ret_aggiungi = $alb_dh->aggiungi($campi);
-		//dbg echo '<br>data_evento si: '. $data_evento . "\n";
-		//dbg echo '<br>ret_aggiungi: '; 
-		//dbg echo var_dump($ret_aggiungi);
-		if (isset($ret_aggiungi['ok'])){
-			$aggiunti[] = $campi['chiave'] .': '. $campi['valore'];
-		}
-		// sfilo 
-		$titolo_album = str_replace($data_evento, '', $titolo_album);
+		$campi['valore'] = $data_evento;
+		// escludo data 0000-00-00
+		if (!str_contains($data_evento, '0000-')){
+			$ret_aggiungi = $alb_dh->aggiungi($campi);
+			//dbg echo '<br>data_evento si: '. $data_evento . "\n";
+			//dbg echo '<br>ret_aggiungi: ';
+			//dbg echo var_dump($ret_aggiungi);
+			if (isset($ret_aggiungi['ok'])){
+				$aggiunti[] = $campi['chiave'] .': '. $campi['valore'];
+			}
+		} // diverso da 0000-*
+		// sfilo
 		if (str_contains($data_evento, ' DP')){
 			$data_evento = str_replace(' DP', '', $data_evento);
 			$titolo_album = str_replace($data_evento, '', $titolo_album);
@@ -917,6 +1007,7 @@ function aggiungi_dettagli_album_da_album( int $album_id ) : array {
 			$data_evento = str_replace('-', ' ', $data_evento);
 			$titolo_album = str_replace($data_evento, '', $titolo_album);
 		}
+		$titolo_album = str_replace($data_evento, '', $titolo_album);
 		$titolo_album = trim($titolo_album);
 	}
 	//dbg echo '<br>album_id: ' . $album_id . ' data_evento: ' . $data_evento. '<br>';
@@ -924,56 +1015,56 @@ function aggiungi_dettagli_album_da_album( int $album_id ) : array {
 
 	// luogo/area-geografica
 	$luogo = get_luogo_localita($titolo_album);
-	//dbg echo '<br>album_id: ' . $album_id . ' luogo: ' . $luogo; 
+	//dbg echo '<br>album_id: ' . $album_id . ' luogo: ' . $luogo;
 	if ($luogo > ''){
 		$campi=[];
 		$campi['record_id_padre'] = $album_id;
 		$campi['chiave'] = 'luogo/area-geografica';
-		$campi['valore'] = $luogo; 
+		$campi['valore'] = $luogo;
 		$ret_aggiungi = $alb_dh->aggiungi($campi);
 		//dbg echo '<br>luogo si: '. $luogo . "\n";
 		//dbg echo var_dump($ret_aggiungi);
 		if (isset($ret_aggiungi['ok'])){
 			$aggiunti[] = $campi['chiave'] .': '. $campi['valore'];
 		}
-		// sfilo 
+		// sfilo
 		$titolo_album = str_replace($luogo, '', $titolo_album);
 		$titolo_album = trim($titolo_album);
 	}
 
 	// luogo/comune
 	$luogo = get_luogo_comune($titolo_album);
-	//dbg echo '<br>album_id: ' . $album_id . ' luogo: ' . $luogo; 
+	//dbg echo '<br>album_id: ' . $album_id . ' luogo: ' . $luogo;
 	if ($luogo > ''){
 		$campi=[];
 		$campi['record_id_padre'] = $album_id;
 		$campi['chiave'] = 'luogo/comune';
-		$campi['valore'] = $luogo; 
+		$campi['valore'] = $luogo;
 		$ret_aggiungi = $alb_dh->aggiungi($campi);
 		//dbg echo '<br>luogo si: '. $luogo . "\n";
 		//dbg echo var_dump($ret_aggiungi);
 		if (isset($ret_aggiungi['ok'])){
 			$aggiunti[] = $campi['chiave'] .': '. $campi['valore'];
 		}
-		// sfilo 
+		// sfilo
 		$titolo_album = str_replace($luogo, '', $titolo_album);
 		$titolo_album = trim($titolo_album);
 	}
 
 	$sigla_autore = get_autore_sigla_6($titolo_album);
-	//dbg echo '<br>album_id: ' . $album_id . ' Sigla autore: ' . $sigla_autore; 
+	//dbg echo '<br>album_id: ' . $album_id . ' Sigla autore: ' . $sigla_autore;
 	if ($sigla_autore > ''){
 		$campi=[];
 		$campi['record_id_padre'] = $album_id;
 		$campi['chiave'] = 'codice/autore/athesis';
-		$campi['valore'] = $sigla_autore; 
+		$campi['valore'] = $sigla_autore;
 		$ret_aggiungi = $alb_dh->aggiungi($campi);
 		//dbg echo '<br>codice/autore/athesis si: '. $sigla_autore . "\n";
 		//dbg echo var_dump($ret_aggiungi);
 		if (isset($ret_aggiungi['ok'])){
 			$aggiunti[] = 'codice/autore/athesis: '. $sigla_autore;
 		}
-		// sfilo 
+		// sfilo
 		$titolo_album = str_replace($sigla_autore, '', $titolo_album);
 		$titolo_album = trim($titolo_album);
 	}
@@ -982,7 +1073,7 @@ function aggiungi_dettagli_album_da_album( int $album_id ) : array {
 		$campi=[];
 		$campi['record_id_padre'] = $album_id;
 		$campi['chiave'] = 'nome/manifestazione-soggetto';
-		$campi['valore'] = $titolo_album; 
+		$campi['valore'] = $titolo_album;
 		$ret_aggiungi = $alb_dh->aggiungi($campi);
 		//dbg echo '<br>nome/manifestazione-soggetto OK : ' . $titolo_album . '<br>';
 		//dbg echo var_dump($ret_aggiungi);
@@ -1002,31 +1093,33 @@ function aggiungi_dettagli_album_da_album( int $album_id ) : array {
 } // aggiungi_dettagli_album_da_album()
 
 /**
+ * TEST
  * https://www.fotomuseoathesis.it/aa-controller/album-controller.php?id=13&test=aggiungi_dettagli_album_da_album
  * 
+	if ( isset($_GET['test']) && 
+				isset($_GET['id']) && 
+				$_GET['test'] == 'aggiungi_dettagli_album_da_album' ) {
+		echo '<pre>debug on'."\n";
+		echo 'id: '. $_GET['id'] ."\n";
+		$ret = aggiungi_dettagli_album_da_album($_GET['id']);
+		echo var_dump($ret);
+		echo 'fine'."\n";
+	}
+ * 
  */
- if ( isset($_GET['test']) && 
-			isset($_GET['id']) && 
-			$_GET['test'] == 'aggiungi_dettagli_album_da_album' ) {
-	echo '<pre>debug on'."\n";
-	echo 'id: '. $_GET['id'] ."\n";
-	$ret = aggiungi_dettagli_album_da_album($_GET['id']);
-	echo var_dump($ret);
-	echo 'fine'."\n";
-}
 
 
 /**
- * DELETE 
- * @param  int  $dettaglio_id 
- * @return void 
+ * DELETE
+ * @param  int  $dettaglio_id
+ * @return void
  */
 function elimina_dettaglio_album( int $dettaglio_id){
 	$dbh    = New DatabaseHandler();
-	$adet_h = New AlbumDettagli($dbh); 
+	$adet_h = New AlbumDettagli($dbh);
 	
 	$campi=[];
-	$campi['query'] = 'SELECT * from album_dettagli '
+	$campi['query'] = 'SELECT * FROM ' . AlbumDettagli::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id = :record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
@@ -1035,7 +1128,7 @@ function elimina_dettaglio_album( int $dettaglio_id){
 	if ( isset($ret_det['error']) || $ret_det['numero'] == 0){
 		$ret = [
 			'error' => true, 
-			'message' => __FILE__ . ' ' . __FUNCTION__ 
+			'message' => __FILE__ . ' ' . __FUNCTION__
 			. ' Non è stato possibile modificare il dettaglio '
 			. ' per ' . $ret_det['error']
 			. ' campi: ' . serialize($campi)
@@ -1046,7 +1139,7 @@ function elimina_dettaglio_album( int $dettaglio_id){
 	$dettaglio = $ret_det['data'][0];
 
 	// 
-	// resta il consultatore_id originario 
+	// resta il consultatore_id originario
 	$campi=[];
 	$campi['update'] = 'UPDATE album_dettagli '
 	. ' SET record_cancellabile_dal = :record_cancellabile_dal  '
@@ -1057,7 +1150,7 @@ function elimina_dettaglio_album( int $dettaglio_id){
 	if ( isset($ret_det['error']) || $ret_det['numero'] == 0){
 		$ret = [
 			'error' => true, 
-			'message' => __FILE__ . ' ' . __FUNCTION__ 
+			'message' => __FILE__ . ' ' . __FUNCTION__
 			. ' Non è stato possibile modificare il dettaglio '
 			. ' per ' . $ret_det['error']
 			. ' campi: ' . serialize($campi)
@@ -1065,22 +1158,22 @@ function elimina_dettaglio_album( int $dettaglio_id){
 		echo var_dump($ret);
 		exit(0);
 	}
-	// torniamo alla scheda fotografia 
+	// torniamo alla scheda fotografia
 	leggi_album_per_id($dettaglio['record_id_padre']);
-	exit(0);  
+	exit(0);
 } // elimina_dettaglio_album()
 
 
 /**
- * sostituisce alcune funzioni precedenti 
- * @param  int  $album_id 
- * @param array $dati_input quelli del modulo 
- * Se mancano espone la mappa 
- * Se presenti aggiunge il dettaglio 
+ * sostituisce alcune funzioni precedenti
+ * @param  int  $album_id
+ * @param array $dati_input quelli del modulo
+ * Se mancano espone la mappa
+ * Se presenti aggiunge il dettaglio
  * 
  */
 function aggiungi_dettaglio_album_da_modulo(int $album_id, array $dati_input){
-	$dbh   = new DatabaseHandler(); 
+	$dbh   = new DatabaseHandler();
 	$alb_h = new Album($dbh);
 	$chi_h = new Chiavi($dbh);
 	$adet_h = new AlbumDettagli($dbh);
@@ -1091,7 +1184,7 @@ function aggiungi_dettaglio_album_da_modulo(int $album_id, array $dati_input){
 	// verifica album_id
 	$alb_h->set_record_id($album_id);
 	$campi=[];
-	$campi['query']= 'SELECT * FROM ' . Album::nome_tabella 
+	$campi['query']= 'SELECT * FROM ' . Album::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id = :record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
@@ -1123,7 +1216,7 @@ function aggiungi_dettaglio_album_da_modulo(int $album_id, array $dati_input){
 	//dbg echo '<p style="font-family:monospace;"> a5 </p>';
 	
 	//
-	// mancano i dati - si espone il modulo 
+	// mancano i dati - si espone il modulo
 	if (!isset($dati_input['aggiungi_dettaglio'])){
 		$_SESSION['messaggio'] = "Aggiungi il dettaglio chiave+valore "
 		. "scegliendo la chiave tra quelle "
@@ -1131,12 +1224,12 @@ function aggiungi_dettaglio_album_da_modulo(int $album_id, array $dati_input){
 		$leggi_album = URLBASE.'album.php/leggi/'.$album['record_id'];
 		$aggiungi_dettaglio = URLBASE.'album.php/aggiungi_dettaglio/'.$album['record_id'];
 		require_once(ABSPATH.'aa-view/dettaglio-album-aggiungi-view.php');
-		exit(0); 
+		exit(0);
 	}
 	
 	//dbg echo '<p style="font-family:monospace;"> a6 </p>';
 	// 
-	// i dati ci sono, si va a inserire 
+	// i dati ci sono, si va a inserire
 	$adet_h->set_record_id_padre($album['record_id']);
 	$adet_h->set_chiave($dati_input['chiave']);
 	$adet_h->set_valore($dati_input['valore']);
@@ -1161,17 +1254,17 @@ function aggiungi_dettaglio_album_da_modulo(int $album_id, array $dati_input){
 	//dbg echo '<p style="font-family:monospace;"> a8 </p>';
 
 	//
-	// inserimento effettuato, si va alla pagina dell'album 
+	// inserimento effettuato, si va alla pagina dell'album
 	leggi_album_per_id($album['record_id']);
 	exit(0);
 } // aggiungi_dettaglio_album_da_modulo()
 
 
 /**
- * non ritorna valori, espone una pagina o un messaggio di errore 
+ * non ritorna valori, espone una pagina o un messaggio di errore
  */
 function modifica_dettaglio_album_da_modulo(int $dettaglio_id, array $dati_input){
-	$dbh   = new DatabaseHandler(); 
+	$dbh   = new DatabaseHandler();
 	$alb_h = new Album($dbh);
 	$chi_h = new Chiavi($dbh);
 	$adet_h = new AlbumDettagli($dbh);
@@ -1179,7 +1272,7 @@ function modifica_dettaglio_album_da_modulo(int $dettaglio_id, array $dati_input
 	// modifica dettaglio esistente
 	$adet_h->set_record_id($dettaglio_id);
 	$campi=[];
-	$campi['query']= 'SELECT * FROM ' . AlbumDettagli::nome_tabella 
+	$campi['query']= 'SELECT * FROM ' . AlbumDettagli::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id = :record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
@@ -1215,16 +1308,16 @@ function modifica_dettaglio_album_da_modulo(int $dettaglio_id, array $dati_input
 	$option_list_chiave = $chi_h->get_chiavi_option_list();
 
 	//
-	// mancano i dati - si espone il modulo 
+	// mancano i dati - si espone il modulo
 	if (!isset($dati_input['valore'])){
 		$_SESSION['messaggio'] = "Aggiungi il dettaglio chiave+valore "
 		. "scegliendo la chiave tra quelle "
 		. "disponibili, consulta il manuale in caso di dubbi.";
 		require_once(ABSPATH.'aa-view/dettaglio-album-modifica-view.php');
-		exit(0); 
+		exit(0);
 	}
 
-	// i dati ci sono e andiamo a modificare il dettaglio 
+	// i dati ci sono e andiamo a modificare il dettaglio
 	// cancellazione dettaglio vecchio (resta storia) 
 	$adet_h->set_record_id($dettaglio_id);
 	$campi['update'] ='UPDATE ' . AlbumDettagli::nome_tabella
@@ -1248,7 +1341,7 @@ function modifica_dettaglio_album_da_modulo(int $dettaglio_id, array $dati_input
 	//dbg echo '<p style="font-family:monospace">Dati input<br>'
 	//dbg . str_replace(';', '; ', serialize($dati_input)).'</p>';
 
-	// inserimento dettaglio nuovo 
+	// inserimento dettaglio nuovo
 	$adet_h->set_record_id_padre($album_id);
 	//dbg echo '<p style="font-family:monospace">Inserimento dettaglio nuovo<br>'
 	//dbg . str_replace(';', '; ', serialize($campi)).'</p>';
@@ -1286,7 +1379,97 @@ function modifica_dettaglio_album_da_modulo(int $dettaglio_id, array $dati_input
 	}
 
 	//
-	// inserimento effettuato, si va alla pagina dell'album 
+	// inserimento effettuato, si va alla pagina dell'album
 	leggi_album_per_id($album_id);
 	exit(0);
 } // modifica_dettaglio_album_da_modulo()
+
+
+/**
+ * Modifica titolo album 
+ * propone il modulo per modificare il titolo dell'album e 
+ * se son stati passati i dati del modulo, effettua la registrazione della modifica
+ * Nota: a uso registrazione vecchio - nuovo, viene 
+ * inserito un record in album ma con lo stato di già cancellato. 
+ * 
+ * @param   int $album_id 
+ * @param array $dati_input (quelli del modulo online)
+ * @return void (html page exposed)
+ */
+function modifica_titolo_album(int $album_id, array $dati_input ){
+	$dbh   = new DatabaseHandler();
+	$alb_h = new Album($dbh);
+
+	$view  = ABSPATH . 'aa-view/album-titolo-modifica-view.php';
+	$leggi_album = 'n.d.';
+	$aggiorna_titolo = 'n.d.';
+	$titolo_originale = 'n.d.';
+
+	$alb_h->set_record_id($album_id);
+	$campi=[];
+	$campi['query']= 'SELECT * FROM ' . Album::nome_tabella 
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND record_id = :record_id ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['record_id'] = $alb_h->get_record_id();
+	$ret_alb = $alb_h->leggi($campi);
+	if (isset($ret_alb['error'])){
+		$_SESSION['messaggio'] = "Nel reperire l'album si è verificato un problema. "
+		. '<br>campi: '. str_ireplace(';', '; ', serialize($campi))
+		. '<br>ret: '. str_ireplace(';', '; ', serialize($ret_alb));
+		require_once($view);
+		exit(1);
+	}
+	if ($ret_alb['numero'] < 1){
+		$_SESSION['messaggio'] = "Nel reperire l'album si è verificato un problema. "
+		. '<br>campi: '. str_ireplace(';', '; ', serialize($campi))
+		. '<br>Non trovato.';
+		require_once($view);
+		exit(1);
+	}
+	$aggiorna_titolo  = URLBASE.'album.php/modifica_titolo/'.$ret_alb['data'][0]['record_id'];
+	$leggi_album      = URLBASE.'album.php/leggi/'.$ret_alb['data'][0]['record_id'];
+	$titolo_originale = $ret_alb['data'][0]['titolo_album'];
+	if (!isset($dati_input['aggiorna_titolo'])){
+		$_SESSION['messaggio'] = "Modificate il titolo dell'album.";
+		require_once($view);
+		exit(0);
+	}
+	// Se c'è cambio nel titolo registro il record precedente come fosse stato 
+	// cancellato, già cancellato, a uso backup
+	$campi=[];
+	$campi['titolo_album']                 = $ret_alb['data'][0]['titolo_album'];
+	$campi['disco']                        = $ret_alb['data'][0]['disco'];
+	$campi['percorso_completo']            = $ret_alb['data'][0]['percorso_completo'];
+	$campi['record_id_in_scansioni_disco'] = $ret_alb['data'][0]['record_id_in_scansioni_disco'];
+	$campi['stato_lavori']                 = $ret_alb['data'][0]['stato_lavori'];
+	$campi['record_cancellabile_dal']      = $dbh->get_datetime_now();
+	$ret_ins = $alb_h->aggiungi($campi);
+	if (isset($ret_ins['error'])){
+		$_SESSION['messaggio'] = "Nell'aggiornare l'album si è verificato un problema. "
+		. '<br>Msg: '. $ret_ins['message']
+		. '<br>ret: '. str_ireplace(';', '; ', serialize($ret_ins));
+		require_once($view);
+		exit(1);
+	}
+	$campi=[];
+	$campi['update'] = 'UPDATE ' . Album::nome_tabella 
+	. ' SET titolo_album = :titolo_album '
+	. ' WHERE record_id = :record_id ';
+	$titolo_nuovo = strip_tags($dati_input['titolo']);
+	$titolo_nuovo = str_ireplace(';', ';§', $titolo_nuovo);
+	$campi['titolo_album'] = $titolo_nuovo;
+	$campi['record_id']    = $ret_alb['data'][0]['record_id'];
+	$ret_upd = $alb_h->modifica($campi);
+	$titolo_originale = $dati_input['titolo'];
+	if (isset($ret_upd['error'])){
+		$_SESSION['messaggio'] = "Nell'aggiornare l'album si è verificato un problema. "
+		. '<br>Msg: '. $ret_upd['message']
+		. '<br>ret: '. str_ireplace(';', '; ', serialize($ret_upd));
+		require_once($view);
+		exit(1);
+	}
+	$_SESSION['messaggio'] = "Aggiornamento eseguito.";
+	require_once($view);
+	exit(0);	
+} // modifica_titolo_album()

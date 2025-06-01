@@ -49,7 +49,7 @@ switch($richiesta){
  * sbarramento abilitazione 
  *
  */
-if ($_COOKIE['abilitazione'] <= SOLALETTURA){
+if (get_set_abilitazione() <= SOLALETTURA){
 	http_response_code(404); // know not found
 	echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non abilitata</strong></pre>'."\n";
 	exit(1);
@@ -92,7 +92,7 @@ if ($richiesta == 'cancella-richiesta' && $richiesta_id > 0){
 /**
  * sbarramento abilitazione 
  */
-if ($_COOKIE['abilitazione'] <  MODIFICAPLUS){
+if (get_set_abilitazione() <  MODIFICAPLUS){
 	http_response_code(404); // know not found
 	echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non abilitata</strong></pre>'."\n";
 	exit(1);

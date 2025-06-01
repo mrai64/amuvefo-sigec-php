@@ -1,7 +1,15 @@
 /* relativo all'elenco in pagina html */
+function urlbase(){
+	var protocol = window.location.protocol;
+	var domain   = window.location.hostname;
+	var urlzero  = (domain.includes("localhost")) ? ":8888/AMUVEFO-sigec-php/" : "/";
+	var urlbase  = protocol + '//' + domain + urlzero;
+	return urlbase;
+}
+
 function aggiornaCartelleDaScansionare(){
     $.ajax({
-        url: "https://archivio.athesis77.it/cartelle.php/lista-cartelle-sospese/0",
+        url: urlbase() + "cartelle.php/lista-cartelle-sospese/0",
         data: "",
         dataType: "html",
         method: "POST",
@@ -15,7 +23,7 @@ function aggiornaCartelleDaScansionare(){
 $(document).ready(function () {
 	// Caricamento lista al caricamento pagina
     $.ajax({
-        url: "https://archivio.athesis77.it/cartelle.php/lista-cartelle-sospese/0",
+        url: urlbase()+ "cartelle.php/lista-cartelle-sospese/0",
         data: "",
         dataType: "html",
         method: "POST",
@@ -25,4 +33,3 @@ $(document).ready(function () {
         }
     });
 });
-

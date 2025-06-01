@@ -430,8 +430,7 @@ Class Fotografie {
 				$lettura->bindValue('record_cancellabile_dal', $this->record_cancellabile_dal ); 
 			}
 			$lettura->execute();
-			
-			} catch( \Throwable $th ){
+		} catch( \Throwable $th ){
 			$ret = [
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 

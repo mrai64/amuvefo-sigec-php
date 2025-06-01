@@ -52,7 +52,6 @@ Class ScansioniDisco {
 	public $tinta_rgb; //                char(6) codice colore personalizzabile
 	public $stato_lavori; //             enum uso interno
 	public $ultima_modifica_record;         // datetime data creazione record uso backup
-	public $record_da_esaminare;      // datetime per esaminare il record  
 	public $record_cancellabile_dal;  // datetime per selezionare e cancellare 
 	
 	/**
@@ -77,7 +76,6 @@ Class ScansioniDisco {
 		$this->tinta_rgb        = '';
 		$this->stato_lavori     = self::stato_da_fare;
 		$this->ultima_modifica_record        = $dbh->get_datetime_now();
-		$this->record_da_esaminare     = $dbh->get_datetime_forever(); // futuro - da esaminare
 		$this->record_cancellabile_dal = $dbh->get_datetime_forever(); // futuro - valido 
 	} // __construct
 		
@@ -126,9 +124,6 @@ Class ScansioniDisco {
 	}
 	public function get_ultima_modifica_record() : string {
 		return $this->ultima_modifica_record;
-	}
-	public function get_record_da_esaminare() : string {
-		return $this->record_da_esaminare;
 	}
 	public function get_record_cancellabile_dal() : string {
 		return $this->record_cancellabile_dal;
@@ -274,17 +269,6 @@ Class ScansioniDisco {
 			. '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss ');
 		}
 		$this->ultima_modifica_record = $ultima_modifica_record;
-	}
-	/**
-	 * @param string datetime yyyy-mm-dd hh:mm:ss
-	 */
-	public function set_record_da_esaminare( string $record_da_esaminare ){
-		if (!($this->conn->is_datetime($record_da_esaminare))){
-			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. ' no for: '. $record_da_esaminare 
-			. '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss ');
-		}
-		$this->record_da_esaminare = $record_da_esaminare;
 	}
 	/**
 	 * @param string datetime yyyy-mm-dd hh:mm:ss
@@ -492,9 +476,6 @@ Class ScansioniDisco {
 		if (isset($campi['ultima_modifica_record'])){
 			$this->set_ultima_modifica_record($campi['ultima_modifica_record']);
 		}
-		if (isset($campi['record_da_esaminare'])){
-			$this->set_record_da_esaminare($campi['record_da_esaminare']);
-		}
 		if (isset($campi['record_cancellabile_dal'])){
 			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']);
 		}
@@ -680,9 +661,6 @@ Class ScansioniDisco {
 		if (isset($campi['ultima_modifica_record'])) {
 			$this->set_ultima_modifica_record($campi['ultima_modifica_record']);
 		}
-		if (isset($campi['record_da_esaminare'])) {
-			$this->set_record_da_esaminare($campi['record_da_esaminare']);
-		}
 		if (isset($campi['record_cancellabile_dal'])) {
 			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']);
 		}
@@ -708,7 +686,6 @@ Class ScansioniDisco {
 			if (isset($campi['tinta_rgb']))               { $aggiorna->bindValue('tinta_rgb', $campi['tinta_rgb']); }
 			if (isset($campi['stato_lavori']))            { $aggiorna->bindValue('stato_lavori', $campi['stato_lavori']); }
 			if (isset($campi['ultima_modifica_record']))        { $aggiorna->bindValue('ultima_modifica_record', $campi['ultima_modifica_record']); }
-			if (isset($campi['record_da_esaminare']))     { $aggiorna->bindValue('record_da_esaminare', $campi['record_da_esaminare']); }
 			if (isset($campi['record_cancellabile_dal'])) { 
 				$aggiorna->bindValue('record_cancellabile_dal', $campi['record_cancellabile_dal']); 
 			}
@@ -812,9 +789,6 @@ Class ScansioniDisco {
 		if (isset($campi['ultima_modifica_record'])) {
 			$this->set_ultima_modifica_record($campi['ultima_modifica_record']);
 		}
-		if (isset($campi['record_da_esaminare'])) {
-			$this->set_record_da_esaminare($campi['record_da_esaminare']);
-		}
 		if (isset($campi['record_cancellabile_dal'])) {
 			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']);
 		}
@@ -842,7 +816,6 @@ Class ScansioniDisco {
 			if (isset($campi['tinta_rgb'])){	$cancella->bindValue('tinta_rgb', $this->get_tinta_rgb());	}
 			if (isset($campi['stato_lavori'])){	$cancella->bindValue('stato_lavori', $this->get_stato_lavori());	}
 			if (isset($campi['ultima_modifica_record'])){	$cancella->bindValue('ultima_modifica_record', $this->get_ultima_modifica_record());	}
-			if (isset($campi['record_da_esaminare'])){	$cancella->bindValue('record_da_esaminare', $this->get_record_da_esaminare());	}
 			if (isset($campi['record_cancellabile_dal'])){	$cancella->bindValue('record_cancellabile_dal', $this->get_record_cancellabile_dal());	}
 			$cancella->execute();
 			$dbh->commit();
@@ -942,7 +915,12 @@ Class ScansioniDisco {
 		    substr_count($percorso, '/') >  6){
 			return 0;
 		}
-		
+		$livello1='';
+		$livello2='';
+		$livello3='';
+		$livello4='';
+		$livello5='';
+		$livello6='';
 		@list($livello1, $livello2, $livello3, $livello4, $livello5, $livello6 ) = explode('/', $percorso);
 		$campi=[];
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();

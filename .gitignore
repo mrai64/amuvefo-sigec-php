@@ -10,6 +10,7 @@ was*
 */wp-*
 .vs*
 _co*
+.co*
 1AU*
 2AU*
 3FO*
@@ -20,6 +21,7 @@ _co*
 8SC*
 9TE*
 10V*
+/aa-backup/*
 
 # Wordpress - ignore core, configuration, examples, uploads and logs.
 # https://github.com/github/gitignore/blob/main/WordPress.gitignore

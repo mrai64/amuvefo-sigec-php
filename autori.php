@@ -24,7 +24,9 @@ $richiesta=$pezzi['operazioni'][0];
 switch($richiesta){
 	// queste si
 	case 'elenco-autori':
+	case 'aggiungi':
 	case 'modifica':
+	case 'verifica':
 		break;
 
 	// resto no 
@@ -49,12 +51,19 @@ if ($richiesta === 'elenco-autori'){
 // operazioni ricercate amministratore - sostituisce controllo-abilitazione.php
 // può essere "1 lettura" ma anche "'1 lettura'"
 // ("'7 amministrazione'" < "1 lettura" ) === true
-$abilitazione_cookie   = str_replace("'", '', $_COOKIE['abilitazione']);
+$abilitazione_cookie   = get_set_abilitazione();
 $abilitazione_modifica = str_replace("'", '', constant('MODIFICA'));
 if (strncmp($abilitazione_cookie, $abilitazione_modifica, 2) < 0){
 	http_response_code(401); // Unauthorized
 	echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non supportata</strong></pre>'."\n";
 	exit(1);
+}
+
+// la verifica finché è solo su sigla_6 non richieste parametri 
+// risposta present | absent 
+if ($richiesta == 'verifica'){
+	echo verifica_sigla_6($_POST);
+	exit(0);
 }
 
 // 
@@ -67,13 +76,26 @@ if (count($pezzi['operazioni']) < 2){
 // check 2 - il parametro dev'essere intero senza segno 
 $autore_id = $pezzi['operazioni'][1];
 
+// aggiungi 1 di 2 
+// espone il modulo  
+if ($richiesta == 'aggiungi' && !isset($_POST['aggiungi_autore'])){
+	aggiungi_autore([]);
+	exit(0);
+} 
+// aggiungi 2 di 2 
+// aggiungi dal modulo  
+if ($richiesta == 'aggiungi' ){
+	aggiungi_autore($_POST);
+	exit(0);
+}
+
 // modifica 1 di 2 
 // espone il modulo  
 if ($richiesta == 'modifica' && !isset($_POST['aggiorna_autore'])){
 	modifica_autore($autore_id, []);
 	exit(0);
 } 
-// modifica_dettaglio 2 di 2 
+// modifica 2 di 2 
 // aggiorna dal modulo  
 if ($richiesta == 'modifica' ){
 	modifica_autore($autore_id, $_POST);

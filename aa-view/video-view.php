@@ -20,13 +20,12 @@
 		<div class="col-2">
 			<a href="<?= $torna_all_album; ?>" title="[Torna all'album]" ><i class="h2 bi bi-arrow-up-left-square" ></i></a>
 			<?php
-			if ($_COOKIE['abilitazione'] > SOLALETTURA){
+			if (get_set_abilitazione() > SOLALETTURA){
 				echo '<a href="'. $richiesta_originali . '" title="[Richiesta foto]" ><i class="h2 bi bi-bookmark-check"></i></a>'."\n";
 			}
 			?>
 		&nbsp;|&nbsp; 
-		<a href='/ricerca.php'><i class="bi bi-search" 
-			style='font-size:1.75rem;color:<?=$cartella_radice["tinta_rgb"]; ?>' ></i></a>
+		<a href='/ricerca.php'><i class="bi bi-search"></i></a>
 		</div>
 		<div class="col-10 h3">
 			Siete in: <?= $siete_in; ?>
@@ -66,7 +65,7 @@
 								echo '<tr>'."\n";
 								echo '<td scope="row">'.$dettaglio['chiave'].'</td>'."\n";
 								echo '<td>'.$dettaglio['valore'].'</td>'."\n";
-								if ($_COOKIE['abilitazione'] > SOLALETTURA ){
+								if (get_set_abilitazione() > SOLALETTURA ){
 									echo '<td><a href="'.URLBASE.'video.php/modifica_dettaglio/'.$dettaglio['record_id'].'?video='.$dettaglio['record_id_padre'].'" '
 									. 'title="modifica dettaglio"><i class="h2 bi bi-pencil-square"></i></a>'
 									. '<a href="'.URLBASE.'video.php/elimina_dettaglio/'.$dettaglio['record_id'].'?video='.$dettaglio['record_id_padre'].'" '
