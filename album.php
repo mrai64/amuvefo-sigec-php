@@ -132,6 +132,8 @@ if ($richiesta == 'aggiungi-album'){
 	exit(0); // qui non dovrebbe arrivarci, però...
 } // aggiungi 
 
+// TODO Si può spostare qui il controllo che l'id sia maggiore di zero 
+
 if ($richiesta == 'richiesta'){
 	carica_richiesta_album($album_id);
 	//

@@ -473,7 +473,12 @@ function leggi_album_per_id(int $album_id){
 
 
 /**
- * Mostra pagina web con il progressivo dei lavori
+ * Carica album in album leggendo scansioni_disco 
+ * Viene richiamata all'interno della funzione carica_album_dettagli_foto_video
+ * che espone a video i risultati. A sua volta può esporre a videlo i progressi 
+ * del suo compito ma deve tornare un array uguale a quelli base 
+ * degli accessi al database.
+ * 
  * Va a inserire SOLO l'album partendo da un record di scansioni_disco
  * se viene passato id zero si prende il primo che trova
  * con le caratteristiche della cartella (no file) 
@@ -695,17 +700,14 @@ function carica_album_da_scansioni_disco( int $scansioni_id) : array {
 	if ($ret_check['numero']== 0){
 		// aggiorna stato - ci prova comunque 
 		$ret_stato = $scan_h->set_stato_lavori_in_scansioni_disco($scansioni_id, ScansioniDisco::stato_completati);
-
-		$ret = [
-			'error' => true,
-			'message' => "Il record $scansioni_id in scansioni_disco non contiene materiali " 
-			. '<br />futuro: '    . str_ireplace(';', '; ', serialize($futuro_album)) 
+		echo  "Il record $scansioni_id in scansioni_disco non contiene materiali " 
 			. '<br />ret_check: ' . str_ireplace(';', '; ', serialize($ret_check))
-			. '<br /><br />campi: ' . str_ireplace(';', '; ', serialize($campi))
-		];
-		echo '<br />Errore: '.$ret['message']. '<br />STOP';
-		return $ret;
+			. '<br />PASSO AL PROSSIMO';
+		// ricarica 5 secondi
+		echo '<script src="'.URLBASE.'aa-view/reload-5sec-jquery.js"></script>';
+		exit(0);
 	}
+	
 	//
 	// inserimento album 
 	// composizione record scansioni_disco > album 
