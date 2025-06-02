@@ -93,8 +93,8 @@
 							</div>
 						</div>
 					</a>
-					<!-- /album.php/aggiungi_album/0 -->
-					<a href="<?=URLBASE; ?>album.php/aggiungi_album/0" 
+					<!-- /album.php/aggiungi-album/0 -->
+					<a href="<?=URLBASE; ?>album.php/aggiungi-album/0" 
 						target="_blank" 
 						class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
@@ -106,7 +106,7 @@
 							</div>
 						</div>
 					</a>
-					<a href="<?=URLBASE; ?>fotografie.php/carica_dettagli_da_fotografia/0" 
+					<a href="<?=URLBASE; ?>fotografie.php/carica-dettagli-da-fotografia/0" 
 						target="_blank" 
 						class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">

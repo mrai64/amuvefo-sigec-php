@@ -11,8 +11,8 @@
  *   leggi dalla tabella album e 
  *   mostra album a video 
  * 
- * /album.php/aggiungi_album/0 "il primo che trovi"
- * /album.php/aggiungi_album/{record_id_in_scansioni_disco}
+ * /album.php/aggiungi-album/0 "il primo che trovi"
+ * /album.php/aggiungi-album/{record_id_in_scansioni_disco}
  *   aggiunge in tabella album partendo dall'id di scansione_disco
  *   aggiunge i dettagli dell'album 
  *   aggiunge le fotografie dell'album 
@@ -28,16 +28,16 @@
  *   dipende dall'album deve essere già stato precedentemente 
  *   marcato cancellabile o anche cancellato fisicamente 
  * 
- * /album.php/aggiungi_dettaglio/{dettaglio_id}
+ * /album.php/aggiungi-dettaglio/{dettaglio_id}
  *   aggiunge un dettaglio se sono presenti i dati di un modulo 
  *   oppure prepara ed espone un modulo 
  * 
- * /album.php/modifica_dettaglio/{dettaglio_id}
+ * /album.php/modifica-dettaglio/{dettaglio_id}
  *   modifica un dettaglio se sono presenti i dati 
  *   di un modulo oppure 
  *   carica e presenta il modulo per la modifica 
  * 
- * /album.php/modifica_titolo/{album_id}
+ * /album.php/modifica-titolo/{album_id}
  *   modifica il titolo dell'album che a differenza
  *   del nome cartella può contenere lettere accentate e altro 
  * 
@@ -57,13 +57,13 @@ $richiesta=$pezzi['operazioni'][0];
 switch($richiesta){
 	// queste si
 	case 'leggi':
-	case 'aggiungi_album':
+	case 'aggiungi-album':
 	case 'richiesta':		
-	case 'aggiungi_dettaglio':
-	case 'modifica_dettaglio':
-	case 'aggiorna_dettaglio':
-	case 'elimina_dettaglio':
-	case 'modifica_titolo':
+	case 'aggiungi-dettaglio':
+	case 'modifica-dettaglio':
+	case 'aggiorna-dettaglio':
+	case 'elimina-dettaglio':
+	case 'modifica-titolo':
 		break;
 
 	// resto no 
@@ -93,8 +93,8 @@ if (!is_numeric($album_id)){
 	exit(1);
 }
 $album_id = (int) $album_id;
-// aggiungi_album può avere zero 
-if ($richiesta != 'aggiungi_album' && ($album_id < 1)){
+// aggiungi-album può avere zero 
+if ($richiesta != 'aggiungi-album' && ($album_id < 1)){
 	http_response_code(404); // TODO sostituire con il codice errore parametro invalido 
 	echo '<pre style="color: red;"><strong>Manca un id valido</strong></pre>'."\n";
 	exit(1);
@@ -124,10 +124,10 @@ if (get_set_abilitazione() <= SOLALETTURA){
  * AGGIUNGI ALBUM - controller album
  * Legge scansioni_disco e carica album, dettagli album e fotografie o video 
  * 
- * /album.php/aggiungi_album/0                    prende il primo che trova 
- * /album.php/aggiungi_album/{scansioni_disco_id} puntuale 
+ * /album.php/aggiungi-album/0                    prende il primo che trova 
+ * /album.php/aggiungi-album/{scansioni_disco_id} puntuale 
  */
-if ($richiesta == 'aggiungi_album'){
+if ($richiesta == 'aggiungi-album'){
 	carica_album_dettagli_foto_video($scansioni_disco_id);
 	exit(0); // qui non dovrebbe arrivarci, però...
 } // aggiungi 
@@ -139,44 +139,44 @@ if ($richiesta == 'richiesta'){
 	exit(0); // qui non dovrebbe arrivarci, però...
 } // richiesta originali 
 
-// aggiungi_dettaglio 1 di 2 
+// aggiungi-dettaglio 1 di 2 
 // espone il modulo per aggiungere il dettaglio all'album 
-if ($richiesta == 'aggiungi_dettaglio' && !isset($_POST['valore'])){
+if ($richiesta == 'aggiungi-dettaglio' && !isset($_POST['valore'])){
 	aggiungi_dettaglio_album_da_modulo($album_id, []);
 	exit(0);
 } 
 // aggiunge il dettaglio all'album 
-if ($richiesta == 'aggiungi_dettaglio' ){
+if ($richiesta == 'aggiungi-dettaglio' ){
 	aggiungi_dettaglio_album_da_modulo($album_id, $_POST);
 	exit(0);
 }
 
 // modifica_dettaglio 1 di 2 
 // espone il modulo per aggiungere il dettaglio all'album 
-if ($richiesta == 'modifica_dettaglio' && !isset($_POST['valore'])){
+if ($richiesta == 'modifica-dettaglio' && !isset($_POST['valore'])){
 	modifica_dettaglio_album_da_modulo($dettaglio_id, []);
 	exit(0);
 } 
 // modifica_dettaglio 2 di 2 
 // modifica il dettaglio all'album dal modulo  
-if ($richiesta == 'modifica_dettaglio' ){
+if ($richiesta == 'modifica-dettaglio' ){
 	modifica_dettaglio_album_da_modulo($dettaglio_id, $_POST);
 	exit(0);
 }
 
-if ($richiesta == 'elimina_dettaglio'){
-	elimina_dettaglio_album($dettaglio_id);
+if ($richiesta == 'elimina-dettaglio'){
+	cancella_album_dettagli($dettaglio_id);
 	exit(0);
 }
 
 /**
  * Modifica titolo
  */
-if ($richiesta == 'modifica_titolo' && !isset($_POST['titolo'])){
+if ($richiesta == 'modifica-titolo' && !isset($_POST['titolo'])){
 	modifica_titolo_album($album_id, []);
 	exit(0);
 } 
-if ($richiesta == 'modifica_titolo' ){
+if ($richiesta == 'modifica-titolo' ){
 	modifica_titolo_album($album_id, $_POST);
 	exit(0);
 }

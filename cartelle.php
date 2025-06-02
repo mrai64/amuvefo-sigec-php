@@ -20,6 +20,10 @@
  * 
  * /cartelle.php/archivia-cartella/{scansioni_cartelle_id}
  * 
+ * /cartelle.php/reset-status/{scansioni_cartelle_id}
+ *   Per le situazioni in cui si vuole rimettere una cartella in
+ *   lavorazione ma è rimata bloccata per qualche errore su "in corso"
+ * 
  */
 
 // recupero parametri  
@@ -47,6 +51,7 @@ switch($richiesta){
 	case 'lista-cartelle-sospese':
 	case 'archivia-cartella':
 	case 'aggiungi-cartella':
+	case 'reset-status':
 		break;
 			
 	// resto no 
@@ -62,7 +67,6 @@ include_once(ABSPATH . "aa-controller/cartelle-controller.php"); // route_from_u
 
 // /cartelle.php/lista-cartelle-sospese/0
 if ($richiesta == 'lista-cartelle-sospese'){
-	echo 'lista cartelle sospese<br />';
 	echo lista_cartelle_sospese(); // cartelle-controller
 	exit(0);
 }
@@ -70,7 +74,6 @@ if ($richiesta == 'lista-cartelle-sospese'){
 // /cartelle.php/aggiungi-cartella/0 + $_POST['aggiungi-cartella]
 // i dati ci sono, elabora il modulo - carica le cartelle in scansioni_cartelle
 if ($richiesta == 'aggiungi-cartella' && isset($_POST['aggiungi_cartella'])){
-	// TODO a prescindere da cosa contiene, sanificare $_POST
 	carica_cartelle_in_scansioni_cartelle( $_POST );
 	exit(0); //
 }
@@ -84,14 +87,25 @@ if ($richiesta == 'aggiungi-cartella'){
 
 // /cartelle.php/archivia-cartella/0 "il primo che trovi"
 // /cartelle.php/archivia-cartella/scansioni_cartelle_id 
+$cartella_id = (isset($pezzi['operazioni'][1])) ? $pezzi['operazioni'][1] : 0;
+$cartella_id = (is_numeric($cartella_id) && $cartella_id > 0) ? $cartella_id : 0;
+
+// carica in scansioni_disco album e fotografie e video 
 if($richiesta =='archivia-cartella'){
-	$cartella_id = $pezzi['operazioni'][1];
-	$cartella_id = (is_numeric($cartella_id) && $cartella_id > 0) ? $cartella_id : 0;
 	carica_cartelle_in_scansioni_disco($cartella_id); // cartelle-controller
+	exit(0);
+}
+
+// 
+if ($richiesta == 'reset-status'){
+	reset_stato_lavori_cartelle( $cartella_id);	
+	header("Refresh:1; url=".URLBASE."cartelle.php/aggiungi-cartella/0");
 	exit(0);
 }
 
 // Qui non dovrebbe arrivarci, però...
 http_response_code(404); // know not found
-echo '<pre style="color: red;"><strong>Funzione ['.$richiesta.'] non supportata 2</strong></pre>'."\n";
+echo '<pre style="color: red;"><strong>'
+. 'Funzione ['.$richiesta.'] non supportata 2'
+. '</strong></pre>';
 exit(1);

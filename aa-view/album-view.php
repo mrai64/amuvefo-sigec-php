@@ -38,7 +38,7 @@
 		<div class="col-9 fs-4"><?php
 			echo $album['titolo_album'];
 			if (get_set_abilitazione() > SOLALETTURA){
-				echo '&nbsp;|&nbsp;<a href="'.URLBASE.'album.php/modifica_titolo/'.$album['record_id'].'"'
+				echo '&nbsp;|&nbsp;<a href="'.URLBASE.'album.php/modifica-titolo/'.$album['record_id'].'"'
 				. ' title="Modifica titolo"><i class="fs-2 bi bi-keyboard"></i></a>'."\n";
 			}
 		?>

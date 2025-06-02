@@ -160,13 +160,6 @@ function modifica_chiave_ricerca(int $chiave_id, array $dati_input){
     exit(0);
   }
 
-  // per la view 
-  $chiave=[];
-  $chiave['record_id']  =$campi['record_id'];
-  $chiave['chiave']     =$campi['chiave'];
-  $chiave['url_manuale']=$campi['url_manuale'];
-  $chiave['unico']      =$campi['unico'];  
-
   // validazione 
   $key_h->set_record_id($chiave_id);
   $key_h->set_chiave($dati_input['chiave']);

@@ -242,6 +242,7 @@ Class Fotografie {
 		// record_id               viene assegnato automaticamente pertanto non è in elenco 
 		// ultima_modifica_record  viene assegnato automaticamente 
 		// record_cancellabile_dal viene assegnato automaticamente 
+		//                         ma non sempre 
 		// stato_lavori            viene assegnato automaticamente 
 	
 		$create = 'INSERT INTO ' . self::nome_tabella 
@@ -792,38 +793,111 @@ Class Fotografie {
 		}
 		// validazione
 		$this->set_record_id($fotografia_id);
-		$read = 'SELECT * FROM ' . self::nome_tabella
-		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal  '
-		. ' AND record_id = :record_id '
-		. ' LIMIT 1 ';
-		try {
-			$lettura=$dbh->prepare($read);
-			$lettura->bindValue('record_cancellabile_dal', $dbh->get_datetime_forever() ); 
-			$lettura->bindValue('record_id',               $fotografia_id, PDO::PARAM_INT); 
-			$lettura->execute();
-
-		} catch( \Throwable $th ){
-			$ret = [
-				'error'   => true,
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. '<br>' . $th->getMessage() 
-				. '<br>fotografia_id: ' . $fotografia_id
-				. '<br>istruzione SQL: ' . $read
-			];
-			return $ret;
+		$campi=[];
+		$campi['query'] = 'SELECT * FROM ' . self::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+		. ' AND record_id = :record_id ';
+		$campi['record_cancellabile_dal']=$dbh->get_datetime_forever();
+		$campi['record_id']=$this->get_record_id();
+		$ret_foto = $this->leggi($campi);
+		if (isset($ret_foto['error'])){
+			return $ret_foto;
 		}
-		$numero = 0;
-		$dati_di_ritorno = [];
-		while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
-			$dati_di_ritorno[] = $record;
-			$numero++;
-		}    
+		if ($ret_foto['numero'] < 1){
+      $ret = [
+        'error'   => true,
+        'message' => "La fotografa {$fotografia_id } non è stata trovata."
+      ];
+      return $ret;
+		}
 		$ret = [
-			'ok'     => true,
-			'numero' => $numero,
-			'data'   => $dati_di_ritorno 
+			'ok'    => true,
+			'record'=> $ret_foto['data'][0]
 		];
 		return $ret;
 	} // get_fotografia_from_id
+
+	public function get_fotografia_da_fare() : array {
+		// dati obbligatori 
+		$dbh = $this->conn; // a PDO object thru Database class
+		if ($dbh === false){
+			$ret = [
+				'error'   => true, 
+				'message' => __CLASS__ . ' ' . __FUNCTION__ 
+				. '<br>Serve una connessione attiva per leggere in '
+				. self::nome_tabella 
+			];
+			return $ret;
+		}
+		// validazione
+		$campi=[];
+		$campi['query'] = 'SELECT * FROM ' . self::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal  '
+		. ' AND stato_lavori = :stato_lavori '
+		. ' ORDER BY record_id ';
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$campi['record_id'] = $this->get_record_id();
+		$ret_foto = $this->leggi($campi);
+		if (isset($ret_foto['error'])){
+			return $ret_foto;
+		}
+		if ($ret_foto['numero'] < 1){
+      $ret = [
+        'error'   => true,
+        'message' => "Una fotografia 'da fare' non è stata trovata."
+      ];
+      return $ret;
+		}
+		$ret = [
+			'ok'    => true,
+			'record'=> $ret_foto['data'][0]
+		];
+		return $ret;
+	} // get_fotografia_da_fare
+
+	/**
+	 * Verifica quante fotografie sono memorizzate con lo stesso scansioni_id
+	 * In fotografie 
+	 * 
+	 * @param   int $scansioni_id
+	 * @return array 'ok' + data | 'error' + message
+	 */
+	public function get_fotografia_from_scansioni_id( int $scansioni_id) : array {
+		// dati obbligatori 
+		$dbh = $this->conn; // a PDO object thru Database class
+		if ($dbh === false){
+			$ret = [
+				'error'   => true, 
+				'message' => __CLASS__ . ' ' . __FUNCTION__ 
+				. '<br>Serve una connessione attiva per leggere in '
+				. self::nome_tabella 
+			];
+			return $ret;
+		}
+		// validazione
+		$this->set_record_id_in_scansioni_disco($scansioni_id);
+		$campi=[];
+		$campi['query'] = 'SELECT * FROM ' . self::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal  '
+		. ' AND record_id_in_scansioni_disco = :record_id_in_scansioni_disco '
+		. ' ORDER BY record_id ';
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$campi['record_id_in_scansioni_disco'] = $this->get_record_id_in_scansioni_disco();
+		$ret_foto = $this->leggi($campi);
+		if (isset($ret_foto['error'])){
+			return $ret_foto;
+		}
+		if ($ret_foto['numero'] < 1){
+      $ret = [
+        'error'   => true,
+				'numero'  => 0,
+        'message' => "Non è stata trovata nessuna fotografia "
+				. "con scansioni_disco_id ". $scansioni_id
+      ];
+      return $ret;
+		}
+		return $ret_foto;
+
+	} // get_fotografia_from_scansioni_id
 	
 } // Fotografie

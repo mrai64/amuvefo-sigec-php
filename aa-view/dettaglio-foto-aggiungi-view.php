@@ -17,17 +17,17 @@
         <div class="card">
           <div class="card-header">
             <h4>aggiunta Dettaglio foto
-              <a href="<?= $leggi_fotografia; ?>" class="btn btn-secondary float-end">Torna alla vista foto</a>
+              <a href="<?=$leggi_fotografia; ?>" class="btn btn-secondary float-end">Torna alla vista foto</a>
             </h4>
           </div>
           <div class="card-body">
-            <form action="<?= $aggiungi_dettaglio; ?>" method="post">
-              <input type="hidden" name="record_id"     value="<?= $record_id;     ?>">
-              <input type="hidden" name="fotografie_id" value="<?= $fotografie_id; ?>">
+            <form action="<?=$aggiungi_dettaglio; ?>" method="post">
+              <input type="hidden" name="record_id"     value="<?=$record_id;     ?>">
+              <input type="hidden" name="fotografia_id" value="<?=$fotografia_id; ?>">
               <div class="mb-3">
-                <label class="h3" for="chiave"> chiave di ricerca</label>
+                <label class="h3" for="chiave">Chiave di ricerca</label>
                 <select name="chiave" class="form-select-lg" required>
-                  <?= $option_list_chiave; ?>
+                  <?=$option_list_chiave; ?>
                 </select>
               </div>
               <div class="mb-3">

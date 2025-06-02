@@ -167,7 +167,7 @@ Class Chiavi {
 
     $campi = [];
     $campi['query'] = 'SELECT * FROM ' . self::nome_tabella 
-    . ' WHERE record_cancellabile_da = :record_cancellabile_dal '
+    . ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
     . ' AND chiave = :chiave '
     . ' ORDER BY record_id ';
     $campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
@@ -205,7 +205,7 @@ Class Chiavi {
 
     $campi = [];
     $campi['query'] = 'SELECT * FROM ' . self::nome_tabella 
-    . ' WHERE record_cancellabile_da = :record_cancellabile_dal '
+    . ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
     . ' AND record_id = :record_id ';
     $campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
     $campi['record_id'] = $this->get_record_id();

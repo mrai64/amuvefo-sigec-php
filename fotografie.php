@@ -17,7 +17,7 @@
  * /fotografie.php/seguente/{fotografie_id}
  *   carica la scheda della fotografia seguente 
  * 
- * /fotografie.php/elimina_dettaglio/{dettaglio_id}
+ * /fotografie.php/elimina-dettaglio/{dettaglio_id}
  *   cancella non fisicamente il dettaglio già presente 
  *   e ritorna alla vista della fotografia 
  * 
@@ -33,7 +33,7 @@
  * /fotografie.php/aggiungi_dettaglio/{fotografie_id}
  *   esegue l'aggiunta del dettaglio fotografia 
  * 
- * /fotografie.php/carica_dettagli_da_fotografia/{fotografia_id}
+ * /fotografie.php/carica-dettagli-da-fotografia/{fotografia_id}
  *   apre la fotografia e cerca dati exif, 
  *   e/o carica dettagli dal nome file
  *   NON carica dettagli dall'album, perché dovrebbero essere già nell'album 
@@ -58,12 +58,12 @@ switch($richiesta){
 	case 'richiesta':
   case 'precedente':
   case 'seguente':
-	case 'elimina_dettaglio':
+	case 'elimina-dettaglio':
 	case 'modifica_dettaglio':
 	case 'aggiorna_dettaglio':
-	case 'carica_dettagli':
+	case 'carica-dettaglio':
 	case 'aggiungi_dettaglio':
-	case 'carica_dettagli_da_fotografia':
+	case 'carica-dettagli-da-fotografia':
 //  case 'cancella':
 		break;
 
@@ -88,7 +88,7 @@ if (!is_numeric($fotografie_id)){
 	echo '<pre style="color: red;"><strong>Manca un id</strong></pre>'."\n";
 	exit(1);
 }
-if ($richiesta != 'carica_dettagli_da_fotografia' && ($fotografie_id)<1 ){
+if ($richiesta != 'carica-dettagli-da-fotografia' && ($fotografie_id)<1 ){
 	http_response_code(404); // TODO sostituire con il codice errore parametro invalido 
 	echo '<pre style="color: red;"><strong>Manca un id</strong></pre>'."\n";
 	exit(1);
@@ -136,7 +136,7 @@ if (get_set_abilitazione() <= SOLALETTURA){
  * CARICA dettaglio passando per la tabella fotografie o per un fotografia_id 
  *
  */
-if ($richiesta == 'carica_dettagli_da_fotografia'){
+if ($richiesta == 'carica-dettagli-da-fotografia'){
 	carica_dettagli_da_fotografia($fotografie_id);
 	exit(0);
 }
@@ -156,23 +156,27 @@ if ($richiesta == 'richiesta'){
  * modifica dettaglio 1/2 mostra il modulo 
  */
 if ($richiesta == 'modifica_dettaglio'){
-	modifica_dettaglio_fotografia($dettaglio_id);
+	modifica_fotografie_dettagli_da_modulo($dettaglio_id, []);
 	exit(0);
 }
 
 /**
  * modifica dettaglio 2/2 aggiorna 
  */
-if ($richiesta == 'aggiorna_dettaglio' && isset($_POST['aggiorna_dettaglio'])){
-	aggiorna_dettaglio_fotografia($dettaglio_id);
+if ($richiesta == 'aggiorna_dettaglio' && !isset($_POST['aggiorna_dettaglio'])){
+	modifica_fotografie_dettagli_da_modulo($dettaglio_id, []);
+	exit(0);
+}
+if ($richiesta == 'aggiorna_dettaglio'){
+	modifica_fotografie_dettagli_da_modulo($dettaglio_id, $_POST);
 	exit(0);
 }
 
 /**
  * carica dettaglio 1/2 mostra il modulo 
  */
-if ($richiesta == 'carica_dettagli'){
-	aggiungi_dettaglio_fotografia($fotografie_id);
+if ($richiesta == 'carica-dettaglio'){
+	aggiungi_fotografie_dettagli_da_modulo($fotografie_id, []);
 	exit(0);
 }
 
@@ -180,7 +184,7 @@ if ($richiesta == 'carica_dettagli'){
  * carica dettaglio 2/2 aggiunge 
  */
 if ($richiesta == 'aggiungi_dettaglio' && isset($_POST['aggiungi_dettaglio'])){
-	aggiungi_dettaglio_fotografia($fotografie_id);
+	aggiungi_fotografie_dettagli_da_modulo($fotografie_id, $_POST);
 	exit(0);
 }
 
@@ -188,7 +192,7 @@ if ($richiesta == 'aggiungi_dettaglio' && isset($_POST['aggiungi_dettaglio'])){
 /**
  * elimina dettaglio  
  */
-if ($richiesta == 'elimina_dettaglio'){
+if ($richiesta == 'elimina-dettaglio'){
 	elimina_dettaglio_fotografia($dettaglio_id);
 	exit(0);
 }

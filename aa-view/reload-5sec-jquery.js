@@ -1,5 +1,4 @@
 $(document).ready(function () {
-  setTimeout(function () {
-      location.reload(true);
-    }, 5000);
+  // reload dopo 5 secondi 
+  setTimeout(function () { location.reload(true);}, 5000);
 });

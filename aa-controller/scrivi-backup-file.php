@@ -68,7 +68,7 @@ function get_backup_abilitazioni(string $ultimo_backup) : string {
 	$ret = '';
 	$riempire = 'INSERT INTO `abilitazioni_elenco` (`record_id`,'
 	. ' `url_pagina`, `operazione`, `abilitazione`, '
-	. ' `ultima_modifica_record`, `record_cancellabile_dal`) VALUES('
+	. ' `ultima_modifica_record`, `record_cancellabile_dal`) VALUES ('
 	. "§1, '§2', '§3', '§4', '§5', '§6');";
 
 	$leggi = 'SELECT * FROM abilitazioni_elenco ' 
@@ -106,7 +106,7 @@ function get_backup_album(string $ultimo_backup) : string {
 	$riempire = 'INSERT INTO `album` (`record_id`, `titolo_album`, '
 	. '`disco`, `percorso_completo`, `record_id_in_scansioni_disco`, '
 	. ' `stato_lavori`, `ultima_modifica_record`, `record_cancellabile_dal`)'
-	. " VALUES(§1, '§2', '§3', '§4', §5, '§6', '§7', '§8');";
+	. " VALUES (§1, '§2', '§3', '§4', §5, '§6', '§7', '§8');";
 
 	$leggi = 'SELECT * FROM album ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -146,7 +146,7 @@ function get_backup_album_dettagli(string $ultimo_backup) : string {
 	$ret = '';
 	$riempire = "INSERT INTO `album_dettagli` (`record_id`, `record_id_padre`, "
 	. "`chiave`, `valore`, `consultatore_id`, `ultima_modifica_record`, `record_cancellabile_dal`) "
-	. "VALUES(§1, §2, '§3', '§4', §5, '§6', '§7');";
+	. "VALUES (§1, §2, '§3', '§4', §5, '§6', '§7');";
 
 	$leggi = 'SELECT * FROM album_dettagli ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -186,7 +186,7 @@ function get_backup_appunti_sql(string $ultimo_backup) : string{
 	$riempire = "INSERT INTO `zz_appunti_sql` (`record_id`, `sinossi`, "
 	. "`appunto_sql`, "
 	. "`ultima_modifica_record`) "
-	. "VALUES(§1, '§2', '§3', '§4');";
+	. "VALUES (§1, '§2', '§3', '§4');";
 	
 	// il parametro di input viene ignorato 
 	$leggi = 'SELECT * FROM zz_appunti_sql ' 
@@ -231,7 +231,7 @@ function get_backup_autori(string $ultimo_backup) : string {
 	$riempire = "INSERT INTO `autori_elenco` (`record_id`, `cognome_nome`, "
 	. "`detto`, `sigla_6`, `fisica_giuridica`, `url_autore`, "
 	. "`ultima_modifica_record`) "
-	. "VALUES(§1, '§2', '§3', '§4', '§5', '§6', '§7');";
+	. "VALUES (§1, '§2', '§3', '§4', '§5', '§6', '§7');";
 
 	$leggi = 'SELECT * FROM autori_elenco ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -271,7 +271,7 @@ function get_backup_chiavi(string $ultimo_backup) : string {
 	$ret = '';
 	$riempire = "INSERT INTO `chiavi_elenco` (`record_id`, `chiave`, "
 	. "`url_manuale`, `unico`, `ultima_modifica_record`, `record_cancellabile_dal`) "
-	. "VALUES(§1, '§2', '§3', '§4', '§5', '§6');";
+	. "VALUES (§1, '§2', '§3', '§4', '§5', '§6');";
 
 	$leggi = 'SELECT * FROM chiavi_elenco ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -309,7 +309,7 @@ function get_backup_vocabolari(string $ultimo_backup) : string {
 	$ret = '';
 	$riempire = "INSERT INTO `chiavi_valori_vocabolario` (`record_id`, "
 	. "`chiave`, `valore`, `ultima_modifica_record`, `record_cancellabile_dal`) "
-	. "VALUES(§1, '§2', '§3', '§4', '§5');";
+	. "VALUES (§1, '§2', '§3', '§4', '§5');";
 
 	$leggi = 'SELECT * FROM chiavi_valori_vocabolario ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -347,7 +347,7 @@ function get_backup_consultatori(string $ultimo_backup) : string {
 	$riempire = "INSERT INTO `consultatori_calendario` (`record_id`, "
 	. "`cognome_nome`, `email`, `password`, `abilitazione`, `attivita_dal`, "
 	. "`attivita_fino_al`, `ultima_modifica_record`, `record_cancellabile_dal`) "
-	. "VALUES(§1, '§2', '§3', '§4', '§5', '§6', '§7', '§8', '§9');";
+	. "VALUES (§1, '§2', '§3', '§4', '§5', '§6', '§7', '§8', '§9');";
 
 	$leggi = 'SELECT * FROM consultatori_calendario ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -390,7 +390,7 @@ function get_backup_fotografie(string $ultimo_backup) : string {
 	. "`disco`, `percorso_completo`, `record_id_in_album`, "
 	. "`record_id_in_scansioni_disco`, `stato_lavori`, `ultima_modifica_record`, "
 	. "`record_cancellabile_dal`) "
-	. "VALUES(§1, '§2', '§3', '§4', §5, §6, '§7', '§8', '§9');";
+	. "VALUES (§1, '§2', '§3', '§4', §5, §6, '§7', '§8', '§9');";
 
 	$leggi = 'SELECT * FROM fotografie ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -431,7 +431,7 @@ function get_backup_fotografie_dettagli(string $ultimo_backup) : string {
 	$ret = '';
 	$riempire = "INSERT INTO `fotografie_dettagli` (`record_id`, `record_id_padre`, "
 	. "`chiave`, `valore`, `consultatore_id`, `ultima_modifica_record`, `record_cancellabile_dal`) "
-	. "VALUES(§1, §2, '§3', '§4', §5, '§6', '§7');";
+	. "VALUES (§1, §2, '§3', '§4', §5, '§6', '§7');";
 
 	$leggi = 'SELECT * FROM fotografie_dettagli ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -473,7 +473,7 @@ function get_backup_richieste(string $ultimo_backup) : string {
 	. "`record_id_richiesta`, `richiesta_evasa_il`, "
 	. "`record_id_amministratore`, `motivazione`, "
 	. "`ultima_modifica_record`, `record_cancellabile_dal`) "
-	. "VALUES(§1, §2, '§3', §4, '§5', §6, '§7', '§8', '§9');";
+	. "VALUES (§1, §2, '§3', §4, '§5', §6, '§7', '§8', '§9');";
 
 	$leggi = 'SELECT * FROM richieste ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -515,7 +515,7 @@ function get_backup_cartelle(string $ultimo_backup) : string {
 	$riempire = "INSERT INTO `scansioni_cartelle` (`record_id`, `disco`, "
 	. "`percorso_completo`, `stato_lavori`, "
 	. " `ultima_modifica_record`, `record_cancellabile_dal` ) "
-	. "VALUES(§1, '§2', '§3', '§4', '§5', '§6' );";
+	. "VALUES (§1, '§2', '§3', '§4', '§5', '§6' );";
 
 	$leggi = 'SELECT * FROM scansioni_cartelle ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -556,7 +556,7 @@ function get_backup_deposito(string $ultimo_backup) : string {
 	. "`nome_file`, `estensione`, `modificato_il`, `codice_verifica`, "
 	. "`tinta_rgb`, `stato_lavori`, `ultima_modifica_record`, "
 	. "`record_cancellabile_dal`) "
-	. "VALUES(§01, '§02', '§03', '§04', '§05', '§06', '§07', '§08', '§09', "
+	. "VALUES (§01, '§02', '§03', '§04', '§05', '§06', '§07', '§08', '§09', "
 	. "'§10', '§11', '§12', '§13', '§14', '§15', '§16', '§17');";
 
 	$leggi = 'SELECT * FROM scansioni_disco ' 
@@ -607,7 +607,7 @@ function get_backup_video(string $ultimo_backup) : string {
 	. "`disco`, `percorso_completo`, `record_id_in_album`, "
 	. "`record_id_in_scansioni_disco`, `stato_lavori`, `ultima_modifica_record`, "
 	. "`record_cancellabile_dal`) "
-	. "VALUES(§1, '§2', '§3', '§4', §5, §6, '§7', '§8', '§9');";
+	. "VALUES (§1, '§2', '§3', '§4', §5, §6, '§7', '§8', '§9');";
 
 	$leggi = 'SELECT * FROM video ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -643,12 +643,345 @@ function get_backup_video(string $ultimo_backup) : string {
 } // get_backup_video 
 
 
+function set_record_cancellabile_dal() {
+	$dbh = New DatabaseHandler(); 
+	$ret = '';
+	
+	// 1. da album verso album_dettagli 
+	$update = " UPDATE `album_dettagli` "
+	. "SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
+	. "AND `record_id_padre` IN ( SELECT record_id FROM album "
+	. "WHERE `record_cancellabile_dal` < '9999-12-31 23:59:59' ) ";
+	if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try{
+		$aggiorna = $dbh->prepare($update);
+		$aggiorna->execute();
+		$dbh->commit();
+
+	} catch(\Throwable $th ){
+		$dbh->rollBack(); 
+		echo  __FUNCTION__ 
+		. '<br />' . "Si è verificato un errore bloccante."
+		. '<br />' . $th->getMessage() 
+		. '<br />Info utili alla soluzione del problema ' 
+		. '<br />' . $update 
+		. '<br />' . str_ireplace(['{', ';'], ["{\n", '; '], serialize($th));
+		exit(1);
+		
+	} // try catch 
+
+	// 2. album_dettagli orfani 
+	$update = "UPDATE `album_dettagli` "
+		. "SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
+		. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
+		. "AND `record_id_padre` NOT IN( "
+		. " SELECT record_id FROM album "
+		. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' )";
+	if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try{
+		$aggiorna = $dbh->prepare($update);
+		$aggiorna->execute();
+		$dbh->commit();
+
+	} catch(\Throwable $th ){
+		$dbh->rollBack(); 
+		echo  __FUNCTION__ 
+		. '<br />' . "Si è verificato un errore bloccante."
+		. '<br />' . $th->getMessage() 
+		. '<br />Info utili alla soluzione del problema ' 
+		. '<br />' . $update 
+		. '<br />' . str_ireplace(['{', ';'], ["{\n", '; '], serialize($th));
+		exit(1);
+		
+	} // try catch 
+
+	// 2. da album verso fotografie
+	$update = "	UPDATE `fotografie` "
+	. "SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
+	. "AND `record_id_in_album` in ( "
+	. "SELECT record_id FROM album  "
+	. "WHERE `record_cancellabile_dal` < '9999-12-31 23:59:59' )";
+	if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try{
+		$aggiorna = $dbh->prepare($update);
+		$aggiorna->execute();
+		$dbh->commit();
+
+	} catch(\Throwable $th ){
+		$dbh->rollBack(); 
+		echo  __FUNCTION__ 
+		. '<br />' . "Si è verificato un errore bloccante."
+		. '<br />' . $th->getMessage() 
+		. '<br />Info utili alla soluzione del problema ' 
+		. '<br />' . $update 
+		. '<br />' . str_ireplace(['{', ';'], ["{\n", '; '], serialize($th));
+		exit(1);
+		
+	} // try catch 
+
+	// 3. fotografie orfane 
+	$update = "UPDATE `fotografie` "
+	. "SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
+	. "AND `record_id_in_album` NOT IN ( "
+	. "SELECT record_id FROM album  "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' ) ";
+	if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try{
+		$aggiorna = $dbh->prepare($update);
+		$aggiorna->execute();
+		$dbh->commit();
+
+	} catch(\Throwable $th ){
+		$dbh->rollBack(); 
+		echo  __FUNCTION__ 
+		. '<br />' . "Si è verificato un errore bloccante."
+		. '<br />' . $th->getMessage() 
+		. '<br />Info utili alla soluzione del problema ' 
+		. '<br />' . $update 
+		. '<br />' . str_ireplace(['{', ';'], ["{\n", '; '], serialize($th));
+		exit(1);
+		
+	} // try catch 
+
+	// 4. da album verso video 
+	$update = "UPDATE `video` "
+	. "SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
+	. " AND `record_id_in_album` in ( "
+	. "SELECT record_id FROM album  "
+	. "WHERE `record_cancellabile_dal` < '9999-12-31 23:59:59' ) ";
+	if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try{
+		$aggiorna = $dbh->prepare($update);
+		$aggiorna->execute();
+		$dbh->commit();
+
+	} catch(\Throwable $th ){
+		$dbh->rollBack(); 
+		echo  __FUNCTION__ 
+		. '<br />' . "Si è verificato un errore bloccante."
+		. '<br />' . $th->getMessage() 
+		. '<br />Info utili alla soluzione del problema ' 
+		. '<br />' . $update 
+		. '<br />' . str_ireplace(['{', ';'], ["{\n", '; '], serialize($th));
+		exit(1);
+		
+	} // try catch 
+
+	// 5. video orfani di album 
+	$update = "UPDATE `video` "
+	. "SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
+	. "AND `record_id_in_album` NOT IN ( "
+	. "SELECT record_id FROM album  "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' ) ";
+	if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try{
+		$aggiorna = $dbh->prepare($update);
+		$aggiorna->execute();
+		$dbh->commit();
+
+	} catch(\Throwable $th ){
+		$dbh->rollBack(); 
+		echo  __FUNCTION__ 
+		. '<br />' . "Si è verificato un errore bloccante."
+		. '<br />' . $th->getMessage() 
+		. '<br />Info utili alla soluzione del problema ' 
+		. '<br />' . $update 
+		. '<br />' . str_ireplace(['{', ';'], ["{\n", '; '], serialize($th));
+		exit(1);
+		
+	} // try catch 
+
+	// 6. da album verso didascalie 
+	$update = "UPDATE `didascalie` "
+	. "SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
+	. " AND `tabella_padre`='album'  "
+	. " AND `record_id_padre` in ( "
+	. "SELECT record_id FROM album  "
+	. "WHERE `record_cancellabile_dal` < '9999-12-31 23:59:59' )";
+	if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try{
+		$aggiorna = $dbh->prepare($update);
+		$aggiorna->execute();
+		$dbh->commit();
+
+	} catch(\Throwable $th ){
+		$dbh->rollBack(); 
+		echo  __FUNCTION__ 
+		. '<br />' . "Si è verificato un errore bloccante."
+		. '<br />' . $th->getMessage() 
+		. '<br />Info utili alla soluzione del problema ' 
+		. '<br />' . $update 
+		. '<br />' . str_ireplace(['{', ';'], ["{\n", '; '], serialize($th));
+		exit(1);
+		
+	} // try catch 
+
+	// 7. didascalie orfane 
+	$update = "UPDATE `didascalie` "
+	. " SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
+	. "  AND `tabella_padre`='album' "
+	. "  AND `record_id_padre` NOT IN ( "
+	. "SELECT record_id FROM album  "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' )";
+	if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try{
+		$aggiorna = $dbh->prepare($update);
+		$aggiorna->execute();
+		$dbh->commit();
+
+	} catch(\Throwable $th ){
+		$dbh->rollBack(); 
+		echo  __FUNCTION__ 
+		. '<br />' . "Si è verificato un errore bloccante."
+		. '<br />' . $th->getMessage() 
+		. '<br />Info utili alla soluzione del problema ' 
+		. '<br />' . $update 
+		. '<br />' . str_ireplace(['{', ';'], ["{\n", '; '], serialize($th));
+		exit(1);
+		
+	} // try catch 
+
+	// 8. da fotografie verso fotografie_dettagli 
+	$update = "UPDATE `fotografie_dettagli` "
+	. " SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
+	. " AND `record_id_padre` IN ( "
+	. "SELECT record_id FROM `fotografie`  "
+	. "WHERE `record_cancellabile_dal` < '9999-12-31 23:59:59' )";
+	if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try{
+		$aggiorna = $dbh->prepare($update);
+		$aggiorna->execute();
+		$dbh->commit();
+
+	} catch(\Throwable $th ){
+		$dbh->rollBack(); 
+		echo  __FUNCTION__ 
+		. '<br />' . "Si è verificato un errore bloccante."
+		. '<br />' . $th->getMessage() 
+		. '<br />Info utili alla soluzione del problema ' 
+		. '<br />' . $update 
+		. '<br />' . str_ireplace(['{', ';'], ["{\n", '; '], serialize($th));
+		exit(1);
+		
+	} // try catch 
+
+	// 9. da video verso video_dettagli 
+	$update = "UPDATE `video_dettagli` "
+	. " SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
+	. "  AND `record_id_padre` IN ( "
+	. "SELECT record_id FROM `video`  "
+	. "WHERE `record_cancellabile_dal` < '9999-12-31 23:59:59' )";
+	if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try{
+		$aggiorna = $dbh->prepare($update);
+		$aggiorna->execute();
+		$dbh->commit();
+
+	} catch(\Throwable $th ){
+		$dbh->rollBack(); 
+		echo  __FUNCTION__ 
+		. '<br />' . "Si è verificato un errore bloccante."
+		. '<br />' . $th->getMessage() 
+		. '<br />Info utili alla soluzione del problema ' 
+		. '<br />' . $update 
+		. '<br />' . str_ireplace(['{', ';'], ["{\n", '; '], serialize($th));
+		exit(1);
+		
+	} // try catch 
+
+	// 10. da album verso scansioni_disco 
+	$update = "UPDATE `scansioni_disco` "
+	. " SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
+	. "WHERE  `record_cancellabile_dal` = '9999-12-31 23:59:59' "
+	. "  AND `record_id` IN ( "
+	. "SELECT `record_id_in_scansioni_disco` FROM `album` "
+	. "WHERE `record_cancellabile_dal` < '9999-12-31 23:59:59' )";
+		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try{
+		$aggiorna = $dbh->prepare($update);
+		$aggiorna->execute();
+		$dbh->commit();
+
+	} catch(\Throwable $th ){
+		$dbh->rollBack(); 
+		echo  __FUNCTION__ 
+		. '<br />' . "Si è verificato un errore bloccante."
+		. '<br />' . $th->getMessage() 
+		. '<br />Info utili alla soluzione del problema ' 
+		. '<br />' . $update 
+		. '<br />' . str_ireplace(['{', ';'], ["{\n", '; '], serialize($th));
+		exit(1);
+		
+	} // try catch 
+
+	// 11. da fotografie verso scansioni_disco 
+	$update = "UPDATE `scansioni_disco` "
+	. " SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
+	. " AND `record_id` IN ( "
+	. " SELECT `record_id_in_scansioni_disco` FROM `fotografie` "
+	. " WHERE `record_cancellabile_dal` < '9999-12-31 23:59:59' )";
+	if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try{
+		$aggiorna = $dbh->prepare($update);
+		$aggiorna->execute();
+		$dbh->commit();
+
+	} catch(\Throwable $th ){
+		$dbh->rollBack(); 
+		echo  __FUNCTION__ 
+		. '<br />' . "Si è verificato un errore bloccante."
+		. '<br />' . $th->getMessage() 
+		. '<br />Info utili alla soluzione del problema ' 
+		. '<br />' . $update 
+		. '<br />' . str_ireplace(['{', ';'], ["{\n", '; '], serialize($th));
+		exit(1);
+		
+	} // try catch 
+
+	// 12. da video verso scansioni_disco 
+	$update ="UPDATE `scansioni_disco` "
+	. " SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
+	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
+	. "  AND `record_id` IN ( "
+	. "SELECT `record_id_in_scansioni_disco` FROM `video` "
+	. "WHERE `record_cancellabile_dal` < '9999-12-31 23:59:59' )";
+		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
+	try{
+		$aggiorna = $dbh->prepare($update);
+		$aggiorna->execute();
+		$dbh->commit();
+
+	} catch(\Throwable $th ){
+		$dbh->rollBack(); 
+		echo  __FUNCTION__ 
+		. '<br />' . "Si è verificato un errore bloccante."
+		. '<br />' . $th->getMessage() 
+		. '<br />Info utili alla soluzione del problema ' 
+		. '<br />' . $update 
+		. '<br />' . str_ireplace(['{', ';'], ["{\n", '; '], serialize($th));
+		exit(1);
+		
+	} // try catch 
+	
+} // set_record_cancellabile_dal 
+
+
 function get_backup_video_dettagli(string $ultimo_backup) : string {
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
 	$riempire = "INSERT INTO `video_dettagli` (`record_id`, `record_id_padre`, "
 	. "`chiave`, `valore`, `consultatore_id`, `ultima_modifica_record`, `record_cancellabile_dal`) "
-	. "VALUES(§1, §2, '§3', '§4', §5, '§6', '§7');";
+	. "VALUES (§1, §2, '§3', '§4', §5, '§6', '§7');";
 
 	$leggi = 'SELECT * FROM video_dettagli ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
@@ -705,6 +1038,10 @@ function get_file_backup(){
 	$ultimo_backup = getenv('ULTIMO_BACKUP');
 	$ultimo_backup = str_ireplace("'", '', $ultimo_backup);
 
+	// propagazione cancellazioni in sospeso 
+	set_record_cancellabile_dal();
+	// scrittura file 
+
 	file_put_contents($backup_file, get_backup_header($ultimo_backup));
 	file_put_contents($backup_file, get_backup_abilitazioni($ultimo_backup), FILE_APPEND);
 	file_put_contents($backup_file, get_backup_album($ultimo_backup), FILE_APPEND);
@@ -741,8 +1078,3 @@ function get_file_backup(){
 					
 } // get_file_backup
 
-/**
- * test 
- * https://archivio.athesis77.it/aa-controller/scrivi-backup-file.php
- * 
- */

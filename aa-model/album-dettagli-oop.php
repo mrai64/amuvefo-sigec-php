@@ -176,7 +176,7 @@ Class AlbumDettagli {
 		// validazione
 		if ( !$this->conn->is_datetime( $record_cancellabile_dal )){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
-			. ' Must be datetime is : ' . $record_cancellabile_dal );
+			. ' Must be datetime, instead of: ' . $record_cancellabile_dal );
 		}
 		$this->record_cancellabile_dal = $record_cancellabile_dal;
 	}
@@ -193,29 +193,35 @@ Class AlbumDettagli {
 	// CRUD 
 	/**
 	 * @param  array campi 
+	 * @param  array global $_COOKIE
 	 * @return array ret  'ok' + 'record_id' | 'error' + 'message' 
 	 */
 	public function aggiungi( array $campi = []){
 		// record_id               viene assegnato automaticamente pertanto non è in elenco 
 		// consultatore_id         viene assegnato automaticamente 
 		// ultima_modifica_record  viene assegnato automaticamente 
-		// record_cancellabile_dal viene assegnato automaticamente 
+		// record_cancellabile_dal viene assegnato automaticamente, quasi sempre
 		$create = 'INSERT INTO ' . self::nome_tabella
 		. ' (  record_id_padre,  chiave,  valore ) VALUES '
-		. ' ( :record_id_padre, :chiave, :valore ) ';
+		. ' ( :record_id_padre, :chiave, :valore )  '; // due spazi intenzionali
 		if (isset($_COOKIE['consultatore_id'])){
-			$create = 'INSERT INTO ' . self::nome_tabella
-			. ' (  record_id_padre,  chiave,  valore,  consultatore_id ) VALUES '
-			. ' ( :record_id_padre, :chiave, :valore, :consultatore_id ) ';
+			// si allunga la create
+			$create = str_ireplace( ') VALUE', ',  consultatore_id ) VALUE', $create);
+			$create = str_ireplace( ')  ', ', :consultatore_id )  ', $create);
+		}
+		if (isset($campi['record_cancellabile_dal'])){
+			// si allunga la create
+			$create = str_ireplace( ') VALUE', ',  record_cancellabile_dal ) VALUE', $create);
+			$create = str_ireplace( ')  ', ', :record_cancellabile_dal )  ', $create);
 		}
 
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
 		if ($dbh === false){
 			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Inserimento record senza connessione archivio per: " 
+				'error'   => true, 
+				'message' => __CLASS__ . ' ' . __FUNCTION__ 
+				. ' Errore: Inserimento record senza connessione archivio per: ' 
 				. self::nome_tabella 
 			];
 			return $ret;
@@ -254,6 +260,9 @@ Class AlbumDettagli {
 		if (isset($_COOKIE['consultatore_id'])){
 			$this->set_consultatore_id($_COOKIE['consultatore_id']);
 		}
+		if (isset($campi['record_cancellabile_dal'])){
+			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']);
+		}
 
 		// azione
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
@@ -264,6 +273,9 @@ Class AlbumDettagli {
 			$aggiungi->bindValue('valore',          $this->valore);
 			if (isset($_COOKIE['consultatore_id'])){
 				$aggiungi->bindValue('consultatore_id', $this->consultatore_id);
+			}
+			if (isset($campi['record_cancellabile_dal'])){
+				$aggiungi->bindValue('record_cancellabile_dal', $this->record_cancellabile_dal);
 			}
 			$aggiungi->execute();
 			$record_id = $dbh->lastInsertID();

@@ -183,6 +183,8 @@ Class Album {
 	}
 	
 	/**
+	 * TODO Rimuovere - non è usato 
+	 * 
 	 * Verifica se sia presente un record nella tabella album 
 	 * Solo che sia presente, non che sia un record valido 
 	 *
@@ -213,10 +215,10 @@ Class Album {
 	public function aggiungi( array $campi = [] ){ 
 		// record_id               viene assegnato automaticamente pertanto non è in elenco 
 		// stato_lavori            viene assegnato automaticamente 
-		//                         eccezione per: modifica_titolo
+		//                         eccezione per: modifica_titolo_album
 		// ultima_modifica_record  viene assegnato automaticamente 
 		// record_cancellabile_dal viene assegnato automaticamente 
-		//                         eccezione per: modifica_titolo
+		//                         eccezione per: modifica_titolo_album
 	
 		$create = 'INSERT INTO ' . self::nome_tabella 
 		. ' (  titolo_album,  disco,  percorso_completo,  record_id_in_scansioni_disco ) VALUES '
@@ -418,7 +420,7 @@ Class Album {
 				$lettura->bindValue('percorso_completo', $campi['percorso_completo']); 
 			}
 			if (isset($campi['record_id_in_scansioni_disco'])){
-				$lettura->bindValue('record_id_in_scansioni_disco', $campi['record_id_in_scansioni_disco']); 
+				$lettura->bindValue('record_id_in_scansioni_disco', $campi['record_id_in_scansioni_disco'], PDO::PARAM_INT); 
 			}
 			if (isset($campi['stato_lavori'])){
 				$lettura->bindValue('stato_lavori', $campi['stato_lavori']); 
@@ -776,6 +778,48 @@ Class Album {
 		];
 		return $ret;
 	} // get_album_from_id
+
+	/**
+	 * Album presenti 
+	 */
+	public function get_album_from_scansioni_id(int $album_id_in_scansioni_disco) : array{
+		// dati obbligatori 
+		$dbh = $this->conn; // a PDO object thru Database class
+		if ($dbh === false){
+			$ret = [
+				'error'   => true, 
+				'message' => __CLASS__ . ' ' . __FUNCTION__ 
+				. '<br>Serve una connessione attiva per leggere in '
+				. self::nome_tabella 
+			];
+			return $ret;
+		}
+		// validazione
+		$this->set_record_id_in_scansioni_disco($album_id_in_scansioni_disco);
+		$campi=[];
+		$campi['query'] = 'SELECT * FROM ' . self::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal  '
+		. ' AND record_id_in_scansioni_disco = :record_id_in_scansioni_disco '
+		. ' ORDER BY record_id ';
+		$ret_alb = $this->leggi($campi);
+		if (isset($ret_alb['error'])){
+			return $ret_alb;
+		}
+		if ($ret_alb['numero'] < 1){
+			$ret = [
+				'error'   => true,
+				'message' => "Non sono stati trovati album abbinati "
+				. "al record_id_in_scansioni_disco: " . $album_id_in_scansioni_disco
+			];
+			return $ret;
+		}
+		$ret = [
+			'ok'     => true,
+			'record' => $rer_alb['data'][0]
+		];
+		return $ret;
+		
+	} // get_album_from_scansioni_id
 
 
 } // Album

@@ -24,7 +24,9 @@
  * 
  * - carica_video_da_album
  * 
- * - carica_dettaglio TODO può diventare un metodo della classe
+ * - aggiungi_video_dettaglio 
+ *   TODO rinominare carica_video_dettagli
+ *   TODO può diventare un metodo della classe?
  * 
  * - carica_dettagli_da_video
  *   carica dettagli dal nome del file, serve rintracciare qualche libreria che 
@@ -118,20 +120,9 @@ function leggi_video_per_id(int $video_id){
 	exit(0); // e fine
 } // leggi_video_per_id()
 
-/** TEST
- *
- * https://archivio.athesis77.it/video.php/leggi/14
- * https://archivio.athesis77.it/aa-controller/video-controller.php?id=14&test=leggi_video_per_id
- *
+/**
+ * 
  */
-	if (isset($_GET['test']) &&
-      isset($_GET['id'])   &&
-	    $_GET['test'] == 'leggi_video_per_id'){
-		leggi_video_per_id($_GET['id']);
-		exit(0);
-	}
-//
-
 function aggiungi_dettaglio_video_da_modulo(int $video_id, array $dati_input) {
 	$dbh    = New DatabaseHandler();
 	$vid_h  = New Video($dbh);
@@ -172,13 +163,16 @@ function aggiungi_dettaglio_video_da_modulo(int $video_id, array $dati_input) {
 	}
 
 	// abbiamo i dati - si aggiunge il dettaglio 
-	carico_dettaglio_video($video['record_id'], $dati_input['chiave'], $dati_input['valore']);
+	aggiungi_video_dettaglio($video['record_id'], $dati_input['chiave'], $dati_input['valore']);
 	//
 	// inserimento effettuato, si va alla pagina del video 
 	leggi_video_per_id($video['record_id']);
 	exit(0);
 } // aggiungi_dettaglio_video_da_modulo()
 
+/**
+ * 
+ */
 function modifica_dettaglio_video_da_modulo(int $dettaglio_id, array $dati_input){
 	$dbh    = New DatabaseHandler();
 	$vid_h  = New Video($dbh);
@@ -239,8 +233,9 @@ function modifica_dettaglio_video_da_modulo(int $dettaglio_id, array $dati_input
 	exit(0);
 } // modifica_dettaglio_video_da_modulo()
 
-
-
+/**
+ * 
+ */
 function elimina_dettaglio_video_da_modulo(int $dettaglio_id){
 	$dbh    = New DatabaseHandler();
 	$vdet_h = New VideoDettagli($dbh);
@@ -291,7 +286,9 @@ function elimina_dettaglio_video_da_modulo(int $dettaglio_id){
 	exit(0);
 } // elimina_dettaglio_video_da_modulo()
 
-
+/**
+ * Se non trova un video precedente torna il video_id dell'input
+ */
 function leggi_video_precedente(int $video_id) : int {
 	$dbh   = new DatabaseHandler();
 	$vid_h = new Video($dbh);
@@ -529,30 +526,16 @@ function carica_video_da_album( int $album_id) : array{
 	return $ret;
 } // carica_video_da_album()
 
-
-/** TEST 
- * 
- * album 31 
- * https://archivio.athesis77.it/aa-controller/video-controller.php?id=31&test=carica_video_da_album
- * 
- */
-	if (isset($_GET['test']) && 
-	    isset($_GET['id'])   && 
-			$_GET['test']== 'carica_video_da_album') {
-		carica_video_da_album($_GET['id']);
-		exit(0);
-	}
-//
-
-
 /**
  * CREATE aggiungi dettaglio video 
+ * TODO diventa aggiungi_video_dettaglio(id, key, val)
+ * TODO e deve gestire anche la condizione di "dato già presente"
  */
-function carico_dettaglio_video(int $video_id, string $chiave, string $valore)  : array {
+function aggiungi_video_dettaglio(int $video_id, string $chiave, string $valore)  : array {
 	$dbh    = new DatabaseHandler();
 	$vdet_h = new VideoDettagli($dbh); 
 	$consultatore_id = (isset($_COOKIE['consultatore_id'])) ? $_COOKIE['consultatore_id'] : 0;
-	global $aggiunti; 
+	global $aggiunti; // ! Che è???
 
 	$vdet_h->set_record_id_padre($video_id);
 	$vdet_h->set_chiave($chiave);
@@ -593,7 +576,7 @@ function carico_dettaglio_video(int $video_id, string $chiave, string $valore)  
 		. $record_id 
 	];
 	return $ret;
-} // carico_dettaglio_video
+} // aggiungi_video_dettaglio
 
 /**
  * Caricamento dettagli album da file 
@@ -700,7 +683,7 @@ function carica_dettagli_video_da_video(int $video_id){
 	// chiave: data/evento 
 	$data_evento = get_data_evento($nome_file);
 	if ($data_evento > ''){
-		carico_dettaglio_video($video_id, 'data/evento', $data_evento);
+		aggiungi_video_dettaglio($video_id, 'data/evento', $data_evento);
 		// sfilo
 		$nome_file = str_replace($data_evento, '', $nome_file);
 		if (str_contains($data_evento, ' DP')){
@@ -723,7 +706,7 @@ function carica_dettagli_video_da_video(int $video_id){
 		$luogo = get_luogo($nome_file);
 		if ($luogo > ''){
 			echo '<br>Luogo:'.$luogo;
-			$ret_det   = carico_dettaglio_video( $video_id, 'luogo/comune', $luogo);
+			$ret_det   = aggiungi_video_dettaglio( $video_id, 'luogo/comune', $luogo);
 			// sfilo 
 			$nome_file = str_replace($luogo, '', $nome_file);
 			$nome_file = trim($nome_file);
@@ -752,7 +735,7 @@ function carica_dettagli_video_da_video(int $video_id){
 	 * 
 		$sigla_autore = get_autore_sigla_6($nome_file);
 		if ($sigla_autore>''){
-			$ret_det   = carico_dettaglio_video( $video_id, 'codice/autore/athesis', $sigla_autore);
+			$ret_det   = aggiungi_video_dettaglio( $video_id, 'codice/autore/athesis', $sigla_autore);
 			// sfilo 
 			$nome_file = str_replace($sigla_autore, '', $nome_file);
 			$nome_file = trim($nome_file);
@@ -792,7 +775,7 @@ function carica_dettagli_video_da_video(int $video_id){
 	$durata = get_durata($nome_file);
 	echo '<br>durata:'. $durata;
 	if ($durata > ''){
-		$ret_det   = carico_dettaglio_video( $video_id, 'dimensione/durata', $durata);
+		$ret_det   = aggiungi_video_dettaglio( $video_id, 'dimensione/durata', $durata);
 		// sfilo 
 		$nome_file = str_replace($durata, '', $nome_file);
 		$nome_file = trim($nome_file);
@@ -800,7 +783,7 @@ function carica_dettagli_video_da_video(int $video_id){
 
 	// quello che resta 
 	// nome/manifestazione-soggetto
-	$ret_det = carico_dettaglio_video( $video_id, 'nome/manifestazione-soggetto', $nome_file);
+	$ret_det = aggiungi_video_dettaglio( $video_id, 'nome/manifestazione-soggetto', $nome_file);
 
 	// cambio stato al record 
 	$ret_stato = $vid_h->set_stato_lavori_in_video($video_id, Video::stato_completati);
