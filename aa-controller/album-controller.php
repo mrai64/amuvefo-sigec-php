@@ -1412,7 +1412,7 @@ function aggiungi_dettaglio_album_da_modulo(int $album_id, array $dati_input){
 		. "disponibili, consulta il manuale in caso di dubbi.";
 		$record_id = 0; // aggiungi
 		$leggi_album = URLBASE.'album.php/leggi/'.$album['record_id'];
-		$aggiungi_dettaglio = URLBASE.'album.php/aggiungi-dettaglio/'.$album['record_id'];
+		$aggiungi-dettaglio = URLBASE.'album.php/aggiungi-dettaglio/'.$album['record_id'];
 		$option_list_chiave = $chi_h->get_chiavi_option_list();
 		require_once(ABSPATH.'aa-view/dettaglio-album-aggiungi-view.php');
 		exit(0);

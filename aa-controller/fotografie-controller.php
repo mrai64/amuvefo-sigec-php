@@ -932,7 +932,7 @@ function aggiungi_fotografie_dettagli_da_modulo(int $fotografia_id, ?array $dati
 		$option_list_chiave = $chi_h->get_chiavi_option_list();
 		$option_list_chiave = str_replace("\t", '                  ', $option_list_chiave);
 		$leggi_fotografia = URLBASE.'fotografie.php/leggi/'.$fotografia['record_id'];
-		$aggiungi_dettaglio = URLBASE.'fotografie.php/aggiungi_dettaglio/'.$fotografia['record_id'];
+		$aggiungi_dettaglio = URLBASE.'fotografie.php/aggiungi-dettaglio/'.$fotografia['record_id'];
 
 		require_once( ABSPATH . 'aa-view/dettaglio-foto-aggiungi-view.php');
 		exit(0); 

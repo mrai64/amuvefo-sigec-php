@@ -21,7 +21,7 @@
  *   cancella non fisicamente il dettaglio già presente 
  *   e ritorna alla vista della fotografia 
  * 
- * /fotografie.php/modifica_dettaglio/{dettaglio_id}
+ * /fotografie.php/modifica-dettaglio/{dettaglio_id}
  *   modifica il dettaglio già presente - presenta un modulo
  * 
  * /fotografia.php/aggiorna_dettaglio/{dettaglio_id}
@@ -30,7 +30,7 @@
  * /fotografie.php/carica_dettaglio/{fotografie_id}
  *   prepara e mostra la pagina di aggiunta dettaglio 
  * 
- * /fotografie.php/aggiungi_dettaglio/{fotografie_id}
+ * /fotografie.php/aggiungi-dettaglio/{fotografie_id}
  *   esegue l'aggiunta del dettaglio fotografia 
  * 
  * /fotografie.php/carica-dettagli-da-fotografia/{fotografia_id}
@@ -59,10 +59,10 @@ switch($richiesta){
   case 'precedente':
   case 'seguente':
 	case 'elimina-dettaglio':
-	case 'modifica_dettaglio':
+	case 'modifica-dettaglio':
 	case 'aggiorna_dettaglio':
 	case 'carica-dettaglio':
-	case 'aggiungi_dettaglio':
+	case 'aggiungi-dettaglio':
 	case 'carica-dettagli-da-fotografia':
 //  case 'cancella':
 		break;
@@ -155,7 +155,7 @@ if ($richiesta == 'richiesta'){
 /**
  * modifica dettaglio 1/2 mostra il modulo 
  */
-if ($richiesta == 'modifica_dettaglio'){
+if ($richiesta == 'modifica-dettaglio'){
 	modifica_fotografie_dettagli_da_modulo($dettaglio_id, []);
 	exit(0);
 }
@@ -183,7 +183,7 @@ if ($richiesta == 'carica-dettaglio'){
 /**
  * carica dettaglio 2/2 aggiunge 
  */
-if ($richiesta == 'aggiungi_dettaglio' && isset($_POST['aggiungi_dettaglio'])){
+if ($richiesta == 'aggiungi-dettaglio' && isset($_POST['aggiungi_dettaglio'])){
 	aggiungi_fotografie_dettagli_da_modulo($fotografie_id, $_POST);
 	exit(0);
 }

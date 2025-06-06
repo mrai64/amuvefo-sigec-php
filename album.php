@@ -153,13 +153,13 @@ if ($richiesta == 'aggiungi-dettaglio' ){
 	exit(0);
 }
 
-// modifica_dettaglio 1 di 2 
+// modifica-dettaglio 1 di 2 
 // espone il modulo per aggiungere il dettaglio all'album 
 if ($richiesta == 'modifica-dettaglio' && !isset($_POST['valore'])){
 	modifica_dettaglio_album_da_modulo($dettaglio_id, []);
 	exit(0);
 } 
-// modifica_dettaglio 2 di 2 
+// modifica-dettaglio 2 di 2 
 // modifica il dettaglio all'album dal modulo  
 if ($richiesta == 'modifica-dettaglio' ){
 	modifica_dettaglio_album_da_modulo($dettaglio_id, $_POST);

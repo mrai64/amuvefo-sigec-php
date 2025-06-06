@@ -114,7 +114,7 @@
 								echo '<td class="fs-6">'.$dettaglio['valore'].'</td>'."\n";
 
 								if (get_set_abilitazione() > SOLALETTURA ){
-									echo '<td nowrap><a href="'.URLBASE.'fotografie.php/modifica_dettaglio/'.$dettaglio['record_id'].'?f='.$dettaglio['record_id_padre'].'" '
+									echo '<td nowrap><a href="'.URLBASE.'fotografie.php/modifica-dettaglio/'.$dettaglio['record_id'].'?f='.$dettaglio['record_id_padre'].'" '
 									. 'title="modifica dettaglio"><i class="h4 bi bi-pencil-square"></i></a>'
 									. '<a href="'.URLBASE.'fotografie.php/elimina-dettaglio/'.$dettaglio['record_id'].'?f='.$dettaglio['record_id_padre'].'" '
 									. 'title="elimina dettaglio"><i class="h4 bi bi-eraser-fill"></i></a></td>'."\n";

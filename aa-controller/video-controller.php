@@ -91,7 +91,7 @@ function leggi_video_per_id(int $video_id){
 		. $video['record_id']
 		. '?return_to=' . urlencode($_SERVER['REQUEST_URI']);
 
-		$aggiungi_dettaglio = URLBASE.'video.php/aggiungi_dettaglio/'
+		$aggiungi_dettaglio = URLBASE.'video.php/aggiungi-dettaglio/'
 		. $video['record_id'];
 	}
 
@@ -156,7 +156,7 @@ function aggiungi_dettaglio_video_da_modulo(int $video_id, array $dati_input) {
 		. "scegliendo la chiave tra quelle "
 		. "disponibili, consulta il manuale in caso di dubbi.";
 		$leggi_video        = URLBASE.'video.php/leggi/'.$video['record_id'];
-		$aggiungi_dettaglio = URLBASE.'video.php/aggiungi_dettaglio/'.$video['record_id'];
+		$aggiungi_dettaglio = URLBASE.'video.php/aggiungi-dettaglio/'.$video['record_id'];
 
 		require_once(ABSPATH.'aa-view/dettaglio-video-aggiungi-view.php');
 		exit(0); 
@@ -197,7 +197,7 @@ function modifica_dettaglio_video_da_modulo(int $dettaglio_id, array $dati_input
 	}
 	$dettaglio          = $ret_det['data'][0];
 	$leggi_video        = URLBASE.'video.php/leggi/'.$dettaglio['record_id_padre'];
-	$aggiorna_dettaglio = URLBASE.'video.php/modifica_dettaglio/'.$dettaglio['record_id'];
+	$aggiorna_dettaglio = URLBASE.'video.php/modifica-dettaglio/'.$dettaglio['record_id'];
 	$dettaglio_id       = $dettaglio['record_id'];
 	$video_id           = $dettaglio['record_id_padre'];
 	// 
