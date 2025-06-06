@@ -569,7 +569,7 @@ Class VideoDettagli {
 				$cancella->bindValue('valore', $this->valore);
 			}
 			if (isset($campi['consultatore_id'])){
-				$aggiorna->bindValue('consultatore_id', $this->consultatore_id, PDO::PARAM_INT);
+				$cancella->bindValue('consultatore_id', $this->consultatore_id, PDO::PARAM_INT);
 			}
 			if (isset($campi['ultima_modifica_record'])){
 				$cancella->bindValue('ultima_modifica_record', $this->ultima_modifica_record);

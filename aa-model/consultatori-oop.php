@@ -573,7 +573,7 @@ Class Consultatori{
 		return $ret;
 	} // modifica UPDATE
 	
-	public function elimina(array $chiavi) : array {
+	public function elimina(array $campi) : array {
 		// necessari 
 		$dbh = $this->conn; // a PDO object thru Database class
 		if ($dbh === false){
@@ -663,7 +663,7 @@ Class Consultatori{
 				'message'  => __CLASS__ . ' ' . __FUNCTION__
 				. ' ' . $th->getMessage()
 				. ' campi: '          . serialize($campi)
-				. ' istruzione SQL: ' . $update
+				. ' istruzione SQL: ' . $cancellazione
 			];
 			return $ret;
 		}

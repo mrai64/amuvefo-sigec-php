@@ -346,7 +346,7 @@ Class Abilitazioni {
       $aggiorna->bindValue('abilitazione',            $campi["abilitazione"]); 
     }
     if (isset($campi["ultima_modifica_record"])){
-      $aggiorna->bindValue('ultima_modifica_record',        $campi["ultima_modifica_record"]); 
+      $aggiorna->bindValue('ultima_modifica_record',  $campi["ultima_modifica_record"]); 
     }
     if (isset($campi["record_cancellabile_dal"])){
       $aggiorna->bindValue('record_cancellabile_dal', $campi["record_cancellabile_dal"]); 

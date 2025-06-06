@@ -586,7 +586,7 @@ Class Fotografie {
 	 *             fatta apposta per consentire di "cancellare logicamente"
 	 *             i record, vedi manuale tecnico amministrativo.
 	 * Deve essere presente un $campi['delete'] con istruzione SQL e tutti i 
-	 * $campi['nomecampo'] che hanno nell'istruzione SQL :nomecampo 
+	 * $campi['nome_campo'] che hanno nell'istruzione SQL :nome_campo 
 	 * 
 	 * @param  array  $campi 
 	 * @return array  $ret 'ok' + 'message' | 'error' + 'message' 

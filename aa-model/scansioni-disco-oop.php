@@ -1056,12 +1056,11 @@ Class ScansioniDisco {
 	} // get_scansioni_disco_per_id
 
 	/**
-	 * get_scansioni_disco_foto_da_album
+	 * Riceve un record di scansioni_disco che referenzia un album,
+	 * e va a rintracciare in scansioni_disco le fotografie che sono 
+	 * contenute nello stesso album 
 	 * 
-	 * Riceve un array letto dalla tabella Album e rintraccia 
-	 * i record fotografie che sono stati registrati all'interno 
-	 * 
-	 * @param  array $album
+	 * @param  array $album da scansioni_disco non da album
 	 * @return array 'ok' + data | 'error' + message 
 	 */
 	public function get_scansioni_disco_foto_da_album( array $album = [] ) : array {
@@ -1089,12 +1088,12 @@ Class ScansioniDisco {
 		. " AND estensione in ('jpg','jpeg','psd','tif') "
 		. ' ORDER BY nome_file ';
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-		$campi['livello1'] = $scansione_disco['livello1'];
-		$campi['livello2'] = $scansione_disco['livello2'];
-		$campi['livello3'] = $scansione_disco['livello3'];
-		$campi['livello4'] = $scansione_disco['livello4'];
-		$campi['livello5'] = $scansione_disco['livello5'];
-		$campi['livello6'] = $scansione_disco['livello6'];
+		$campi['livello1'] = $album['livello1'];
+		$campi['livello2'] = $album['livello2'];
+		$campi['livello3'] = $album['livello3'];
+		$campi['livello4'] = $album['livello4'];
+		$campi['livello5'] = $album['livello5'];
+		$campi['livello6'] = $album['livello6'];
 		$ret_scan = [];
 		$ret_scan = $this->leggi($campi);
 		if (isset($ret_scan['error'])){

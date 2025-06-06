@@ -29,7 +29,7 @@ Class Autori {
   public $record_id; //         bigint(20) unsigned Auto+ PRIMARY
   public $cognome_nome; //      varchar(250) cognome, nome 
   public $detto; //             varchar(100) alias oppure cognome, nome
-  public $sigla_6; //           char(6) sigla simil-codice fiscale 
+  public $sigla_6; //           char(6) sigla simile al codice fiscale 
   public $fisica_giuridica; //  enum() 'F', 'G'
   public $url_autore; //        varchar(250) pagina biografia
   public $ultima_modifica_record; //  datetime a uso backup 

@@ -394,11 +394,11 @@ Class Video {
 
 	/**
 	 * 1. dev'essere presente un $campi[query] con istruzione sql 
-	 * e tutti i campi che nell'istruzione sono marcati :nomecampo
+	 * e tutti i campi che nell'istruzione sono marcati :nome_campo
 	 * 2. sono gestite le casistiche semplici, senza lettura limitata 
 	 * e senza lettura a 'partire da', qualora servano il suggerimento è di aggiungere
 	 * in $campi[] un indicatore di direzione avanti/indietro e una serie 
-	 * di campi "da_nomecampo", stabilito un criterio di ordinamento che può 
+	 * di campi "da_nome_campo", stabilito un criterio di ordinamento che può 
 	 * per esempio basarsi su titolo_video 
 	 * 
 	 * @param array $campi  
@@ -523,8 +523,8 @@ Class Video {
 	 * ATTENZIONE: La modifica del campo "record_cancellabile_dal" viene 
 	 *             gestita come cancellazione logica, in attesa di una fase
 	 *             di scarico e cancellazione fisica.
-	 * Deve essere presente un $campi["update] con istruzione SQL e tutti i $campi[nomecampo]
-	 * che nell'istruzione SAL sono presenti come :nomecampo
+	 * Deve essere presente un $campi["update] con istruzione SQL e tutti i $campi[nome_campo]
+	 * che nell'istruzione SAL sono presenti come :nome_campo
 	 *
 	 * @param  array $campi 
 	 * @return array $ret 'ok' + 'message' | 'error' + 'message'
@@ -634,7 +634,7 @@ Class Video {
 	 *             fatta apposta per consentire di "cancellare logicamente"
 	 *             i record, vedi manuale tecnico amministrativo.
 	 * Deve essere presente un $campi["delete"] con istruzione SQL e tutti i 
-	 * $campi[nomecampo] che hanno nell'istruzione SQL :nomecampo 
+	 * $campi[nome_campo] che hanno nell'istruzione SQL :nome_campo 
 	 * 
 	 * @param  array  $campi 
 	 * @return array  $ret 'ok' + 'message' | 'error' + 'message' 
@@ -763,7 +763,7 @@ Class Video {
 	/**
 	 * restituisce il risultato di $this->leggi 
 	 * 
-	 * @param  in    $video_id 
+	 * @param  int   $video_id 
 	 * @return array 'ok' + data[] | 'error' + 'message'
 	 */
 	public function get_video_from_id(int $video_id) : array {

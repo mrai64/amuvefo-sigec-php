@@ -166,6 +166,7 @@ Class Richieste {
 
 	// CHECKER 
 	function check_record_id_in_consultazioni_calendario(int $record_id){
+		$dbh = $this->conn;
 		if ($record_id < 1 ){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
 			. ' Must be unsigned integer, not that : ' . $record_id );
@@ -176,7 +177,7 @@ Class Richieste {
 		. 'AND record_id = :record_id ';
 		try {
 			$leggi = $dbh->prepare($campi['query']);
-			$leggi->bindValue('record_cancellabile_dal', $this->conn->get_datetime_forever());
+			$leggi->bindValue('record_cancellabile_dal', $dbh->get_datetime_forever());
 			$leggi->bindValue('record_id', $record_id, PDO::PARAM_INT);
 			return $leggi->execute();
 
@@ -274,7 +275,7 @@ Class Richieste {
 	 * 
 	 * @param	array campi 
 	 * Dev'essere presente un campo query e tutti i campi che nella
-	 * query sono presenti come :nomecampo 
+	 * query sono presenti come :nome_campo 
 	 * @return array ret 
 	 */
 	public function leggi( array $campi ) : array {

@@ -727,7 +727,7 @@ Class Album {
 	/**
 	 * restituisce il risultato di $this->leggi 
 	 * 
-	 * @param  in    $album_id 
+	 * @param  int   $album_id 
 	 * @return array 'ok' + data[] | 'error' + 'message'
 	 */
 	public function get_album_from_id(int $album_id) : array {
@@ -815,7 +815,7 @@ Class Album {
 		}
 		$ret = [
 			'ok'     => true,
-			'record' => $rer_alb['data'][0]
+			'record' => $ret_alb['data'][0]
 		];
 		return $ret;
 		
