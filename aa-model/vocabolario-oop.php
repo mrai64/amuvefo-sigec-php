@@ -37,8 +37,8 @@
  * OTHERS
  * 
  */
-Class Vocabolario {
-  private $conn    = false;
+Class Vocabolario extends DatabaseHandler {
+  public $conn;
   public const nome_tabella = 'chiavi_valori_vocabolario';
   
   public $record_id; //         
@@ -120,8 +120,9 @@ Class Vocabolario {
    * @param  string datetime yyyy-mm-dd hh:mm:ss 
    */
   public function set_ultima_modifica_record( string $ultima_modifica_record ) {
+    $dbh = $this->conn;
     // validazione
-    if ( !$this->conn->is_datetime( $ultima_modifica_record )){
+    if ( !$dbh->is_datetime( $ultima_modifica_record )){
       throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
       . ' Must be datetime is : ' . $ultima_modifica_record );
     }
@@ -132,8 +133,9 @@ Class Vocabolario {
    * @param  string datetime yyyy-mm-dd hh:mm:ss 
    */
   public function set_record_cancellabile_dal( string $record_cancellabile_dal ) {
+    $dbh = $this->conn;
     // validazione
-    if ( !$this->conn->is_datetime( $record_cancellabile_dal )){
+    if ( !$dbh->is_datetime( $record_cancellabile_dal )){
       throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
       . ' Must be datetime is : ' . $record_cancellabile_dal );
     }
@@ -141,13 +143,6 @@ Class Vocabolario {
   }
   
   // CHECKER 
-  /** 
-   *	@param  string datetime yyyy-mm-dd hh:mm:ss 
-   *	@return bool 
-   */
-  public function is_datetime( $datetime ){
-    return $this->conn->is_datetime($datetime);
-  }
   
   // CRUD 
   /**
@@ -165,15 +160,6 @@ Class Vocabolario {
 
     // dati obbligatori
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => __CLASS__ . ' ' . __FUNCTION__ 
-        . " Inserimento record senza connessione archivio per: " 
-        . self::nome_tabella 
-      ];
-      return $ret;
-    }
     
     if (!isset($campi['chiave']) || $campi['chiave'] === ''){
       $ret = [
@@ -195,19 +181,25 @@ Class Vocabolario {
     }
     $this->set_valore($campi['valore']);
 
+		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }		
     try{
       $aggiungi = $dbh->prepare($create);
       $aggiungi->bindValue('chiave', $this->chiave);
       $aggiungi->bindValue('valore', $this->valore);
       $aggiungi->execute();
       $record_id = $dbh->lastInsertID();
+			$dbh->commit();
+
     } catch(\Throwable $th ){
+			$dbh->rollBack(); 
+
       $ret = [
-        "record_id" => 0,
-        "error"   => true,
-        "message" => __CLASS__ . ' ' . __FUNCTION__ 
-        . $th->getMessage() . " campi: " . serialize($campi)
-        . ' istruzione SQL: ' . $create . ' dati: ' . serialize($campi)
+        'error'   => true,
+        'record_id' => 0,
+        'message' => __CLASS__ . ' ' . __FUNCTION__ 
+        .'<br>Errore: ' . $th->getMessage() 
+        .'<br>Campi:'  . $dbh::esponi($campi)
+        .'<br>istruzione SQL: ' . $create
       ];
       return $ret;
     } // try catch 
@@ -230,21 +222,12 @@ Class Vocabolario {
   public function leggi(array $campi = []){
     // campi obbligatori 
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        'error'   => true, 
-        'message' => __CLASS__ . ' ' . __FUNCTION__ 
-        . " lettura record senza connessione archivio per: " 
-        . self::nome_tabella
-      ];
-      return $ret;
-    }
     if (!isset($campi["query"])){
       $ret = [
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . "Deve essere definita l'istruzione SELECT in ['query']: " 
-        . serialize($campi)
+        . $dbh::esponi($campi)
       ];
       return $ret;
     }
@@ -295,7 +278,7 @@ Class Vocabolario {
       $ret = [
         "error" => true,
         "message" => __CLASS__ . ' ' . __FUNCTION__ . ' ' 
-        . $th->getMessage() . " campi: " . serialize($campi)
+        . $th->getMessage() . " campi: " . $dbh::esponi($campi)
         . ' istruzione SQL: ' . $read
       ];
       return $ret;
@@ -328,21 +311,12 @@ Class Vocabolario {
   public function modifica(array $campi = []){
     // dati obbligatori 
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => __CLASS__ . ' ' . __FUNCTION__ 
-        . " Modifica senza connessione archivio per: " 
-        . self::nome_tabella 
-      ];
-      return $ret;
-    }
     if (!isset($campi["update"])){
       $ret = [
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . " Aggiornamento record senza UPDATE: " 
-        . serialize($campi) 
+        . $dbh::esponi($campi) 
       ];
       return $ret;
     }
@@ -386,7 +360,7 @@ Class Vocabolario {
         "error" => true,
         "message" => __CLASS__ . ' ' . __FUNCTION__ . ' ' 
         . $th->getMessage() 
-        . ' campi: '          . serialize($campi)
+        . ' campi: '          . $dbh::esponi($campi)
         . ' istruzione SQL: ' . $update
       ];
       return $ret;
@@ -412,21 +386,12 @@ Class Vocabolario {
   public function elimina(array $campi = []){
     // campi obbligatori 
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => "La cancellazione di record "
-        . "non si può fare senza connessione archivio "
-        . "per: " . self::nome_tabella 
-      ];
-      return $ret;
-    }
     if (!isset($campi["delete"])){
       $ret = [
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
-        . "Deve essere definita l'istruzione DELETE in ['delete']: " 
-        . serialize($campi)
+        . "<br>Deve essere definita l'istruzione DELETE in ['delete']: " 
+        . $dbh::esponi($campi)
       ];
       return $ret;
     }
@@ -471,7 +436,7 @@ Class Vocabolario {
           'error' => true,
           'message' => __CLASS__ . ' ' . __FUNCTION__  
           . $e->getMessage() 
-          . ' campi: ' . serialize($campi) 
+          . ' campi: ' . $dbh::esponi($campi) 
           . ' istruzione SQL: ' . $cancellazione 
       ];
       return $ret;

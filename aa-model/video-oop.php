@@ -26,8 +26,9 @@
  * 
  * 
  */
-Class Video {
-	private $conn = false;
+Class Video extends DatabaseHandler {
+	public $conn;
+
 	public const nome_tabella  = 'video';
 	public const stato_da_fare    = '0 da fare';
 	public const stato_in_corso   = '1 in corso';
@@ -265,10 +266,7 @@ Class Video {
 	 */
 	public function check_record_id( int $record_id ){
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. " Non si può verificare la presenza senza connessione all'archivio. ");
-		}
+
 		$leggi = 'SELECT 1 FROM video '  
 		. ' WHERE record_id = :record_id ';
 		try {
@@ -294,6 +292,7 @@ Class Video {
 		// ultima_modifica_record        viene assegnato automaticamente 
 		// record_cancellabile_dal viene assegnato automaticamente 
 		// stato_lavori         viene assegnato automaticamente 
+		$dbh = $this->conn; // a PDO object thru Database class
 	
 		$create = 'INSERT INTO video '  
 		. ' (  titolo_video,   disco,  percorso_completo,'
@@ -306,7 +305,7 @@ Class Video {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo titolo_video: " . serialize($campi) 
+				. " Serve campo titolo_video: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -316,7 +315,7 @@ Class Video {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo disco: " . serialize($campi) 
+				. " Serve campo disco: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -326,7 +325,7 @@ Class Video {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo percorso_completo: " . serialize($campi) 
+				. " Serve campo percorso_completo: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -336,7 +335,7 @@ Class Video {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo record_id_in_album: " . serialize($campi) 
+				. " Serve campo record_id_in_album: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -346,21 +345,13 @@ Class Video {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo record_id_in_scansioni_disco: " . serialize($campi) 
+				. " Serve campo record_id_in_scansioni_disco: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
 		$this->set_record_id_in_scansioni_disco($campi['record_id_in_scansioni_disco']);
 
-		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Inserimento record senza connessione archivio per: " . self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		try{
 			$aggiungi = $dbh->prepare($create);
 			$aggiungi->bindValue('titolo_video',            $this->titolo_video);
@@ -376,7 +367,7 @@ Class Video {
 				"error"   => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. " campi: " . serialize($campi)
+				. " campi: " . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $create 
 			];
 			return $ret;      
@@ -407,19 +398,13 @@ Class Video {
 	public function leggi(array $campi = []) : array {
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'    => true, 
-				'message'  => __CLASS__ . ' ' . __FUNCTION__ 
-				. '<br>Serve una connessione attiva per leggere in '
-				. self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if (!isset($campi["query"])){
 			$ret = [
 				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ . ' Errore: ' . "Deve essere definita l'istruzione SELECT in ['query']: " . serialize($campi)
+				"message" => __CLASS__ . ' ' . __FUNCTION__ 
+				. ' Errore: ' . "Deve essere definita l'istruzione SELECT in ['query']: " 
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -487,7 +472,7 @@ Class Video {
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $read
 			];
 			return $ret;
@@ -532,19 +517,12 @@ Class Video {
 	public function modifica( array $campi = []) {
 		// campi indispensabili 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Modifica senza connessione archivio per: " . self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi["update"])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Aggiornamento record senza UPDATE: " . serialize($campi) 
+				. " Aggiornamento record senza UPDATE: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -615,7 +593,7 @@ Class Video {
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $update
 			];
 			return $ret;
@@ -642,20 +620,12 @@ Class Video {
 	public function elimina( array $campi = []) : array {
 		// indispensabili 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Cancellazione senza connessione archivio per: " 
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi["delete"])){
 			$ret = [
 				"error"=> true, 
 				"message" => "Cancellazione record senza DELETE. " 
-				. ' campi : ' . serialize($campi) 
+				. ' campi : ' . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -716,7 +686,7 @@ Class Video {
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. " campi: " . serialize($campi)
+				. " campi: " . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $delete
 			];
 			return $ret;
@@ -769,15 +739,7 @@ Class Video {
 	public function get_video_from_id(int $video_id) : array {
 		// dati obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. '<br>Serve una connessione attiva per leggere in '
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		// validazione
 		$this->set_record_id($video_id);
 

@@ -28,9 +28,11 @@ CREATE TABLE `consultatori_calendario` (
 
  * 
  */
-Class Consultatori{
-	private $conn=false;
+Class Consultatori extends DatabaseHandler {
+	public $conn;
+
 	public const nome_tabella = 'consultatori_calendario';
+
 	public const abilitazione_nessuna = '0 nessuna';
 	public const abilitazione_lettura = '1 lettura';
 	public const abilitazione_modifica = '3 modifica';
@@ -109,15 +111,7 @@ Class Consultatori{
 	public function get_consultatore_from_id(int $consultatore_id) : array{
 		// necessari
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. '<br>Serve una connessione attiva per leggere in '
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		// validazione
 		$this->set_record_id($consultatore_id);
 
@@ -208,10 +202,11 @@ Class Consultatori{
 	}
 
 	public function set_attivita_fino_al( string $attivita_fino_al ){
+		$dbh = $this->conn;
 		// ritaglio a misura 
 		$attivita_fino_al = htmlspecialchars(strip_tags($attivita_fino_al));
 		$attivita_fino_al = mb_substr($attivita_fino_al, 0, 10);
-		if (!($this->conn->is_datetime($attivita_fino_al.' 00:00:00'))){
+		if (!($dbh->is_datetime($attivita_fino_al.' 00:00:00'))){
 			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
 			. ' no for: '. $attivita_fino_al 
 			. '. Must be a valid datetime format yyyy-mm-dd ');
@@ -223,7 +218,8 @@ Class Consultatori{
 	 * @param string datetime yyyy-mm-dd hh:mm:ss
 	 */
 	public function set_ultima_modifica_record( string $ultima_modifica_record ){
-		if (!($this->conn->is_datetime($ultima_modifica_record))){
+		$dbh = $this->conn;
+		if (!($dbh->is_datetime($ultima_modifica_record))){
 			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
 			. ' no for: '. $ultima_modifica_record 
 			. '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss ');
@@ -235,7 +231,8 @@ Class Consultatori{
 	 * @param string datetime yyyy-mm-dd hh:mm:ss
 	 */
 	public function set_record_cancellabile_dal( string $record_cancellabile_dal ){
-		if (!($this->conn->is_datetime($record_cancellabile_dal))){
+		$dbh = $this->conn;
+		if (!($dbh->is_datetime($record_cancellabile_dal))){
 			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
 			. ' no for: '. $record_cancellabile_dal 
 			. '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss ');
@@ -253,16 +250,7 @@ Class Consultatori{
 		// necessari
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__
-				. " Inserimento record senza connessione archivio per: "
-				. self::nome_tabella
-			];
-			return $ret;
-		}
-		
+
 		if ( !isset($campi['cognome_nome'])){
 			$ret=[
 				'error'   => true,
@@ -344,7 +332,7 @@ Class Consultatori{
 				'error'     => true,
 				'message'   => __CLASS__ . ' ' . __FUNCTION__
 				. '<br>' . $th->getMessage()
-				. '<br>Campi: ' . serialize($campi)
+				. '<br>Campi: ' . $dbh::esponi($campi)
 				. '<br>istruzione SQL: ' . $create
 			];
 			return $ret;
@@ -366,21 +354,13 @@ Class Consultatori{
 	public function leggi(array $campi) : array{
 		// necessari 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true,
-				'message' => __CLASS__ . ' ' . __FUNCTION__
-				. ' Non si può leggere senza connessione per la tabella '
-				. self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['query'])){
 			$ret = [
 				'error'   => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__
 				. "Deve essere definita l'istruzione SELECT in ['query']: "
-				. serialize($campi)
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -450,7 +430,7 @@ Class Consultatori{
 				'error'    => true,
 				'message'  => __CLASS__ . ' ' . __FUNCTION__
 				. '<br>' . $th->getMessage()
-				. "<br>campi: " . serialize($campi)
+				. "<br>campi: " . $dbh::esponi($campi)
 				. '<br>istruzione SQL: ' . $read
 			];
 			return $ret;
@@ -472,21 +452,13 @@ Class Consultatori{
 	function modifica(array $campi) : array{
 		// necessari 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true,
-				'message' => __CLASS__ . ' ' . __FUNCTION__
-				. ' Non si può leggere senza connessione per la tabella '
-				. self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['update'])){
 			$ret = [
 				'error'   => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__
 				. "Deve essere definita l'istruzione UPDATE in ['query']: "
-				. serialize($campi)
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -561,7 +533,7 @@ Class Consultatori{
 				'error'    => true,
 				'message'  => __CLASS__ . ' ' . __FUNCTION__
 				. ' ' . $th->getMessage()
-				. ' campi: '          . serialize($campi)
+				. ' campi: '          . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $update
 			];
 			return $ret;
@@ -576,21 +548,13 @@ Class Consultatori{
 	public function elimina(array $campi) : array {
 		// necessari 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'    => true,
-				'message'  => __CLASS__ . ' ' . __FUNCTION__
-				. "non si può fare senza connessione archivio "
-				. "per: " . self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['delete'])){
 			$ret = [
 				"error"   => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__
 				. "Deve essere definita l'istruzione DELETE in ['delete']: "
-				. serialize($campi)
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -662,7 +626,7 @@ Class Consultatori{
 				'error'    => true,
 				'message'  => __CLASS__ . ' ' . __FUNCTION__
 				. ' ' . $th->getMessage()
-				. ' campi: '          . serialize($campi)
+				. ' campi: '          . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $cancellazione
 			];
 			return $ret;
@@ -673,7 +637,5 @@ Class Consultatori{
 		];
 		return $ret;
 	} // elimina DELETE 
-	
-	
+		
 } // Consultatori
-

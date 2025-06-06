@@ -476,7 +476,6 @@ function get_album_list(array $dati_input) : array {
 		        . " OR  livello4 like '%".$termine."%' "
 		        . " OR  livello5 like '%".$termine."%' "
 		        . " OR  livello6 like '%".$termine."%' "
-		    . " OR  titolo_album like '%".$termine."%' "
 		        . ') ';
 	} // foreach
 	// $query .= ' ORDER BY record_id ';
@@ -626,7 +625,6 @@ function get_fotografie_list(array $dati_input = []): array{
 		. " OR  livello4 like '%".$termine."%' "
 		. " OR  livello5 like '%".$termine."%' "
 		. " OR  livello6 like '%".$termine."%' "
-		. " OR titolo_fotografia like '%".$termine."%' "
 		. " OR nome_file like '%".$termine."%' "
 		. ') ';
 	} // foreach
@@ -726,7 +724,6 @@ function get_video_list(array $dati_input = []): array{
 	$video_id=[];
 
 	$dbh    = New DatabaseHandler();
-//$alb_h  = New Album($dbh);
 	$vid_h  = New Video($dbh);
 	$vdet_h = New VideoDettagli($dbh);
 	$scan_h = New ScansioniDisco($dbh);
@@ -774,7 +771,6 @@ function get_video_list(array $dati_input = []): array{
 		       . " OR  livello4 like '%".$termine."%' "
 		       . " OR  livello5 like '%".$termine."%' "
 		       . " OR  livello6 like '%".$termine."%' "
-		       . " OR titolo_video like '%".$termine."%' "
 		       . " OR nome_file like '%".$termine."%' "
 		       . ') ';
 	} // foreach
@@ -1281,7 +1277,7 @@ function get_html_video( array $video_list=[] ) : string {
 	$ret_vid = $vid_h->leggi($campi);
 
 	if (isset($ret_vid['error'])){
-		$html_video .= '<p>'
+		$html_video = '<p>'
 		. 'Si è verificato un errore nella funzione ' . __FUNCTION__ 
 		. ' durante il recupero dei video.'
 		. '<br>campi: '. str_ireplace(';', '; ', serialize($campi))
@@ -1289,6 +1285,7 @@ function get_html_video( array $video_list=[] ) : string {
 		. '</p>';
 		return $html_video;
 	} 
+	$html_video = '';
 	for ($i=0; $i < count($ret_vid['data']); $i++) { 
 		// recupero video
 		$video = $ret_vid['data'][$i];

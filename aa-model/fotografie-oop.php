@@ -27,8 +27,9 @@
  * 
  * 
  */
-Class Fotografie {
-	private $conn = false;
+Class Fotografie extends DatabaseHandler {
+	public $conn;
+
 	public const nome_tabella  = 'fotografie';
 	public const stato_da_fare    = '0 da fare';
 	public const stato_in_corso   = '1 in corso';
@@ -187,7 +188,8 @@ Class Fotografie {
 	 * @param string datetime yyyy-mm-dd hh:mm:ss
 	 */
 	public function set_record_cancellabile_dal( string $record_cancellabile_dal ){
-		if (!($this->conn->is_datetime($record_cancellabile_dal))){
+		$dbh = $this->conn;
+		if (!($dbh->is_datetime($record_cancellabile_dal))){
 			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
 			. ' no for: '. $record_cancellabile_dal . '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss ');
 		}
@@ -195,16 +197,7 @@ Class Fotografie {
 	}
 	
 	// IS / CHECKER
-	/**
-	 * Il record è "valido" in che senso? 
-	 * Sono i record che hanno il campo record_cancellabile_dal == '9999-12-31 23:59:59'
-	 *
-	 * @return bool 
-	 */
-	public function check_FUTURO(){
-		return ($this->record_cancellabile_dal == $this->conn->get_datetime_forever() );
-	}
-	
+
 	/**
 	 * Only to check if present, nothing about valid rec / logically deleted rec 
 	 * or other things 
@@ -214,10 +207,7 @@ Class Fotografie {
 	 */
 	public function check_record_id( int $record_id ){
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. " Non si può verificare la presenza senza connessione all'archivio. ");
-		}
+
 		$leggi = 'SELECT 1 FROM ' . self::nome_tabella   
 		. ' WHERE record_id = :record_id ';
 		try {
@@ -244,7 +234,8 @@ Class Fotografie {
 		// record_cancellabile_dal viene assegnato automaticamente 
 		//                         ma non sempre 
 		// stato_lavori            viene assegnato automaticamente 
-	
+		
+		$dbh = $this->conn; // a PDO object thru Database class
 		$create = 'INSERT INTO ' . self::nome_tabella 
 		. ' (  titolo_fotografia,   disco,  percorso_completo,'
 		. '    record_id_in_album,  record_id_in_scansioni_disco ) VALUES '
@@ -256,7 +247,7 @@ Class Fotografie {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo titolo_fotografia: " . serialize($campi) 
+				. " Serve campo titolo_fotografia: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -266,7 +257,7 @@ Class Fotografie {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo disco: " . serialize($campi) 
+				. " Serve campo disco: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -276,7 +267,7 @@ Class Fotografie {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo percorso_completo: " . serialize($campi) 
+				. " Serve campo percorso_completo: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -286,7 +277,7 @@ Class Fotografie {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo record_id_in_album: " . serialize($campi) 
+				. " Serve campo record_id_in_album: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -296,13 +287,12 @@ Class Fotografie {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo record_id_in_scansioni_disco: " . serialize($campi) 
+				. " Serve campo record_id_in_scansioni_disco: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
 		$this->set_record_id_in_scansioni_disco($campi['record_id_in_scansioni_disco']);
 
-		$dbh = $this->conn; // a PDO object thru Database class
 		if ($dbh === false){
 			$ret = [
 				"error"=> true, 
@@ -332,7 +322,7 @@ Class Fotografie {
 				"error"   => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. " campi: " . serialize($campi)
+				. " campi: " . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $create 
 			];
 			return $ret;      
@@ -355,20 +345,13 @@ Class Fotografie {
 	public function leggi(array $campi) : array {
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ . ' ' . __LINE__
-				. "Deve essere attiva la connessione all'archivio per " . self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['query'])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. "Deve essere definita l'istruzione SELECT in ['query']: " 
-				. 'campi: ' . serialize($campi)
+				. 'campi: ' . $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -436,26 +419,19 @@ Class Fotografie {
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $read
 			];
 			return $ret;
 		}
 		$numero = 0;
 		$dati_di_ritorno = [];
-		/* senza limitatore */ 
+
 		while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
 			$dati_di_ritorno[] = $record;
 			$numero++;
 		}    
-		/* con limitatore 
-		$limite_record = isset($campi['limite']) ? $campi['limite'] : 100;
-		$limite_record = 100; // TODO: fa parte della gestione paginazione
-		while(($record = $lettura->fetch(PDO::FETCH_ASSOC)) && ($numero < $limite_record)){
-			$dati_di_ritorno[] = $record;
-			$numero++;
-		}
-		*/
+
 		// Può dare ok anche per un risultato "vuoto", è compito del chiamante valutare se sia un errore
 		$ret = [
 			'ok'     => true,
@@ -479,20 +455,12 @@ Class Fotografie {
 	public function modifica( array $campi = []) {
 		// campi indispensabili 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Modifica senza connessione archivio per: " 
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['update'])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Aggiornamento record senza UPDATE: " . serialize($campi) 
+				. " Aggiornamento record senza UPDATE: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -567,7 +535,7 @@ Class Fotografie {
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage()
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $update
 			];
 			return $ret;
@@ -594,19 +562,12 @@ Class Fotografie {
 	public function elimina( array $campi = []) : array {
 		// indispensabili 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Cancellazione senza connessione archivio per: " . self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['delete'])){
 			$ret = [
 				"error"=> true, 
 				"message" => "Cancellazione record senza DELETE. " 
-				. ' campi : ' . serialize($campi) 
+				. ' campi : ' . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -679,7 +640,7 @@ Class Fotografie {
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage()
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $delete
 			];
 			return $ret;
@@ -690,35 +651,6 @@ Class Fotografie {
 		];
 		return $ret;
 	} // elimina
-	
-	/**
-	 * Validi? e gli altri? 
-	 * Estrae un elenco di record validi (record_cancellabile_dal = '9999-12-31 23:59:59')
-	 * in formato istruzione SQL INSERT INTO per ripristinare i dati qualora servisse 
-	 * ATTENZIONE: è presente una "chiave esterna", occorre essere sicuri che al 
-	 * momento del caricamento o anche in seguito ma con certezza la chiave esterna sia valida. 
-	 * 
-	 */
-	public function get_elenco_validi( array $campi = []) {
-		$ret = [ 
-			"error" => true,
-			"message" => "La funzione non è stata realizzata"
-		];
-		return $ret;
-	} // get_elenco_validi
-	
-	/**
-	 *	Crea una lista di istruzioni SQL per il caricamento dei record cancellabili
-	 *	prima della cancellazione fisica, poi questo elenco deve diventare un
-	 *	file con estensione sql che va scaricato dalla pagina / controller. 
-	 */
-	public function get_elenco_cancellabili( array $campi = []) {
-		$ret = [ 
-			"error" => true,
-			"message" => "La funzione non è stata realizzata"
-		];
-		return $ret;
-	} // get_elenco_cancellabili
 
 	/**
 	 * SET_STATO_LAVORI 
@@ -729,15 +661,7 @@ Class Fotografie {
 	public function set_stato_lavori_in_fotografie(int $record_id, string $stato_lavori) : array {
 		// campi obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => "L'aggiornamento dello stato_lavori "
-				. 'non si può fare senza connessione archivio '
-				. 'per: ' . self::nome_tabella  
-			];
-			return $ret;
-		}
+
 		$this->set_record_id($record_id);
 		$this->set_stato_lavori($stato_lavori);
 		$update = ' UPDATE ' . self::nome_tabella
@@ -745,7 +669,6 @@ Class Fotografie {
 		. ' WHERE record_id = :record_id ';
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }		
 		try {
-			//code...
 			$aggiorna=$dbh->prepare($update);		
 			$aggiorna->bindValue('stato_lavori', $this->get_stato_lavori()); 
 			$aggiorna->bindValue('record_id', $this->get_record_id()); 
@@ -782,15 +705,7 @@ Class Fotografie {
 	public function get_fotografia_from_id(int $fotografia_id) : array{
 		// dati obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. '<br>Serve una connessione attiva per leggere in '
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		// validazione
 		$this->set_record_id($fotografia_id);
 		$campi=[];
@@ -820,15 +735,7 @@ Class Fotografie {
 	public function get_fotografia_da_fare() : array {
 		// dati obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. '<br>Serve una connessione attiva per leggere in '
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		// validazione
 		$campi=[];
 		$campi['query'] = 'SELECT * FROM ' . self::nome_tabella
@@ -865,15 +772,7 @@ Class Fotografie {
 	public function get_fotografia_from_scansioni_id( int $scansioni_id) : array {
 		// dati obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. '<br>Serve una connessione attiva per leggere in '
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		// validazione
 		$this->set_record_id_in_scansioni_disco($scansioni_id);
 		$campi=[];

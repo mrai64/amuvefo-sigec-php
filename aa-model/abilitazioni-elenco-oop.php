@@ -17,10 +17,9 @@
 	*
 	*/
 
-Class Abilitazioni {
-	private $conn    = false;
-	// TODO: valutare "extend DatabaseHandler"
-
+Class Abilitazioni extends DatabaseHandler {
+  public $conn;
+  
 	private $tabella = 'abilitazioni_elenco';
 	private static $abilitazione_zero = '0 nessuna';
 	private static $abilitazione_set = [
@@ -175,15 +174,8 @@ Class Abilitazioni {
     $create = 'INSERT INTO ' . $this->tabella 
     . ' (  url_pagina,  operazione,  abilitazione ) VALUES '
     . ' ( :url_pagina, :operazione, :abilitazione ) ';
-
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => "Inserimento record senza connessione archivio per: " . $this->tabella 
-      ];
-      return $ret;
-    }
+
     $url_pagina   = ( isset($campi["url_pagina"])) ? $campi["url_pagina"] : $this->url_pagina;
     $url_pagina   =  htmlspecialchars(strip_tags($url_pagina));
     if ($url_pagina == ""){
@@ -249,13 +241,7 @@ Class Abilitazioni {
    */
   public function leggi( array $campi = []) {
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => "Lettura record senza connessione archivio per: " . $this->tabella 
-      ];
-      return $ret;
-    }
+
     if (!isset($campi["query"])){
       $ret = [
         "error"=> true, 
@@ -320,13 +306,7 @@ Class Abilitazioni {
    */
   public function modifica( array $campi = []) : array {
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => "Lettura record senza connessione archivio per: " . $this->tabella 
-      ];
-      return $ret;
-    }
+
     if (!isset($campi["update"])){
       $ret = [
         "error"=> true, 
@@ -379,13 +359,7 @@ Class Abilitazioni {
    */
   public function elimina( array $campi = []) {
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => "Cancellazione record senza connessione archivio per: " . $this->tabella 
-      ];
-      return $ret;
-    }
+
     if (!isset($campi["delete"])){
       $ret = [
         "error"=> true, 
@@ -426,33 +400,5 @@ Class Abilitazioni {
     ];
     return $ret;
   } // elimina
-  
-  
-  /**
-   *	getter record validi "vivi"
-   *	crea una lista di istruzioni SQL per il caricamento dei dati
-   */
-  public function getElencoVivi() {
-    $ret = [ 
-      "error" => true,
-      "message" => __CLASS__ . ' ' . __FUNCTION__ . " La funzione non è stata realizzata"
-    ];
-    return $ret;
-  } // getElencoVivi
-  
-  
-  /**
-   *	getter record cancellabili 
-   *	Crea una lista di istruzioni SQL per il caricamento dei record cancellabili
-   *	prima della cancellazione fisica, poi questo elenco deve diventare un
-   *	file con estensione sql che va scaricato dalla pagina / controller. 
-   */
-  public function getElencoCancellabili( array $campi = []) {
-    $ret = [ 
-      "error" => true,
-      "message" => "La funzione non è stata realizzata"
-    ];
-    return $ret;
-  } // getElencoCancellabili
 
 } // class Abilitazioni

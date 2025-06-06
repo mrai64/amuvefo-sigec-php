@@ -48,8 +48,8 @@
  * OTHERS
  * 
  */
-Class AlbumDettagli {
-	private $conn = false;
+Class AlbumDettagli extends DatabaseHandler {
+	public $conn;
 	public const nome_tabella  = 'album_dettagli';	
 
 	public $record_id; //         
@@ -161,8 +161,9 @@ Class AlbumDettagli {
 	 * @param  string datetime yyyy-mm-dd hh:mm:ss 
 	 */
 	public function set_ultima_modifica_record( string $ultima_modifica_record ) {
+		$dbh = $this->conn; // a PDO object thru Database class
 		// validazione
-		if ( !$this->conn->is_datetime( $ultima_modifica_record )){
+		if ( !$dbh->is_datetime( $ultima_modifica_record )){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
 			. ' Must be datetime is : ' . $ultima_modifica_record );
 		}
@@ -173,8 +174,9 @@ Class AlbumDettagli {
 	 * @param  string datetime yyyy-mm-dd hh:mm:ss 
 	 */
 	public function set_record_cancellabile_dal( string $record_cancellabile_dal ) {
+		$dbh = $this->conn; // a PDO object thru Database class
 		// validazione
-		if ( !$this->conn->is_datetime( $record_cancellabile_dal )){
+		if ( !$dbh->is_datetime( $record_cancellabile_dal )){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
 			. ' Must be datetime, instead of: ' . $record_cancellabile_dal );
 		}
@@ -182,14 +184,7 @@ Class AlbumDettagli {
 	}
 	
 	// CHECKER 
-	/** 
-	 *	@param  string datetime yyyy-mm-dd hh:mm:ss 
-	 *	@return bool 
-	 */
-	public function is_datetime( $datetime ){
-		return $this->conn->is_datetime($datetime);
-	}
-	
+
 	// CRUD 
 	/**
 	 * @param  array campi 
@@ -217,15 +212,7 @@ Class AlbumDettagli {
 
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' Errore: Inserimento record senza connessione archivio per: ' 
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		// validazione 
 		if (!isset($campi['record_id_padre'])){
 			$ret = [
@@ -288,7 +275,7 @@ Class AlbumDettagli {
 				'error'   => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $create 
 			];
 			return $ret;
@@ -311,22 +298,13 @@ Class AlbumDettagli {
 	public function leggi(array $campi) : array {
 		// campi obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " lettura record senza connessione archivio per: " 
-				. self::nome_tabella
-			];
-			return $ret;
-		}
 
 		if (!isset($campi['query'])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. "Deve essere definita l'istruzione SELECT in ['query']: " 
-				. serialize($campi)
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -384,18 +362,14 @@ Class AlbumDettagli {
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. " campi: " . serialize($campi)
+				. " campi: " . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $read
 			];
 			return $ret;
 		}
 		$numero = 0; // può esserci un $limite
 		$dati_di_ritorno = []; // è sempre un array
-		/*while( $record = $lettura->fetch() && ($conteggio < $limite) ){
-			if ( $record === false ){
-				break;
-				}
-		*/     
+
 		while( $record = $lettura->fetch(PDO::FETCH_ASSOC) ){
 			$dati_di_ritorno[] = $record;
 			$numero++; 
@@ -420,21 +394,13 @@ Class AlbumDettagli {
 	public function modifica(array $campi) : array {
 		// dati obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Modifica senza connessione archivio per: " 
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['update'])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. " Aggiornamento record senza UPDATE: " 
-				. serialize($campi) 
+				. $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -499,7 +465,7 @@ Class AlbumDettagli {
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. '<br>' . $th->getMessage() 
-				. '<br>campi: ' . serialize($campi)
+				. '<br>campi: ' . $dbh::esponi($campi)
 				. '<br>istruzione SQL: ' . $update
 			];
 			return $ret;
@@ -525,21 +491,13 @@ Class AlbumDettagli {
 	public function elimina(array $campi = []){
 		// campi obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => "La cancellazione di record "
-				. "non si può fare senza connessione archivio "
-				. "per: " . self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['delete'])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. "Deve essere definita l'istruzione DELETE in ['delete']: " 
-				. serialize($campi)
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -603,7 +561,7 @@ Class AlbumDettagli {
 					'error' => true,
 					'message' => __CLASS__ . ' ' . __FUNCTION__  
 					. ' ' . $e->getMessage() 
-					. ' campi: ' . serialize($campi) 
+					. ' campi: ' . $dbh::esponi($campi) 
 					. ' istruzione SQL: ' . $cancellazione 
 			];
 			return $ret;
@@ -616,6 +574,5 @@ Class AlbumDettagli {
 		];
 		return $ret;
 	} // elimina
-
 
 } // AlbumDettagli

@@ -30,8 +30,9 @@
  *
  */
 
-Class ScansioniDisco {
-	private $conn = false; // connessione 
+Class ScansioniDisco extends DatabaseHandler {
+	public $conn; // connessione 
+
 	public const nome_tabella     = 'scansioni_disco';
 	public const stato_da_fare    = '0 da fare';
 	public const stato_in_corso   = '1 in corso';
@@ -41,7 +42,6 @@ Class ScansioniDisco {
 		self::stato_in_corso,
 		self::stato_completati
 	];
-	private $limite_record = 20; // TODO predefinito per paginazione 
 
 	// 
 	public $record_id; //                bigint 20 assegnato primary key
@@ -58,15 +58,14 @@ Class ScansioniDisco {
 	public $codice_verifica; //          char(32) md5 del contenuto a uso verifiche future
 	public $tinta_rgb; //                char(6) codice colore personalizzabile
 	public $stato_lavori; //             enum uso interno
-	public $ultima_modifica_record;         // datetime data creazione record uso backup
-	public $record_cancellabile_dal;  // datetime per selezionare e cancellare 
+	public $ultima_modifica_record; //   datetime data creazione record uso backup
+	public $record_cancellabile_dal; //  datetime per selezionare e cancellare 
 	
 	/**
 	* @param database PDO db connection 
 	*/
 	public function __construct(DatabaseHandler $dbh){
 		$this->conn             = $dbh;
-		$this->limite_record    = 20; 
 
 		$this->record_id        = 0;  // invalido 
 		$this->disco            = '';
@@ -311,22 +310,14 @@ Class ScansioniDisco {
 		. ' :nome_file, :estensione, :modificato_il, :codice_verifica, :tinta_rgb )  '; // lasciare i due spazi
 		// campi necessari
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Inserimento record senza connessione archivio per: " 
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['disco']) || $campi['disco'] == ''){
 			$ret = [
 				'error'=> true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Inserimento non riuscito per campi mancanti : ' 
 				. ' istruzione sql: ' . $create
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -337,7 +328,7 @@ Class ScansioniDisco {
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Inserimento non riuscito per campi mancanti : ' 
 				. ' istruzione sql: ' . $create
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -415,7 +406,7 @@ Class ScansioniDisco {
 				'message'   => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Errore: ' . $th->getMessage() 
 				. ' Per istruzione SQL: ' . $create 
-				. ' campi: ' . str_ireplace(';', '; ', serialize($campi))
+				. ' campi: ' . $dbh::esponi($campi)
 			];
 			return $ret; 
 		}
@@ -430,20 +421,13 @@ Class ScansioniDisco {
 	public function leggi(array $campi) : array {
 		// controllo parametri indispensabili 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'=> true, 
-				'message' => 'Lettura record senza connessione archivio per: ' 
-				. self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['query'])){
 			$ret = [
 				'error'=> true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. "Deve essere definita l'istruzione SELECT in ['query']: " 
-				. serialize($campi)
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -552,7 +536,7 @@ Class ScansioniDisco {
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi) . '<br>'
+				. ' campi: ' . $dbh::esponi($campi) . '<br>'
 				. ' istruzione SQL: ' . $read
 			];
 			return $ret;
@@ -610,22 +594,13 @@ Class ScansioniDisco {
 	public function modifica(array $campi = []) : array {
 		// dati obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'=> true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' Modifica senza connessione archivio per: ' 
-				. self::nome_tabella
-			];
-			return $ret;
-		}
-		
+
 		if (!isset($campi['update'])){
 			$ret = [
 				'error'=> true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Aggiornamento record senza UPDATE: ' 
-				. serialize($campi) 
+				. $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -714,7 +689,7 @@ Class ScansioniDisco {
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage()
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $update
 			];
 			return $ret;
@@ -738,21 +713,13 @@ Class ScansioniDisco {
 	public function elimina(array $campi) : array {
 		// campi obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => 'La cancellazione di record '
-				. 'non si può fare senza connessione archivio '
-				. 'per: ' . self::nome_tabella  
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['delete'])){
 			$ret = [
 				'error'   => true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. " Deve essere definita l'istruzione DELETE in ['delete']: " 
-				. serialize($campi)
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -842,7 +809,7 @@ Class ScansioniDisco {
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage()
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $delete
 			];
 			return $ret;
@@ -866,15 +833,7 @@ Class ScansioniDisco {
 	public function set_stato_lavori_in_scansioni_disco(int $record_id, string $stato_lavori) : array {
 		// campi obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => "L'aggiornamento dello stato_lavori "
-				. 'non si può fare senza connessione archivio '
-				. 'per: ' . self::nome_tabella  
-			];
-			return $ret;
-		}
+
 		$this->set_record_id($record_id);
 		$this->set_stato_lavori($stato_lavori);
 		$update = ' UPDATE ' . self::nome_tabella
@@ -916,10 +875,6 @@ Class ScansioniDisco {
 	
 	public function get_record_id_da_percorso(string $percorso) : int {
 		$dbh    = $this->conn;
-		if ($dbh === false){
-			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. ' no connection. ');
-		}
 
 		if ($percorso == ''){
 			return 0;
@@ -1025,10 +980,7 @@ Class ScansioniDisco {
 	 */
 	public function get_scansioni_disco_per_id(int $scansioni_id = 0) : array{
 		$dbh    = $this->conn;
-		if ($dbh === false){
-			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. ' no connection. ');
-		}
+
 		$this->set_record_id($scansioni_id);
 		$campi =[];
 		$campi['query'] = 'SELECT + FROM ' . self::nome_tabella
@@ -1065,16 +1017,13 @@ Class ScansioniDisco {
 	 */
 	public function get_scansioni_disco_foto_da_album( array $album = [] ) : array {
 		$dbh    = $this->conn;
-		if ($dbh === false){
-			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. ' no connection. ');
-		}
+
 		// sempre malfidenti 
 		if (!isset($album['disco']) || !isset($album['livello1'])){
 			$ret = [
 				'error'  => true,
 				'message'=> "I campi in input non sono corretti "
-				. '<br>'. str_ireplace(';', '; ', serialize($album))
+				. '<br>'. $dbh::esponi($album)
 			];
 			return $ret;
 		}
@@ -1103,7 +1052,7 @@ Class ScansioniDisco {
 			$ret = [
 				'error'  => true,
 				'message'=> "Non sono stati rintracciate fotografie in album."
-				. '<br>'. str_ireplace(';', '; ', serialize($album))
+				. '<br>'. $dbh::esponi($album)
 			];
 			return $ret;
 		}

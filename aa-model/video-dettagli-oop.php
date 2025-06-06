@@ -43,8 +43,8 @@
  * OTHERS
  *
  */
-Class VideoDettagli {
-	private $conn = false;
+Class VideoDettagli extends DatabaseHandler {
+	public $conn ;
 	public const nome_tabella  = 'video_dettagli';
 
 	public $record_id; //
@@ -177,13 +177,6 @@ Class VideoDettagli {
 	}
 
 	// CHECKER
-	/**
-	 *	@param  string datetime yyyy-mm-dd hh:mm:ss
-	 *	@return bool
-	 */
-	public function is_datetime( $datetime ){
-		return $this->conn->is_datetime($datetime);
-	}
 
 	// CRUD
 	/**
@@ -206,15 +199,7 @@ Class VideoDettagli {
 
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__
-				. " Inserimento record senza connessione archivio per: "
-				. self::nome_tabella
-			];
-			return $ret;
-		}
+
 		// validazione
 		if (!isset($campi['record_id_padre'])){
 			$ret = [
@@ -295,15 +280,6 @@ Class VideoDettagli {
 	public function leggi(array $campi ) : array {
 		// campi obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__
-				. " lettura record senza connessione archivio per: "
-				. self::nome_tabella
-			];
-			return $ret;
-		}
 
 		if (!isset($campi['query'])){
 			$ret = [
@@ -404,15 +380,7 @@ Class VideoDettagli {
 	public function modifica(array $campi = []){
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__
-				. " Modifica senza connessione archivio per: "
-				. self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['update'])){
 			$ret = [
 				'error'    => true,
@@ -509,15 +477,7 @@ Class VideoDettagli {
 	public function elimina(array $campi = []){
 		// campi obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true,
-				"message" => "La cancellazione di record "
-				. "non si può fare senza connessione archivio "
-				. "per: " . self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['delete'])){
 			$ret = [
 				"error"=> true,

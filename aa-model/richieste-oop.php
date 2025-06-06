@@ -8,8 +8,9 @@
  * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-14-richieste_elenco/ 
  * 
  */
-Class Richieste {
-	private $conn = false;
+Class Richieste extends DatabaseHandler {
+	public $conn;
+
 	public const nome_tabella = 'richieste';
 	private	$oggetto_set = [
 		'album',
@@ -145,8 +146,9 @@ Class Richieste {
 	}
 
 	public function set_ultima_modifica_record( string $ultima_modifica_record ) {
+		$dbh = $this->conn;
 		// validazione
-		if ( !$this->conn->is_datetime( $ultima_modifica_record )){
+		if ( !$dbh->is_datetime( $ultima_modifica_record )){
 			throw new Exception( __CLASS__ . ' ' . __FUNCTION__ 
 			. ' Deve essere una stringa nel formati datetime e non: ' 
 			. $ultima_modifica_record );
@@ -155,8 +157,9 @@ Class Richieste {
 	}
 
 	public function set_record_cancellabile_dal( string $record_cancellabile_dal ) {
+		$dbh = $this->conn;
 		// validazione
-		if ( !$this->conn->is_datetime( $record_cancellabile_dal )){
+		if ( !$dbh->is_datetime( $record_cancellabile_dal )){
 			throw new Exception( __CLASS__ . ' ' . __FUNCTION__ 
 			. ' Deve essere una stringa nel formati datetime e non: ' 
 			. $record_cancellabile_dal );
@@ -256,7 +259,7 @@ Class Richieste {
 				'error'     => true,
 				'message'   => __CLASS__ . ' ' . __FUNCTION__ 
 				. '<br>' . $th->getMessage() 
-				. '<br>Campi: ' . serialize($campi)
+				. '<br>Campi: ' . $dbh::esponi($campi)
 				. '<br>istruzione SQL: ' . $create
 			];
 			return $ret;
@@ -281,21 +284,13 @@ Class Richieste {
 	public function leggi( array $campi ) : array {
 		// necessari 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Lettura record senza connessione archivio per: " 
-				. self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if (!isset($campi["query"])){
 			$ret = [
 				"error"=> true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Lettura record senza QUERY. '
-				. ' campi: ' . serialize($campi) 
+				. ' campi: ' . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -365,7 +360,7 @@ Class Richieste {
 				'error'   => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. '<br>' . $th->getMessage() 
-				. '<br>Campi: ' . serialize($campi)
+				. '<br>Campi: ' . $dbh::esponi($campi)
 				. '<br>Istruzione SQL: ' . $read
 			];
 			return $ret;
@@ -402,15 +397,7 @@ Class Richieste {
 	public function modifica(array $campi) : array {
 		// necessari 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' Lettura record senza connessione archivio per: ' 
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if ( !isset($campi['update'])){
 			$ret = [
 				"error"=> true, 
@@ -490,7 +477,7 @@ Class Richieste {
         'error' => true,
         'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. '<br>' . $th->getMessage() 
-				. '<br>Campi: ' . serialize($campi)
+				. '<br>Campi: ' . $dbh::esponi($campi)
         . '<br>Istruzione SQL: ' . $update
       ];
       return $ret;
@@ -517,21 +504,13 @@ Class Richieste {
 	public function elimina( array $campi ){
 		// necessari
 		$dbh = $this->conn;
-		if ($dbh == false){
-			$ret = [
-				'error' => true,
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' Non è presente la connessione per la tabella '
-				. self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if ( !isset($campi['delete'])){
 			$ret = [
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Non è presente il campo delete '
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -601,7 +580,7 @@ Class Richieste {
         'error'   => true,
         'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. '<br>' . $th->getMessage() 
-				. '<br>Campi: ' . serialize($campi)
+				. '<br>Campi: ' . $dbh::esponi($campi)
         . '<br>Istruzione SQL: ' . $delete
       ];
       return $ret;
@@ -617,15 +596,7 @@ Class Richieste {
 	public function get_richiesta_from_id(int $richiesta_id): array{
 		// dati obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. '<br>Serve una connessione attiva per leggere in '
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		// validazione
 		$this->set_record_id($richiesta_id);
 

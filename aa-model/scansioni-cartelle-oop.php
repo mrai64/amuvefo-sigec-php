@@ -18,10 +18,10 @@
  *
  */
 
-Class Cartelle {
-	private $conn = false; // connessione 
+Class Cartelle extends DatabaseHandler {
+	public $conn; // connessione 
 	public const nome_tabella = 'scansioni_cartelle'; // self::nome_tabella oppure
-	// stato_lavori enum()
+
 	public const stato_da_fare      = '0 da fare';
 	public const stato_in_corso     = '1 in corso';
 	public const stato_completati   = '2 completati';
@@ -130,7 +130,8 @@ Class Cartelle {
 	 * @param string datetime yyyy-mm-dd hh:mm:ss
 	 */
 	public function set_ultima_modifica_record( string $ultima_modifica_record ){
-		if (!($this->conn->is_datetime($ultima_modifica_record))){
+		$dbh = $this->conn;
+		if (!($dbh->is_datetime($ultima_modifica_record))){
 			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
 			. ' no for: '. $ultima_modifica_record 
 			. '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss ');
@@ -142,9 +143,11 @@ Class Cartelle {
 	 * @param string datetime yyyy-mm-dd hh:mm:ss
 	 */
 	public function set_record_cancellabile_dal( string $record_cancellabile_dal ){
-		if (!($this->conn->is_datetime($record_cancellabile_dal))){
+		$dbh = $this->conn;
+		if (!($dbh->is_datetime($record_cancellabile_dal))){
 			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. ' no for: '. $record_cancellabile_dal . '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss ');
+			. ' no for: '. $record_cancellabile_dal 
+			. '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss ');
 		}
 		$this->record_cancellabile_dal = $record_cancellabile_dal;
 	}
@@ -168,15 +171,6 @@ Class Cartelle {
 
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'=> true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' Inserimento record senza connessione archivio per: ' 
-				. self::nome_tabella
-			];
-			return $ret;
-		}
 
 		if (!isset($campi['disco']) || $campi['disco'] == ''){
 			$ret = [
@@ -254,14 +248,7 @@ Class Cartelle {
 	public function leggi(array $campi) : array {
 		// controllo parametri indispensabili 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'=> true, 
-				'message' => 'Lettura record senza connessione archivio per: ' 
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['query'])){
 			$ret = [
 				'error'=> true, 
@@ -354,15 +341,7 @@ Class Cartelle {
 	public function modifica(array $campi ) : array {
 		// dati obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'=> true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' Modifica senza connessione archivio per: ' 
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['update'])){
 			$ret = [
 				'error'=> true, 
@@ -449,15 +428,7 @@ Class Cartelle {
 	public function elimina(array $campi = []) : array {
 		// campi obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => 'La cancellazione di record '
-				. 'non si può fare senza connessione archivio '
-				. 'per: ' . self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['delete'])){
 			$ret = [
 				'error'   => true, 

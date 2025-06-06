@@ -152,6 +152,17 @@ class DatabaseHandler extends PDO {
 	public function is_unsigned_int(int $record_id) : bool {
 		return ($record_id < 1) ? false : true;
 	} // is_unsigned_int
-	
+
+	/**
+	 * serialize, in versione un po' più leggibile
+	 * @return string html 
+	 */
+	public static function esponi($a){
+		$s = str_ireplace(';', '; ', serialize($a));
+		$s = str_ireplace('{', '{ '."\n", $s);
+		$s = str_ireplace('}', ' }'."\n", $s);
+		return $s;		
+	}
+
 } // class DatabaseHandler
 
