@@ -190,7 +190,7 @@ function get_carousel_foto(array $fotografia) : string{
 		$ret .= "\t\t".'<td>'
 		. '<a href="'.URLBASE.'album.php/modifica-dettaglio/'.$dettaglio['record_id'].'" '
 		. 'title="modifica dettaglio"><i class="h2 bi bi-pencil-square"></i></a>'
-		. '<a href="'.URLBASE.'album.php/elimina_dettaglio/'.$dettaglio['record_id'].'" '
+		. '<a href="'.URLBASE.'album.php/elimina-dettaglio/'.$dettaglio['record_id'].'" '
 		. 'title="elimina dettaglio"><i class="h2 bi bi-eraser-fill"></i></a>'
 		. '</td>'."\n";
 

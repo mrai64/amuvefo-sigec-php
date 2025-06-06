@@ -68,7 +68,7 @@
 								if (get_set_abilitazione() > SOLALETTURA ){
 									echo '<td><a href="'.URLBASE.'video.php/modifica_dettaglio/'.$dettaglio['record_id'].'?video='.$dettaglio['record_id_padre'].'" '
 									. 'title="modifica dettaglio"><i class="h2 bi bi-pencil-square"></i></a>'
-									. '<a href="'.URLBASE.'video.php/elimina_dettaglio/'.$dettaglio['record_id'].'?video='.$dettaglio['record_id_padre'].'" '
+									. '<a href="'.URLBASE.'video.php/elimina-dettaglio/'.$dettaglio['record_id'].'?video='.$dettaglio['record_id_padre'].'" '
 									. 'title="elimina dettaglio"><i class="h2 bi bi-eraser-fill"></i></a></td>'."\n";
 									
 								} else {

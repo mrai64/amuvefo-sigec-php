@@ -28,7 +28,7 @@
  *   di video_dettagli, e poi se presente $_POST
  *   aggiorna il record di video_dettagli 
  * 
- * /video.php/elimina_dettaglio/{dettaglio_id}?video={video_id}
+ * /video.php/elimina-dettaglio/{dettaglio_id}?video={video_id}
  *   cancellazione non fisica, viene aggiornato il 
  *   campo record_cancellabile_dal
  *
@@ -50,7 +50,7 @@ switch($richiesta){
 	case 'richiesta':
 	case 'aggiungi_dettaglio':
 	case 'modifica_dettaglio':
-	case 'elimina_dettaglio':
+	case 'elimina-dettaglio':
 		break;
 
 	default:
@@ -151,7 +151,7 @@ if ($richiesta=='modifica_dettaglio'){
 /**
  * CANCELLA DETTAGLIO
  */
-if ($richiesta=='elimina_dettaglio'){
+if ($richiesta=='elimina-dettaglio'){
 	elimina_dettaglio_video_da_modulo($dettaglio_id);
 	exit(0);
 }
