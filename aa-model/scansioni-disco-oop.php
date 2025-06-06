@@ -880,7 +880,7 @@ Class ScansioniDisco extends DatabaseHandler {
 			return 0;
 		}
 
-		if (substr_count($percorso, "/") == 0 ||
+		if (substr_count($percorso, '/') == 0 ||
 		    substr_count($percorso, '/') >  6){
 			return 0;
 		}
@@ -890,6 +890,7 @@ Class ScansioniDisco extends DatabaseHandler {
 		$livello4='';
 		$livello5='';
 		$livello6='';
+		// 
 		@list($livello1, $livello2, $livello3, $livello4, $livello5, $livello6 ) = explode('/', $percorso);
 		$campi=[];
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
@@ -905,69 +906,60 @@ Class ScansioniDisco extends DatabaseHandler {
 			$campi['query'] = 'SELECT * FROM scansioni_disco '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 			. " AND nome_file = '/' "
-			. ' AND livello1 = :livello1 '
-			. '   AND livello2 = :livello2 '
-			. "   AND livello3 = '' ";
+			. ' AND livello1 = :livello1 AND livello2 = :livello2 '
+			. " AND livello3 = '' ";
 			$campi['livello2'] = $livello2;
 		}
 		if ($livello3 > ''){
 			$campi['query'] = 'SELECT * FROM scansioni_disco '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 			. " AND nome_file = '/' "
-			. ' AND livello1 = :livello1 '
-			. '   AND livello2 = :livello2 '
-			. '   AND livello3 = :livello3 '
-			. "   AND livello4 = '' ";
+			. ' AND livello1 = :livello1 AND livello2 = :livello2 '
+			. ' AND livello3 = :livello3 '
+			. " AND livello4 = '' ";
 			$campi['livello3'] = $livello3;
 		}
 		if ($livello4 > ''){
 			$campi['query'] = 'SELECT * FROM scansioni_disco '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
-			. " AND nome_file = '/' "
-			. ' AND livello1 = :livello1 '
-			. '   AND livello2 = :livello2 '
-			. '   AND livello3 = :livello3 '
-			. '   AND livello4 = :livello4 '
-			. "   AND livello5 = '' ";
+			. "AND nome_file = '/' "
+			. 'AND livello1 = :livello1 AND livello2 = :livello2 '
+			. 'AND livello3 = :livello3 AND livello4 = :livello4 '
+			. "AND livello5 = '' ";
 			$campi['livello4'] = $livello4;
 		}
 		if ($livello5 > ''){
 			$campi['query'] = 'SELECT * FROM scansioni_disco '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
-			. " AND nome_file = '/' "
-			. ' AND livello1 = :livello1 '
-			. '   AND livello2 = :livello2 '
-			. '   AND livello3 = :livello3 '
-			. '   AND livello4 = :livello4 '
-			. '   AND livello5 = :livello5 '
-			. "   AND livello6 = '' ";
+			. "AND nome_file = '/' "
+			. 'AND livello1 = :livello1 AND livello2 = :livello2 '
+			. 'AND livello3 = :livello3 AND livello4 = :livello4 '
+			. 'AND livello5 = :livello5 '
+			. "AND livello6 = '' ";
 			$campi['livello5'] = $livello5;
 		}
 		if ($livello6 > ''){
 			$campi['query'] = 'SELECT * FROM scansioni_disco '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
-			. " AND nome_file = '/' "
-			. ' AND livello1 = :livello1 '
-			. '   AND livello2 = :livello2 '
-			. '   AND livello3 = :livello3 '
-			. '   AND livello4 = :livello4 '
-			. '   AND livello5 = :livello5 '
-			. '   AND livello6 = :livello6 ';
+			. "AND nome_file = '/' "
+			. 'AND livello1 = :livello1 AND livello2 = :livello2 '
+			. 'AND livello3 = :livello3 AND livello4 = :livello4 '
+			. 'AND livello5 = :livello5 AND livello6 = :livello6 '
+			. 'ORDER BY record_id ';
 			$campi['livello6'] = $livello6;
 		}
 		$ret_scan = $this->leggi($campi);
 		if (isset($ret_scan['error'])){
-			echo __CLASS__ . ' ' . __FUNCTION__ . ' '; 
-			echo '<br>';
-			echo var_dump($campi);
-			echo '<br><br>';
-			echo var_dump($ret_scan);
+			echo __CLASS__ . ' ' . __FUNCTION__ 
+			.'<br>Errore: '. $ret_scan['error']
+			.'<br>Campi:'. $dbh::esponi($campi)
+			.'<br>'. $dbh::esponi($ret_scan);
 			exit(1);
 		}
 		if (isset($ret_scan['numero']) && $ret_scan['numero'] > 0){
 			return $ret_scan['data'][0]['record_id'];
 		}
-		return 0;
+		return 0; // non trovato 
 	} // get_record_id_da_percorso
 
 	/**

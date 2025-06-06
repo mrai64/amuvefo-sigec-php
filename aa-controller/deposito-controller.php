@@ -1,23 +1,23 @@
 <?php
 /**
  * DEPOSITO controller
- * 
+ *
  * funzioni relative ai file e cartelle inseriti in archivio
- * nella tabella scansioni_disco o che vanno a leggere/scrivere nella tabella scansioni_disco 
- * 
- * - crea_query_cartelle 
- * 
- * - crea_query_sottocartelle 
- * 
- * - leggi_cartella_per_id 
- * 
- * - leggi_cartella_per_percorso 
- * 
- * - verifica_cartella_contiene_album 
- * 
- * - cambio_tinta_record 
- * 
- * 
+ * nella tabella scansioni_disco o che vanno a leggere/scrivere nella tabella scansioni_disco
+ *
+ * - crea_query_cartelle
+ *
+ * - crea_query_sottocartelle
+ *
+ * - leggi_cartella_per_id
+ *
+ * - leggi_cartella_per_percorso
+ *
+ * - verifica_cartella_contiene_album
+ *
+ * - cambio_tinta_record
+ *
+ *
  */
 if (!defined('ABSPATH')){
 	include_once('../_config.php');
@@ -33,6 +33,9 @@ include_once(ABSPATH.'aa-model/album-oop.php');
  * @return string istruzione SQL per rintracciare eventuali sottocartelle
  */
 function crea_query_cartella(array $campi) : string {
+	$dbh = New DatabaseHandler();
+	$scan_h = New ScansioniDisco($dbh);
+
 	$livello1 = isset($campi['livello1']) ? $campi['livello1'] : "";
 	$livello2 = isset($campi['livello2']) ? $campi['livello2'] : "";
 	$livello3 = isset($campi['livello3']) ? $campi['livello3'] : "";
@@ -41,75 +44,72 @@ function crea_query_cartella(array $campi) : string {
 	$livello6 = isset($campi['livello6']) ? $campi['livello6'] : "";
 
 	if ($livello6 > ''){
-		$sql = 'SELECT * FROM scansioni_disco '
-		. 'WHERE livello1 = :livello1 '
-		.   'AND livello2 = :livello2 '
-		.   'AND livello3 = :livello3 '
-		.   'AND livello4 = :livello4 '
-		.   'AND livello5 = :livello5 '
-		.   'AND livello6 = :livello6 '
+		$sql = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		.' WHERE livello1 = :livello1 AND livello2 = :livello2 '
+		.   'AND livello3 = :livello3 AND livello4 = :livello4 '
+		.   'AND livello5 = :livello5 AND livello6 = :livello6 '
 		.   "AND estensione = '' "
-		.   "AND record_cancellabile_dal = '9999-12-31 23:59:59' ";
+		.   "AND record_cancellabile_dal = '".$dbh->get_datetime_forever()."' ";
 		return $sql;
 	}
 
 	if ($livello5 > ''){
-		$sql = 'SELECT * FROM scansioni_disco '
-			. 'WHERE livello1 = :livello1 '
-			.   'AND livello2 = :livello2 '
-			.   'AND livello3 = :livello3 '
-			.   'AND livello4 = :livello4 '
-			.   'AND livello5 = :livello5 '
-			.   "AND livello6 = '' "
-			.   "AND estensione = '' "
-			.   "AND record_cancellabile_dal = '9999-12-31 23:59:59' ";
+		$sql = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		. ' WHERE livello1 = :livello1 '
+		.   'AND livello2 = :livello2 '
+		.   'AND livello3 = :livello3 '
+		.   'AND livello4 = :livello4 '
+		.   'AND livello5 = :livello5 '
+		.   "AND livello6 = '' "
+		.   "AND estensione = '' "
+		.   "AND record_cancellabile_dal = '".$dbh->get_datetime_forever()."' ";
 		return $sql;
 	}
 
 	if ($livello4 > ''){
-		$sql = 'SELECT * FROM scansioni_disco '
-			. 'WHERE livello1 = :livello1 '
-			.   'AND livello2 = :livello2 '
-			.   'AND livello3 = :livello3 '
-			.   'AND livello4 = :livello4 '
-			.   "AND livello5 = '' "
-			.   "AND estensione = '' "
-			.   "AND record_cancellabile_dal = '9999-12-31 23:59:59' ";
+		$sql = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		. ' WHERE livello1 = :livello1 '
+		.   'AND livello2 = :livello2 '
+		.   'AND livello3 = :livello3 '
+		.   'AND livello4 = :livello4 '
+		.   "AND livello5 = '' "
+		.   "AND estensione = '' "
+		.   "AND record_cancellabile_dal = '".$dbh->get_datetime_forever()."' ";
 		return $sql;
 	}
 
 	if ($livello3 > ''){
-		$sql = 'SELECT * FROM scansioni_disco '
-			. 'WHERE livello1 = :livello1 '
-			.   'AND livello2 = :livello2 '
-			.   'AND livello3 = :livello3 '
-			.   "AND livello4 = '' "
-			.   "AND estensione = '' "
-			.   "AND record_cancellabile_dal = '9999-12-31 23:59:59' ";
+		$sql = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		. ' WHERE livello1 = :livello1 '
+		.   'AND livello2 = :livello2 '
+		.   'AND livello3 = :livello3 '
+		.   "AND livello4 = '' "
+		.   "AND estensione = '' "
+		.   "AND record_cancellabile_dal = '".$dbh->get_datetime_forever()."' ";
 		return $sql;
 	}
 
 	if ($livello2 > ''){
-		$sql = 'SELECT * FROM scansioni_disco '
-			. 'WHERE livello1 = :livello1 '
-			.   'AND livello2 = :livello2 '
-			.   "AND livello3 = '' "
-			.   "AND estensione = '' "
-			.   "AND record_cancellabile_dal = '9999-12-31 23:59:59' ";
+		$sql = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		. ' WHERE livello1 = :livello1 '
+		.   'AND livello2 = :livello2 '
+		.   "AND livello3 = '' "
+		.   "AND estensione = '' "
+		.   "AND record_cancellabile_dal = '".$dbh->get_datetime_forever()."' ";
 		return $sql;
 	}
 
-		$sql = 'SELECT * FROM scansioni_disco '
-			. 'WHERE livello1 = :livello1 '
-			.   "AND livello2 = '' "
-			.   "AND estensione = '' "
-			.   "AND record_cancellabile_dal = '9999-12-31 23:59:59' ";
+		$sql = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		. ' WHERE livello1 = :livello1 '
+		.   "AND livello2 = '' "
+		.   "AND estensione = '' "
+		.   "AND record_cancellabile_dal = '".$dbh->get_datetime_forever()."' ";
 	return $sql;
 } // crea_query_cartella()
 
 /**
- * @param array  campi della tabella_scansioni_disco 
- * @return string istruzione SQL per rintracciare eventuali sottocartelle 
+ * @param array  campi della tabella_scansioni_disco
+ * @return string istruzione SQL per rintracciare eventuali sottocartelle
  */
 function crea_query_sottocartelle(array $campi) : string {
 	$livello1 = isset($campi['livello1']) ? $campi['livello1'] : "";
@@ -122,8 +122,8 @@ function crea_query_sottocartelle(array $campi) : string {
 	
 	if ($livello6 > ''){
 		// non è possibile rilevare sottocartelle
-		$sql = 'SELECT * FROM scansioni_disco '
-		. 'WHERE livello1 = :livello1 '
+		$sql = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		. ' WHERE livello1 = :livello1 '
 		.   'AND livello2 = :livello2 '
 		.   'AND livello3 = :livello3 '
 		.   'AND livello4 = :livello4 '
@@ -135,8 +135,8 @@ function crea_query_sottocartelle(array $campi) : string {
 	}
  
 	if ($livello5 > '' AND $livello6 == ''){
-		$sql = 'SELECT * FROM scansioni_disco '
-		. 'WHERE livello1 = :livello1 '
+		$sql = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		. ' WHERE livello1 = :livello1 '
 		.   'AND livello2 = :livello2 '
 		.   'AND livello3 = :livello3 '
 		.   'AND livello4 = :livello4 '
@@ -149,12 +149,12 @@ function crea_query_sottocartelle(array $campi) : string {
 	}
  
 	if ($livello4 > '' AND $livello5 == ''){
-		$sql = 'SELECT * FROM scansioni_disco '
-		. 'WHERE livello1 = :livello1 '
+		$sql = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		. ' WHERE livello1 = :livello1 '
 		.   'AND livello2 = :livello2 '
 		.   'AND livello3 = :livello3 '
 		.   'AND livello4 = :livello4 '
-		.   "AND livello5 > '' " 
+		.   "AND livello5 > '' "
 		.   "AND livello6 = '' "
 		.   "AND estensione = '' "
 		.   "AND record_cancellabile_dal = '9999-12-31 23:59:59' "
@@ -163,11 +163,11 @@ function crea_query_sottocartelle(array $campi) : string {
 	}
 
 	if ($livello3 > '' AND $livello4 == ''){
-		$sql = 'SELECT * FROM scansioni_disco '
-		. 'WHERE livello1 = :livello1 '
+		$sql = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		. ' WHERE livello1 = :livello1 '
 		.   'AND livello2 = :livello2 '
 		.   'AND livello3 = :livello3 '
-		.   "AND livello4 > '' " 
+		.   "AND livello4 > '' "
 		.   "AND livello5 = '' "
 		.   "AND estensione = '' "
 		.   "AND record_cancellabile_dal = '9999-12-31 23:59:59' "
@@ -176,10 +176,10 @@ function crea_query_sottocartelle(array $campi) : string {
 	}
 
 	if ($livello2 > '' AND $livello3 == ''){
-		$sql = 'SELECT * FROM scansioni_disco '
-		. 'WHERE livello1 = :livello1 '
+		$sql = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		. ' WHERE livello1 = :livello1 '
 		.   'AND livello2 = :livello2 '
-		.   "AND livello3 > '' " 
+		.   "AND livello3 > '' "
 		.   "AND livello4 = '' "
 		.   "AND estensione = '' "
 		.   "AND record_cancellabile_dal = '9999-12-31 23:59:59' "
@@ -188,25 +188,26 @@ function crea_query_sottocartelle(array $campi) : string {
 	}
 
 	if ($livello1 > '' AND $livello2 == ''){
-		$sql = 'SELECT * FROM scansioni_disco '
-		. 'WHERE livello1 = :livello1 '
-		.   "AND livello2 > '' " 
-		.   "AND livello3 = '' " 
+		$sql = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		. ' WHERE livello1 = :livello1 '
+		.   "AND livello2 > '' "
+		.   "AND livello3 = '' "
 		.   "AND record_cancellabile_dal = '9999-12-31 23:59:59' "
 		.   "AND estensione = '' "
 		.   'ORDER BY livello2 ';
 		return $sql;
 	}
 
-	$sql = "SELECT * FROM scansioni_disco WHERE livello1 = ''" ;
+	$sql = "SELECT * FROM ' . ScansioniDisco::nome_tabella
+	. ' WHERE livello1 = ''" ;
 	return $sql;
 } // crea_query_sottocartelle()
 
 /**
- * collaudo della funzione - richiamo diretto della pagina 
+ * collaudo della funzione - richiamo diretto della pagina
  * con $_GET['test']="crea_query_sottocartelle"
  */
-if (isset($_GET['test']) && 
+if (isset($_GET['test']) &&
 				 ($_GET['test'] == "crea_query_sottocartelle")){
 	echo "<p style='font-family: monospace;max-width:60rem;'>\n";
 	echo "test: " . __FILE__ . ' ' . "crea_query_sottocartelle"."<br />";
@@ -234,22 +235,22 @@ if (isset($_GET['test']) &&
 
 
 /**
- * Legge la cartella da scansioni_disco 
- * se è presente un album (con altro id ma legato all'id di scansioni_disco) 
+ * Legge la cartella da scansioni_disco
+ * se è presente un album (con altro id ma legato all'id di scansioni_disco)
  * "gira la palla a" leggi_album_per_id
- * 
- * Oppure mostra quanto trovato, cerca le sottocartelle 
- * se è presente un file _leggimi.txt lo mostra come didascalia 
- * 
- * @param int     $scansioni_disco_id 
- * @return string $html_ret 
+ *
+ * Oppure mostra quanto trovato, cerca le sottocartelle
+ * se è presente un file _leggimi.txt lo mostra come didascalia
+ *
+ * @param int     $scansioni_disco_id
+ * @return string $html_ret
  */
 function leggi_cartella_per_id(int $scansioni_disco_id) {
 	$dbh  = New DatabaseHandler(); // nessun parametro dedicato
 	$scan = New ScansioniDisco($dbh);
-	$albh = New Album($dbh);
+	$alb_h = New Album($dbh);
 
-	// verifica record in scansioni_disco 
+	// verifica record in scansioni_disco
 	$scan->set_record_id($scansioni_disco_id);
 	$campi = [];
 	$campi['query'] = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
@@ -267,24 +268,24 @@ function leggi_cartella_per_id(int $scansioni_disco_id) {
 		exit(1);
 	}
 
-	// verifica album già presente, gira a mostrare l'album  
+	// verifica album già presente, gira a mostrare l'album
 	$campi = [];
 	$campi['query'] = 'SELECT record_id FROM album '
-	. 'WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. 'AND record_id_in_scansioni_disco = :record_id_in_scansioni_disco ';
 	$campi['record_cancellabile_dal']      = $dbh->get_datetime_forever();
 	$campi['record_id_in_scansioni_disco'] = $scan->get_record_id();
-	$ret_album = $albh->leggi($campi);
+	$ret_album = $alb_h->leggi($campi);
 	if  (isset($ret_album['ok']) && $ret_album['numero'] > 0){
 		$album_id = $ret_album['data'][0]['record_id'];
-		// si passa la palla 
+		// si passa la palla
 		header('Location: '.URLBASE.'album.php/leggi/'.$album_id);
 		exit(0);
 	}
 	
-	$cartella_radice = $ret['data'][0]; // ret data è sempre array 
-	// no album 
-	// ricerca sottocartelle della cartella trovata 
+	$cartella_radice = $ret['data'][0]; // ret data è sempre array
+	// no album
+	// ricerca sottocartelle della cartella trovata
 	
 	$campi = [];
 	$campi['query'] = crea_query_sottocartelle($cartella_radice);
@@ -312,8 +313,8 @@ function leggi_cartella_per_id(int $scansioni_disco_id) {
 		http_response_code(404);
 		exit("Errore in ricerca sottocartelle" . $ret['message']);
 	}
-	$sottocartelle = $ret['data']; // sottocartelle è sempre array 
-	// dati per view 
+	$sottocartelle = $ret['data']; // sottocartelle è sempre array
+	// dati per view
 	$cartella  =  $cartella_radice['livello1'];
 	$cartella .= ($cartella_radice['livello2']) ? ' / ' . $cartella_radice['livello2'] : "";
 	$cartella .= ($cartella_radice['livello3']) ? ' / ' . $cartella_radice['livello3'] : "";
@@ -321,12 +322,12 @@ function leggi_cartella_per_id(int $scansioni_disco_id) {
 	$cartella .= ($cartella_radice['livello5']) ? ' / ' . $cartella_radice['livello5'] : "";
 	$cartella .= ($cartella_radice['livello6']) ? ' / ' . $cartella_radice['livello6'] : "";
 	
-	/* 
+	/*
 	 Si deve verificare: se nella cartella fisicamente
 		collocata in livello1/livello2/... è presente un file _leggimi.txt
-		e proporlo, in alternativa si può leggere una didascalia 
-		associata alla tabella scansioni disco + id 
-	*/ 
+		e proporlo, in alternativa si può leggere una didascalia
+		associata alla tabella scansioni disco + id
+	*/
 	$leggimi = "";
 	$leggimi_file = '../'.str_replace(' / ', '/', $cartella)."/_leggimi.txt";
 	$leggimi_file = str_replace('+', ' ', $leggimi_file);
@@ -334,20 +335,20 @@ function leggi_cartella_per_id(int $scansioni_disco_id) {
 		$leggimi = file_get_contents($leggimi_file);
 	}
 
-	// Ritorno a /museo.php 
+	// Ritorno a /museo.php
 	$torna_base = URLBASE.'museo.php';
-	$torna_sala = URLBASE.'deposito.php/cartella/'.$cartella_radice['livello1'].'/'; 
+	$torna_sala = URLBASE.'deposito.php/cartella/'.$cartella_radice['livello1'].'/';
 
 	// finito,. si applica e si mostra.
 	require_once(ABSPATH."aa-view/cartelle-sottocartelle-view.php");
 	exit(0);
-} // leggi_cartella_per_id 
+} // leggi_cartella_per_id
 
 /**
  * collaudo della funzione . richiamo diretto della pagina
  */
-if ( isset($_GET['test']) && 
-		 isset($_GET['id'])   && 
+if ( isset($_GET['test']) &&
+		 isset($_GET['id'])   &&
 		 $_GET['test'] == "leggi_cartella_per_id" ){
 	$scansioni_disco_id = (int) $_GET['id'];
 	leggi_cartella_per_id($scansioni_disco_id);
@@ -355,7 +356,7 @@ if ( isset($_GET['test']) &&
 }
 
 /**
- * 
+ *
  */
 function leggi_cartella_per_percorso( string $percorso ){
 	//dbg echo '<p style="font-family:monospace;">input '. __FUNCTION__ .'<br>';
@@ -401,9 +402,9 @@ function leggi_cartella_per_percorso( string $percorso ){
 	//dbg echo 'query: ' . $campi['query'];
 	//dbg echo '</p>';
 
-	// Ritorno a /museo.php 
+	// Ritorno a /museo.php
 	$torna_base = URLBASE.'museo.php';
-	$torna_sala = URLBASE.'deposito.php/cartella/'.$campi['livello1'].'/'; 
+	$torna_sala = URLBASE.'deposito.php/cartella/'.$campi['livello1'].'/';
 
 
 	$dbh  = New DatabaseHandler();
@@ -485,7 +486,7 @@ function leggi_cartella_per_percorso( string $percorso ){
 } // leggi_cartella_per_percorso()
 
 /**
- * collaudo della funzione 
+ * collaudo della funzione
  * https://www.fotomuseoathesis.it/aa-controller/deposito-controller.php?test=leggi_cartella_per_percorso&percorso=/6LOCA/
  */
 if (isset($_GET['test']) &&
@@ -499,14 +500,14 @@ if (isset($_GET['test']) &&
 
 /**
  * verifica_cartella_contiene_album
- * 
- * una volta caricata scansioni_disco con la cartelle 
- * e le fotografie o i video, devo stabilire se c'è già un 
- * album, e se sì finisce lì, oppure se è possibile 
+ *
+ * una volta caricata scansioni_disco con la cartelle
+ * e le fotografie o i video, devo stabilire se c'è già un
+ * album, e se sì finisce lì, oppure se è possibile
  * creare un album
- * 
- * @param  int    $scansioni_id 
- * @return string $ret          'no'|'si'|'da caricare' 
+ *
+ * @param  int    $scansioni_id
+ * @return string $ret          'no'|'si'|'da caricare'
  */
 function verifica_cartella_contiene_album( int $scansioni_id) : string {
 	$dbh    = New DatabaseHandler();
@@ -515,18 +516,18 @@ function verifica_cartella_contiene_album( int $scansioni_id) : string {
 
 	$campi=[];
 	$campi['query'] = 'SELECT 1 FROM album '
-	. 'WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. 'AND record_is_in_scansioni_disco = :record_id_in_scansioni_disco ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 	$campi['record_id_in_scansioni_disco'] = $scansioni_id;
 	$ret_alb = $alb_h->leggi($campi);
 	if  (isset($ret_alb['ok']) && $ret_alb['numero'] > 0){
-		return 'si'; // tutt'apposto
+		return 'si'; // 
 	}
 	// return 'no' oppure 'da caricare' ?
 	$campi = [];
 	$campi['query'] = 'SELECT livello1, livello2, livello3, livello4, '
-	. ' livello5, livello6 FROM scansioni_disco '
+	. ' livello5, livello6 FROM ' . ScansioniDisco::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' and record_id = :record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
@@ -536,9 +537,9 @@ function verifica_cartella_contiene_album( int $scansioni_id) : string {
 		return 'no'; // manca pure scansione_disco
 	}
 	$campi = [];
-	$campi = $ret_scan['data'][0]; // livello1 .. livello6 
+	$campi = $ret_scan['data'][0]; // livello1 .. livello6
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-	$campi['query'] = 'SELECT COUNT(*) AS NFOTO FROM scansioni_disco '
+	$campi['query'] = 'SELECT COUNT(*) AS NFOTO FROM ' . ScansioniDisco::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. " AND nome_file <> '/' "
 	. ' AND livello1 = :livello1  AND livello2 = :livello2 '
@@ -556,11 +557,11 @@ function verifica_cartella_contiene_album( int $scansioni_id) : string {
 }
 
 /**
- * test - id è record_id di scansioni_disco 
+ * test - id è record_id di scansioni_disco
  * https://archivio.athesis77.it/aa-controller/cartelle-controller.php?id=66&test=verifica_cartella_contiene_album
  */
-if (isset($_GET['test']) && 
-		isset($_GET['id'])   && 
+if (isset($_GET['test']) &&
+		isset($_GET['id'])   &&
 		$_GET['test'] == 'verifica_cartella_contiene_album'){
 	echo '<pre style="max-width:50rem;">debug on'."\n";
 	echo verifica_cartella_contiene_album($_GET['id']);
@@ -571,8 +572,8 @@ if (isset($_GET['test']) &&
 
 
 /**
- * Espone un modulo per cambiare la tinta in un record di 
- * cartelle o sottocartelle in scansioni_disco 
+ * Espone un modulo per cambiare la tinta in un record di
+ * cartelle o sottocartelle in scansioni_disco
  */
 function cambia_tinta_record(array $dati_input){
 	if (!isset($dati_input['record_id']) || !isset($dati_input['tabella'])){
@@ -589,7 +590,7 @@ function cambia_tinta_record(array $dati_input){
 		exit(1);
 	}
 	$record_id = (int) $dati_input['record_id'];
-	// necessari - tabella 
+	// necessari - tabella
 	$tabelle_valide=[
 		'scansioni_disco'
 	];
@@ -600,20 +601,20 @@ function cambia_tinta_record(array $dati_input){
 		exit(1);
 	}
 	$tabella = $dati_input['tabella'];
-	// necessari - pagina di ritorno 
+	// necessari - pagina di ritorno
 	if (!isset($dati_input['back']) || $dati_input['back'] === ''){
 		echo "\n".'<p style="font-family:monospace;">';
 		echo "\n"."Errore: la chiamata alla funzione è senza parametri corretti ";
 		echo '<br>back | pagina di ritorno</p>' . PHP_EOL;
 		exit(1);
 	}
-	// per evitare di metterlo doppio prima lo tolgo se c'è poi lo aggiungo 
+	// per evitare di metterlo doppio prima lo tolgo se c'è poi lo aggiungo
 	$return_to = $dati_input['back'];
 	$return_to = URLBASE . str_replace(URLBASE, '', $return_to);
 	$return_to = str_replace('%20', '+', $return_to);
 	$return_to = str_replace(' ', '+', $return_to);
 
-	// Se manca il campo del modulo espongo il modulo 
+	// Se manca il campo del modulo espongo il modulo
 	if (!isset($dati_input['tinta'])){
 		require_once(ABSPATH.'aa-view/cartelle-sottocartelle-tinta.php');
 		exit(0);
@@ -622,10 +623,10 @@ function cambia_tinta_record(array $dati_input){
 	$tinta = $dati_input['tinta'];
 	$tinta = substr(str_replace('#', '', $tinta), 0, 6);
 	$campi=[];
-	$campi['update'] = 'UPDATE ' . $tabella 
+	$campi['update'] = 'UPDATE ' . $tabella
 	. " SET tinta_rgb = '$tinta' "
 	. " WHERE record_cancellabile_dal = '". constant('FUTURO')."' "
-	. " AND record_id = $record_id "; 
+	. " AND record_id = $record_id ";
 	$dbh = new DatabaseHandler();
 	$ret_att=[];
 	switch ($tabella) {
@@ -644,7 +645,7 @@ function cambia_tinta_record(array $dati_input){
 	if (isset($ret_att['error'])){
 		http_response_code(404);
 		$ret = "<p style='font-family:monospace;'>Errore "
-		. "in aggiornamento tinta: " 
+		. "in aggiornamento tinta: "
 		. '<br>'. $ret_att['message'] .'</p>';
 		$_SESSION['messaggio'] = $ret;
 		echo "$ret" . PHP_EOL;
