@@ -239,8 +239,8 @@ Class FotografieDettagli extends DatabaseHandler {
 			. ' ( :record_id_padre, :chiave, :valore, :consultatore_id )  ';
 		}
 		if (isset($campi['record_cancellabile_dal'])){
-			$create = str_ireplace(') V', '  record_cancellabile_dal) V', $create);
-			$create = str_ireplace(')  ', ' :record_cancellabile_dal)  ', $create);
+			$create = str_ireplace(') V', ',  record_cancellabile_dal) V', $create);
+			$create = str_ireplace(')  ', ', :record_cancellabile_dal)  ', $create);
 		}
 
 		// dati obbligatori

@@ -146,7 +146,7 @@ Class ScansioniDisco extends DatabaseHandler {
 	
 	public function set_disco( string $disco ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($disco));
+		$chiave = (strip_tags($disco));
 		$chiave = trim(mb_substr($chiave, 0, 12));
 		$chiave = strtoupper($chiave);
 		if ($chiave == ''){
@@ -158,7 +158,7 @@ Class ScansioniDisco extends DatabaseHandler {
 	
 	public function set_livello1( string $livello1 ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($livello1));
+		$chiave = (strip_tags($livello1));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		if ($chiave == ''){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
@@ -169,42 +169,42 @@ Class ScansioniDisco extends DatabaseHandler {
 	
 	public function set_livello2( string $livello2 ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($livello2));
+		$chiave = (strip_tags($livello2));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		$this->livello2 = $chiave;
 	}
 	
 	public function set_livello3( string $livello3 ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($livello3));
+		$chiave = (strip_tags($livello3));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		$this->livello3 = $chiave;
 	}
 	
 	public function set_livello4( string $livello4 ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($livello4));
+		$chiave = (strip_tags($livello4));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		$this->livello4 = $chiave;
 	}
 	
 	public function set_livello5( string $livello5 ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($livello5));
+		$chiave = (strip_tags($livello5));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		$this->livello5 = $chiave;
 	}
 	
 	public function set_livello6( string $livello6 ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($livello6));
+		$chiave = (strip_tags($livello6));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		$this->livello6 = $chiave;
 	}
 	
 	public function set_nome_file( string $nome_file ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($nome_file));
+		$chiave = (strip_tags($nome_file));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		if ($chiave == ""){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
@@ -215,7 +215,7 @@ Class ScansioniDisco extends DatabaseHandler {
 	
 	public function set_estensione( string $estensione ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($estensione));
+		$chiave = (strip_tags($estensione));
 		$chiave = trim(mb_substr($chiave, 0, 6));
 		$chiave = strtolower($chiave);
 		$this->estensione = $chiave;
@@ -235,7 +235,7 @@ Class ScansioniDisco extends DatabaseHandler {
 	
 	public function set_codice_verifica( string $codice_verifica ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($codice_verifica));
+		$chiave = (strip_tags($codice_verifica));
 		$chiave = trim(mb_substr($codice_verifica, 0, 32));
 		if ($chiave == ""){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 

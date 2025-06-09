@@ -133,14 +133,14 @@ Class Fotografie extends DatabaseHandler {
 	
 	public function set_disco( string $disco ){
 		// ritaglio a misura 
-		$disco = htmlspecialchars(strip_tags($disco));
+		$disco = (strip_tags($disco));
 		$disco = mb_substr($disco, 0, 12);
 		$this->disco = $disco;
 	}
 	
 	public function set_percorso_completo( string $percorso_completo ){
 		// ritaglio a misura 
-		$percorso_completo = htmlspecialchars(strip_tags($percorso_completo));
+		$percorso_completo = (strip_tags($percorso_completo));
 		if ($percorso_completo[0] != '/') { 
 			$percorso_completo = '/'.$percorso_completo; 
 		}

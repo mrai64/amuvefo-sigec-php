@@ -128,7 +128,7 @@ Class AlbumDettagli extends DatabaseHandler {
 	
 	public function set_chiave( string $chiave ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($chiave));
+		$chiave = (strip_tags($chiave));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		if ($chiave == ""){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
@@ -139,7 +139,7 @@ Class AlbumDettagli extends DatabaseHandler {
 	
 	public function set_valore( string $valore ) {
 		// validazione
-		$valore = htmlspecialchars(strip_tags($valore));
+		$valore = (strip_tags($valore));
 		$valore = trim(mb_substr($valore, 0, 250));
 		if ($valore == ""){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 

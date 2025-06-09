@@ -2,43 +2,43 @@
 /**
  * @source /aa-controller/fotografie-controller.php
  * @author Massimo rainato <maxrainato@libero.it>
- * 
+ *
  * FOTOGRAFIE controller
- * 
- * Si occupa delle funzioni che riguardano la tabella fotografie 
- * e fotografie_dettagli 
- * 
- * - carica_fotografie_da_scansioni_disco        $scansioni_id 
- *   legge scansioni_disco scrive album scrive fotografie 
+ *
+ * Si occupa delle funzioni che riguardano la tabella fotografie
+ * e fotografie_dettagli
+ *
+ * - carica_fotografie_da_scansioni_disco        $scansioni_id
+ *   legge scansioni_disco scrive album scrive fotografie
  * - carica_fotografie_da_album                  $album_id
- *   legge scansioni_disco scrive album scrive fotografie 
- * 
- * - leggi_fotografie_per_id 
- *   presenta pagina della fotografia 
+ *   legge scansioni_disco scrive album scrive fotografie
+ *
+ * - leggi_fotografie_per_id
+ *   presenta pagina della fotografia
  * - carica_richiesta_fotografie_per_id
- *   scrive richiesta in richieste 
+ *   scrive richiesta in richieste
  * - leggi_fotografia_precedente
- *   nella pagina fotografia va a cercare la fotografia precedente 
- * - leggi_fotografia_seguente 
+ *   nella pagina fotografia va a cercare la fotografia precedente
+ * - leggi_fotografia_seguente
  *   nella pagina fotografia va a cercare la fotografia seguente
- * 
+ *
  * - aggiungi_fotografie_dettagli_da_modulo
- *   presenta pagina per inserire dettaglio 
- *   aggiunge dettaglio da modulo per inserire dettaglio 
+ *   presenta pagina per inserire dettaglio
+ *   aggiunge dettaglio da modulo per inserire dettaglio
  * - modifica_fotografie_dettagli_da_modulo
- *   aggiorna dettaglio da modulo modifica dettaglio 
- *   se mancano i dati espone il modulo di modifica dettaglio 
+ *   aggiorna dettaglio da modulo modifica dettaglio
+ *   se mancano i dati espone il modulo di modifica dettaglio
  * - elimina_dettaglio_fotografia
- *   cancellazione non fisica del dettaglio 
- * 
+ *   cancellazione non fisica del dettaglio
+ *
  * - carica_fotografie_dettagli
  *   viene richiamata da carica_dettagli_da_fotografia
  *   e in molti alti punti
- * 
+ *
  * - carica_dettagli_da_fotografia            $fotografia_id
  *   rintraccia il file ed estrae dei dettagli in automatico
  *   da inserire in fotografie_dettagli
- * 
+ *
  */
 if (!defined('ABSPATH')){
 	include_once('../_config.php');
@@ -55,24 +55,24 @@ include_once(ABSPATH . 'aa-controller/controller-base.php');
 include_once(ABSPATH . 'aa-controller/carica-dettaglio-libreria.php');
 
 /**
- * CREATE - aggiungi 
- * Fotografie  
- * Legge scansioni_disco scrive fotografie 
+ * CREATE - aggiungi
+ * Fotografie
+ * Legge scansioni_disco scrive fotografie
  * TODO Ma una giornata di lavoro e ...non è usato da nessuno?
  * @param  int   $scansioni_id  id dell'album in scansioni_disco
- * @return array 'ok' + 'message' | 'error' + 'message' 
+ * @return array 'ok' + 'message' | 'error' + 'message'
  */
 function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : array {
 	$dbh    = New DatabaseHandler();
 	$scan_h = New ScansioniDisco($dbh);
 	$alb_h  = New Album($dbh);
 	$foto_h = New Fotografie($dbh);
-	/* 
-	  1. in scansioni_disco cerca scansioni_id 
+	/*
+	  1. in scansioni_disco cerca scansioni_id
 	  2. in album cerca record_id_in_scansioni_disco
 	  3. in scansioni disco cerca le fotografie dentro album
 	  4. mette le fotografie da scansioni_disco in fotografie
-	  5. (manca) mette i video da scansioni_disco in video 
+	  5. (manca) mette i video da scansioni_disco in video
 	 */
 	
 	$titolo_pagina = 'Caricamento fotografia da deposito ' . $scansioni_id;
@@ -83,12 +83,12 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	echo "<p class='text-monospace'>".__FUNCTION__." avvio :<br>"
 	. 'input:'. $scansioni_id.'</p>';
 
-	// verifica id in scansioni_disco 
+	// verifica id in scansioni_disco
 	$ret_scan = $scan_h->get_scansioni_disco_per_id($scansioni_id);
 	if (isset($ret_scan['error'])){
 		echo '<div class="alert alert-danger" role="alert">'
 		. ' Si è verificato un evento bloccante: '
-		. '<br>' . $ret_scan['message'] 
+		. '<br>' . $ret_scan['message']
 		. '<br>STOP'
 		. '</div>';
 		exit(1);
@@ -98,12 +98,12 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	echo '<p class="text-monospace">Scansioni_disco:<br>'
 	. str_ireplace(';', '; ', serialize($ret_scan)).'</p>';
 
-	// lettura in album tramite chiave esterna record_di_in_scansioni_disco 
+	// lettura in album tramite chiave esterna record_di_in_scansioni_disco
 	$ret_alb = $alb_h->get_album_from_scansioni_id($scansioni_id);
 	if ( isset($ret_alb['error'])){
 		echo '<div class="alert alert-danger" role="alert">'
 		. ' Si è verificato un evento bloccante: '
-		. '<br>' . $ret_alb['message'] 
+		. '<br>' . $ret_alb['message']
 		. '<br>STOP'
 		. '</div>';
 		exit(1);
@@ -118,7 +118,7 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	if ( isset($ret_scan['error'])){
 		echo '<div class="alert alert-danger" role="alert">'
 		. ' Si è verificato un evento bloccante: '
-		. '<br>' . $ret_scan['message'] 
+		. '<br>' . $ret_scan['message']
 		. '<br>STOP'
 		. '</div>';
 		exit(1);
@@ -133,7 +133,7 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	$ret['numero'] = 0;
 	$ret['data'] = [];
 	echo '<ol>';
-	for ($i=0; $i < count($ret_scan['data']); $i++) { 
+	for ($i=0; $i < count($ret_scan['data']); $i++) {
 
 		$record_id_in_scansioni_disco = $ret_scan['data'][$i]['record_id'];
 		$ret_foto = $foto_h->get_fotografia_from_scansioni_id($record_id_in_scansioni_disco);
@@ -153,7 +153,7 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 			if ( isset($ret_del['error'])){
 				echo '<div class="alert alert-danger" role="alert">'
 				. ' Si è verificato un evento bloccante: '
-				. '<br>' . $ret_del['message'] 
+				. '<br>' . $ret_del['message']
 				. '<br>STOP'
 				. '</div>';
 				exit(1);
@@ -163,7 +163,7 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 		}
 
 		if (isset($ret_foto['numero']) && $ret_foto['numero'] == 0){
-			// manca si può inserire 
+			// manca si può inserire
 			$fotografia['titolo_fotografia'] = $ret_scan['data'][$i]['nome_file'];
 			$fotografia['percorso_completo'] = $album['percorso_completo'].$fotografia['titolo_fotografia'];
 			$fotografia['record_id_in_scansioni_disco'] = $ret_scan['data'][$i]['record_id'];
@@ -171,19 +171,19 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 			$ret_foto = $foto_h->aggiungi($fotografia);
 			
 			echo '<li style="font-family:monospace">Fotografia:<br>'
-			. str_replace(';', '; ', serialize($ret_foto)).'</li>';	
+			. str_replace(';', '; ', serialize($ret_foto)).'</li>';
 			
 			if (isset($ret_foto['ok'])){
 				$ret['numero']++;
 				$ret['data'][] = $fotografia['titolo_fotografia'];
 			}
-			// cambio stato in tabella scansioni_disco (...) > lavori completati 
+			// cambio stato in tabella scansioni_disco (...) > lavori completati
 			$ret_stato = $scan_h->set_stato_lavori_in_scansioni_disco($fotografia['record_id_in_scansioni_disco'], ScansioniDisco::stato_completati);
 			if (isset($ret_stato['error'])){
 				echo '<div class="alert alert-danger" role="alert">'
 				. ' Si è verificato un evento bloccante: '
-				. '<br>' . $ret_stato['message'] 
-				. '<br>' . str_ireplace(';', '; ', serialize($ret_stato)) 
+				. '<br>' . $ret_stato['message']
+				. '<br>' . str_ireplace(';', '; ', serialize($ret_stato))
 				. '<br>STOP'
 				. '</div>';
 				exit(1);
@@ -193,8 +193,8 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 		if (isset($ret_stato['error'])){
 			echo '<div class="alert alert-danger" role="alert">'
 			. ' Si è verificato un evento bloccante: '
-			. '<br>' . $ret_stato['message'] 
-			. '<br>' . str_ireplace(';', '; ', serialize($ret_stato)) 
+			. '<br>' . $ret_stato['message']
+			. '<br>' . str_ireplace(';', '; ', serialize($ret_stato))
 			. '<br>STOP'
 			. '</div>';
 			exit(1);
@@ -204,22 +204,22 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	}
 	echo '</ol>';
 
-	echo "<p class='text-monospace w75'>" . __FUNCTION__ 
+	echo "<p class='text-monospace w75'>" . __FUNCTION__
 	. " uscita :<br>"
 	. str_replace(';', '; ', serialize($ret)).'</p>';
 
-	return $ret; 
+	return $ret;
 } // carica_fotografie_da_scansioni_disco_con_id
 
 
 
 /**
- * CREATE - aggiungi 
- * Legge album scrive fotografie 
- * 
- * Parte da un album registrato in scansioni_disco 
+ * CREATE - aggiungi
+ * Legge album scrive fotografie
+ *
+ * Parte da un album registrato in scansioni_disco
  * aggiorna album in album
- * aggiorna fotografie in fotografie 
+ * aggiorna fotografie in fotografie
  */
 function carica_fotografie_da_album(int $album_id = 0 ) : array {
 	$dbh    = New DatabaseHandler();
@@ -228,17 +228,17 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 	$scan_h = New ScansioniDisco($dbh);
 	// si possono usare per gli echo le classi bootstrap
 	/**
-	 * 1. check album_id oppure trova il primo da lavorare 
+	 * 1. check album_id oppure trova il primo da lavorare
 	 * 2. da lettura album in album esco con lettura album in scansioni_disco
 	 * 3. lettura fotografie da deposito scansioni_disco
-	 * 
+	 *
 	 */
 
-	// 1. check album id / trova album id 
+	// 1. check album id / trova album id
 	$campi=[];
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 	if ($album_id == 0 ){
-		// prende il primo "da fare" 
+		// prende il primo "da fare"
 		$campi['query']= 'SELECT * FROM ' . Album::nome_tabella
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 		. ' AND stato_lavori = :stato_lavori '
@@ -257,7 +257,7 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 		$ret = [
 			'error'   => true,
 			'message' => 'Non è stato trovato un album da inserire.'
-			. ' campi: ' . str_ireplace(';', '; ', serialize($campi)) 
+			. ' campi: ' . str_ireplace(';', '; ', serialize($campi))
 			. ' ' . $ret_alb['error']
 		];
 		return $ret;
@@ -266,14 +266,14 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 		$ret = [
 			'error'   => true,
 			'message' => 'Non è stato trovato un album da inserire.'
-			. ' campi: ' . str_ireplace(';', '; ', serialize($campi)) 
+			. ' campi: ' . str_ireplace(';', '; ', serialize($campi))
 		];
 		return $ret;
 	}
 	$album    = $ret_alb['data'][0];
 	$album_id = $album['record_id'];
 	
-	// 2. lettura album caricato in scansioni_disco 
+	// 2. lettura album caricato in scansioni_disco
 	$campi=[];
 	$campi['query'] = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
@@ -287,7 +287,7 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 			'error'  => true,
 			'message'=> 'Non è stato trovato un album in scansioni_disco.'
 			. '<br>Errore: ' . $ret_scan['error']
-			. '<br>campi: ' . str_ireplace(';', '; ', serialize($ret_scan)) 
+			. '<br>campi: ' . str_ireplace(';', '; ', serialize($ret_scan))
 		];
 		return $ret;
 	}
@@ -295,15 +295,15 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 		$ret = [
 			'error'  => true,
 			'message'=> 'Non è stato trovato un album in scansioni_disco.'
-			. '<br>campi: ' . str_ireplace(';', '; ', serialize($ret_scan)) 
+			. '<br>campi: ' . str_ireplace(';', '; ', serialize($ret_scan))
 		];
 		return $ret;
 	}
 	// $album album in album
 	$album_in_scansioni = $ret_scan['data'][0];
 
-	// 3. fotografie dell'album in deposito  
-	// Tutte quelle che non sono cartella e hanno 
+	// 3. fotografie dell'album in deposito
+	// Tutte quelle che non sono cartella e hanno
 	//   gli stessi livelli della cartella, inserite dopo la cartella
 	$campi=[];
 	$campi['query']= 'SELECT * FROM ' . ScansioniDisco::nome_tabella
@@ -328,7 +328,7 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 			'error'  => true,
 			'message'=> __FUNCTION__ . ' ' . __LINE__
 			. '<br>' . $ret_scan['error']
-			. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi)) 
+			. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
 		];
 		return $ret;
 	}
@@ -336,31 +336,31 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 		$ret = [
 			'ok'     => true,
 			'message'=> "Non ci sono fotografie per l'album in scansioni_disco. "
-			. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi)) 
+			. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
 		];
 		return $ret;
 	}
-	// vai di loop 
+	// vai di loop
 	$elenco_nomi_file=[];
-	$fotografie_in_scansioni = $ret_scan['data']; 	
+	$fotografie_in_scansioni = $ret_scan['data'];
 
 	$new_foto=[];
 	$new_foto['disco']             =$album_in_scansioni['disco'];
 	$new_foto['record_id_in_album']=$album_id;
-	// ret     generale dei dati della funzione 
-	// ret_foto_old del vecchio record 
-	// ret_foto_new del nuovo record 
+	// ret     generale dei dati della funzione
+	// ret_foto_old del vecchio record
+	// ret_foto_new del nuovo record
 	$ret=[];
 	$ret['data']=[];
 	$ret_numero=0;
-	for ($i=0; $i < count($fotografie_in_scansioni); $i++) { 
-		// alternativa per sgamare doppioni 
+	for ($i=0; $i < count($fotografie_in_scansioni); $i++) {
+		// alternativa per sgamare doppioni
 		if ( in_array( $fotografie_in_scansioni[$i]['nome_file'], $elenco_nomi_file)){
 			continue;
 		}
 		$elenco_nomi_file[]=$fotografie_in_scansioni[$i]['nome_file'];
 
-		// Prima verificare se in fotografie la fotografia c'è già 
+		// Prima verificare se in fotografie la fotografia c'è già
 		$campi = [];
 		$campi['query'] = 'SELECT * FROM ' . Fotografie::nome_tabella
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
@@ -373,13 +373,13 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 		$ret_foto_old = $foto_h->leggi($campi);
 		if (isset($ret_foto_old['error'])){
 			return $ret_foto_old;
-		}	
+		}
 		
 		$ret_numero++;
 		// Aggiungo se manca!
 		if ($ret_foto_old['numero'] < 1){
 			// titolo fotografia di partenza è il nome file senza estensione
-			// Qualora serva si può modificare aggiungendo lettere accentate e anche emoji 
+			// Qualora serva si può modificare aggiungendo lettere accentate e anche emoji
 			$new_foto['titolo_fotografia'] = $fotografie_in_scansioni[$i]['nome_file'];
 			$new_foto['titolo_fotografia'] = str_ireplace('.'.$fotografie_in_scansioni[$i]['estensione'], '', $new_foto['titolo_fotografia'] );
 			$new_foto['titolo_fotografia'] = trim($new_foto['titolo_fotografia'] );
@@ -395,9 +395,9 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 			}
 			$ret['data'][]=$ret_numero .' '.$new_foto['titolo_fotografia'];
 		}
-		// Se c'è aggiorno lo stato_lavori della fotografia 
-		// così è come se lo avessi inserito nuovo 
-		// l'aggiornamento del record_id_in_scansioni_disco è temporaneo 
+		// Se c'è aggiorno lo stato_lavori della fotografia
+		// così è come se lo avessi inserito nuovo
+		// l'aggiornamento del record_id_in_scansioni_disco è temporaneo
 		if ($ret_foto_old['numero'] > 0 ){
 			$campi=[];
 			$campi['update'] = 'UPDATE ' . Fotografie::nome_tabella
@@ -422,15 +422,15 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 
 
 /**
- * LEGGI 
+ * LEGGI
  */
 function leggi_fotografie_per_id( int $fotografia_id){
 	$dbh    = New DatabaseHandler();
 	$foto_h = New Fotografie($dbh);
-	$fdet_h = New FotografieDettagli($dbh); 
-	$dida_h = New Didascalie($dbh); 
+	$fdet_h = New FotografieDettagli($dbh);
+	$dida_h = New Didascalie($dbh);
 
-	// 
+	//
 	$ret_foto = $foto_h->get_fotografia_from_id($fotografia_id);
 	if (isset($ret_foto['error']) ){
 		echo '<pre style="color: red;">Fotografia non trovata</pre>';
@@ -439,7 +439,7 @@ function leggi_fotografie_per_id( int $fotografia_id){
 	}
 	$fotografia      = $ret_foto['record']; // è sempre un array
 
-	// facile ma consente scarico facile del file dell'immagine 
+	// facile ma consente scarico facile del file dell'immagine
 	// $fotografia_src  = urldecode($fotografia['percorso_completo']);
 	
 	// converte il file in un flusso dati che viene dichiarato immagine ed è privo di nome file,
@@ -454,12 +454,12 @@ function leggi_fotografie_per_id( int $fotografia_id){
 	if (is_file($fotografia_jpg)){
 		$fotografia_src = $fotografia_jpg;
 	}
-	$fotografia_src  = 'data:image/jpeg;base64,'.base64_encode(file_get_contents($fotografia_src));	
+	$fotografia_src  = 'data:image/jpeg;base64,'.base64_encode(file_get_contents($fotografia_src));
 
 	$torna_all_album = URLBASE . 'album.php/leggi/'           . $fotografia['record_id_in_album'];
 	$foto_precedente = URLBASE . 'fotografie.php/precedente/' . $fotografia['record_id'];
 	$foto_seguente   = URLBASE . 'fotografie.php/seguente/'   . $fotografia['record_id'];
-	// siete in ... 
+	// siete in ...
 	$siete_in = $fotografia['percorso_completo'];
 	$siete_in = dirname($siete_in);
 	$siete_in = str_replace('/', ' / ', $siete_in);
@@ -467,7 +467,7 @@ function leggi_fotografie_per_id( int $fotografia_id){
 	$richiesta_originali = '#solalettura';
 	$aggiungi_dettaglio  = '#solalettura';
 	if (get_set_abilitazione() > SOLALETTURA ){
-		$richiesta_originali = URLBASE . 'fotografie.php/richiesta/' . $fotografia['record_id'] 
+		$richiesta_originali = URLBASE . 'fotografie.php/richiesta/' . $fotografia['record_id']
 		. '?return_to=' . urlencode($_SERVER['REQUEST_URI']); // TODO vedi /01-scansioni-disco_richiesta.php come esempio
 		
 		$aggiungi_dettaglio  = URLBASE . 'fotografie.php/carica-dettaglio/' . $fotografia['record_id'];
@@ -477,12 +477,12 @@ function leggi_fotografie_per_id( int $fotografia_id){
 	 * didascalia della fotografia
 	 * 1. cerca se è presente un file sidecar
 	 *    trovato: lo carica in tabella didascalie ed espone
-	 * 2. cerca se è presente un record in tabella didascalie 
-	 * 
-	 * Nota: il contenuto della didascalia si chiama leggimi, 
+	 * 2. cerca se è presente un record in tabella didascalie
+	 *
+	 * Nota: il contenuto della didascalia si chiama leggimi,
 	 * perché nel caricamento delle cartelle viene inserito
 	 * un file _leggimi.txt con la descrizione del contenuto
-	 * della cartella-album. "didascalia" viene riservato al 
+	 * della cartella-album. "didascalia" viene riservato al
 	 * record della tabella didascalie, che contiene una colonna
 	 * didascalia.
 	 */
@@ -493,7 +493,7 @@ function leggi_fotografie_per_id( int $fotografia_id){
 	$leggimi_file = str_replace('+', ' ', $leggimi_file);
 	// verifica se esiste il file sidecar, e si passa il nomefile della fotografia
 	$ret_dida = $dida_h->recupera_didascalia($leggimi_file);
-	// se torna qualcosa si va a inserire in tabella didascalie 
+	// se torna qualcosa si va a inserire in tabella didascalie
 	if (isset($ret_dida['ok'])){
 		$campi=[];
 		$campi['tabella_padre']  = 'fotografie';
@@ -507,7 +507,7 @@ function leggi_fotografie_per_id( int $fotografia_id){
 			. '</p>';
 			exit(1);
 		}
-		// inserito in didascalie 
+		// inserito in didascalie
 		$didascalia_id = $ret_ins_dida['record_id'];
 		$leggimi       = $ret_dida['data'][0]['didascalia'];
 		// inserito in didascalie, si elimina il file sidecar txt
@@ -521,7 +521,7 @@ function leggi_fotografie_per_id( int $fotografia_id){
 		}
 	}
 	$ret_dida=[];
-	// Si cerca se c'è in didascalie 
+	// Si cerca se c'è in didascalie
 	if ($didascalia_id == 0){
 		$campi=[];
 		$campi['tabella_padre']          = 'fotografie';
@@ -547,7 +547,7 @@ function leggi_fotografie_per_id( int $fotografia_id){
 		}
 	} // lettura didascalia_id e leggimi dalla tabella didascalie
 
-	// dettagli 
+	// dettagli
 	$campi=[];
 	$campi['query'] = 'SELECT * FROM ' . FotografieDettagli::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
@@ -565,37 +565,37 @@ function leggi_fotografie_per_id( int $fotografia_id){
 
 
 /**
- * test 
+ * test
  * 1. https://archivio.athesis77.it/aa-controller/fotografie-controller.php?id=1111&test=leggi_fotografie_per_id
  * atteso: 'fotografia non trovata' (almeno per un po')
- * 
+ *
  * 2. https://archivio.athesis77.it/aa-controller/fotografie-controller.php?id=20&test=leggi_fotografie_per_id
- * atteso: trova la fotografia 
- *  
-		if (isset($_GET['test']) && 
-				isset($_GET['id'])   && 
+ * atteso: trova la fotografia
+ *
+		if (isset($_GET['test']) &&
+				isset($_GET['id'])   &&
 				$_GET['test'] == 'leggi_fotografie_per_id'){
 			//dbg echo '<pre style="max-width:50rem;">'."\n";
 			//dbg echo 'test leggi_fotografie_per_id'."\n";
 			leggi_fotografie_per_id($_GET['id']);
 			//dbg echo 'fine'."\n";
 		}
- * 
- * 
+ *
+ *
  */
 
 /**
- * 
- * @param  int  $fotografia_id 
- * @return bool richiesta inserita 
- * TODO return ret array 'ok' + message | 'error' + message 
+ *
+ * @param  int  $fotografia_id
+ * @return bool richiesta inserita
+ * TODO return ret array 'ok' + message | 'error' + message
  */
 function carica_richiesta_fotografie_per_id( int $fotografia_id) : bool {
 	$dbh    = New DatabaseHandler();
 	$foto_h = New Fotografie($dbh);
 	$ric_h  = New Richieste($dbh);
 
-	// 
+	//
 	$foto_h->set_record_id($fotografia_id); // fa anche validazione
 	$campi=[];
 	$campi['query']= 'SELECT * from ' . Fotografie::nome_tabella
@@ -625,7 +625,7 @@ function carica_richiesta_fotografie_per_id( int $fotografia_id) : bool {
 		$_SESSION['messaggio'] = 'Richiesta non inserita '
 		. 'per errore ' . $ret_ric['message'];
 		return false;
-	}  
+	}
 
 	$_SESSION['messaggio'] = 'Richiesta inserita di questa foto per '. $_COOKIE['consultatore'];
 	return true;
@@ -633,23 +633,23 @@ function carica_richiesta_fotografie_per_id( int $fotografia_id) : bool {
 
 
 /**
- * test 
+ * test
  * 1. https://archivio.athesis77.it/aa-controller/fotografie-controller.php?id=3&test=carica_richiesta_fotografie_per_id
- * 
- * 
-		if (isset($_GET['test']) && 
-				isset($_GET['id'])   && 
+ *
+ *
+		if (isset($_GET['test']) &&
+				isset($_GET['id'])   &&
 				$_GET['test'] == 'carica_richiesta_fotografie_per_id'){
-			//dbg 
+			//dbg
 			echo '<pre style="max-width:50rem;">'."\n";
-			//dbg 
+			//dbg
 			echo 'test carica_richiesta_fotografie_per_id'."\n";
 			carica_richiesta_fotografie_per_id($_GET['id']);
 			echo $_SESSION['messaggio'];
 			//dbg echo 'fine'."\n";
 		}
- * 
- * 
+ *
+ *
  */
 
 
@@ -658,10 +658,10 @@ function carica_richiesta_fotografie_per_id( int $fotografia_id) : bool {
  */
 
 /**
- * Se la foto è la prima dell'album resta la foto di partenza 
- * 
- * @param  int $fotografia_id 
- * @return int $fotografia_precedente | fotografie_id 
+ * Se la foto è la prima dell'album resta la foto di partenza
+ *
+ * @param  int $fotografia_id
+ * @return int $fotografia_precedente | fotografia_id
  */
 function leggi_fotografia_precedente( int $fotografia_id) : int {
 	$dbh    = New DatabaseHandler();
@@ -682,8 +682,8 @@ function leggi_fotografia_precedente( int $fotografia_id) : int {
 	//dbg echo var_dump($ret_foto);
 	$fotografia=$ret_foto['data'][0];
 	
-	// l'ordinamento è quello in uso nella funzione 
-	// leggi_album_per_id dentro album-controller.php 
+	// l'ordinamento è quello in uso nella funzione
+	// leggi_album_per_id dentro album-controller.php
 	$campi=[];
 	$campi['query'] = 'SELECT * FROM ' . Fotografie::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
@@ -710,10 +710,10 @@ function leggi_fotografia_precedente( int $fotografia_id) : int {
  */
 
 /**
- * Se la foto è l'ultima dell'album, resta la foto di partenza 
- * 
- * @param  int $fotografia_id 
- * @return int $fotografia_seguente 
+ * Se la foto è l'ultima dell'album, resta la foto di partenza
+ *
+ * @param  int $fotografia_id
+ * @return int $fotografia_seguente
  */
 function leggi_fotografia_seguente( int $fotografia_id ) : int {
 	$dbh    = New DatabaseHandler();
@@ -734,8 +734,8 @@ function leggi_fotografia_seguente( int $fotografia_id ) : int {
 	//dbg echo var_dump($ret_foto);
 	$fotografia=$ret_foto['data'][0];
 
-	// l'ordinamento è quello in uso nella funzione 
-	// leggi_album_per_id dentro album-controller.php 
+	// l'ordinamento è quello in uso nella funzione
+	// leggi_album_per_id dentro album-controller.php
 	$campi=[];
 	$campi['query'] = 'SELECT * FROM ' . Fotografie::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
@@ -751,24 +751,24 @@ function leggi_fotografia_seguente( int $fotografia_id ) : int {
 		return $fotografia_id;
 	}
 	$seguente = $ret_foto['data'][0];
-	return $seguente['record_id']; 
+	return $seguente['record_id'];
 } // leggi_fotografia_seguente
 
 
 
 /**
- * Aggiorna dettaglio fotografia 
- * Se per la modifica del dettaglio mancano i dati input 
- * espone il modulo altrimenti esegue l'aggiornamento 
- * In caso di errore 
- *  
- * @param   int $dettaglio_id 
+ * Aggiorna dettaglio fotografia
+ * Se per la modifica del dettaglio mancano i dati input
+ * espone il modulo altrimenti esegue l'aggiornamento
+ * In caso di errore
+ *
+ * @param   int $dettaglio_id
  * @param array $dati_input
- * @return 'ok' + aggiornato | 'error' + message 
+ * @return 'ok' + aggiornato | 'error' + message
  */
 function modifica_fotografie_dettagli_da_modulo(int $dettaglio_id = 0 , array $dati_input = []) : array {
 	$dbh    = New DatabaseHandler();
-	$fdet_h = New FotografieDettagli($dbh); 
+	$fdet_h = New FotografieDettagli($dbh);
 
 	$titolo_pagina = 'Aggiornamento dettaglio fotografia ' . $dettaglio_id;
 	$inizio_pagina = file_get_contents(ABSPATH.'aa-view/reload-5sec-view.php');
@@ -778,8 +778,8 @@ function modifica_fotografie_dettagli_da_modulo(int $dettaglio_id = 0 , array $d
 	$ret_det = $fdet_h->get_fotografie_dettagli_per_id( $dettaglio_id );
 	if (isset($ret_det['error'])){
 		$ret = [
-			'error' => true, 
-			'message' => __FILE__ . ' ' . __FUNCTION__ 
+			'error' => true,
+			'message' => __FILE__ . ' ' . __FUNCTION__
 			. ' Non è stato possibile modificare il dettaglio '
 			. ' id: ' . $dettaglio_id
 		];
@@ -788,17 +788,18 @@ function modifica_fotografie_dettagli_da_modulo(int $dettaglio_id = 0 , array $d
 		return $ret;
 	}
 	$dettaglio = $ret_det['record'];
-	// se i dati del modulo mancano passo a mostrare il modulo 
+	// se i dati del modulo mancano passo a mostrare il modulo
 	if (!isset($dati_input['aggiorna_dettaglio'])){
-		// per la View 
+		// per la View
 		$leggi_fotografia   = URLBASE . 'fotografie.php/leggi/'.$dettaglio['record_id_padre'];
 		$aggiorna_dettaglio = URLBASE . 'fotografie.php/aggiorna_dettaglio/'.$dettaglio['record_id'];
 		$record_id     = $dettaglio['record_id'];
 		$fotografia_id = $dettaglio['record_id_padre'];
+		$fotografie_id = $dettaglio['record_id_padre'];
 		require_once( ABSPATH . 'aa-view/dettaglio-foto-modifica-view.php');
-		exit(0); 
+		exit(0);
 	}
-	// Ma devo aggiornare quello che c'era già ? 
+	// Ma devo aggiornare quello che c'era già ?
 	if (strcmp($dettaglio['valore'], $dati_input['valore']) == 0){
 		$ret = [
 			'ok'     => true,
@@ -808,7 +809,7 @@ function modifica_fotografie_dettagli_da_modulo(int $dettaglio_id = 0 , array $d
 		echo "\n".'<p class="alert alert-warning" role="alert">'.$ret['message'].'</p>';
 		return $ret;
 	}
-	// inserisco il record vecchio - già cancellato a uso backup 
+	// inserisco il record vecchio - già cancellato a uso backup
 	$dettaglio['record_cancellabile_dal'] = $dbh->get_datetime_now();
 	$ret_bak = $fdet_h->aggiungi($dettaglio);
 	if (isset($ret_bak['error'])){
@@ -832,8 +833,8 @@ function modifica_fotografie_dettagli_da_modulo(int $dettaglio_id = 0 , array $d
 		echo $inizio_pagina;
 		echo "\n".'<p class="alert alert-warning" role="alert">'.$ret_mod['message'].'</p>';
 		$ret = [
-			'error' => true, 
-			'message' => __FILE__ . ' ' . __FUNCTION__ 
+			'error' => true,
+			'message' => __FILE__ . ' ' . __FUNCTION__
 			. ' Non è stato possibile modificare il dettaglio '
 			. ' id: ' . $dettaglio_id
 		];
@@ -846,12 +847,12 @@ function modifica_fotografie_dettagli_da_modulo(int $dettaglio_id = 0 , array $d
 
 
 /**
- * @param  int  $dettaglio_id 
- * @return void 
+ * @param  int  $dettaglio_id
+ * @return void
  */
 function elimina_dettaglio_fotografia( int $dettaglio_id){
 	$dbh    = New DatabaseHandler();
-	$fdet_h = New FotografieDettagli($dbh); 
+	$fdet_h = New FotografieDettagli($dbh);
 	
 	$campi=[];
 	$campi['query'] = 'SELECT * from ' . FotografieDettagli::nome_tabella
@@ -862,8 +863,8 @@ function elimina_dettaglio_fotografia( int $dettaglio_id){
 	$ret_det = $fdet_h->leggi($campi);
 	if ( isset($ret_det['error']) || $ret_det['numero'] == 0){
 		$ret = [
-			'error' => true, 
-			'message' => __FILE__ . ' ' . __FUNCTION__ 
+			'error' => true,
+			'message' => __FILE__ . ' ' . __FUNCTION__
 			. ' Non è stato possibile modificare il dettaglio '
 			. ' per ' . $ret_det['error']
 			. ' campi: ' . str_ireplace(';', '; ', serialize($campi))
@@ -882,8 +883,8 @@ function elimina_dettaglio_fotografia( int $dettaglio_id){
 	$ret_mod = $fdet_h->modifica($campi);
 	if ( isset($ret_det['error']) || $ret_det['numero'] == 0){
 		$ret = [
-			'error' => true, 
-			'message' => __FILE__ . ' ' . __FUNCTION__ 
+			'error' => true,
+			'message' => __FILE__ . ' ' . __FUNCTION__
 			. ' Non è stato possibile modificare il dettaglio '
 			. ' per ' . $ret_det['error']
 			. ' campi: ' . str_ireplace(';', '; ', serialize($campi))
@@ -891,16 +892,16 @@ function elimina_dettaglio_fotografia( int $dettaglio_id){
 		echo var_dump($ret);
 		exit(0);
 	}
-	// torniamo alla scheda fotografia 
+	// torniamo alla scheda fotografia
 	leggi_fotografie_per_id($dettaglio['record_id_padre']);
-	exit(0);  
+	exit(0);
 } // elimina_dettaglio_fotografia()
 
 
 /**
- * CREATE - aggiungi 
- * Aggiunge dettaglio da modulo via dati_input 
- * 
+ * CREATE - aggiungi
+ * Aggiunge dettaglio da modulo via dati_input
+ *
  * @param   int $fotografia_id
  * @param array $dati_input
  */
@@ -910,7 +911,7 @@ function aggiungi_fotografie_dettagli_da_modulo(int $fotografia_id, ?array $dati
 	$fdet_h = New FotografieDettagli($dbh);
 	$chi_h  = New Chiavi($dbh);
 
-	// 1. Recupera la fotografia e se manca ferma tutto 
+	// 1. Recupera la fotografia e se manca ferma tutto
 	$ret_foto = $foto_h->get_fotografia_from_id($fotografia_id);
 	if (isset($ret_foto['error'])){
 		$ret = '<h2>Errore</h2>'
@@ -922,11 +923,11 @@ function aggiungi_fotografie_dettagli_da_modulo(int $fotografia_id, ?array $dati
 	$fotografia=$ret_foto['record'];
 
 	
-	// Manca $dati_input - presento modulo 
-	if (!isset($dati_input['aggiungi_dettaglio'])) {    
+	// Manca $dati_input - presento modulo
+	if (!isset($dati_input['aggiungi_dettaglio'])) {
 		$_SESSION['messaggio'] = "Aggiungi il dettaglio chiave+valore scegliendo la chiave tra quelle "
 		. "disponibili, consulta il manuale in caso di dubbi.";
-		// per le View 
+		// per le View
 		$record_id = 0;
 		$fotografia_id = $fotografia['record_id'];
 		$option_list_chiave = $chi_h->get_chiavi_option_list();
@@ -935,10 +936,10 @@ function aggiungi_fotografie_dettagli_da_modulo(int $fotografia_id, ?array $dati
 		$aggiungi_dettaglio = URLBASE.'fotografie.php/aggiungi-dettaglio/'.$fotografia['record_id'];
 
 		require_once( ABSPATH . 'aa-view/dettaglio-foto-aggiungi-view.php');
-		exit(0); 
+		exit(0);
 	}
 
-	// inserimento dettaglio 
+	// inserimento dettaglio
 	$fdet_h->set_record_id_padre($fotografia_id);
 	$fdet_h->set_chiave($dati_input['chiave']);
 	$fdet_h->set_valore($dati_input['valore']);
@@ -951,36 +952,36 @@ function aggiungi_fotografie_dettagli_da_modulo(int $fotografia_id, ?array $dati
 	if (isset($ret_det['error'])){
 		$_SESSION['messaggio'] = "Non è stato possibile aggiungere il dettaglio.<br><pre>".$ret_det['message'].'</pre>';
 		require_once( ABSPATH . 'aa-view/dettaglio-foto-aggiungi-view.php');
-		exit(0); 
+		exit(0);
 	}
 
-	// torniamo alla scheda fotografia 
+	// torniamo alla scheda fotografia
 	leggi_fotografie_per_id($fotografia_id);
-	exit(0);  
+	exit(0);
 } // aggiungi_fotografie_dettagli_da_modulo
 
 
 /**
  * CREATE - aggiungi
- * Aggiunge un record alla tabella fotografie_dettagli 
- * 
- * 3 parametri per eseguire un compito ripetitivo 
+ * Aggiunge un record alla tabella fotografie_dettagli
+ *
+ * 3 parametri per eseguire un compito ripetitivo
  * chiamare FotografieDettagli->aggiungi()
- * Aggiornamento: aggiunta lettura Chiavi per stabilire se sia un parametro ripetibile 
- * Aggiunto cancellazione eventuali dettagli gia presenti  
- * Inserimento del dettaglio 
- *  
- * @param  int    $fotografia_id 
+ * Aggiornamento: aggiunta lettura Chiavi per stabilire se sia un parametro ripetibile
+ * Aggiunto cancellazione eventuali dettagli gia presenti
+ * Inserimento del dettaglio
+ *
+ * @param  int    $fotografia_id
  * @param  string $chiave
- * @param  string $valore 
- * @return array  $ret 'ok' + carico effettuato | 'error' + message 
+ * @param  string $valore
+ * @return array  $ret 'ok' + carico effettuato | 'error' + message
  */
 function carica_fotografie_dettagli(int $fotografia_id, string $chiave, string $valore) : array {
-	$dbh    = New DatabaseHandler(); // verificare se funziona global 
+	$dbh    = New DatabaseHandler(); // verificare se funziona global
 	$fdet_h = New FotografieDettagli($dbh);
 	$chi_h  = New Chiavi($dbh);
 
-	// 1. check chiave 
+	// 1. check chiave
 	$ret_chi = $chi_h->get_chiave_record_per_chiave($chiave);
 	if (isset($ret_chi['error'])){
 		$ret = '<h2>Errore</h2>'
@@ -990,7 +991,7 @@ function carica_fotografie_dettagli(int $fotografia_id, string $chiave, string $
 		echo $ret;
 		return $ret_chi;
 	}
-	// La chiave c'è, 
+	// La chiave c'è,
 	if ($ret_chi['record']['unico'] == 'unico'){
 		// 2. se dettaglio "unico" cancello quelli che fossero già presenti
 		$fdet_h->set_record_id_padre($fotografia_id);
@@ -998,7 +999,7 @@ function carica_fotografie_dettagli(int $fotografia_id, string $chiave, string $
 		$campi['update'] = 'UPDATE ' . FotografieDettagli::nome_tabella
 		. ' SET record_cancellabile_dal = :record_cancellabile_dal '
 		. ' WHERE record_id_padre = :record_id_padre '
-		. ' AND chiave = :chiave ' 
+		. ' AND chiave = :chiave '
 		. " AND record_cancellabile_dal = '9999-12-31 23:59:59' ";
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_now();
 		$campi['record_id_padre'] = $fdet_h->get_record_id_padre();
@@ -1012,7 +1013,7 @@ function carica_fotografie_dettagli(int $fotografia_id, string $chiave, string $
 			echo $ret;
 			return $ret_upd;
 		}
-		// se ne aggiorna zero va ben lo stesso 
+		// se ne aggiorna zero va ben lo stesso
 	}
 	// 3. aggiungo o inserisco dettaglio
 	$fdet_h->set_record_id_padre($fotografia_id);
@@ -1033,26 +1034,26 @@ function carica_fotografie_dettagli(int $fotografia_id, string $chiave, string $
 		$aggiunti[]= $campi['chiave'].': '.$campi['valore'];
 	}
 	return $ret_det;
-} // carica_fotografie_dettagli 
+} // carica_fotografie_dettagli
 
 /**
- * Questa funzione carica i dettagli man mano che vengono individuati 
- * l'alternativa può essere raccogliere tutti i dettagli ed eseguire 
+ * Questa funzione carica i dettagli man mano che vengono individuati
+ * l'alternativa può essere raccogliere tutti i dettagli ed eseguire
  * un loop di insert con eventuale rollBack
- * 
- * @param  int  $fotografia_id 
- * @return void | echo html messages 
- * 
+ *
+ * @param  int  $fotografia_id
+ * @return void | echo html messages
+ *
  * @see https://exiftool.org/TagNames/EXIF.html
- * 
+ *
  *  @see https://www.php.net/manual/en/function.iptcparse.php
- * 
- * 
+ *
+ *
  *  '2#005'=>'DocumentTitle',
  *  '2#010'=>'Urgency',
  *  '2#015'=>'Category',
  *  '2#020'=>'Subcategories',
- *  '2#025'=>'Keywords', 
+ *  '2#025'=>'Keywords',
  *  '2#040'=>'SpecialInstructions',
  *  '2#055'=>'CreationDate',
  *  '2#080'=>'AuthorByline',
@@ -1067,26 +1068,26 @@ function carica_fotografie_dettagli(int $fotografia_id, string $chiave, string $
  *  '2#116'=>'Copyright',
  *  '2#120'=>'Caption',
  *  '2#122'=>'CaptionWriter'
- *  
+ *
  *  Keywords:
  *  $iptc["2#025"][n];   (there is a list of keywords)
- *  
+ *
  *  Caption Writer:
  *  $iptc["2#122"][0];
  *
- *  Possono essere codificati UTF8 
+ *  Possono essere codificati UTF8
  */
 function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	$dbh    = New DatabaseHandler();
 	$foto_h = New Fotografie($dbh);
-	$fdet_h = New FotografieDettagli($dbh); 
+	$fdet_h = New FotografieDettagli($dbh);
 	$aggiunti=[];
 	$larghezza=0;
 	$altezza=0;
 	$data_evento_prima = '1880-01-01';
 
 	if ($fotografia_id == 0 ){
-		// cerca una non lavorata 
+		// cerca una non lavorata
 		$campi=[];
 		$campi['query'] = 'SELECT * FROM ' . Fotografie::nome_tabella
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
@@ -1104,12 +1105,12 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 		. ' AND record_id = :record_id ';
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-		$campi['record_id'] = $foto_h->get_record_id(); 		
-	}	
-	// esegui ricerca 
+		$campi['record_id'] = $foto_h->get_record_id();
+	}
+	// esegui ricerca
 	$ret_foto = $foto_h->leggi($campi);
 	if (isset($ret_foto['error'])){
-		$ret = '<h2 style="font-family:monospace;">Errore </h2>' 
+		$ret = '<h2 style="font-family:monospace;">Errore </h2>'
 		. '<p style="font-family:monospace;">Non è stato possibile rintracciare la fotografia indicata.'
 		. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
 		. '<br>' .$ret_foto['message'];
@@ -1118,14 +1119,14 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		exit(1);
 	}
 	if (($fotografia_id == 0) && ($ret_foto['numero'] == 0) ){
-		$ret = '<h2 style="font-family:monospace;">avviso</h2>' 
+		$ret = '<h2 style="font-family:monospace;">avviso</h2>'
 		. '<p>FINE / Non sono state rintracciare fotografie da elaborare.</p>';
 		http_response_code(200);
 		echo $ret;
 		exit(0);
 	}
 	if ($ret_foto['numero'] == 0 ){
-		$ret = '<h2 style="font-family:monospace;">Errore </h2>' 
+		$ret = '<h2 style="font-family:monospace;">Errore </h2>'
 		. '<p style="font-family:monospace;">Non è stato possibile rintracciare la fotografia indicata.'
 		. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
 		. '<br>ret: ' . str_ireplace(';', '; ', serialize($ret_foto));
@@ -1141,19 +1142,19 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	$foto_file = str_replace('//', '/', ABSPATH.$foto_file);
 
 	/**
-	 * restart pagina web dopo 5 secondi
+	 * Espone pagina
 	 */
 	$titolo_pagina = 'Caricamento dettagli | Foto Singola';
 	$inizio_pagina = file_get_contents(ABSPATH.'aa-view/reload-5sec-view.php');
 	$inizio_pagina = str_ireplace('<?=$titolo_pagina; ?>', $titolo_pagina, $inizio_pagina);
 	echo $inizio_pagina;
-	// si possono usare le classi di bootstrap 
+	// si possono usare le classi di bootstrap
 
 	echo '<p style="font-family:monospace;">'
-	. 'Elaborazione fotografia, id:' . $fotografia_id 
+	. 'Elaborazione fotografia, id:' . $fotografia_id
 	. '<br>file: "' . $foto_file . '".</p>';
 
-	// cambio stato in fotografie (...) > lavori in corso 
+	// cambio stato in fotografie (...) > lavori in corso
 	$ret_stato = $foto_h->set_stato_lavori_in_fotografie($fotografia_id, Fotografie::stato_in_corso);
 	if (isset($ret_stato['error'])){
 		$ret = '<h2>Errore</h2>'
@@ -1164,7 +1165,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	
 	// manca il file? Non lo aggiungo, e pure tolgo il record dalle fotografie
 	if (!is_file($foto_file)){
-		// cambio stato in fotografie (...) > lavori terminati 
+		// cambio stato in fotografie (...) > lavori terminati
 		$ret_stato = $foto_h->set_stato_lavori_in_fotografie($fotografia_id, Fotografie::stato_completati);
 		if (isset($ret_stato['error'])){
 			$ret = '<h2>Errore</h2>'
@@ -1172,7 +1173,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 			. '<p>Per: ' . $ret_stato['message'];
 			echo $ret;
 		}
-		// cancellazione record in fotografia per 
+		// cancellazione record in fotografia per
 		$campi = [];
 		$campi['update'] = 'UPDATE ' . Fotografie::nome_tabella
 		. ' SET record_cancellabile_dal = :record_cancellabile_dal '
@@ -1187,12 +1188,12 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		. '<p>campi: ' . str_ireplace(';', '; ', serialize($campi)) . '</p>';
 		http_response_code(404);
 		echo $ret;
-		// avanti il prossimo 
+		// avanti il prossimo
 		echo '<script src="'.URLBASE.'aa-view/reload-5sec-jquery.js"></script>';
 		exit(0);
 	}
 
-	// nome file 	
+	// nome file
 	$ultima_barra = strrpos($foto_file, '/', 1);
 	$nome_file    = trim(substr($foto_file, ($ultima_barra + 1)));
 	$album_id     = $fotografia['record_id_in_album'];
@@ -1204,13 +1205,13 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	
 	// data/evento non usa carica_fotografie_dettagli
 	$data_evento = get_data_evento($nome_file);
-	echo '<p style="font-family:monospace">data_evento: '.$data_evento .'</p>'; 
-	// le date 0000-00-00 DP vengono ignorate, ma più avanti, non qui 
+	echo '<p style="font-family:monospace">data_evento: '.$data_evento .'</p>';
+	// le date 0000-00-00 DP vengono ignorate, ma più avanti, non qui
 	if ($data_evento>''){
 		$data_evento_album = '';
 		// Verificare se è già presente nell'album un dettaglio data/evento e che valore ha
 			$campi=[];
-			$campi['query']='SELECT * FROM ' . AlbumDettagli::nome_tabella 
+			$campi['query']='SELECT * FROM ' . AlbumDettagli::nome_tabella
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 			. ' AND record_id_padre = :record_id_padre '
 			. ' AND chiave = :chiave ';
@@ -1219,26 +1220,26 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 			$campi['chiave']                  = 'data/evento';
 			$ret_adet = $adet_h->leggi($campi);
 			if (isset($ret_adet['error'])){
-				$ret = 'Non è stato trovato un dettaglio album legato a data/evento ' 
+				$ret = 'Non è stato trovato un dettaglio album legato a data/evento '
 				. "per l'errore: " . $ret_adet['error'];
 				echo $ret;
 				// no exit()
 			} elseif ($ret_adet['numero']>0) {
 				$data_evento_album = $ret_adet['data'][0]['valore'];
-				$ret = 'È stato trovato un dettaglio album legato a data/evento ' 
+				$ret = 'È stato trovato un dettaglio album legato a data/evento '
 				. "per l'album: " . $data_evento_album;
 				echo $ret;
 				//no exit()
 			}
 			// assente o presente ma diverso, inserisco
-			if ($data_evento != $data_evento_album){
-				// escludo data 0000-00-00 
+			if ($data_evento != $data_evento_album || $data_evento < '2000-00-00'){
+				// escludo data 0000-00-00
 				if (!str_contains($data_evento, '0000-')){
 					$ret_det   = carica_fotografie_dettagli( $fotografia_id, 'data/evento', $data_evento);
-
+					$aggiunti[] = "'data/evento': ".$data_evento;
 				}
 			}
-		// sfilo 
+		// sfilo
 		$nome_file = str_replace($data_evento, '', $nome_file);
 		if (str_contains($data_evento, ' DP')){
 			$data_evento = str_replace(' DP', '', $data_evento);
@@ -1248,23 +1249,20 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 			$data_evento = str_replace('-', ' ', $data_evento);
 			$nome_file = str_replace($data_evento, '', $nome_file);
 		}
-		if (str_contains($nome_file, 'DP ') && strpos($nome_file, 'DP ', 0) < 5){ 
+		if (str_contains($nome_file, 'DP ') && strpos($nome_file, 'DP ', 0) < 5){
 			$nome_file = str_replace('DP ', '', $nome_file);
 		}
 		$nome_file = trim($nome_file);
 		echo "<br>Per effetto dell'inserimento di data/elenco, ora nomefile è: " .$nome_file.'<br>';
-	} // data/evento - viene escluso 0000-00-00 
+	} // data/evento - viene escluso 0000-00-00
 	echo '<p style="font-family:monospace">Fine esame data/evento</p>';
 	$data_evento_prima = $data_evento;
 	if ( str_contains($data_evento, 'decennio')){
 		$data_evento_prima=str_replace(' decennio', '-01-01', $data_evento_prima);
 	}
-	echo '<br>data_evento_prima: ::'.$data_evento_prima .'::'; 
+	echo '<br>data_evento_prima: ::'.$data_evento_prima .'::';
 
-	$ultimo_punto = strrpos($foto_file, '.');
-	$estensione   = substr($foto_file, ($ultimo_punto + 1), 6);
-	$estensione   = trim(strtolower($estensione));
-
+	$estensione   = pathinfo(strtolower($foto_file), PATHINFO_EXTENSION);
 	if (!in_array($estensione, ['jpg', 'jpeg', 'psd', 'tif', 'tiff'])){
 		$ret = '<h2>Errore</h2>'
 		. '<p>La fotografia non è in un formato che contiene dati exif ['. $foto_file .']</p>';
@@ -1275,25 +1273,26 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	 * EXIF - inizio
 	 */
 	echo '<p style="font-family:monospace;">Dati EXIF.</p>';
-	// 1. cerca se in fotografie_dettagli ci sono già dettagli dedicati exif 
+	// 1. cerca se in fotografie_dettagli ci sono già dettagli dedicati exif
 	$campi=[];
-	$campi['query']= 'SELECT * FROM '. FotografieDettagli::nome_tabella 
+	$campi['query']= 'SELECT * FROM '. FotografieDettagli::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id_padre = :record_id_padre '
 	. ' ORDER BY chiave, record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-	$campi['record_id_padre']         = $foto_h->get_record_id(); 
+	$campi['record_id_padre']         = $foto_h->get_record_id();
 	$ret_det = $fdet_h->leggi($campi);
 	// 2. errore n lettura
 	if (isset($ret_det['error'])){
 		// cambio stato al record - non lavorabile
+		$ret_stato = [];
 		$ret_stato = $foto_h->set_stato_lavori_in_fotografie($fotografia_id, Fotografie::stato_completati);
 		if (isset($ret_stato['error'])){
 			$ret = '<h2>Errore</h2>'
 			. '<p>Non è stato possibile cambiare stato_lavori alla fotografia ['. $fotografia_id .']</p>'
 			. '<p>Per: ' . $ret_stato['message'];
 			echo $ret;
-		} // errore nel cambio stato 
+		} // errore nel cambio stato
 
 		// ret_det error
 		$ret = '<h2>Errore</h2>'
@@ -1304,8 +1303,8 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		http_response_code(404);
 		echo $ret;
 		exit(1);
-	} // errore in lettura fotografie_dettagli 
-	// 3. dati già presenti 
+	} // errore in lettura fotografie_dettagli
+	// 3. dati già presenti
 	if ($ret_det['numero'] > 0){
 		echo '<h3 style="font-family:monospace;">Avviso</h3>';
 		echo '<p style="font-family:monospace;">Saranno aggiunti '
@@ -1321,27 +1320,27 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		. 'un errore, non sono stati estratti dati.</p>';
 		$exif=[];
 		echo $ret;
-		// proseguo per dati su file dal nome file 
+		// proseguo per dati su file dal nome file
 	}
 	echo '<p style="font-family:monospace;width:90%;max-width:90%;">Sono stati rintracciati dati exif <br>';
 	$exif_str = serialize($exif);
 	$re = '/[^a-zA-Z0-9_\-,\s\/:";%]/i';
 	$exif_str = preg_replace($re, ' ', $exif_str); // sostituisco i caratteri non stampabili con spazi
 	$exif_str = str_ireplace('s:',' s:',$exif_str); // separo gli indicatori di stringa:lunghezza per consentire l'a-capo
-	echo $exif_str . '</p>';
+	echo $dbh->esponi($exif_str) . '</p>';
 
-	// oltre i 300dpi sono scansioni 800 dpi 1200 dpi 4000 dpi 
+	// oltre i 300dpi sono scansioni 800 dpi 1200 dpi 4000 dpi
 
 	// Marca e modello: sono scansioni?
-	if (isset($exif['IFD0']['Make']) && 
+	if (isset($exif['IFD0']['Make']) &&
 			isset($exif['IFD0']['Model'])){
 		$marca = $exif['IFD0']['Make'];
 		$modello = $exif['IFD0']['Model'];
 		echo '<p style="font-family:monospace;">';
-		echo 'Marca: '. $marca . ' Modello: ' . $modello; 
+		echo 'Marca: '. $marca . ' Modello: ' . $modello;
 		echo '</p>';
-		// scanner Athesis 1 
-		if ($marca   == 'Nikon' && 
+		// scanner Athesis 1
+		if ($marca   == 'Nikon' &&
 				$modello == 'Nikon SUPER COOLSCAN 5000 ED'){
 			// scansioni
 			$ret_det = carica_fotografie_dettagli( $fotografia_id, 'materia/tecnica', 'diapositiva/pellicola');
@@ -1353,42 +1352,42 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 			$aggiunti[] = "'dimensione/altezza': '24 mm'";
 			$aggiunti[] = "'dimensione/larghezza': '36 mm'";
 		}
-		if ($marca   == 'NIKON CORPORATION' && 
+		if ($marca   == 'NIKON CORPORATION' &&
 				$modello == 'NIKON D100'){
 			// scansioni
 			$ret_det = carica_fotografie_dettagli( $fotografia_id, 'materia/tecnica', 'file');
 			$aggiunti[] = "'materia/tecnica': 'file'";
 
 			$date_det = $exif['EXIF']['DateTimeOriginal'];
-			$date_det = data_exif_in_timestamp($date_det); // aaaa:mm:gg > aaaa-mm-gg 
+			$date_det = data_exif_in_timestamp($date_det); // aaaa:mm:gg > aaaa-mm-gg
 			$ret_det  = carica_fotografie_dettagli( $fotografia_id, 'data/evento', $date_det);
 			$aggiunti[] = "'data/evento': ".$date_det;
 		}
 
-	} // $exif['IFD0']['Make'] 
+	} // $exif['IFD0']['Make']
 
-	// sequenza di dettagli exif 
+	// sequenza di dettagli exif
 	/**
-	 * Per le scansioni non interessano i dati di scansione, per le foto native digitali 
+	 * Per le scansioni non interessano i dati di scansione, per le foto native digitali
 	 * non interessano le dimensioni del sensore, insomma non interessano.
 		if (isset($exif['COMPUTED'])){
 			$ret_det   = carica_fotografie_dettagli( $fotografia_id, 'dimensione/unita-di-misura', 'px');
 			$altezza   = $exif['COMPUTED']['Height'];
 			$larghezza = $exif['COMPUTED']['Width'];
 			// TODO scaglioni 800px 1080px 1440px 1920px 2500px 3000px 4000px 6000px
-			$ret_det   = carica_fotografie_dettagli( $fotografia_id, 'dimensione/altezza', $altezza);		
-			$ret_det   = carica_fotografie_dettagli( $fotografia_id, 'dimensione/larghezza', $larghezza);		
+			$ret_det   = carica_fotografie_dettagli( $fotografia_id, 'dimensione/altezza', $altezza);
+			$ret_det   = carica_fotografie_dettagli( $fotografia_id, 'dimensione/larghezza', $larghezza);
 			$ret_det   = carica_fotografie_dettagli( $fotografia_id, 'dimensione/altezza-larghezza', $altezza . ' x ' . $larghezza);
 			$aggiunti[] = "'dimensione/altezza-larghezza': '$altezza x $larghezza'";
 		} // exif
-	 * 
+	 *
 	 */
 	
 	// data scansione, spesso
 	// Se è uguale non si inserisce un doppione
 	if (isset($exif['EXIF']['DateTimeOriginal'])){
 		$date_det = $exif['EXIF']['DateTimeOriginal'];
-		$date_det = data_exif_in_timestamp($date_det); // aaaa:mm:gg > aaaa-mm-gg 
+		$date_det = data_exif_in_timestamp($date_det); // aaaa:mm:gg > aaaa-mm-gg
 		if($data_evento_prima < $date_det){
 			$ret_det  = carica_fotografie_dettagli( $fotografia_id, 'data/scansione', $date_det);
 			$aggiunti[] = "'data/scansione': ".$date_det;
@@ -1437,48 +1436,26 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	echo '<p style="font-family:monospace;">Fine esame dati exif</p>';
 	
 	/**
-	 * LUOGO are-geografica, comune, nazione, provincia 
-	 * 
-		echo '<p style="font-family:monospace">inizio esame luogo/area-geografica';
-		$luogo = get_luogo_localita($nome_file);
-		if ($luogo>''){
-			$ret_det   = carica_fotografie_dettagli( $fotografia_id, 'luogo/area-geografica', $luogo);
-			// sfilo 
-			$nome_file = str_ireplace($luogo, '', $nome_file);
-			$nome_file = trim($nome_file);
-			echo "<br>Per effetto dell'inserimento di luogo/area-geografica, ora nomefile è: " .$nome_file.'<br>';
-			$aggiunti[] = "'luogo/area-geografica': ".$luogo;
-		} // luogo/area-geografica 
-		echo '<br>Fine esame luogo/area-geografica: '.$luogo.'.</p>';
-		//dbg echo $nome_file;
-
-		// luogo/comune 
-		echo '<p style="font-family:monospace">inizio esame luogo/comune';
-		$luogo = get_luogo_comune($nome_file);
-		if ($luogo>''){
-			$ret_det   = carica_fotografie_dettagli( $fotografia_id, 'luogo/comune', $luogo);
-			// sfilo 
-			$nome_file = str_ireplace($luogo, '', $nome_file);
-			$nome_file = trim($nome_file);
-			echo "<br>Per effetto dell'inserimento di luogo/comune, ora nomefile è: " .$nome_file.'<br>';
-			$aggiunti[] = "'luogo/comune': ".$luogo;
-		} // luogo/comune 
-		echo '<br>Fine esame luogo/comune: '.$luogo.'.</p>';
-		//dbg echo $nome_file;
-	 * 
+	 * LUOGO are-geografica, comune, nazione, provincia
+	 *
 	 */
 	echo '<p style="font-family:monospace">inizio esame luogo/*';
+		$nome_file = trim($nome_file);
 		$kv = get_luogo($nome_file);
 		if (isset($kv['chiave']) && $kv['chiave'] > ""){
 			if (isset($kv['luogo']) && $kv['luogo'] > ""){
 				echo '<br>'.$kv['chiave'].': '.$kv['luogo'];
 				$ret_det   = carica_fotografie_dettagli( $fotografia_id, $kv['chiave'], $kv['luogo']);
 				$aggiunti[] = "'".$kv['chiave']."': ".$kv['luogo'];
+
+				// leva la località solo se sta all'inizio della stringa nome_file
+				$pos = strpos($nome_file, $kv['luogo'], 0);
+				if ( !($pos === false) && $pos < 1){
+					$nome_file = substr($nome_file, strlen($kv['luogo']));
 				}
+			}
 		}
-		// TODO Serve trovare il modo di stabilire che la località è in testa al $titolo 
-		// TODO   per rimuoverla dal $titolo 
-	echo '<br>Fine esame luogo/*: '.(isset($kv['luogo']) ? $kv['luogo'] : "").'</p>';	
+	echo '<br>Fine esame luogo/*: '.(isset($kv['luogo']) ? $kv['luogo'] : "").'</p>';
 	
 	// nome/autore
 	echo '<p style="font-family:monospace">inizio esame nome/autore';
@@ -1514,7 +1491,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 				$aggiunti[] = "'nome/autore': ".$autore2 . ' [2]';
 			}
 		}
-		// valori predefiniti se manca 
+		// valori predefiniti se manca
 		if ($sigla_autore==''){
 			$foto_file_maiuscole = strtoupper($foto_file);
 			$sigla_autore = match (true) {
@@ -1534,12 +1511,12 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		$ret_det   = carica_fotografie_dettagli( $fotografia_id, 'codice/autore/athesis', $sigla_autore);
 		$aggiunti[]= "'codice/autore/athesis': ".$sigla_autore;
 
-		// sfilo 
+		// sfilo
 		$nome_file = str_replace($sigla_autore, '', $nome_file);
 		$nome_file = str_replace(' ph',         '', $nome_file);
 		$nome_file = trim($nome_file);
 		echo "<br>Per effetto dell'inserimento di codice/autore/athesis, ora nomefile è: " .$nome_file.'<br>';
-		// codice/autore/sigla 
+		// codice/autore/sigla
 	echo '<br>Fine esame codice/autore/athesis</p>';
 	
 	// nome/ente-societa
@@ -1548,10 +1525,10 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	if ($ente>''){
 		$ret_det   = carica_fotografie_dettagli( $fotografia_id, 'nome/ente-societa', $ente);
 		$aggiunti[] = "'nome/ente-societa': ".$ente;
-	} // nome/ente-societa 
+	} // nome/ente-societa
 	echo '<br>Fine esame nome/ente-societa: '.$ente.'</p>';
 	
-	// nome/fondo 
+	// nome/fondo
 	echo '<p style="font-family:monospace">Inizio esame fondo';
 	$fondo = get_fondo($nome_file);
 	if ($fondo>''){
@@ -1584,7 +1561,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	}
 	echo '<br>Fine esame ath_* : '.$cod_athesis.'</p>';
 
-	// dimensioni 
+	// dimensioni
 	echo '<p style="font-family:monospace">Inizio esame dimensioni';
 	$dimensioni="";
 	if (preg_match('/cm_\d{2}x\d{2}/', $nome_file, $match)){
@@ -1601,8 +1578,8 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		$aggiunti[] = 'dimensione/altezza: '.$altezza.' cm';
 		$ret_det   = carica_fotografie_dettagli( $fotografia_id, 'dimensione/larghezza', $larghezza.' cm');
 		$aggiunti[] = 'dimensione/larghezza: '.$larghezza.' cm';
-		// sfilo 
-		$nome_file = trim(str_ireplace('cm_'.$match[0], '', $nome_file));		
+		// sfilo
+		$nome_file = trim(str_ireplace('cm_'.$match[0], '', $nome_file));
 		echo "<br>Per effetto dell'inserimento di dimensioni, ora nomefile è: " .$nome_file.'<br>';
 	}
 	echo '<br>Fine esame cm_* : '.$dimensioni.'</p>';
@@ -1612,7 +1589,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	$materiale=(str_contains(strtolower($nome_file), ' lastra')) ? 'lastra' : "";
 	if ($materiale>''){
 		$ret_det   = carica_fotografie_dettagli( $fotografia_id, 'materia/tecnica', 'negativo/lastra-di-vetro');
-		// sfilo 
+		// sfilo
 		$nome_file = str_ireplace($materiale, '', $nome_file);
 		$nome_file = trim($nome_file);
 		echo "<br>Per effetto dell'inserimento di materia/tecnica, ora nomefile è: " .$nome_file.'<br>';
@@ -1620,7 +1597,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	}
 	echo '<br>Fine esame materiale : '.$materiale.'</p>';
 	
-	// sfilettato nome_file quello che resta al centro  
+	// sfilettato nome_file quello che resta al centro
 	// nome/manifestazione-soggetto
 	// sfilettare estensioni
 	echo '<p style="font-family:monospace">Inizio esame nome/manifestazione-soggetto';
@@ -1632,7 +1609,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	}
 	echo '<br>Fine esame nome/manifestazione-soggetto</p>';
 	
-	// cambio stato al record 
+	// cambio stato al record
 	$ret_stato=[];
 	$ret_stato = $foto_h->set_stato_lavori_in_fotografie($fotografia_id, Fotografie::stato_completati);
 	if (isset($ret_stato['error'])){
@@ -1642,14 +1619,14 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 		echo $ret;
 	}
 
-	// riepilogo 
+	// riepilogo
 	if (count($aggiunti)){
 		echo '<br><h4 style="font-family:monospace;">Aggiunti alla fotografia ' . count($aggiunti) . ' record.</h4>';
 		echo '<p style="font-family:monospace;">';
-		for ($i=0; $i < count($aggiunti); $i++) { 
+		for ($i=0; $i < count($aggiunti); $i++) {
 			# code...
 			echo $aggiunti[$i].'<br>';
-		}	
+		}
 		echo '</p>';
 	}
 

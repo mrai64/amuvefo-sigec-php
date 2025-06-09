@@ -146,6 +146,7 @@ function set_stato_lavori(int $cartella_id, string $stato_lavori) : bool {
  * @param  int $cartella_id | 0 
  *   Se non viene passato o viene passato 0,
  *   la funzione va a cercare un primo record da elaborare
+ *   scansioni_cartelle.record_id 
  * 
  * @return void però espone codice html che traccia la funzione svolta 
  * 
@@ -192,7 +193,7 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 	// 1. id presente o primo che capita
 	// get_scansioni_cartelle_per_id 
 	// get_scansioni_cartelle_da_fare 
-	if ($cartella_id == 0){		
+	if ($cartella_id === 0){		
 		$campi=[];
 		$campi['query'] = 'SELECT * FROM ' . Cartelle::nome_tabella 
 		. ' WHERE stato_lavori = :stato_lavori  '
