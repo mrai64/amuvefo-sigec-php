@@ -1,26 +1,25 @@
 <?php
 /**
- * @source /aa-model/scansioni-cartelle-oop.php 
+ * @source /aa-model/zona-intro-oop.php 
  * @author Massimo Rainato <maxrainato@libero.it>
  * 
- * TODO sostituire scansioni_cartelle con cartelle_da_archiviare
- * TODO in quanto questa tabella viene popolata con le cartelle da inserire o aggiornare 
- * TODO in archivio. Aggiornare anche il manuale tecnico
- * TODO sostituire scansioni-cartelle cartelle-archiviare
- * 
- * La tabella scansioni_cartelle è un primo passo per l'archiviazione che,
- * dopo l'inserimento nel sito tramite ftp, raccoglie l'elenco delle cartelle 
+ * La tabella zona_intro è un primo passo per l'archiviazione che,
+ * dopo l'inserimento nel sito tramite sftp, raccoglie l'elenco delle cartelle 
  * che vanno lavorate, e caricare bella tabella del deposito cartelle e file in  
  * scansioni_disco. Dal deposito scansioni_disco in seguito si caricano album, 
  * fotografie video e i loro dettagli caricabili in automatico.
  * 
- * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-12-scansioni_cartelle/ 
+ * TODO consentire il caricamento delle cartelle da modulo con definizione 
+ * TODO del posto in cui caricarle, e contestuale caricamento del record 
+ * TODO in zona_intro 
+ * 
+ * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-12-zona_intro/ 
  *
  */
 
 Class Cartelle extends DatabaseHandler {
 	public $conn; // connessione 
-	public const nome_tabella = 'scansioni_cartelle'; // self::nome_tabella oppure
+	public const nome_tabella = 'zona_intro'; // self::nome_tabella oppure
 
 	public const stato_da_fare      = '0 da fare';
 	public const stato_in_corso     = '1 in corso';

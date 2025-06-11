@@ -37,10 +37,10 @@ function remove_record_from( string $nome_tabella, string $ultimo_backup) : arra
 		'fotografie',
 		'fotografie_dettagli',
 		'richieste',
-		'scansioni_cartelle',
 		'scansioni_disco',
 		'video',
-		'video_dettagli'
+		'video_dettagli',
+		'zona_intro'
 	];
 	
 	$dbh = new DatabaseHandler();
@@ -100,7 +100,11 @@ function remove_record_from( string $nome_tabella, string $ultimo_backup) : arra
  *  +-- fotografie_dettagli 
  *  +- video 
  *  +-- video_dettagli 
- *  
+ * 
+ *  TODO DA RIMUOVERE, la funzione viene svolta da un TRIGGER
+ *  TODO e comprende le tabelle: album_dettagli, fotografie,
+ *  TODO video, didascalie e scansioni_deposito.
+ * 
  */
 function reset_record_cancellabile_dal(int $album_id) : array {
 	$dbh = new DatabaseHandler();
@@ -745,8 +749,8 @@ function remove_record_tutti(){
 	$album           = remove_record_album($ultimo_backup);
 	echo '<p>Album: '.$album['message'].'</p>';
 
-	$scansioni_cartelle = remove_record_from('scansioni_cartelle', $ultimo_backup);
-	echo '<p>Cartelle: '. $scansioni_cartelle['message'] .'</p>';
+	$zona_intro = remove_record_from('zona_intro', $ultimo_backup);
+	echo '<p>Cartelle: '. $zona_intro['message'] .'</p>';
 
 	$scansioni_disco    = remove_record_from('scansioni_disco', $ultimo_backup);
 	echo '<p>Deposito: '. $scansioni_disco['message'] .'</p>';

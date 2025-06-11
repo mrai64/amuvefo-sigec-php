@@ -35,7 +35,7 @@ $elenco_tabelle=[
 	'fotografie',
 	'fotografie_dettagli',
 	'richieste',
-	'scansioni_cartelle',
+	'zona_intro',
 	'scansioni_disco',
 	'video',
 	'video_dettagli',
@@ -512,12 +512,12 @@ function get_backup_richieste(string $ultimo_backup) : string {
 function get_backup_cartelle(string $ultimo_backup) : string {
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
-	$riempire = "INSERT INTO `scansioni_cartelle` (`record_id`, `disco`, "
+	$riempire = "INSERT INTO `zona_intro` (`record_id`, `disco`, "
 	. "`percorso_completo`, `stato_lavori`, "
 	. " `ultima_modifica_record`, `record_cancellabile_dal` ) "
 	. "VALUES (§1, '§2', '§3', '§4', '§5', '§6' );";
 
-	$leggi = 'SELECT * FROM scansioni_cartelle ' 
+	$leggi = 'SELECT * FROM zona_intro ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
 	try{
 	$lettura = $dbh->prepare($leggi);
@@ -532,7 +532,7 @@ function get_backup_cartelle(string $ultimo_backup) : string {
 	}
 	// loop 
 	$ret .= "\n\n".'--'
-	. "\n". '-- Dump dei dati per la tabella `scansioni_cartelle`'
+	. "\n". '-- Dump dei dati per la tabella `zona_intro`'
 	. "\n". '--'."\n";
 	while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
 		$rigo = str_ireplace('§1', $record['record_id'], $riempire);
@@ -545,7 +545,7 @@ function get_backup_cartelle(string $ultimo_backup) : string {
 	}
     return $ret;
 	
-} // get_backup_scansioni_cartelle
+} // get_backup_zona_intro
 
 
 function get_backup_deposito(string $ultimo_backup) : string {

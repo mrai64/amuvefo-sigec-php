@@ -56,7 +56,6 @@ if (count($pezzi['operazioni']) < 2){
 }
 
 include_once(ABSPATH.'aa-controller/deposito-controller.php'); 
-// include_once(ABSPATH.'aa-controller/cartelle-controller.php'); 
 
 if ($richiesta === 'leggi'){
 	$scansioni_disco_id = $pezzi['operazioni'][1];

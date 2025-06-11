@@ -64,8 +64,8 @@
 			</div>
 			<div class="col-4">
 				<div class="list-group">
-					<!-- /cartelle.php/aggiungi-cartella/0 -->
-					<a href="<?=URLBASE; ?>cartelle.php/aggiungi-cartella/0" 
+					<!-- /zona_intro.php/aggiungi-cartella/0 -->
+					<a href="<?=URLBASE; ?>zona_intro.php/aggiungi-cartella/0" 
 						target="_blank" 
 						class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">
@@ -79,8 +79,8 @@
 							</div>
 						</div>
 					</a>
-					<!-- /cartelle.php/archivia-cartella/0 -->
-					<a href="<?=URLBASE; ?>cartelle.php/archivia-cartella/0" 
+					<!-- /zona_intro.php/archivia-cartella/0 -->
+					<a href="<?=URLBASE; ?>zona_intro.php/archivia-cartella/0" 
 					  target="_blank" 
 						class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
 						<div class="d-flex gap-2 w-100 justify-content-between">

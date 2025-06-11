@@ -9,7 +9,7 @@ function urlbase(){
 
 function aggiornaCartelleDaScansionare(){
     $.ajax({
-        url: urlbase() + "cartelle.php/lista-cartelle-sospese/0",
+        url: urlbase() + "zona_intro.php/lista-cartelle-sospese/0",
         data: "",
         dataType: "html",
         method: "POST",
@@ -23,7 +23,7 @@ function aggiornaCartelleDaScansionare(){
 $(document).ready(function () {
 	// Caricamento lista al caricamento pagina
     $.ajax({
-        url: urlbase()+ "cartelle.php/lista-cartelle-sospese/0",
+        url: urlbase()+ "zona_intro.php/lista-cartelle-sospese/0",
         data: "",
         dataType: "html",
         method: "POST",

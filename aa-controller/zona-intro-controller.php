@@ -1,9 +1,9 @@
 <?php
 /**
- * CARTELLE controller
+ * ZONA INTRO controller
  * 
  * funzioni relative ai file e cartelle inseriti in archivio
- * nelle tabelle scansioni_cartelle e scansioni_disco 
+ * nelle tabelle zona_intro e scansioni_disco 
  * 
  * - crea_query_cartella 
  *   usata da leggi_cartella_per_id
@@ -22,9 +22,9 @@
  * - lista_cartelle_sospese 
  * - set_stato_lavori 
  * - carica_cartelle_in_scansioni_disco 
- *   carica in scansioni_disco partendo da scansioni_cartelle 
- * - carica_cartelle_in_scansioni_cartelle
- *   espone il modulo per l'aggiunta di una cartella in scansioni_cartelle
+ *   carica in scansioni_disco partendo da zona_intro 
+ * - carica_cartelle_in_zona_intro
+ *   espone il modulo per l'aggiunta di una cartella in zona_intro
  * - cambia_tinta_record
  *   espone il modulo per cambiare la tinta di un elemento in 
  *   esponi cartelle e sottocartelle 
@@ -39,7 +39,7 @@ if (!defined('ABSPATH')){
 include_once(ABSPATH . 'aa-model/database-handler-oop.php'); //   Class DatabaseHandler
 include_once(ABSPATH . 'aa-model/scansioni-disco-oop.php');  //   Class ScansioniDisco
 include_once(ABSPATH . 'aa-model/album-oop.php');//               Class Album 
-include_once(ABSPATH . 'aa-model/scansioni-cartelle-oop.php');//  Class Cartelle
+include_once(ABSPATH . 'aa-model/zona-intro-oop.php');//  Class Cartelle
 
 
 /**
@@ -89,12 +89,12 @@ function lista_cartelle_sospese() : string {
 		$res .= "<td>".$cartella['percorso_completo']."</td>";
 
 		if ($cartella['stato_lavori'] == Cartelle::stato_da_fare) {
-			$res .= "<td><a href='".URLBASE."cartelle.php/archivia-cartella/".$cartella['record_id']."' "
+			$res .= "<td><a href='".URLBASE."zona_intro.php/archivia-cartella/".$cartella['record_id']."' "
 			. "target='_blank' class='btn btn-secondary float-end' >"
 			. "Elabora</a></td>".PHP_EOL;
 
 		} elseif ($cartella['stato_lavori'] == Cartelle::stato_in_corso)  {
-			$res .= "<td><a href='".URLBASE."cartelle.php/reset-status/".$cartella['record_id']."'"
+			$res .= "<td><a href='".URLBASE."zona_intro.php/reset-status/".$cartella['record_id']."'"
 			. " target='_blank' class='btn btn-secondary float-end' >"
 			. ' Reset</a</td>'.PHP_EOL;
 
@@ -112,7 +112,7 @@ function lista_cartelle_sospese() : string {
 
 
 /**
- * Aggiorna la colonna stato_lavori nella tabella scansioni_cartelle
+ * Aggiorna la colonna stato_lavori nella tabella zona_intro
  * 
  * @param  int     $cartella_id 
  * @param  string  $stato_lavori 
@@ -141,19 +141,19 @@ function set_stato_lavori(int $cartella_id, string $stato_lavori) : bool {
 
 
 /**
- * Carica in scansioni_disco una cartella dalla tabella scansioni_cartelle
+ * Carica in scansioni_disco una cartella dalla tabella zona_intro
  * 
  * @param  int $cartella_id | 0 
  *   Se non viene passato o viene passato 0,
  *   la funzione va a cercare un primo record da elaborare
- *   scansioni_cartelle.record_id 
+ *   zona_intro.record_id 
  * 
  * @return void però espone codice html che traccia la funzione svolta 
  * 
  * TODO diventerà carica_deposito_da_cartelle
  */
 /**
- * 1. Se arriva un id dalla cartella scansioni_cartelle 
+ * 1. Se arriva un id dalla cartella zona_intro 
  *    altrimenti si prende "il primo che capita" tra quelli 
  *    nella tabella che hanno stato lavori: da fare
  * 2. Si verifica che il record ci sia in scansioni_tabelle
@@ -164,7 +164,7 @@ function set_stato_lavori(int $cartella_id, string $stato_lavori) : bool {
  * 5. Se Manca: si inserisce, cambio stato 'lavori completati' e fine lavori 
  * 6. Se Presente: cambio stato 'lavori completati' e fine lavori 
  * 7. Vengono caricate  
- * 7.1. in scansioni_cartelle le sottocartelle trovate
+ * 7.1. in zona_intro le sottocartelle trovate
  * 7.2. in scansioni_disco le fotografie (e i video) 
  *      che contiene la cartella 
  */
@@ -188,11 +188,11 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 	// si possono usare le classi di bootstrap 
 	
 	echo '<h2 class="text-monospace">Caricamento di una cartella in deposito</h2>'
-	. '<p class="text-monospace">Da tabella scansioni_cartelle in tabella scansioni_disco</p>';
+	. '<p class="text-monospace">Da tabella zona_intro in tabella scansioni_disco</p>';
 
 	// 1. id presente o primo che capita
-	// get_scansioni_cartelle_per_id 
-	// get_scansioni_cartelle_da_fare 
+	// get_zona_intro_per_id 
+	// get_zona_intro_da_fare 
 	if ($cartella_id === 0){		
 		$campi=[];
 		$campi['query'] = 'SELECT * FROM ' . Cartelle::nome_tabella 
@@ -243,8 +243,8 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 	echo '<p style="font-family:monospace">Cartella: '.$cartella_id;
 	echo '<br>'. str_replace(';', '; ', serialize($cartella)) . '</p>';
 	
-	// cambio stato_lavori in scansioni_cartelle 
-	// set_stato_lavori_scansioni_cartelle
+	// cambio stato_lavori in zona_intro 
+	// set_stato_lavori_zona_intro
 	if (!set_stato_lavori( $cartella_id, Cartelle::stato_in_corso )){
 		$res = "<p style='font-family:monospace;'>Non è "
 		. "stato cambiato in ".Cartelle::stato_in_corso
@@ -360,11 +360,11 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 	 * scansiono elemento per elemento il contenuto della cartella 
 	 * percorso_fs_cartella e carico in scansioni_disco 
 	 * solo immagini e video, mentre le sotto-cartelle vengono aggiunte 
-	 * alla tabella scansioni_cartelle
+	 * alla tabella zona_intro
 	 */
 	$contenuto_fs = dir($percorso_con_abspath);
 	if ( $contenuto_fs === false){
-		// prima di fermarmi cambio stato lavori in scansioni_cartelle
+		// prima di fermarmi cambio stato lavori in zona_intro
 		if (!set_stato_lavori( $cartella['record_id'], Cartelle::stato_completati )){
 			$errori .= '<br>Non è stato possibile cambiare stato_lavori in completato.';
 			echo $errori;
@@ -387,9 +387,9 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 			exit(1);
 		} 
 		// Se l'elemento interno è una cartella 
-		// va aggiunto tra le cartelle da lavorare in scansioni_cartelle
+		// va aggiunto tra le cartelle da lavorare in zona_intro
 		if (is_dir($percorso_piu_elemento) ){
-			// 1. c'è già in scansioni_cartelle?
+			// 1. c'è già in zona_intro?
 			$campi = [];
 				$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 				$campi['percorso_completo'] = $percorso_fs_cartella.$elemento.'/';
@@ -400,21 +400,21 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 				$ret_car = [];
 				$ret_car = $cartelle_h->leggi($campi);
 				if (isset($ret_car['error'])){
-					$errori .= '<br>Nel caricamento in scansioni_cartelle si è verificato questo:'
+					$errori .= '<br>Nel caricamento in zona_intro si è verificato questo:'
 					. '<br>' . $ret_car['message']
 					. ' campi: ' . serialize($campi);
 					continue;
 				}
 			// Se manca si aggiunge 
 			if ($ret_car['numero'] < 1){
-				// 1. si aggiunge alla tabella delle scansioni_cartelle
+				// 1. si aggiunge alla tabella delle zona_intro
 				$campi = [];
 				$campi['disco'] = $disco;
 				$campi['percorso_completo'] = $percorso_fs_cartella.$elemento.'/';
 				$ret_car = [];
 				$ret_car = $cartelle_h->aggiungi($campi);
 				if (isset($ret_car['error'])){
-					$errori .= '<br>Nel caricamento in scansioni_cartelle si è verificato questo:'
+					$errori .= '<br>Nel caricamento in zona_intro si è verificato questo:'
 					. '<br>' . $ret_car['message']
 					. ' campi: ' . serialize($campi);
 				}
@@ -551,7 +551,7 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
  * Se i dati ci sono inserisce la cartella in tabella 
  * @param  array $dati_input 
  */
-function carica_cartelle_in_scansioni_cartelle(array $dati_input = [] ){
+function carica_cartelle_in_zona_intro(array $dati_input = [] ){
 
 	// inserimento del record nella tabella Cartelle 
 	if (isset($dati_input['aggiungi_cartella'])){
@@ -587,7 +587,7 @@ function carica_cartelle_in_scansioni_cartelle(array $dati_input = [] ){
 	// esposizione del modulo che chiede i dati ed espone il messaggio
 	include_once(ABSPATH.'aa-view/cartelle-da-scansionare.php');
 	exit(0);
-} // carica_cartelle_in_scansioni_cartelle()
+} // carica_cartelle_in_zona_intro()
 
 
 /**

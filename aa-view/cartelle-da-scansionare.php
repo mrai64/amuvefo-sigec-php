@@ -29,7 +29,7 @@
 							</p>
 						</div>
 						<div class="card-body">
-							<form action="<?=URLBASE; ?>cartelle.php/aggiungi-cartella/0" method="POST">
+							<form action="<?=URLBASE; ?>zona_intro.php/aggiungi-cartella/0" method="POST">
 								<!-- era /95-archiviazione-cartella-aggiungi.php -->
 								<div class="mb-3">
 									<label for="disco" class="form-label">Disco</label>

@@ -1,26 +1,26 @@
 <?php
 /**
- * @source /cartelle.php
+ * @source /zona_intro.php
  * @author Massimo Rainato <maxrainato@libero.it>
  *
  * Centralino router delle richieste
  * questa pagina gestisce url fatti così:
- * https://archivio.athesis77.it/cartelle.php/richiesta/parametro?limit=20#
+ * https://archivio.athesis77.it/zona_intro.php/richiesta/parametro?limit=20#
  *
  * Operazioni gestite:
  *
- * /cartelle.php/lista-cartelle-sospese/0
+ * /zona_intro.php/lista-cartelle-sospese/0
  *   questa fornisce una lista di cartelle inserite
- *   in scansioni_cartelle e pronte per caricare scansioni_disco
+ *   in zona_intro e pronte per caricare scansioni_disco
  *
- * /cartelle.php/aggiungi-cartella/0
+ * /zona_intro.php/aggiungi-cartella/0
  *   questa fa vedere il modulo di amministrazione che permette
- *   di aggiungere cartelle alla tabella scansioni_cartelle
+ *   di aggiungere cartelle alla tabella zona_intro
  *   Se presente il _POST inserisce in tabella e ripropone il modulo, aggiornato
  *
- * /cartelle.php/archivia-cartella/{scansioni_cartelle_id}
+ * /zona_intro.php/archivia-cartella/{zona_intro_id}
  *
- * /cartelle.php/reset-status/{scansioni_cartelle_id}
+ * /zona_intro.php/reset-status/{zona_intro_id}
  *   Per le situazioni in cui si vuole rimettere una cartella in
  *   lavorazione ma è rimata bloccata per qualche errore su "in corso"
  *
@@ -32,9 +32,9 @@
 }
 include_once(ABSPATH.'aa-controller/controller-base.php');
 $uri = $_SERVER['REQUEST_URI'];
-$pos_richieste_php = strpos($uri, '/cartelle.php/');
+$pos_richieste_php = strpos($uri, '/zona_intro.php/');
 $uri = substr($uri, $pos_richieste_php);
-$pezzi=route_from_uri($uri, '/cartelle.php/');
+$pezzi=route_from_uri($uri, '/zona_intro.php/');
 
 $richiesta=$pezzi['operazioni'][0];
 
@@ -56,23 +56,23 @@ switch($richiesta){
 }
 
 // Operazioni
-include_once(ABSPATH . "aa-controller/cartelle-controller.php"); // route_from_uri
+include_once(ABSPATH . "aa-controller/zona-intro-controller.php"); // route_from_uri
 
-// /cartelle.php/lista-cartelle-sospese/
+// /zona_intro.php/lista-cartelle-sospese/
 if ($richiesta === 'lista-cartelle-sospese'){
-	echo lista_cartelle_sospese(); // cartelle-controller
+	echo lista_cartelle_sospese(); // zona-intro-controller
 	exit(0);
 }
 
-// /cartelle.php/aggiungi-cartella/
-// i dati ci sono, elabora il modulo - carica le cartelle in scansioni_cartelle
+// /zona_intro.php/aggiungi-cartella/
+// i dati ci sono, elabora il modulo - carica le cartelle in zona_intro
 if ($richiesta === 'aggiungi-cartella' && isset($_POST['aggiungi_cartella'])){
-	carica_cartelle_in_scansioni_cartelle( $_POST );
+	carica_cartelle_in_zona_intro( $_POST );
 	exit(0); //
 }
 // i dati mancano, espone il modulo
 if ($richiesta === 'aggiungi-cartella'){
-	carica_cartelle_in_scansioni_cartelle([]);
+	carica_cartelle_in_zona_intro([]);
 	exit(0);
 }
 
@@ -80,14 +80,14 @@ $cartella_id = (isset($pezzi['operazioni'][1])) ? $pezzi['operazioni'][1] : 0;
 $cartella_id = (is_numeric($cartella_id) && $cartella_id > 0) ? $cartella_id : 0;
 // carica in scansioni_disco album e fotografie e video
 if ($richiesta === 'archivia-cartella'){
-	carica_cartelle_in_scansioni_disco($cartella_id); // cartelle-controller
+	carica_cartelle_in_scansioni_disco($cartella_id); // zona-intro-controller
 	exit(0);
 }
 
 //
 if ($richiesta === 'reset-status'){
 	reset_stato_lavori_cartelle( $cartella_id);
-	header("Refresh:1; url=".URLBASE."cartelle.php/aggiungi-cartella/0");
+	header("Refresh:1; url=".URLBASE."zona_intro.php/aggiungi-cartella/0");
 	exit(0);
 }
 

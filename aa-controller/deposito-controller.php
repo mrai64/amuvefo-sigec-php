@@ -24,7 +24,7 @@ if (!defined('ABSPATH')){
 }
 include_once(ABSPATH.'aa-model/database-handler-oop.php'); //   Class DatabaseHandler
 include_once(ABSPATH.'aa-model/scansioni-disco-oop.php');  //   Class ScansioniDisco
-include_once(ABSPATH.'aa-model/scansioni-cartelle-oop.php');//  Class Cartelle
+include_once(ABSPATH.'aa-model/zona-intro-oop.php');//  Class Cartelle
 include_once(ABSPATH.'aa-model/album-oop.php');
 
 
@@ -558,7 +558,7 @@ function verifica_cartella_contiene_album( int $scansioni_id) : string {
 
 /**
  * test - id è record_id di scansioni_disco
- * https://archivio.athesis77.it/aa-controller/cartelle-controller.php?id=66&test=verifica_cartella_contiene_album
+ * https://archivio.athesis77.it/aa-controller/zona-intro-controller.php?id=66&test=verifica_cartella_contiene_album
  */
 if (isset($_GET['test']) &&
 		isset($_GET['id'])   &&
