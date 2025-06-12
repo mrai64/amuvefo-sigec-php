@@ -8,7 +8,7 @@
  *	dipendenze: DatabaseHandler connessione archivio PDO
  *	dipendenze: AlbumDettagli   tabella figlio
  *	dipendenze: Descrizioni     tabella di lunghi testi
- *	dipendenze: ScansioniDisco
+ *	dipendenze: Deposito
  *
  * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/album/
  * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/album_dettagli/
@@ -44,7 +44,7 @@ Class Album extends DatabaseHandler {
 	public $titolo_album; //                  varchar(250)
 	public $disco; //                         char(12)
 	public $percorso_completo; //             varchar(1500)
-	public $record_id_in_scansioni_disco; //  bigint(20) unsigned external key su scansioni_disco
+	public $record_id_in_deposito; //  bigint(20) unsigned external key su deposito
 	public $stato_lavori; //                  string enum df '0 da fare'
 	public $ultima_modifica_record; //        datetime DEF CURRENT TIME
 	public $record_cancellabile_dal; //       datetime DEF '9999-12-31 23:59:59'
@@ -56,7 +56,7 @@ Class Album extends DatabaseHandler {
 		$this->titolo_album = ''; //                 invalido
 		$this->disco = ''; //                        invalido
 		$this->percorso_completo = ''; //            invalido
-		$this->record_id_in_scansioni_disco = 0; //  invalido
+		$this->record_id_in_deposito = 0; //  invalido
 		$this->stato_lavori = self::stato_da_fare;
 		$this->ultima_modifica_record = $dbh->get_datetime_now();
 		$this->record_cancellabile_dal = $dbh->get_datetime_forever();
@@ -85,8 +85,8 @@ Class Album extends DatabaseHandler {
 	/**
 	 * @return int unsigned
 	 */
-	public function get_record_id_in_scansioni_disco(){
-		return $this->record_id_in_scansioni_disco;
+	public function get_record_id_in_deposito(){
+		return $this->record_id_in_deposito;
 	}
 	public function get_stato_lavori(){
 		return $this->stato_lavori;
@@ -133,11 +133,11 @@ Class Album extends DatabaseHandler {
 		$this->percorso_completo = $percorso_completo;
 	}
 	
-	public function set_record_id_in_scansioni_disco( int $record_id_in_scansioni_disco){
-		if ($record_id_in_scansioni_disco < 1){
-			throw new Exception(__CLASS__ .' '. __FUNCTION__ . ' Must be unsigned integer ' . $record_id_in_scansioni_disco);
+	public function set_record_id_in_deposito( int $record_id_in_deposito){
+		if ($record_id_in_deposito < 1){
+			throw new Exception(__CLASS__ .' '. __FUNCTION__ . ' Must be unsigned integer ' . $record_id_in_deposito);
 		}
-		$this->record_id_in_scansioni_disco = $record_id_in_scansioni_disco;
+		$this->record_id_in_deposito = $record_id_in_deposito;
 	}
 	
 	public function set_stato_lavori( string $stato_lavori){
@@ -193,8 +193,8 @@ Class Album extends DatabaseHandler {
 	
 		$dbh = $this->conn; // a PDO object thru Database class
 		$create = 'INSERT INTO ' . self::nome_tabella
-		. ' (  titolo_album,  disco,  percorso_completo,  record_id_in_scansioni_disco ) VALUES '
-		. ' ( :titolo_album, :disco, :percorso_completo, :record_id_in_scansioni_disco ) ';
+		. ' (  titolo_album,  disco,  percorso_completo,  record_id_in_deposito ) VALUES '
+		. ' ( :titolo_album, :disco, :percorso_completo, :record_id_in_deposito ) ';
 
 		// campi necessari
 		if (!isset($campi['titolo_album'])){
@@ -227,22 +227,22 @@ Class Album extends DatabaseHandler {
 		}
 		$this->set_percorso_completo($campi['percorso_completo']);
 
-		if (!isset($campi['record_id_in_scansioni_disco'])){
+		if (!isset($campi['record_id_in_deposito'])){
 			$ret = [
 				"error"=> true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__
-				. " Serve campo record_id_in_scansioni_disco: " . $dbh::esponi( $campi)
+				. " Serve campo record_id_in_deposito: " . $dbh::esponi( $campi)
 			];
 			return $ret;
 		}
-		$this->set_record_id_in_scansioni_disco($campi['record_id_in_scansioni_disco']);
+		$this->set_record_id_in_deposito($campi['record_id_in_deposito']);
 
 		// special guest - modifica_titolo
 		if (isset($campi['record_cancellabile_dal'])){
 			$create = 'INSERT INTO ' . self::nome_tabella
-			. ' (  titolo_album,  disco,  percorso_completo,  record_id_in_scansioni_disco,'
+			. ' (  titolo_album,  disco,  percorso_completo,  record_id_in_deposito,'
 			.   '  stato_lavori,  record_cancellabile_dal ) VALUES '
-			. ' ( :titolo_album, :disco, :percorso_completo, :record_id_in_scansioni_disco,'
+			. ' ( :titolo_album, :disco, :percorso_completo, :record_id_in_deposito,'
 			.   ' :stato_lavori, :record_cancellabile_dal ) ';
 
 			if (!isset($campi['stato_lavori'])){
@@ -271,7 +271,7 @@ Class Album extends DatabaseHandler {
 			$aggiungi->bindValue('titolo_album', $this->titolo_album);
 			$aggiungi->bindValue('disco', $this->disco);
 			$aggiungi->bindValue('percorso_completo', $this->percorso_completo);
-			$aggiungi->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco);
+			$aggiungi->bindValue('record_id_in_deposito', $this->record_id_in_deposito);
 			if (isset($campi['stato_lavori'])){
 				$aggiungi->bindValue('stato_lavori', $this->stato_lavori);
 			}
@@ -346,8 +346,8 @@ Class Album extends DatabaseHandler {
 		if (isset($campi['percorso_completo'])){
 			$this->set_percorso_completo($campi['percorso_completo']);
 		}
-		if (isset($campi['record_id_in_scansioni_disco'])){
-			$this->set_record_id_in_scansioni_disco($campi['record_id_in_scansioni_disco']);
+		if (isset($campi['record_id_in_deposito'])){
+			$this->set_record_id_in_deposito($campi['record_id_in_deposito']);
 		}
 		if (isset($campi['stato_lavori'])){
 			$this->set_stato_lavori($campi['stato_lavori']);
@@ -373,8 +373,8 @@ Class Album extends DatabaseHandler {
 			if (isset($campi['percorso_completo'])){
 				$lettura->bindValue('percorso_completo', $campi['percorso_completo']);
 			}
-			if (isset($campi['record_id_in_scansioni_disco'])){
-				$lettura->bindValue('record_id_in_scansioni_disco', $campi['record_id_in_scansioni_disco'], PDO::PARAM_INT);
+			if (isset($campi['record_id_in_deposito'])){
+				$lettura->bindValue('record_id_in_deposito', $campi['record_id_in_deposito'], PDO::PARAM_INT);
 			}
 			if (isset($campi['stato_lavori'])){
 				$lettura->bindValue('stato_lavori', $campi['stato_lavori']);
@@ -451,8 +451,8 @@ Class Album extends DatabaseHandler {
 		if (isset($campi['percorso_completo'])){
 			$this->set_percorso_completo($campi['percorso_completo']);
 		}
-		if (isset($campi['record_id_in_scansioni_disco'])){
-			$this->set_record_id_in_scansioni_disco($campi['record_id_in_scansioni_disco']);
+		if (isset($campi['record_id_in_deposito'])){
+			$this->set_record_id_in_deposito($campi['record_id_in_deposito']);
 		}
 		if (isset($campi['stato_lavori'])){
 			$this->set_stato_lavori($campi['stato_lavori']);
@@ -479,8 +479,8 @@ Class Album extends DatabaseHandler {
 			if (isset($campi['percorso_completo'])){
 				$aggiorna->bindValue('percorso_completo', $campi['percorso_completo']);
 			}
-			if (isset($campi['record_id_in_scansioni_disco'])){
-				$aggiorna->bindValue('record_id_in_scansioni_disco', $campi['record_id_in_scansioni_disco'], PDO::PARAM_INT);
+			if (isset($campi['record_id_in_deposito'])){
+				$aggiorna->bindValue('record_id_in_deposito', $campi['record_id_in_deposito'], PDO::PARAM_INT);
 			}
 			if (isset($campi['stato_lavori'])){
 				$aggiorna->bindValue('stato_lavori', $campi['stato_lavori']);
@@ -547,8 +547,8 @@ Class Album extends DatabaseHandler {
 		if (isset($campi['percorso_completo'])){
 			$this->set_percorso_completo($campi['percorso_completo']);
 		}
-		if (isset($campi['record_id_in_scansioni_disco'])){
-			$this->set_record_id_in_scansioni_disco($campi['record_id_in_scansioni_disco']);
+		if (isset($campi['record_id_in_deposito'])){
+			$this->set_record_id_in_deposito($campi['record_id_in_deposito']);
 		}
 		if (isset($campi['stato_lavori'])){
 			$this->set_stato_lavori($campi['stato_lavori']);
@@ -575,8 +575,8 @@ Class Album extends DatabaseHandler {
 			if (isset($campi['percorso_completo'])){
 				$cancella->bindValue('percorso_completo', $campi['percorso_completo']);
 			}
-			if (isset($campi['record_id_in_scansioni_disco'])){
-				$cancella->bindValue('record_id_in_scansioni_disco', $campi['record_id_in_scansioni_disco'], PDO::PARAM_INT);
+			if (isset($campi['record_id_in_deposito'])){
+				$cancella->bindValue('record_id_in_deposito', $campi['record_id_in_deposito'], PDO::PARAM_INT);
 			}
 			if (isset($campi['stato_lavori'])){
 				$cancella->bindValue('stato_lavori', $campi['stato_lavori']);
@@ -697,15 +697,15 @@ Class Album extends DatabaseHandler {
 	/**
 	 * Album presenti
 	 */
-	public function get_album_from_scansioni_id(int $album_id_in_scansioni_disco) : array{
+	public function get_album_from_deposito_id(int $album_id_in_deposito) : array{
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
 		// validazione
-		$this->set_record_id_in_scansioni_disco($album_id_in_scansioni_disco);
+		$this->set_record_id_in_deposito($album_id_in_deposito);
 		$campi=[];
 		$campi['query'] = 'SELECT * FROM ' . self::nome_tabella
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal  '
-		. ' AND record_id_in_scansioni_disco = :record_id_in_scansioni_disco '
+		. ' AND record_id_in_deposito = :record_id_in_deposito '
 		. ' ORDER BY record_id ';
 		$ret_alb = $this->leggi($campi);
 		if (isset($ret_alb['error'])){
@@ -715,7 +715,7 @@ Class Album extends DatabaseHandler {
 			$ret = [
 				'error'   => true,
 				'message' => "Non sono stati trovati album abbinati "
-				. "al record_id_in_scansioni_disco: " . $album_id_in_scansioni_disco
+				. "al record_id_in_deposito: " . $album_id_in_deposito
 			];
 			return $ret;
 		}
@@ -725,6 +725,6 @@ Class Album extends DatabaseHandler {
 		];
 		return $ret;
 		
-	} // get_album_from_scansioni_id
+	} // get_album_from_deposito_id
 
 } // Album

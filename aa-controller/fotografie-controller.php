@@ -8,10 +8,10 @@
  * Si occupa delle funzioni che riguardano la tabella fotografie
  * e fotografie_dettagli
  *
- * - carica_fotografie_da_scansioni_disco        $scansioni_id
- *   legge scansioni_disco scrive album scrive fotografie
+ * - carica_fotografie_da_deposito        $deposito_id
+ *   legge deposito scrive album scrive fotografie
  * - carica_fotografie_da_album                  $album_id
- *   legge scansioni_disco scrive album scrive fotografie
+ *   legge deposito scrive album scrive fotografie
  *
  * - leggi_fotografie_per_id
  *   presenta pagina della fotografia
@@ -46,7 +46,7 @@ if (!defined('ABSPATH')){
 include_once(ABSPATH . 'aa-model/database-handler-oop.php');
 include_once(ABSPATH . 'aa-model/fotografie-oop.php');
 include_once(ABSPATH . 'aa-model/fotografie-dettagli-oop.php');
-include_once(ABSPATH . 'aa-model/scansioni-disco-oop.php');
+include_once(ABSPATH . 'aa-model/deposito-oop.php');
 include_once(ABSPATH . 'aa-model/richieste-oop.php');
 include_once(ABSPATH . 'aa-model/album-dettagli-oop.php');
 include_once(ABSPATH . 'aa-model/chiavi-oop.php');
@@ -57,49 +57,49 @@ include_once(ABSPATH . 'aa-controller/carica-dettaglio-libreria.php');
 /**
  * CREATE - aggiungi
  * Fotografie
- * Legge scansioni_disco scrive fotografie
+ * Legge deposito scrive fotografie
  * TODO Ma una giornata di lavoro e ...non è usato da nessuno?
- * @param  int   $scansioni_id  id dell'album in scansioni_disco
+ * @param  int   $deposito_id  id dell'album in deposito
  * @return array 'ok' + 'message' | 'error' + 'message'
  */
-function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : array {
+function carica_fotografie_da_deposito_con_id( int $deposito_id ) : array {
 	$dbh    = New DatabaseHandler();
-	$scan_h = New ScansioniDisco($dbh);
+	$dep_h = New Deposito($dbh);
 	$alb_h  = New Album($dbh);
 	$foto_h = New Fotografie($dbh);
 	/*
-	  1. in scansioni_disco cerca scansioni_id
-	  2. in album cerca record_id_in_scansioni_disco
-	  3. in scansioni disco cerca le fotografie dentro album
-	  4. mette le fotografie da scansioni_disco in fotografie
-	  5. (manca) mette i video da scansioni_disco in video
+	  1. in deposito cerca deposito_id
+	  2. in album cerca record_id_in_deposito
+	  3. in Deposito cerca le fotografie dentro album
+	  4. mette le fotografie da deposito in fotografie
+	  5. (manca) mette i video da deposito in video
 	 */
 	
-	$titolo_pagina = 'Caricamento fotografia da deposito ' . $scansioni_id;
+	$titolo_pagina = 'Caricamento fotografia da deposito ' . $deposito_id;
 	$inizio_pagina = file_get_contents(ABSPATH.'aa-view/reload-5sec-view.php');
 	$inizio_pagina = str_ireplace('<?=$titolo_pagina; ?>', $titolo_pagina, $inizio_pagina);
 	echo $inizio_pagina;
 
 	echo "<p class='text-monospace'>".__FUNCTION__." avvio :<br>"
-	. 'input:'. $scansioni_id.'</p>';
+	. 'input:'. $deposito_id.'</p>';
 
-	// verifica id in scansioni_disco
-	$ret_scan = $scan_h->get_scansioni_disco_per_id($scansioni_id);
-	if (isset($ret_scan['error'])){
+	// verifica id in deposito
+	$ret_dep = $dep_h->get_deposito_per_id($deposito_id);
+	if (isset($ret_dep['error'])){
 		echo '<div class="alert alert-danger" role="alert">'
 		. ' Si è verificato un evento bloccante: '
-		. '<br>' . $ret_scan['message']
+		. '<br>' . $ret_dep['message']
 		. '<br>STOP'
 		. '</div>';
 		exit(1);
 	}
 	
-	$scansione_disco = $ret_scan['record'];
-	echo '<p class="text-monospace">Scansioni_disco:<br>'
-	. str_ireplace(';', '; ', serialize($ret_scan)).'</p>';
+	$scansione_disco = $ret_dep['record'];
+	echo '<p class="text-monospace">deposito:<br>'
+	. str_ireplace(';', '; ', serialize($ret_dep)).'</p>';
 
-	// lettura in album tramite chiave esterna record_di_in_scansioni_disco
-	$ret_alb = $alb_h->get_album_from_scansioni_id($scansioni_id);
+	// lettura in album tramite chiave esterna record_di_in_deposito
+	$ret_alb = $alb_h->get_album_from_deposito_id($deposito_id);
 	if ( isset($ret_alb['error'])){
 		echo '<div class="alert alert-danger" role="alert">'
 		. ' Si è verificato un evento bloccante: '
@@ -113,18 +113,18 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	echo '<p class="text-monospace">Album:<br>'
 	. str_replace(';', '; ', serialize($album)).'</p>';
 
-	// Elenco da scansioni_disco di fotografie e video (no, i video no)
-	$ret_scan = $scan_h->get_scansioni_disco_foto_da_album($album);
-	if ( isset($ret_scan['error'])){
+	// Elenco da deposito di fotografie e video (no, i video no)
+	$ret_dep = $dep_h->get_deposito_foto_da_album($album);
+	if ( isset($ret_dep['error'])){
 		echo '<div class="alert alert-danger" role="alert">'
 		. ' Si è verificato un evento bloccante: '
-		. '<br>' . $ret_scan['message']
+		. '<br>' . $ret_dep['message']
 		. '<br>STOP'
 		. '</div>';
 		exit(1);
 	}
 
-	// A "metter dentro" da scansioni_disco nella tabella delle fotografie
+	// A "metter dentro" da deposito nella tabella delle fotografie
 	$fotografia=[];
 	$fotografia['record_id_in_album']     = $album['record_id'];
 	$fotografia['disco']                  = $album['disco'];
@@ -133,20 +133,20 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	$ret['numero'] = 0;
 	$ret['data'] = [];
 	echo '<ol>';
-	for ($i=0; $i < count($ret_scan['data']); $i++) {
+	for ($i=0; $i < count($ret_dep['data']); $i++) {
 
-		$record_id_in_scansioni_disco = $ret_scan['data'][$i]['record_id'];
-		$ret_foto = $foto_h->get_fotografia_from_scansioni_id($record_id_in_scansioni_disco);
+		$record_id_in_deposito = $ret_dep['data'][$i]['record_id'];
+		$ret_foto = $foto_h->get_fotografia_from_deposito_id($record_id_in_deposito);
 
 		if (isset($ret_foto['numero']) && $ret_foto['numero'] > 1){
 			// troppa roba, si cancella il superfluo
 			$campi=[];
 			$campi['update'] = 'UPDATE ' . Fotografie::nome_tabella
 			. ' SET record_cancellabile_dal = CURRENT_TIMESTAMP '
-			. ' WHERE record_id_in_scansioni_disco = :record_id_in_scansioni_disco '
+			. ' WHERE record_id_in_deposito = :record_id_in_deposito '
 			. ' AND record_cancellabile_dal = :record_cancellabile_dal '
 			. ' AND record_id > :record_id ';
-			$campi['record_id_in_scansioni_disco'] = $ret_foto['data'][0]['record_id_in_scansioni_disco'];
+			$campi['record_id_in_deposito'] = $ret_foto['data'][0]['record_id_in_deposito'];
 			$campi['record_cancellabile_dal'] = $ret_foto['data'][0]['record_cancellabile_dal'];
 			$campi['record_id'] = $ret_foto['data'][0]['record_id'];
 			$ret_del = $foto_h->modifica($campi);
@@ -164,9 +164,9 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 
 		if (isset($ret_foto['numero']) && $ret_foto['numero'] == 0){
 			// manca si può inserire
-			$fotografia['titolo_fotografia'] = $ret_scan['data'][$i]['nome_file'];
+			$fotografia['titolo_fotografia'] = $ret_dep['data'][$i]['nome_file'];
 			$fotografia['percorso_completo'] = $album['percorso_completo'].$fotografia['titolo_fotografia'];
-			$fotografia['record_id_in_scansioni_disco'] = $ret_scan['data'][$i]['record_id'];
+			$fotografia['record_id_in_deposito'] = $ret_dep['data'][$i]['record_id'];
 			$ret_foto = [];
 			$ret_foto = $foto_h->aggiungi($fotografia);
 			
@@ -177,8 +177,8 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 				$ret['numero']++;
 				$ret['data'][] = $fotografia['titolo_fotografia'];
 			}
-			// cambio stato in tabella scansioni_disco (...) > lavori completati
-			$ret_stato = $scan_h->set_stato_lavori_in_scansioni_disco($fotografia['record_id_in_scansioni_disco'], ScansioniDisco::stato_completati);
+			// cambio stato in tabella deposito (...) > lavori completati
+			$ret_stato = $dep_h->set_stato_lavori_in_deposito($fotografia['record_id_in_deposito'], Deposito::stato_completati);
 			if (isset($ret_stato['error'])){
 				echo '<div class="alert alert-danger" role="alert">'
 				. ' Si è verificato un evento bloccante: '
@@ -209,7 +209,7 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
 	. str_replace(';', '; ', serialize($ret)).'</p>';
 
 	return $ret;
-} // carica_fotografie_da_scansioni_disco_con_id
+} // carica_fotografie_da_deposito_con_id
 
 
 
@@ -217,7 +217,7 @@ function carica_fotografie_da_scansioni_disco_con_id( int $scansioni_id ) : arra
  * CREATE - aggiungi
  * Legge album scrive fotografie
  *
- * Parte da un album registrato in scansioni_disco
+ * Parte da un album registrato in deposito
  * aggiorna album in album
  * aggiorna fotografie in fotografie
  */
@@ -225,12 +225,12 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 	$dbh    = New DatabaseHandler();
 	$alb_h  = New Album($dbh);
 	$foto_h = New Fotografie($dbh);
-	$scan_h = New ScansioniDisco($dbh);
+	$dep_h = New Deposito($dbh);
 	// si possono usare per gli echo le classi bootstrap
 	/**
 	 * 1. check album_id oppure trova il primo da lavorare
-	 * 2. da lettura album in album esco con lettura album in scansioni_disco
-	 * 3. lettura fotografie da deposito scansioni_disco
+	 * 2. da lettura album in album esco con lettura album in deposito
+	 * 3. lettura fotografie da deposito deposito
 	 *
 	 */
 
@@ -273,40 +273,40 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 	$album    = $ret_alb['data'][0];
 	$album_id = $album['record_id'];
 	
-	// 2. lettura album caricato in scansioni_disco
+	// 2. lettura album caricato in deposito
 	$campi=[];
-	$campi['query'] = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+	$campi['query'] = 'SELECT * FROM ' . Deposito::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id = :record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-	$campi['record_id']               = $album['record_id_in_scansioni_disco'];
-	$ret_scan = $scan_h->leggi($campi);
+	$campi['record_id']               = $album['record_id_in_deposito'];
+	$ret_dep = $dep_h->leggi($campi);
 
-	if (isset($ret_scan['error'])){
+	if (isset($ret_dep['error'])){
 		$ret = [
 			'error'  => true,
-			'message'=> 'Non è stato trovato un album in scansioni_disco.'
-			. '<br>Errore: ' . $ret_scan['error']
-			. '<br>campi: ' . str_ireplace(';', '; ', serialize($ret_scan))
+			'message'=> 'Non è stato trovato un album in deposito.'
+			. '<br>Errore: ' . $ret_dep['error']
+			. '<br>campi: ' . str_ireplace(';', '; ', serialize($ret_dep))
 		];
 		return $ret;
 	}
-	if ($ret_scan['numero'] == 0){
+	if ($ret_dep['numero'] == 0){
 		$ret = [
 			'error'  => true,
-			'message'=> 'Non è stato trovato un album in scansioni_disco.'
-			. '<br>campi: ' . str_ireplace(';', '; ', serialize($ret_scan))
+			'message'=> 'Non è stato trovato un album in deposito.'
+			. '<br>campi: ' . str_ireplace(';', '; ', serialize($ret_dep))
 		];
 		return $ret;
 	}
 	// $album album in album
-	$album_in_scansioni = $ret_scan['data'][0];
+	$album_in_deposito = $ret_dep['data'][0];
 
 	// 3. fotografie dell'album in deposito
 	// Tutte quelle che non sono cartella e hanno
 	//   gli stessi livelli della cartella, inserite dopo la cartella
 	$campi=[];
-	$campi['query']= 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+	$campi['query']= 'SELECT * FROM ' . Deposito::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND livello1 = :livello1    AND livello2 = :livello2 '
 	. ' AND livello3 = :livello3    AND livello4 = :livello4 '
@@ -315,37 +315,37 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 	. " AND estensione IN ('jpg', 'jpeg', 'psd', 'tif') "
 	. ' ORDER BY nome_file, record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-	$campi['livello1'] = $album_in_scansioni['livello1'];
-	$campi['livello2'] = $album_in_scansioni['livello2'];
-	$campi['livello3'] = $album_in_scansioni['livello3'];
-	$campi['livello4'] = $album_in_scansioni['livello4'];
-	$campi['livello5'] = $album_in_scansioni['livello5'];
-	$campi['livello6'] = $album_in_scansioni['livello6'];
-	$ret_scan=[];
-	$ret_scan=$scan_h->leggi($campi);
-	if (isset($ret_scan['error'])){
+	$campi['livello1'] = $album_in_deposito['livello1'];
+	$campi['livello2'] = $album_in_deposito['livello2'];
+	$campi['livello3'] = $album_in_deposito['livello3'];
+	$campi['livello4'] = $album_in_deposito['livello4'];
+	$campi['livello5'] = $album_in_deposito['livello5'];
+	$campi['livello6'] = $album_in_deposito['livello6'];
+	$ret_dep=[];
+	$ret_dep=$dep_h->leggi($campi);
+	if (isset($ret_dep['error'])){
 		$ret = [
 			'error'  => true,
 			'message'=> __FUNCTION__ . ' ' . __LINE__
-			. '<br>' . $ret_scan['error']
+			. '<br>' . $ret_dep['error']
 			. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
 		];
 		return $ret;
 	}
-	if ($ret_scan['numero'] == 0){
+	if ($ret_dep['numero'] == 0){
 		$ret = [
 			'ok'     => true,
-			'message'=> "Non ci sono fotografie per l'album in scansioni_disco. "
+			'message'=> "Non ci sono fotografie per l'album in deposito. "
 			. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
 		];
 		return $ret;
 	}
 	// vai di loop
 	$elenco_nomi_file=[];
-	$fotografie_in_scansioni = $ret_scan['data'];
+	$fotografie_in_deposito = $ret_dep['data'];
 
 	$new_foto=[];
-	$new_foto['disco']             =$album_in_scansioni['disco'];
+	$new_foto['disco']             =$album_in_deposito['disco'];
 	$new_foto['record_id_in_album']=$album_id;
 	// ret     generale dei dati della funzione
 	// ret_foto_old del vecchio record
@@ -353,12 +353,12 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 	$ret=[];
 	$ret['data']=[];
 	$ret_numero=0;
-	for ($i=0; $i < count($fotografie_in_scansioni); $i++) {
+	for ($i=0; $i < count($fotografie_in_deposito); $i++) {
 		// alternativa per sgamare doppioni
-		if ( in_array( $fotografie_in_scansioni[$i]['nome_file'], $elenco_nomi_file)){
+		if ( in_array( $fotografie_in_deposito[$i]['nome_file'], $elenco_nomi_file)){
 			continue;
 		}
-		$elenco_nomi_file[]=$fotografie_in_scansioni[$i]['nome_file'];
+		$elenco_nomi_file[]=$fotografie_in_deposito[$i]['nome_file'];
 
 		// Prima verificare se in fotografie la fotografia c'è già
 		$campi = [];
@@ -369,7 +369,7 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 		. ' ORDER BY record_id ';
 		$campi['record_cancellabile_dal']     = $dbh->get_datetime_forever();
 		$campi['record_id_in_album']          = $album_id;
-		$campi['percorso_completo']= '%/'.$fotografie_in_scansioni[$i]['nome_file'];
+		$campi['percorso_completo']= '%/'.$fotografie_in_deposito[$i]['nome_file'];
 		$ret_foto_old = $foto_h->leggi($campi);
 		if (isset($ret_foto_old['error'])){
 			return $ret_foto_old;
@@ -380,13 +380,13 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 		if ($ret_foto_old['numero'] < 1){
 			// titolo fotografia di partenza è il nome file senza estensione
 			// Qualora serva si può modificare aggiungendo lettere accentate e anche emoji
-			$new_foto['titolo_fotografia'] = $fotografie_in_scansioni[$i]['nome_file'];
-			$new_foto['titolo_fotografia'] = str_ireplace('.'.$fotografie_in_scansioni[$i]['estensione'], '', $new_foto['titolo_fotografia'] );
+			$new_foto['titolo_fotografia'] = $fotografie_in_deposito[$i]['nome_file'];
+			$new_foto['titolo_fotografia'] = str_ireplace('.'.$fotografie_in_deposito[$i]['estensione'], '', $new_foto['titolo_fotografia'] );
 			$new_foto['titolo_fotografia'] = trim($new_foto['titolo_fotografia'] );
 			// $new_foto['disco'] vedi fuori ciclo ^
 			// $new_foto[album_id]
-			$new_foto['percorso_completo'] = $album['percorso_completo'] . $fotografie_in_scansioni[$i]['nome_file'];
-			$new_foto['record_id_in_scansioni_disco'] = $fotografie_in_scansioni[$i]['record_id'];
+			$new_foto['percorso_completo'] = $album['percorso_completo'] . $fotografie_in_deposito[$i]['nome_file'];
+			$new_foto['record_id_in_deposito'] = $fotografie_in_deposito[$i]['record_id'];
 	
 			$ret_foto_new=[];
 			$ret_foto_new = $foto_h->aggiungi($new_foto);
@@ -397,15 +397,15 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 		}
 		// Se c'è aggiorno lo stato_lavori della fotografia
 		// così è come se lo avessi inserito nuovo
-		// l'aggiornamento del record_id_in_scansioni_disco è temporaneo
+		// l'aggiornamento del record_id_in_deposito è temporaneo
 		if ($ret_foto_old['numero'] > 0 ){
 			$campi=[];
 			$campi['update'] = 'UPDATE ' . Fotografie::nome_tabella
 			. ' SET stato_lavori = :stato_lavori '
-			. '   , record_id_in_scansioni_disco = :record_id_in_scansioni_disco '
+			. '   , record_id_in_deposito = :record_id_in_deposito '
 			. ' WHERE record_id = :record_id ';
 			$campi['stato_lavori']                 = Fotografie::stato_da_fare;
-			$campi['record_id_in_scansioni_disco'] = $fotografie_in_scansioni[$i]['record_id'];
+			$campi['record_id_in_deposito'] = $fotografie_in_deposito[$i]['record_id'];
 			$campi['record_id']                    = $ret_foto_old['data'][0]['record_id'];
 			$ret_foto_mod = [];
 			$ret_foto_mod = $foto_h->modifica($campi);
@@ -413,7 +413,7 @@ function carica_fotografie_da_album(int $album_id = 0 ) : array {
 				return $ret_foto_mod;
 			}
 		}
-	} // for(fotografie_in_scansioni_disco)
+	} // for(fotografie_in_deposito)
 	$ret['numero']=$ret_numero;
 	$ret['ok'] = true;
 	return $ret;
@@ -468,7 +468,7 @@ function leggi_fotografie_per_id( int $fotografia_id){
 	$aggiungi_dettaglio  = '#solalettura';
 	if (get_set_abilitazione() > SOLALETTURA ){
 		$richiesta_originali = URLBASE . 'fotografie.php/richiesta/' . $fotografia['record_id']
-		. '?return_to=' . urlencode($_SERVER['REQUEST_URI']); // TODO vedi /01-scansioni-disco_richiesta.php come esempio
+		. '?return_to=' . urlencode($_SERVER['REQUEST_URI']); // TODO vedi /01-deposito_richiesta.php come esempio
 		
 		$aggiungi_dettaglio  = URLBASE . 'fotografie.php/carica-dettaglio/' . $fotografia['record_id'];
 	}

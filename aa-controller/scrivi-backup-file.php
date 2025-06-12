@@ -36,7 +36,7 @@ $elenco_tabelle=[
 	'fotografie_dettagli',
 	'richieste',
 	'zona_intro',
-	'scansioni_disco',
+	'deposito',
 	'video',
 	'video_dettagli',
 	'zz_appunti_sql'
@@ -104,7 +104,7 @@ function get_backup_album(string $ultimo_backup) : string {
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
 	$riempire = 'INSERT INTO `album` (`record_id`, `titolo_album`, '
-	. '`disco`, `percorso_completo`, `record_id_in_scansioni_disco`, '
+	. '`disco`, `percorso_completo`, `record_id_in_deposito`, '
 	. ' `stato_lavori`, `ultima_modifica_record`, `record_cancellabile_dal`)'
 	. " VALUES (§1, '§2', '§3', '§4', §5, '§6', '§7', '§8');";
 
@@ -130,7 +130,7 @@ function get_backup_album(string $ultimo_backup) : string {
 		$rigo = str_ireplace('§2', $record['titolo_album'], $rigo);
 		$rigo = str_ireplace('§3', $record['disco'], $rigo);
 		$rigo = str_ireplace('§4', $record['percorso_completo'], $rigo);
-		$rigo = str_ireplace('§5', $record['record_id_in_scansioni_disco'], $rigo);
+		$rigo = str_ireplace('§5', $record['record_id_in_deposito'], $rigo);
 		$rigo = str_ireplace('§6', $record['stato_lavori'], $rigo);
 		$rigo = str_ireplace('§7', $record['ultima_modifica_record'], $rigo);
 		$rigo = str_ireplace('§8', $record['record_cancellabile_dal'], $rigo);
@@ -388,7 +388,7 @@ function get_backup_fotografie(string $ultimo_backup) : string {
 	$ret = '';
 	$riempire = "INSERT INTO `fotografie` (`record_id`, `titolo_fotografia`, "
 	. "`disco`, `percorso_completo`, `record_id_in_album`, "
-	. "`record_id_in_scansioni_disco`, `stato_lavori`, `ultima_modifica_record`, "
+	. "`record_id_in_deposito`, `stato_lavori`, `ultima_modifica_record`, "
 	. "`record_cancellabile_dal`) "
 	. "VALUES (§1, '§2', '§3', '§4', §5, §6, '§7', '§8', '§9');";
 
@@ -415,7 +415,7 @@ function get_backup_fotografie(string $ultimo_backup) : string {
 		$rigo = str_ireplace('§3', $record['disco'], $rigo);
 		$rigo = str_ireplace('§4', $record['percorso_completo'], $rigo);
 		$rigo = str_ireplace('§5', $record['record_id_in_album'], $rigo);
-		$rigo = str_ireplace('§6', $record['record_id_in_scansioni_disco'], $rigo);
+		$rigo = str_ireplace('§6', $record['record_id_in_deposito'], $rigo);
 		$rigo = str_ireplace('§7', $record['stato_lavori'], $rigo);
 		$rigo = str_ireplace('§8', $record['ultima_modifica_record'], $rigo);
 		$rigo = str_ireplace('§9', $record['record_cancellabile_dal'], $rigo);
@@ -551,7 +551,7 @@ function get_backup_cartelle(string $ultimo_backup) : string {
 function get_backup_deposito(string $ultimo_backup) : string {
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
-	$riempire = "INSERT INTO `scansioni_disco` (`record_id`, `disco`, "
+	$riempire = "INSERT INTO `deposito` (`record_id`, `disco`, "
 	. "`livello1`, `livello2`, `livello3`, `livello4`, `livello5`, `livello6`, "
 	. "`nome_file`, `estensione`, `modificato_il`, `codice_verifica`, "
 	. "`tinta_rgb`, `stato_lavori`, `ultima_modifica_record`, "
@@ -559,7 +559,7 @@ function get_backup_deposito(string $ultimo_backup) : string {
 	. "VALUES (§01, '§02', '§03', '§04', '§05', '§06', '§07', '§08', '§09', "
 	. "'§10', '§11', '§12', '§13', '§14', '§15', '§16', '§17');";
 
-	$leggi = 'SELECT * FROM scansioni_disco ' 
+	$leggi = 'SELECT * FROM deposito ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
 	try{
 	$lettura = $dbh->prepare($leggi);
@@ -574,7 +574,7 @@ function get_backup_deposito(string $ultimo_backup) : string {
 	}
 	// loop 
 	$ret .= "\n\n".'--'
-	. "\n". '-- Dump dei dati per la tabella `scansioni_disco`'
+	. "\n". '-- Dump dei dati per la tabella `deposito`'
 	. "\n". '--'."\n";
 	while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
 		$rigo = str_ireplace('§01', $record['record_id'], $riempire);
@@ -605,7 +605,7 @@ function get_backup_video(string $ultimo_backup) : string {
 	$ret = '';
 	$riempire = "INSERT INTO `video` (`record_id`, `titolo_video`, "
 	. "`disco`, `percorso_completo`, `record_id_in_album`, "
-	. "`record_id_in_scansioni_disco`, `stato_lavori`, `ultima_modifica_record`, "
+	. "`record_id_in_deposito`, `stato_lavori`, `ultima_modifica_record`, "
 	. "`record_cancellabile_dal`) "
 	. "VALUES (§1, '§2', '§3', '§4', §5, §6, '§7', '§8', '§9');";
 
@@ -632,7 +632,7 @@ function get_backup_video(string $ultimo_backup) : string {
 		$rigo = str_ireplace('§3', $record['disco'], $rigo);
 		$rigo = str_ireplace('§4', $record['percorso_completo'], $rigo);
 		$rigo = str_ireplace('§5', $record['record_id_in_album'], $rigo);
-		$rigo = str_ireplace('§6', $record['record_id_in_scansioni_disco'], $rigo);
+		$rigo = str_ireplace('§6', $record['record_id_in_deposito'], $rigo);
 		$rigo = str_ireplace('§7', $record['stato_lavori'], $rigo);
 		$rigo = str_ireplace('§8', $record['ultima_modifica_record'], $rigo);
 		$rigo = str_ireplace('§9', $record['record_cancellabile_dal'], $rigo);
@@ -898,12 +898,12 @@ function set_record_cancellabile_dal() {
 		
 	} // try catch 
 
-	// 10. da album verso scansioni_disco 
-	$update = "UPDATE `scansioni_disco` "
+	// 10. da album verso deposito 
+	$update = "UPDATE `deposito` "
 	. " SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
 	. "WHERE  `record_cancellabile_dal` = '9999-12-31 23:59:59' "
 	. "  AND `record_id` IN ( "
-	. "SELECT `record_id_in_scansioni_disco` FROM `album` "
+	. "SELECT `record_id_in_deposito` FROM `album` "
 	. "WHERE `record_cancellabile_dal` < '9999-12-31 23:59:59' )";
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 	try{
@@ -923,12 +923,12 @@ function set_record_cancellabile_dal() {
 		
 	} // try catch 
 
-	// 11. da fotografie verso scansioni_disco 
-	$update = "UPDATE `scansioni_disco` "
+	// 11. da fotografie verso deposito 
+	$update = "UPDATE `deposito` "
 	. " SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
 	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
 	. " AND `record_id` IN ( "
-	. " SELECT `record_id_in_scansioni_disco` FROM `fotografie` "
+	. " SELECT `record_id_in_deposito` FROM `fotografie` "
 	. " WHERE `record_cancellabile_dal` < '9999-12-31 23:59:59' )";
 	if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 	try{
@@ -948,12 +948,12 @@ function set_record_cancellabile_dal() {
 		
 	} // try catch 
 
-	// 12. da video verso scansioni_disco 
-	$update ="UPDATE `scansioni_disco` "
+	// 12. da video verso deposito 
+	$update ="UPDATE `deposito` "
 	. " SET `record_cancellabile_dal` = CURRENT_TIMESTAMP "
 	. "WHERE `record_cancellabile_dal` = '9999-12-31 23:59:59' "
 	. "  AND `record_id` IN ( "
-	. "SELECT `record_id_in_scansioni_disco` FROM `video` "
+	. "SELECT `record_id_in_deposito` FROM `video` "
 	. "WHERE `record_cancellabile_dal` < '9999-12-31 23:59:59' )";
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 	try{

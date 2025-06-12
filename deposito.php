@@ -3,7 +3,7 @@
  * @source /deposito.php 
  * @author Massimo Rainato <maxrainato@libero.it>
  * 
- * Centralino router delle richieste relative alla tabella scansioni_disco 
+ * Centralino router delle richieste relative alla tabella deposito 
  * questa pagina gestisce url fatti così:
  * https://archivio.athesis77.it/deposito.php/richiesta/parametro?limit=20# 
  * 
@@ -11,13 +11,13 @@
  * 
  * /deposito.php/leggi/{disco_id}. . . . . . . lettura
  * /deposito.php/cartella/{path_completo} . . . lettura
- *   queste due chiamate vanno a recuperare un record in tabella scansioni_disco, 
+ *   queste due chiamate vanno a recuperare un record in tabella deposito, 
  *   ed espongono il contenuto in forma di sottocartelle. 
  *   Si deve verificare se in "album" siano presenti album che fanno riferimento 
- *   all'id di scansioni disco e nel caso sia presente caricare 
+ *   all'id di Deposito e nel caso sia presente caricare 
  *   /album.php/leggi/{album_id}
  * 
- * /deposito.php/cambio-tinta/{scansioni-disco-id}?t=tabella=scansioni_disco&back=pagina%20a%20cui%20tornare 
+ * /deposito.php/cambio-tinta/{deposito-id}?t=tabella=deposito&back=pagina%20a%20cui%20tornare 
  * 
  */
 if (!defined('ABSPATH')){
@@ -58,22 +58,22 @@ if (count($pezzi['operazioni']) < 2){
 include_once(ABSPATH.'aa-controller/deposito-controller.php'); 
 
 if ($richiesta === 'leggi'){
-	$scansioni_disco_id = $pezzi['operazioni'][1];
-	if (!is_numeric($scansioni_disco_id)){
+	$deposito_id = $pezzi['operazioni'][1];
+	if (!is_numeric($deposito_id)){
 		http_response_code(404); // know not found
 		echo '<pre style="color: red;"><strong>Il parametro deve essere un intero, '
-    . 'invece è "'.$scansioni_disco_id.'".</strong></pre>'."\n";
+    . 'invece è "'.$deposito_id.'".</strong></pre>'."\n";
 		exit(1);
 	}
-	$scansioni_disco_id = (int) $scansioni_disco_id;
-	if ($scansioni_disco_id < 1){
+	$deposito_id = (int) $deposito_id;
+	if ($deposito_id < 1){
 		http_response_code(404); // know not found
 		echo '<pre style="color: red;"><strong>Il parametro deve essere un '
-    . 'intero positivo, invece è "'.$scansioni_disco_id.'".</strong></pre>'."\n";
+    . 'intero positivo, invece è "'.$deposito_id.'".</strong></pre>'."\n";
 		exit(1);
 	}
 
-  leggi_cartella_per_id($scansioni_disco_id); 
+  leggi_cartella_per_id($deposito_id); 
 	exit(0);
 }
 

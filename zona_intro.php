@@ -11,7 +11,7 @@
  *
  * /zona_intro.php/lista-cartelle-sospese/0
  *   questa fornisce una lista di cartelle inserite
- *   in zona_intro e pronte per caricare scansioni_disco
+ *   in zona_intro e pronte per caricare la tabella deposito
  *
  * /zona_intro.php/aggiungi-cartella/0
  *   questa fa vedere il modulo di amministrazione che permette
@@ -78,9 +78,9 @@ if ($richiesta === 'aggiungi-cartella'){
 
 $cartella_id = (isset($pezzi['operazioni'][1])) ? $pezzi['operazioni'][1] : 0;
 $cartella_id = (is_numeric($cartella_id) && $cartella_id > 0) ? $cartella_id : 0;
-// carica in scansioni_disco album e fotografie e video
+// carica da zona_intro in tabella deposito: album e fotografie e video
 if ($richiesta === 'archivia-cartella'){
-	carica_cartelle_in_scansioni_disco($cartella_id); // zona-intro-controller
+	carica_cartelle_in_deposito($cartella_id); // zona-intro-controller
 	exit(0);
 }
 

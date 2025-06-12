@@ -16,9 +16,9 @@
  *   carica, completa ed espone
  *   la pagina di vista album
  *
- * . carica_album_da_scansioni_disco
+ * . carica_album_da_deposito
  *   carica in tabella album solo il record album
- *   partendo dal record in scansioni_disco,
+ *   partendo dal record in deposito,
  *   per caricare fotografie e per caricare video
  *   poi ci sono altre funzioni
  *
@@ -62,7 +62,7 @@ include_once(ABSPATH . 'aa-model/album-dettagli-oop.php');
 include_once(ABSPATH . 'aa-model/vocabolario-oop.php');
 include_once(ABSPATH . 'aa-model/fotografie-oop.php');
 include_once(ABSPATH . 'aa-model/video-oop.php');
-include_once(ABSPATH . 'aa-model/scansioni-disco-oop.php');
+include_once(ABSPATH . 'aa-model/deposito-oop.php');
 include_once(ABSPATH . 'aa-model/richieste-oop.php');
 include_once(ABSPATH . 'aa-model/chiavi-oop.php');
 include_once(ABSPATH . 'aa-model/didascalie-oop.php');
@@ -224,12 +224,12 @@ function leggi_album_per_id(int $album_id){
 	$det_h  = New AlbumDettagli($dbh);
 	$foto_h = New Fotografie($dbh);
 	$vid_h  = New Video($dbh);
-	$scan_h = New ScansioniDisco($dbh);
+	$dep_h = New Deposito($dbh);
 	$dida_h = New Didascalie($dbh);
 
 	// 1. lettura album_id in album
 	// 2. lettura album_id "su di 1 livello" in album
-	// 3. lettura scansioni_disco in scansioni_disco
+	// 3. lettura deposito in deposito
 	// 4. lettura fotografie
 	// 4.2. Composizione carousel
 	// 5. Lettura video
@@ -289,11 +289,11 @@ function leggi_album_per_id(int $album_id){
 		}
 	}
 	// se è rimasto museo.php faccio un ulteriore tentativo sulla tabella
-	// scansioni_disco
+	// deposito
 	if ($torna_su === URLBASE.'museo.php' || $torna_su === ""){
-		$return_to_scansione_id = $scan_h->get_record_id_da_percorso( $percorso_quasi_completo );
-		if ($return_to_scansione_id > 0){
-			$torna_su = URLBASE.'deposito.php/leggi/'.$return_to_scansione_id;
+		$return_to_deposito_id = $dep_h->get_record_id_da_percorso( $percorso_quasi_completo );
+		if ($return_to_deposito_id > 0){
+			$torna_su = URLBASE.'deposito.php/leggi/'.$return_to_deposito_id;
 		}else {
 			$torna_su = URLBASE.'museo.php'; // dopo ingresso
 		}
@@ -461,30 +461,30 @@ function leggi_album_per_id(int $album_id){
 
 
 /**
- * Carica album in album leggendo scansioni_disco
+ * Carica album in album leggendo deposito
  * Viene richiamata all'interno della funzione carica_album_dettagli_foto_video
  * che espone a video i risultati. A sua volta può esporre a video i progressi
  * del suo compito ma deve tornare un array uguale a quelli base
  * degli accessi al database.
  *
- * Va a inserire SOLO l'album partendo da un record di scansioni_disco
+ * Va a inserire SOLO l'album partendo da un record di deposito
  * se viene passato id zero si prende il primo che trova
  * con le caratteristiche della cartella (no file)
  * - i dettagli dell'album vengono caricati da carica_album_dettagli_foto_video()
  * - le foto e i video nell'album vengono caricati da carica_album_dettagli_foto_video()
  *
- * @param  int   $scansioni_id
+ * @param  int   $deposito_id
  * @return array $ret 'ok' + 'record_id' | 'error' + 'message'
  */
-function carica_album_da_scansioni_disco( int $scansioni_id) : array {
+function carica_album_da_deposito( int $deposito_id) : array {
 	$dbh    = New DatabaseHandler();
-	$scan_h = New ScansioniDisco($dbh);
+	$dep_h = New Deposito($dbh);
 	$alb_h  = New Album($dbh);
 
 	/**
-	 * 1. va a prendere il primo non lavorato o il record di scansioni_disco in input
-	 * 2. si vede se il record c'è in scansioni_disco
-	 * 3. cambio in scansioni_disco lo stato_lavori (da ... > in corso )
+	 * 1. va a prendere il primo non lavorato o il record di deposito in input
+	 * 2. si vede se il record c'è in deposito
+	 * 3. cambio in deposito lo stato_lavori (da ... > in corso )
 	 * 4. verifico se in album c'è già un album che fa riferimento a questo
 	 * 5. Se c'è, quello torna come fosse stato inserito
 	 * 6. Se manca vado a inserirlo solo se ...
@@ -494,53 +494,53 @@ function carica_album_da_scansioni_disco( int $scansioni_id) : array {
 	echo '<p class="fs-2 text-monospace"><strong>'. __FUNCTION__ .'</strong></p>'."\n";
 
 	// 1. va a prendere "il primo" o quello passato in input
-	if ($scansioni_id == 0){
+	if ($deposito_id == 0){
 		// cerca il primo che c'è
 		$campi=[];
-		$campi['query'] = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		$campi['query'] = 'SELECT * FROM ' . Deposito::nome_tabella
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 		. ' AND stato_lavori = :stato_lavori '
 		. " AND nome_file = '/' "
 		. ' LIMIT 1 ';
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-		$campi['stato_lavori'] = ScansioniDisco::stato_da_fare;
+		$campi['stato_lavori'] = Deposito::stato_da_fare;
 		
 	} else {
-		// verifica id in scansioni_disco
+		// verifica id in deposito
 		$campi=[];
-		$campi['query'] = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		$campi['query'] = 'SELECT * FROM ' . Deposito::nome_tabella
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 		. ' AND stato_lavori = :stato_lavori '
 		. " AND nome_file = '/' "
 		. " AND estensione = '' "
 		. ' AND record_id = :record_id ';
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-		$campi['stato_lavori'] = ScansioniDisco::stato_da_fare;
-		$scan_h->set_record_id($scansioni_id);
-		$campi['record_id'] = $scan_h->get_record_id();
+		$campi['stato_lavori'] = Deposito::stato_da_fare;
+		$dep_h->set_record_id($deposito_id);
+		$campi['record_id'] = $dep_h->get_record_id();
 	} // va a prendere "il primo" o quello passato in input
 
-	// 2. si vede se c'è in scansioni disco
+	// 2. si vede se c'è in Deposito
 	echo '<p class="text-monospace">Ricerca >in: <br />'
 	. $dbh->esponi($campi).'</p>';
 
-	$ret_scan = $scan_h->leggi($campi);
+	$ret_dep = $dep_h->leggi($campi);
 
 	echo '<p class="text-monospace">Ricerca out<: <br />'
-	. $dbh->esponi($ret_scan).'</p>';
+	. $dbh->esponi($ret_dep).'</p>';
 
-	if ( isset($ret_scan['error'])){
+	if ( isset($ret_dep['error'])){
 		$ret = [
 			'error' => true,
 			'message' => __FUNCTION__ . ' ' . __LINE__
-			. " Non è stato trovato in scansioni_disco il record " . $scansioni_id
-			. '<br />' . $ret_scan['message']
+			. " Non è stato trovato in deposito il record " . $deposito_id
+			. '<br />' . $ret_dep['message']
 			. '<br />' . $dbh->esponi($campi)
 		];
 		echo '<br />Errore: '.$ret['message']. '<br />STOP';
 		return $ret;
 	}
-	if ($ret_scan['numero'] == 0 && $scansioni_id == 0){
+	if ($ret_dep['numero'] == 0 && $deposito_id == 0){
 		// L'operazione è inserire album, se non ci sono album da inserire è
 		// considerato cmq un errore
 		$ret = [
@@ -551,13 +551,13 @@ function carica_album_da_scansioni_disco( int $scansioni_id) : array {
 		echo '<br />Non sono stati trovati record da elaborare<br />STOP';
 		return $ret;
 	} // non trovato
-	if ($ret_scan['numero'] == 0){
+	if ($ret_dep['numero'] == 0){
 		// L'operazione è inserire album, se non ci sono album da inserire è
 		// considerato cmq un errore
 		$ret = [
 			'error' => true,
-			'message' => "Non è stato trovato in scansioni_disco il record "
-			. $scansioni_id . ', ecco. '
+			'message' => "Non è stato trovato in deposito il record "
+			. $deposito_id . ', ecco. '
 			. '<br />' . $dbh->esponi($campi)
 		];
 		echo '<br />Errore: '.$ret['message']. '<br />STOP';
@@ -565,45 +565,45 @@ function carica_album_da_scansioni_disco( int $scansioni_id) : array {
 	} // non trovato
 
 	// trovato, avanti coi lavori
-	$futuro_album = $ret_scan['data'][0];
+	$futuro_album = $ret_dep['data'][0];
 	echo '<p style="font-family:monospace">Futuro Album: <br />'
 	. $dbh->esponi($futuro_album).'</p>';
 
-	// 3. In scansioni_disco cambio stato_lavori
-	$scansioni_id = $futuro_album['record_id'];
-	$ret_stato = $scan_h->set_stato_lavori_in_scansioni_disco($scansioni_id, ScansioniDisco::stato_in_corso);
+	// 3. In deposito cambio stato_lavori
+	$deposito_id = $futuro_album['record_id'];
+	$ret_stato = $dep_h->set_stato_lavori_in_deposito($deposito_id, Deposito::stato_in_corso);
 	if (isset($ret_stato['error'])){
 		$ret = [
 			'error' => true,
-			'message' => "Non è stato aggiornato in scansioni_disco lo stato_lavori per il record "
-			. $scansioni_id . '<br />'
+			'message' => "Non è stato aggiornato in deposito lo stato_lavori per il record "
+			. $deposito_id . '<br />'
 			. $ret_stato['message']
 		];
 		return $ret;
-	} // errore in aggiornamento di stato_lavori in scansioni_disco
-	echo '<p style="font-family:monospace">Aggiornamento stato lavori in scansioni_disco: <br />'
+	} // errore in aggiornamento di stato_lavori in deposito
+	echo '<p style="font-family:monospace">Aggiornamento stato lavori in deposito: <br />'
 	. $dbh->esponi($ret_stato).'</p>';
 
 	// 4. Verifica se sia già presente un album in album che
-	// fa riferimento a questa scheda di scansioni_disco
+	// fa riferimento a questa scheda di deposito
 	// Se c'è, salta inserimento e ritorna il record gà presente
 	$campi=[];
 	$campi['query'] = 'SELECT * FROM ' .Album::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
-	. ' AND record_id_in_scansioni_disco = :record_id_in_scansioni_disco ';
+	. ' AND record_id_in_deposito = :record_id_in_deposito ';
 	$campi['record_cancellabile_dal']      = $dbh->get_datetime_forever();
-	$campi['record_id_in_scansioni_disco'] = $scansioni_id;
+	$campi['record_id_in_deposito'] = $deposito_id;
 	$ret_alb=[];
 	$ret_alb = $alb_h->leggi($campi);
 	if (isset($ret_alb['error'])){
 		// cambio cmq stato_lavori
 		$ret_stato=[];
-		$ret_stato = $scan_h->set_stato_lavori_in_scansioni_disco($scansioni_id, ScansioniDisco::stato_completati);
+		$ret_stato = $dep_h->set_stato_lavori_in_deposito($deposito_id, Deposito::stato_completati);
 		$ret = [
 			'error' => true,
 			'message' => "È successo qualcosa di inatteso nella ricerca "
 			. "di un album (se ci fosse) che fa riferimento al record "
-			. $scansioni_id . ' della tabella deposito.<br />'
+			. $deposito_id . ' della tabella deposito.<br />'
 			. "L'errore è: " . $ret_alb['message']
 		];
 		echo '<br />'.$ret['message'].'<br />STOP';
@@ -613,7 +613,7 @@ function carica_album_da_scansioni_disco( int $scansioni_id) : array {
 	// Trovato, che aggiungo? Fuori con il primo album trovato
 	if ($ret_alb['numero'] > 0){
 		$ret_stato=[];
-		$ret_stato = $scan_h->set_stato_lavori_in_scansioni_disco($scansioni_id, ScansioniDisco::stato_completati);
+		$ret_stato = $dep_h->set_stato_lavori_in_deposito($deposito_id, Deposito::stato_completati);
 		$ret = [
 			"ok"=> true,
 			"record_id" => $ret_alb['data'][0]['record_id'],
@@ -628,7 +628,7 @@ function carica_album_da_scansioni_disco( int $scansioni_id) : array {
 	// 6.1. composizione query sql che va integrata man mano che si trovano
 	//      livelli in uso alla cartella
 	$campi=[];
-	$campi['query'] = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+	$campi['query'] = 'SELECT * FROM ' . Deposito::nome_tabella
 	. " WHERE estensione > '' "
 	. ' AND disco = :disco       AND livello1 = :livello1 ';
 	$campi['disco']     = $futuro_album['disco'];
@@ -663,22 +663,22 @@ function carica_album_da_scansioni_disco( int $scansioni_id) : array {
 		$campi['query'] .= ' AND livello6 = :livello6 ';
 		$campi['livello6']  = $futuro_album['livello6'];
 	}
-	echo '<p style="font-family:monospace">Lettura Scansioni disco - prima: <br />'
+	echo '<p style="font-family:monospace">Lettura Deposito - prima: <br />'
 	. $dbh->esponi($campi).'</p>';
 
-	$ret_check = $scan_h->leggi($campi);
+	$ret_check = $dep_h->leggi($campi);
 
-	echo '<p style="font-family:monospace">Lettura Scansioni disco - dopo: <br />'
+	echo '<p style="font-family:monospace">Lettura Deposito - dopo: <br />'
 	. $dbh->esponi($ret_check).'</p>';
 	
 	if (isset($ret_check['error'])){
 		// aggiorna stato - ci prova comunque
-		$ret_stato = $scan_h->set_stato_lavori_in_scansioni_disco($scansioni_id, ScansioniDisco::stato_completati);
+		$ret_stato = $dep_h->set_stato_lavori_in_deposito($deposito_id, Deposito::stato_completati);
 
 		$ret = [
 			'error' => true,
 			'message' => __FUNCTION__ . ' ' . __LINE__
-			. " La lettura del contenuto in scansioni_disco ha prodotto un errore "
+			. " La lettura del contenuto in deposito ha prodotto un errore "
 			. '<br />Errore: ' . $ret_stato['message']
 			. '<br />' . $dbh->esponi($campi)
 		];
@@ -687,8 +687,8 @@ function carica_album_da_scansioni_disco( int $scansioni_id) : array {
 	}
 	if ($ret_check['numero']== 0){
 		// aggiorna stato - ci prova comunque
-		$ret_stato = $scan_h->set_stato_lavori_in_scansioni_disco($scansioni_id, ScansioniDisco::stato_completati);
-		echo  "Il record $scansioni_id in scansioni_disco non contiene materiali "
+		$ret_stato = $dep_h->set_stato_lavori_in_deposito($deposito_id, Deposito::stato_completati);
+		echo  "Il record $deposito_id in deposito non contiene materiali "
 			. '<br />ret_check: ' . $dbh->esponi($ret_check)
 			. '<br />PASSO AL PROSSIMO';
 		// ricarica 5 secondi
@@ -698,7 +698,7 @@ function carica_album_da_scansioni_disco( int $scansioni_id) : array {
 	
 	//
 	// inserimento album
-	// composizione record scansioni_disco > album
+	// composizione record deposito > album
 	$album=[];
 	$album['disco']= $futuro_album['disco'];
 	$album['titolo_album']= $futuro_album['livello1'];
@@ -724,14 +724,14 @@ function carica_album_da_scansioni_disco( int $scansioni_id) : array {
 		$album['percorso_completo'] .= '/'.$futuro_album['livello6'];
 	}
 	$album['percorso_completo'] .= '/';
-	$album['record_id_in_scansioni_disco'] = $scansioni_id;
+	$album['record_id_in_deposito'] = $deposito_id;
 
 	$ret_alb = $alb_h->aggiungi($album);
 	echo '<p style="font-family:monospace">Inserimento album: <br />'
 	. $dbh->esponi($ret_alb).'</p>';
 	// cambio cmq stato_lavori
 	$ret_stato=[];
-	$ret_stato = $scan_h->set_stato_lavori_in_scansioni_disco($scansioni_id, ScansioniDisco::stato_completati);
+	$ret_stato = $dep_h->set_stato_lavori_in_deposito($deposito_id, Deposito::stato_completati);
 
 	if (isset($ret_alb['error'])){
 		echo '<br />Errore: '.$ret_alb['message']. '<br />STOP';
@@ -746,7 +746,7 @@ function carica_album_da_scansioni_disco( int $scansioni_id) : array {
 	// per caricare i video
 	// video-controller / carica_video_da_album
 
-	echo '<p class="text-monospace">Aggiornato stato scheda scansioni_disco </p>';
+	echo '<p class="text-monospace">Aggiornato stato scheda deposito </p>';
 	echo '<p class="fs-2 text-monospace">'. __FUNCTION__ . '</p>';
 	echo '<p>fine</p>';
 	// ricarica 5 secondi
@@ -754,7 +754,7 @@ function carica_album_da_scansioni_disco( int $scansioni_id) : array {
 
 	return $ret_alb;
 
-} // carica_album_da_scansioni_disco
+} // carica_album_da_deposito
 
 
 /**
@@ -1078,26 +1078,26 @@ function cancella_album_dettagli( int $dettaglio_id){
 
 
 /**
- * Quello che è stato caricato in scansioni_disco diventa:
+ * Quello che è stato caricato in deposito diventa:
  * - album
  * - fotografie dell'album
  * - video dell'album
  * Non ritorna dati ma mostra il progresso del lavoro fino alla conclusione
  *
- * @param  int  scansioni_id scansioni_disco
+ * @param  int  deposito_id deposito
  * @return void Espone codice a video
  *
- * Legge scansioni_disco record_id
+ * Legge deposito record_id
  * Scrive album
  * Scrive album_dettagli
  * Scrive fotografie
  * scrive video
  */
-function carica_album_dettagli_foto_video(int $scansioni_id){
+function carica_album_dettagli_foto_video(int $deposito_id){
 	$dbh    = New DatabaseHandler();
 	$alb_h  = New Album($dbh);
 
-	// 1. carica album da scansioni_disco
+	// 1. carica album da deposito
 	// 2. aggiunge album_dettagli
 	// 3. aggiunge fotografie
 	// 4. aggiunge video
@@ -1112,8 +1112,8 @@ function carica_album_dettagli_foto_video(int $scansioni_id){
 	// si possono usare le classi bootstrap
 	echo '<p class="fs-2 text-monospace"><strong>'.$titolo_pagina.'</strong></p>'."\n";
 
-	// 1. legge scansioni_disco e carica album
-	$ret_a = carica_album_da_scansioni_disco($scansioni_id);
+	// 1. legge deposito e carica album
+	$ret_a = carica_album_da_deposito($deposito_id);
 	// può tornare messaggi di errore ma gestibili
 	if (isset($ret_a['message'])){
 
@@ -1169,7 +1169,7 @@ function carica_album_dettagli_foto_video(int $scansioni_id){
 		exit(1);
 	}
 
-	// carica fotografie dell'album da scansioni_disco
+	// carica fotografie dell'album da deposito
 	// fotografie-controller
 	echo '<p class="text-monospace;">Carica foto da album '.$album_id.'</p>'."\n";
 	$ret_f = carica_fotografie_da_album($album_id);
@@ -1199,7 +1199,7 @@ function carica_album_dettagli_foto_video(int $scansioni_id){
 	} // carica_fotografie_da_album
 	echo '<p style="font-family:monospace;color: red;">Carica foto da album - fine</p>'."\n";
 
-	// carica video dell'album da scansioni_disco
+	// carica video dell'album da deposito
 	// video-controller
 	echo '<pre style="color: red;">Carica video da album </pre>'."\n";
 	$ret_v = carica_video_da_album($album_id);
@@ -1576,7 +1576,7 @@ function modifica_titolo_album(int $album_id, array $dati_input ){
 	$campi['titolo_album']                 = $ret_alb['data'][0]['titolo_album'];
 	$campi['disco']                        = $ret_alb['data'][0]['disco'];
 	$campi['percorso_completo']            = $ret_alb['data'][0]['percorso_completo'];
-	$campi['record_id_in_scansioni_disco'] = $ret_alb['data'][0]['record_id_in_scansioni_disco'];
+	$campi['record_id_in_deposito'] = $ret_alb['data'][0]['record_id_in_deposito'];
 	$campi['stato_lavori']                 = $ret_alb['data'][0]['stato_lavori'];
 	$campi['record_cancellabile_dal']      = $dbh->get_datetime_now();
 	$ret_ins = $alb_h->aggiungi($campi);

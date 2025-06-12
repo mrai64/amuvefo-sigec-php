@@ -12,7 +12,7 @@
  *   mostra album a video 
  * 
  * /album.php/aggiungi-album/0 "il primo che trovi"
- * /album.php/aggiungi-album/{record_id_in_scansioni_disco}
+ * /album.php/aggiungi-album/{record_id_in_deposito}
  *   aggiunge in tabella album partendo dall'id di scansione_disco
  *   aggiunge i dettagli dell'album 
  *   aggiunge le fotografie dell'album 
@@ -85,7 +85,7 @@ if (count($pezzi['operazioni']) < 2){
 //
 // check 2 - il parametro dev'essere intero senza segno 
 $album_id           = $pezzi['operazioni'][1];
-$scansioni_disco_id = $album_id; // il parametro è sempre il primo, 
+$deposito_id = $album_id; // il parametro è sempre il primo, 
 $dettaglio_id       = $album_id; // ma dipende dalla richiesta il 'chi è chi'
 if (!is_numeric($album_id)){
 	http_response_code(404); // TODO sostituire con il codice errore parametro invalido 
@@ -122,13 +122,13 @@ if (get_set_abilitazione() <= SOLALETTURA){
 
 /**
  * AGGIUNGI ALBUM - controller album
- * Legge scansioni_disco e carica album, dettagli album e fotografie o video 
+ * Legge deposito e carica album, dettagli album e fotografie o video 
  * 
  * /album.php/aggiungi-album/0                    prende il primo che trova 
- * /album.php/aggiungi-album/{scansioni_disco_id} puntuale 
+ * /album.php/aggiungi-album/{deposito_id} puntuale 
  */
 if ($richiesta == 'aggiungi-album'){
-	carica_album_dettagli_foto_video($scansioni_disco_id);
+	carica_album_dettagli_foto_video($deposito_id);
 	exit(0); // qui non dovrebbe arrivarci, però...
 } // aggiungi 
 

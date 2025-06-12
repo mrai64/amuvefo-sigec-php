@@ -4,14 +4,14 @@
  * @author Massimo Rainato <maxrainato@libero.it>
  * 
  * La tabella zona_intro è un primo passo per l'archiviazione che,
- * dopo l'inserimento nel sito tramite sftp, raccoglie l'elenco delle cartelle 
- * che vanno lavorate, e caricare bella tabella del deposito cartelle e file in  
- * scansioni_disco. Dal deposito scansioni_disco in seguito si caricano album, 
- * fotografie video e i loro dettagli caricabili in automatico.
+ * dopo l'inserimento nel sito tramite sftp[*], raccoglie l'elenco delle cartelle 
+ * che vanno lavorate e poi caricare nella tabella deposito. 
+ * Dalla tabella deposito in seguito si caricano album, 
+ * fotografie, video e i loro dettagli caricabili in automatico.
  * 
- * TODO consentire il caricamento delle cartelle da modulo con definizione 
- * TODO del posto in cui caricarle, e contestuale caricamento del record 
- * TODO in zona_intro 
+ * TODO [*] Consentire il caricamento delle cartelle tramite modulo, con definizione 
+ * TODO del posto in cui caricarle, anche più di uno, e contestuale 
+ * TODO caricamento del record in tabella zona_intro.
  * 
  * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-12-zona_intro/ 
  *

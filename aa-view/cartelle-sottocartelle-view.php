@@ -115,8 +115,8 @@
 												<td><a href="<?=URLBASE; ?>deposito.php/leggi/<?=$sottocartella["record_id"]; ?>"><i class="bi bi-archive" style="font-size:1rem;color: #<?=$tinta_rgb; ?>"></i></a>&nbsp;</td>
 												<td><a href="<?=URLBASE; ?>deposito.php/leggi/<?=$sottocartella["record_id"]; ?>" style="text-decoration: none;"><span style="font-size:1rem;color: #<?=$tinta_rgb; ?>"><?=$sottocartella_nome; ?></span></a></td>
 												<td nowrap>
-													<a href="<?=URLBASE; ?>deposito.php/cambio-tinta/<?=$sottocartella["record_id"]; ?>?t=scansioni_disco&back=<?=$url_sottocartella; ?>" 
-													class="btn btn-outline-primary btn-sm"><i class="bi bi-palette-fill"></i></a><!-- a href="<?=URLBASE; ?>deposito.php/richiesta<?=$sottocartella["record_id"]; ?>&t=scansioni_disco&back=<?=$url_sottocartella; ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-cart-plus-fill"></i></a -->
+													<a href="<?=URLBASE; ?>deposito.php/cambio-tinta/<?=$sottocartella["record_id"]; ?>?t=deposito&back=<?=$url_sottocartella; ?>" 
+													class="btn btn-outline-primary btn-sm"><i class="bi bi-palette-fill"></i></a><!-- a href="<?=URLBASE; ?>deposito.php/richiesta<?=$sottocartella["record_id"]; ?>&t=deposito&back=<?=$url_sottocartella; ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-cart-plus-fill"></i></a -->
 												</td>
 											</tr>
 										<?php 

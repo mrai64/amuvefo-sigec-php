@@ -1,28 +1,28 @@
 <?php
 /**
- * @source /aa-model/scansioni-disco-oop.php 
+ * @source /aa-model/deposito-oop.php 
  * @author Massimo Rainato <maxrainato@libero.it>
  * 
- * TODO La tabella scansioni_disco di fatto e di nome deve diventare 
+ * TODO La tabella deposito di fatto e di nome deve diventare 
  * TODO il Deposito delle cartelle, fotografie, video che compongono l'archivio 
  * TODO visibile, che viene caricato partendo dalla scansione di cartelle 
  * TODO nuove o in aggiornamento.
- * TODO scansioni_disco deve diventare deposito 
- * TODO scansioni-disco deve diventare deposito 
+ * TODO deposito deve diventare deposito 
+ * TODO deposito deve diventare deposito 
  * 
- * Accesso CRUD alla tabella scansioni_disco.
- * scansioni_disco contiene un insieme delimitato di file 
+ * Accesso CRUD alla tabella deposito.
+ * deposito contiene un insieme delimitato di file 
  * e cartelle, ricavati dalla scansione del disco online.
  * Non tutti i file che sono nella cartella vanno a finire 
  * in questo archivio, per esempio 
  * non ci vanno i file Thumbs.db per l'estensione db 
  * o i .DS_Store i ._nomefile.jpg perché iniziano con il '.'  
  * 
- * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-13-scansioni_disco/ Documentation for table scansioni_disco and class ScansioniDisco
+ * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-13-deposito/ 
  * 
  * dipendenze: Classe DatabaseHandler / PDO (mysql) 
  *
- * SELECT * FROM `scansioni_disco` 
+ * SELECT * FROM `deposito` 
  * WHERE record_cancellabile_dal = '9999-12-31 23:59:59' 
  * order by `disco`,`livello1`,`livello2`,`livello3`,
  * `livello4`,`livello5`,`livello6`,`nome_file`,
@@ -30,10 +30,10 @@
  *
  */
 
-Class ScansioniDisco extends DatabaseHandler {
+Class Deposito extends DatabaseHandler {
 	public $conn; // connessione 
 
-	public const nome_tabella     = 'scansioni_disco';
+	public const nome_tabella     = 'deposito';
 	public const stato_da_fare    = '0 da fare';
 	public const stato_in_corso   = '1 in corso';
 	public const stato_completati = '2 completati';
@@ -830,7 +830,7 @@ Class ScansioniDisco extends DatabaseHandler {
 	 * @param  int   $record_id
 	 * @param  string $stato_lavori 
 	 */
-	public function set_stato_lavori_in_scansioni_disco(int $record_id, string $stato_lavori) : array {
+	public function set_stato_lavori_in_deposito(int $record_id, string $stato_lavori) : array {
 		// campi obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
 
@@ -866,7 +866,7 @@ Class ScansioniDisco extends DatabaseHandler {
 			'message' => 'Aggiornamento eseguito'
 		];
 		return $ret;
-	} // set_stato_lavori_in_scansioni_disco
+	} // set_stato_lavori_in_deposito
 
 	/**
 	 * @param  string 'folder/folder/folder/' 
@@ -895,7 +895,7 @@ Class ScansioniDisco extends DatabaseHandler {
 		$campi=[];
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 		if ($livello1 > ''){
-			$campi['query'] = 'SELECT * FROM scansioni_disco '
+			$campi['query'] = 'SELECT * FROM deposito '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 			. " AND nome_file = '/' "
 			. ' AND livello1 = :livello1 '
@@ -903,7 +903,7 @@ Class ScansioniDisco extends DatabaseHandler {
 			$campi['livello1'] = $livello1;
 		}
 		if ($livello2 > ''){
-			$campi['query'] = 'SELECT * FROM scansioni_disco '
+			$campi['query'] = 'SELECT * FROM deposito '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 			. " AND nome_file = '/' "
 			. ' AND livello1 = :livello1 AND livello2 = :livello2 '
@@ -911,7 +911,7 @@ Class ScansioniDisco extends DatabaseHandler {
 			$campi['livello2'] = $livello2;
 		}
 		if ($livello3 > ''){
-			$campi['query'] = 'SELECT * FROM scansioni_disco '
+			$campi['query'] = 'SELECT * FROM deposito '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 			. " AND nome_file = '/' "
 			. ' AND livello1 = :livello1 AND livello2 = :livello2 '
@@ -920,7 +920,7 @@ Class ScansioniDisco extends DatabaseHandler {
 			$campi['livello3'] = $livello3;
 		}
 		if ($livello4 > ''){
-			$campi['query'] = 'SELECT * FROM scansioni_disco '
+			$campi['query'] = 'SELECT * FROM deposito '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 			. "AND nome_file = '/' "
 			. 'AND livello1 = :livello1 AND livello2 = :livello2 '
@@ -929,7 +929,7 @@ Class ScansioniDisco extends DatabaseHandler {
 			$campi['livello4'] = $livello4;
 		}
 		if ($livello5 > ''){
-			$campi['query'] = 'SELECT * FROM scansioni_disco '
+			$campi['query'] = 'SELECT * FROM deposito '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 			. "AND nome_file = '/' "
 			. 'AND livello1 = :livello1 AND livello2 = :livello2 '
@@ -939,7 +939,7 @@ Class ScansioniDisco extends DatabaseHandler {
 			$campi['livello5'] = $livello5;
 		}
 		if ($livello6 > ''){
-			$campi['query'] = 'SELECT * FROM scansioni_disco '
+			$campi['query'] = 'SELECT * FROM deposito '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 			. "AND nome_file = '/' "
 			. 'AND livello1 = :livello1 AND livello2 = :livello2 '
@@ -948,66 +948,66 @@ Class ScansioniDisco extends DatabaseHandler {
 			. 'ORDER BY record_id ';
 			$campi['livello6'] = $livello6;
 		}
-		$ret_scan = $this->leggi($campi);
-		if (isset($ret_scan['error'])){
+		$ret_dep = $this->leggi($campi);
+		if (isset($ret_dep['error'])){
 			echo __CLASS__ . ' ' . __FUNCTION__ 
-			.'<br>Errore: '. $ret_scan['error']
+			.'<br>Errore: '. $ret_dep['error']
 			.'<br>Campi:'. $dbh::esponi($campi)
-			.'<br>'. $dbh::esponi($ret_scan);
+			.'<br>'. $dbh::esponi($ret_dep);
 			exit(1);
 		}
-		if (isset($ret_scan['numero']) && $ret_scan['numero'] > 0){
-			return $ret_scan['data'][0]['record_id'];
+		if (isset($ret_dep['numero']) && $ret_dep['numero'] > 0){
+			return $ret_dep['data'][0]['record_id'];
 		}
 		return 0; // non trovato 
 	} // get_record_id_da_percorso
 
 	/**
-	 * get_scansioni_disco_per_id()
+	 * get_deposito_per_id()
 	 * Verifica se è presente un record in tabella e restituisce
 	 * 'ok' e il record oppure 'error' e 'message'
 	 * 
-	 * @param    int $scansioni_id 
+	 * @param    int $deposito_id 
 	 * @return array 'ok' + record | 'error' + message
 	 */
-	public function get_scansioni_disco_per_id(int $scansioni_id = 0) : array{
+	public function get_deposito_per_id(int $deposito_id = 0) : array{
 		$dbh    = $this->conn;
 
-		$this->set_record_id($scansioni_id);
+		$this->set_record_id($deposito_id);
 		$campi =[];
 		$campi['query'] = 'SELECT + FROM ' . self::nome_tabella
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 		. ' AND record_id 0 :record_id ';
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 		$campi['record_id'] = $this->get_record_id();
-		$ret_scan = [];
-		$ret_scan= $this->leggi($campi);
-		if (isset($ret_scan['error'])){
-			return $ret_scan;
+		$ret_dep = [];
+		$ret_dep= $this->leggi($campi);
+		if (isset($ret_dep['error'])){
+			return $ret_dep;
 		}
-		if ($ret_scan['numero'] < 1){
+		if ($ret_dep['numero'] < 1){
 			$ret = [
 				'error'  => true,
-				'message'=> 'Record '. $scansioni_id . ' non trovato in tabella.'
+				'message'=> 'Record '. $deposito_id . ' non trovato in tabella.'
 			];
 			return $ret;
 		}
 		$ret =[
 			'ok'     => true,
-			'record' => $ret_scan['data'][0]
+			'record' => $ret_dep['data'][0]
 		];
 		return $ret;
-	} // get_scansioni_disco_per_id
+	} // get_deposito_per_id
 
 	/**
-	 * Riceve un record di scansioni_disco che referenzia un album,
-	 * e va a rintracciare in scansioni_disco le fotografie che sono 
+	 * Riceve un record di deposito che referenzia un album,
+	 * e va a rintracciare in deposito le fotografie che sono 
 	 * contenute nello stesso album 
 	 * 
-	 * @param  array $album da scansioni_disco non da album
+	 * @param  array $album da deposito non da album
 	 * @return array 'ok' + data | 'error' + message 
 	 */
-	public function get_scansioni_disco_foto_da_album( array $album = [] ) : array {
+	public function get_deposito_foto_da_album( array $album = [] ) : array {
 		$dbh    = $this->conn;
 
 		// sempre malfidenti 
@@ -1020,7 +1020,7 @@ Class ScansioniDisco extends DatabaseHandler {
 			return $ret;
 		}
 		$campi=[];
-		$campi['query']='SELECT * FROM ' . ScansioniDisco::nome_tabella
+		$campi['query']='SELECT * FROM ' . Deposito::nome_tabella
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 		. ' AND livello1 = :livello1  AND livello2 = :livello2 '
 		. ' AND livello3 = :livello3  AND livello4 = :livello4 '
@@ -1035,12 +1035,12 @@ Class ScansioniDisco extends DatabaseHandler {
 		$campi['livello4'] = $album['livello4'];
 		$campi['livello5'] = $album['livello5'];
 		$campi['livello6'] = $album['livello6'];
-		$ret_scan = [];
-		$ret_scan = $this->leggi($campi);
-		if (isset($ret_scan['error'])){
-			return $ret_scan;
+		$ret_dep = [];
+		$ret_dep = $this->leggi($campi);
+		if (isset($ret_dep['error'])){
+			return $ret_dep;
 		}
-		if ($ret_scan['numero'] < 1 ){
+		if ($ret_dep['numero'] < 1 ){
 			$ret = [
 				'error'  => true,
 				'message'=> "Non sono stati rintracciate fotografie in album."
@@ -1050,7 +1050,7 @@ Class ScansioniDisco extends DatabaseHandler {
 		}
 		// TODO Si può verificare se le foto ci sono ancora in 
 		// TODO disco
-		return $ret_scan;
+		return $ret_dep;
 	}
 
-} // class ScansioniDisco
+} // class Deposito

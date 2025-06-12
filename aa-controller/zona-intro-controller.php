@@ -3,26 +3,26 @@
  * ZONA INTRO controller
  * 
  * funzioni relative ai file e cartelle inseriti in archivio
- * nelle tabelle zona_intro e scansioni_disco 
+ * nelle tabelle zona_intro e deposito 
  * 
  * - crea_query_cartella 
  *   usata da leggi_cartella_per_id
  * - crea_query_sottocartelle
  *   usata da leggi_cartella_per_id
  * - leggi_cartella_per_id 
- *   legge un record della tabella scansioni_disco 
+ *   legge un record della tabella deposito 
  *   e mostra la mappa cartelle + sotto-cartelle  
  * - leggi_cartella_per_percorso 
  *   alternativa alla funzione lecci_cartella_per_id 
  *   questa usa un percorso /cartella/cartella/cartella/
- *   per identificare il record in tabella scansioni_disco 
+ *   per identificare il record in tabella deposito 
  *   e mostrare la schermata cartella + sotto-cartelle 
  * - verifica_cartella_contiene_album
  * 
  * - lista_cartelle_sospese 
  * - set_stato_lavori 
- * - carica_cartelle_in_scansioni_disco 
- *   carica in scansioni_disco partendo da zona_intro 
+ * - carica_cartelle_in_deposito 
+ *   carica in deposito partendo da zona_intro 
  * - carica_cartelle_in_zona_intro
  *   espone il modulo per l'aggiunta di una cartella in zona_intro
  * - cambia_tinta_record
@@ -37,7 +37,7 @@ if (!defined('ABSPATH')){
 	include_once('../_config.php');
 }
 include_once(ABSPATH . 'aa-model/database-handler-oop.php'); //   Class DatabaseHandler
-include_once(ABSPATH . 'aa-model/scansioni-disco-oop.php');  //   Class ScansioniDisco
+include_once(ABSPATH . 'aa-model/deposito-oop.php');  //   Class Deposito
 include_once(ABSPATH . 'aa-model/album-oop.php');//               Class Album 
 include_once(ABSPATH . 'aa-model/zona-intro-oop.php');//  Class Cartelle
 
@@ -141,7 +141,7 @@ function set_stato_lavori(int $cartella_id, string $stato_lavori) : bool {
 
 
 /**
- * Carica in scansioni_disco una cartella dalla tabella zona_intro
+ * Carica in deposito una cartella dalla tabella zona_intro
  * 
  * @param  int $cartella_id | 0 
  *   Se non viene passato o viene passato 0,
@@ -160,22 +160,22 @@ function set_stato_lavori(int $cartella_id, string $stato_lavori) : bool {
  * 3. si verifica che corrisponda a una cartella 
  *    se no: fine lavoro 
  * 4. si verifica se con i dati disponibili sia già presente 
- *    nella tabella deposito scansioni_disco un record per la cartella
+ *    nella tabella deposito deposito un record per la cartella
  * 5. Se Manca: si inserisce, cambio stato 'lavori completati' e fine lavori 
  * 6. Se Presente: cambio stato 'lavori completati' e fine lavori 
  * 7. Vengono caricate  
  * 7.1. in zona_intro le sottocartelle trovate
- * 7.2. in scansioni_disco le fotografie (e i video) 
+ * 7.2. in deposito le fotografie (e i video) 
  *      che contiene la cartella 
  */
-function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
+function carica_cartelle_in_deposito( int $cartella_id = 0){
 	$dbh        = New DatabaseHandler(); // nessun parametro dedicato
 	$cartelle_h = New Cartelle($dbh);
 	// ret_car
-	$scan_h     = New ScansioniDisco($dbh);
-	// ret_scan
-	// ret_scan_c
-	// ret_scan_f 
+	$dep_h     = New Deposito($dbh);
+	// ret_dep
+	// ret_dep_c
+	// ret_dep_f 
 	$errori = '';
 
 	/**
@@ -188,7 +188,7 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 	// si possono usare le classi di bootstrap 
 	
 	echo '<h2 class="text-monospace">Caricamento di una cartella in deposito</h2>'
-	. '<p class="text-monospace">Da tabella zona_intro in tabella scansioni_disco</p>';
+	. '<p class="text-monospace">Da tabella zona_intro in tabella deposito</p>';
 
 	// 1. id presente o primo che capita
 	// get_zona_intro_per_id 
@@ -254,7 +254,7 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 		exit(1);
 	}
 	/**
-	 * prepara i dati per inserirli in scansioni_disco 
+	 * prepara i dati per inserirli in deposito 
 	 */
 	$disco   = $cartella['disco'];
 	$percorso_fs_cartella = str_ireplace( URLBASE, './', $cartella['percorso_completo']);
@@ -282,9 +282,9 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 		echo $res;
 		exit(1);
 	}
-	// Verifica se il record della cartella in scansioni_disco c'è già 
+	// Verifica se il record della cartella in deposito c'è già 
 	$campi=[];
-		$campi['query'] = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		$campi['query'] = 'SELECT * FROM ' . Deposito::nome_tabella
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 		. " AND nome_file = '/'      AND estensione = '' "
 		. ' AND disco = :disco '
@@ -300,16 +300,16 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 		$campi['livello4'] = $livello4;
 		$campi['livello5'] = $livello5;
 		$campi['livello6'] = $livello6;
-		$ret_scan_c = []; 
-		$ret_scan_c = $scan_h->leggi($campi);
-		if ( isset($ret_scan_c['error'])){
-			$errori .= '<br>Cercando un record in scansioni_disco si è verificato questo Errore:'
-			. '<br>' . $ret_scan_c['message']
+		$ret_dep_c = []; 
+		$ret_dep_c = $dep_h->leggi($campi);
+		if ( isset($ret_dep_c['error'])){
+			$errori .= '<br>Cercando un record in deposito si è verificato questo Errore:'
+			. '<br>' . $ret_dep_c['message']
 			. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi));
 
 		}
 	// Se Manca Aggiungo altrimenti il record c'è già, passo oltre 
-	if ($ret_scan_c['numero'] < 1){
+	if ($ret_dep_c['numero'] < 1){
 		// si inserisce
 		$campi=[];
 			$campi['disco']    = $disco;
@@ -324,41 +324,41 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 			$campi['modificato_il'] = date("Y-m-d H:i:s", filemtime($percorso_con_abspath));
 			$campi['codice_verifica'] = '0';
 			$campi['tinta_rgb'] = '000000';
-			$ret_scan = [];
-			$ret_scan = $scan_h->aggiungi($campi);
+			$ret_dep = [];
+			$ret_dep = $dep_h->aggiungi($campi);
 		
-			if ( isset($ret_scan['error'])){
+			if ( isset($ret_dep['error'])){
 				echo "<p style='font-family:monospace;'>"
-				. "Non è stato aggiornato lo stato di una cartella in scansioni_disco."
-				. '<br />Errore: ' . $ret_scan['message']
-				. '<br />campi: ' . str_ireplace(';', '; ', serialize($ret_scan))
+				. "Non è stato aggiornato lo stato di una cartella in deposito."
+				. '<br />Errore: ' . $ret_dep['message']
+				. '<br />campi: ' . str_ireplace(';', '; ', serialize($ret_dep))
 				. "<br />STOP LAVORI</p>";
 				exit(1);
 			}
-		// si passa a inserire foto e video in scansioni_disco 
+		// si passa a inserire foto e video in deposito 
 	} else {
 		// andrà ri-lavorato come fosse stato inserito ora
 		$campi = [];
-			$campi['update'] = 'UPDATE ' . ScansioniDisco::nome_tabella
+			$campi['update'] = 'UPDATE ' . Deposito::nome_tabella
 			. ' SET stato_lavori = :stato_lavori '
 			. ' WHERE record_id = :record_id ';
-			$campi['stato_lavori'] = ScansioniDisco::stato_da_fare;
-			$campi['record_id'] = $ret_scan_c['data'][0]['record_id'];
-			$ret_scan = [];
-			$ret_scan = $scan_h->modifica($campi);
-			if (isset($ret_scan['error'])){
+			$campi['stato_lavori'] = Deposito::stato_da_fare;
+			$campi['record_id'] = $ret_dep_c['data'][0]['record_id'];
+			$ret_dep = [];
+			$ret_dep = $dep_h->modifica($campi);
+			if (isset($ret_dep['error'])){
 				echo "<p style='font-family:monospace;'>"
-				. "Non è stato aggiornato lo stato di una cartella in scansioni_disco."
-				. '<br />Errore: ' . $ret_scan['message']
-				. '<br />campi: ' . str_ireplace(';', '; ', serialize($ret_scan))
+				. "Non è stato aggiornato lo stato di una cartella in deposito."
+				. '<br />Errore: ' . $ret_dep['message']
+				. '<br />campi: ' . str_ireplace(';', '; ', serialize($ret_dep))
 				. "<br />STOP LAVORI</p>";
 				exit(1);
-			} // già presente in scansioni_disco
+			} // già presente in deposito
 	} 
 
 	/**
 	 * scansiono elemento per elemento il contenuto della cartella 
-	 * percorso_fs_cartella e carico in scansioni_disco 
+	 * percorso_fs_cartella e carico in deposito 
 	 * solo immagini e video, mentre le sotto-cartelle vengono aggiunte 
 	 * alla tabella zona_intro
 	 */
@@ -441,9 +441,9 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 			continue;
 		}
 
-		// verifico se il file sia già in scansioni_disco 
+		// verifico se il file sia già in deposito 
 		$campi = [];
-		$campi['query'] = 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+		$campi['query'] = 'SELECT * FROM ' . Deposito::nome_tabella
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 		. ' AND disco = :disco '
 		. ' AND livello1 = :livello1 AND livello2 = :livello2 '
@@ -460,18 +460,18 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 		$campi['livello6']   = $livello6;
 		$campi['nome_file']  = $elemento;
 		$campi['estensione'] = $estensione;
-		$ret_scan_f = [];
-		$ret_scan_f = $scan_h->leggi($campi);
+		$ret_dep_f = [];
+		$ret_dep_f = $dep_h->leggi($campi);
 
-		if ( isset($ret_scan_f['error'])){
-			$errori .= '<br>Nel caricamento in scansioni_disco si è verificato questo:'
-			. '<br>' . $ret_scan_f['message']
+		if ( isset($ret_dep_f['error'])){
+			$errori .= '<br>Nel caricamento in deposito si è verificato questo:'
+			. '<br>' . $ret_dep_f['message']
 			. ' campi: ' . str_ireplace(';', '; ', serialize($campi));
 
 		}
 		// se Manca Aggiungo
-		if ($ret_scan_f['numero'] < 1 ){
-			// aggiunta alla tabella scansioni_disco
+		if ($ret_dep_f['numero'] < 1 ){
+			// aggiunta alla tabella deposito
 			$campi=[];
 			$campi['disco']      = $disco;
 			$campi['livello1']   = $livello1;
@@ -485,14 +485,14 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 			$campi['codice_verifica'] = md5_file($percorso_piu_elemento); // prende tempo...
 			$campi['tinta_rgb']  = '000000';
 			$ret_car = [];
-			$ret_car = $scan_h->aggiungi($campi);
+			$ret_car = $dep_h->aggiungi($campi);
 			if ( isset($ret_car['error'])){
-				$errori .= '<br>Nel caricamento in scansioni_disco si è verificato questo:'
+				$errori .= '<br>Nel caricamento in deposito si è verificato questo:'
 				. '<br>' . $ret_car['message']
 				. ' campi: ' . serialize($campi);
 			} else {
 				echo "\n".'<p style="font-family:monospace;">'
-				. 'Caricamento eseguito in scansioni_disco'
+				. 'Caricamento eseguito in deposito'
 				. '<br>elemento: ' . $estensione . ' ' . $elemento   
 				. '<br>campi:' . str_ireplace(';', '; ',serialize($campi)) 
 				. '<br>ret:' . str_ireplace(';', '; ',serialize($ret_car)) . '</p>';
@@ -500,20 +500,20 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 		} else {
 			// se presente devo impostare lo stato_lavori come se fosse nuovo
 			$campi = [];
-			$campi['update'] = 'UPDATE ' . ScansioniDisco::nome_tabella
+			$campi['update'] = 'UPDATE ' . Deposito::nome_tabella
 			. ' SET stato_lavori = :stato_lavori '  
 			. ' WHERE record_id = :record_id ';
-			$campi['stato_lavori'] = ScansioniDisco::stato_da_fare;
-			$campi['record_id'] = $ret_scan_f['data'][0]['record_id'];
+			$campi['stato_lavori'] = Deposito::stato_da_fare;
+			$campi['record_id'] = $ret_dep_f['data'][0]['record_id'];
 			$ret_car = [];
-			$ret_car = $scan_h->modifica($campi);
+			$ret_car = $dep_h->modifica($campi);
 			if ( isset($ret_car['error'])){
-				$errori .= '<br>Nel caricamento in scansioni_disco si è verificato questo:'
+				$errori .= '<br>Nel caricamento in deposito si è verificato questo:'
 				. '<br>' . $ret_car['message']
 				. ' campi: ' . str_ireplace(';', '; ', serialize($campi));
 			} else {
 				echo "\n".'<p class="text-monospace;">'
-				. 'Caricamento eseguito in scansioni_disco'
+				. 'Caricamento eseguito in deposito'
 				. '<br>elemento: ' . $estensione . ' ' . $elemento  
 				. '<br>campi:' . str_ireplace(';', '; ',serialize($campi)) 
 				. '<br>ret:' . str_ireplace(';', '; ',serialize($ret_car)) . '</p>';
@@ -538,7 +538,7 @@ function carica_cartelle_in_scansioni_disco( int $cartella_id = 0){
 	echo '<script src="'.URLBASE.'aa-view/reload-5sec-jquery.js"></script>';
 	exit(0);
 
-} // carica_cartelle_in_scansioni_disco()
+} // carica_cartelle_in_deposito()
 
 /**
  * Da file a cartelle 
@@ -556,7 +556,7 @@ function carica_cartelle_in_zona_intro(array $dati_input = [] ){
 	// inserimento del record nella tabella Cartelle 
 	if (isset($dati_input['aggiungi_cartella'])){
 		$dbh    = New DatabaseHandler();
-		$scan_h = New Cartelle($dbh);
+		$dep_h = New Cartelle($dbh);
 		$_SESSION['messaggio']='';
 		//
 		if (!isset($dati_input['disco'])){
@@ -575,11 +575,11 @@ function carica_cartelle_in_zona_intro(array $dati_input = [] ){
 			$percorso_completo = str_replace('+', ' ', $percorso_completo);
 			$percorso_completo = str_replace('//', '/', $percorso_completo);
 			$campi['percorso_completo'] = $percorso_completo;
-			$ret_scan = $scan_h->aggiungi($campi);
-			if (isset($ret_scan['ok'])){
+			$ret_dep = $dep_h->aggiungi($campi);
+			if (isset($ret_dep['ok'])){
 				$_SESSION['messaggio']='Cartella inserita in elenco sospesi';
 			} else {
-				$_SESSION['messaggio']=$ret_scan['message'];
+				$_SESSION['messaggio']=$ret_dep['message'];
 			}	
 		}
 	} // inserimento del record 

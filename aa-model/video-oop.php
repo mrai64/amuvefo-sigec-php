@@ -7,7 +7,7 @@
  *
  *	dipendenze: DatabaseHandler connessione archivio PDO 
  *	dipendenze: Album 
- *	dipendenze: ScansioniDisco 
+ *	dipendenze: Deposito 
  *	dipendenze: VideoDettagli 
  *
  * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/video/
@@ -44,8 +44,8 @@ Class Video extends DatabaseHandler {
 	public $titolo_video; //                  varchar(250)
 	public $disco; //                         char(12)
 	public $percorso_completo; //             varchar(1500)
-	public $record_id_in_album; //            bigint(20) unsigned external key su scansioni_disco
-	public $record_id_in_scansioni_disco; //  bigint(20) unsigned external key su scansioni_disco
+	public $record_id_in_album; //            bigint(20) unsigned external key su deposito
+	public $record_id_in_deposito; //  bigint(20) unsigned external key su deposito
 	public $stato_lavori; //                  enum     DEF '0 da fare'
 	public $ultima_modifica_record; //        datetime DEF CURRENT TIME
 	public $record_cancellabile_dal; //       datetime DEF '9999-12-31 23:59:59'
@@ -59,7 +59,7 @@ Class Video extends DatabaseHandler {
 		$this->disco = '';
 		$this->percorso_completo       = ''; // invalido 
 		$this->record_id_in_album      = 0; // invalido 
-		$this->record_id_in_scansioni_disco = 0; // invalido 
+		$this->record_id_in_deposito = 0; // invalido 
 		$this->stato_lavori            = self::stato_da_fare;
 		$this->ultima_modifica_record  = $dbh->get_datetime_now();
 		$this->record_cancellabile_dal = $dbh->get_datetime_forever();
@@ -95,8 +95,8 @@ Class Video extends DatabaseHandler {
 	/**
 	 * @return int unsigned 
 	 */
-	public function get_record_id_in_scansioni_disco(){
-		return $this->record_id_in_scansioni_disco;
+	public function get_record_id_in_deposito(){
+		return $this->record_id_in_deposito;
 	}
 	/**
 	 * @return string datetime 
@@ -156,12 +156,12 @@ Class Video extends DatabaseHandler {
 		$this->record_id_in_album = $record_id_in_album;
 	}
 
-	public function set_record_id_in_scansioni_disco( int $record_id_in_scansioni_disco){
-		if ($record_id_in_scansioni_disco < 1){
+	public function set_record_id_in_deposito( int $record_id_in_deposito){
+		if ($record_id_in_deposito < 1){
 			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. ' Must be unsigned integer ' . $record_id_in_scansioni_disco);
+			. ' Must be unsigned integer ' . $record_id_in_deposito);
 		}
-		$this->record_id_in_scansioni_disco = $record_id_in_scansioni_disco;
+		$this->record_id_in_deposito = $record_id_in_deposito;
 	}
 
 	/**
@@ -296,9 +296,9 @@ Class Video extends DatabaseHandler {
 	
 		$create = 'INSERT INTO video '  
 		. ' (  titolo_video,   disco,  percorso_completo,'
-		. '    record_id_in_album,  record_id_in_scansioni_disco ) VALUES '
+		. '    record_id_in_album,  record_id_in_deposito ) VALUES '
 		. ' ( :titolo_video,  :disco, :percorso_completo, '
-		. '   :record_id_in_album, :record_id_in_scansioni_disco ) ';
+		. '   :record_id_in_album, :record_id_in_deposito ) ';
 
 		// campi necessari 
 		if (!isset($campi['titolo_video'])){
@@ -341,15 +341,15 @@ Class Video extends DatabaseHandler {
 		}
 		$this->set_record_id_in_album($campi['record_id_in_album']);
 
-		if (!isset($campi['record_id_in_scansioni_disco'])){
+		if (!isset($campi['record_id_in_deposito'])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo record_id_in_scansioni_disco: " . $dbh::esponi($campi) 
+				. " Serve campo record_id_in_deposito: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
-		$this->set_record_id_in_scansioni_disco($campi['record_id_in_scansioni_disco']);
+		$this->set_record_id_in_deposito($campi['record_id_in_deposito']);
 
 
 		try{
@@ -358,7 +358,7 @@ Class Video extends DatabaseHandler {
 			$aggiungi->bindValue('disco',                        $this->disco);
 			$aggiungi->bindValue('percorso_completo',            $this->percorso_completo);
 			$aggiungi->bindValue('record_id_in_album',           $this->record_id_in_album);
-			$aggiungi->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco);
+			$aggiungi->bindValue('record_id_in_deposito', $this->record_id_in_deposito);
 			$aggiungi->execute();
 			$record_id = $dbh->lastInsertID();
 		} catch(\Throwable $th ){
@@ -425,8 +425,8 @@ Class Video extends DatabaseHandler {
 		if (isset($campi["record_id_in_album"])){
 			$this->set_record_id_in_album($campi["record_id_in_album"]);
 		}
-		if (isset($campi["record_id_in_scansioni_disco"])){
-			$this->set_record_id_in_scansioni_disco($campi["record_id_in_scansioni_disco"]);
+		if (isset($campi["record_id_in_deposito"])){
+			$this->set_record_id_in_deposito($campi["record_id_in_deposito"]);
 		}
 		if (isset($campi["ultima_modifica_record"])){
 			$this->set_ultima_modifica_record($campi["ultima_modifica_record"]); 
@@ -454,8 +454,8 @@ Class Video extends DatabaseHandler {
 			if (isset($campi["record_id_in_album"])){
 				$lettura->bindValue('record_id_in_album', $this->record_id_in_album, PDO::PARAM_INT); 
 			}
-			if (isset($campi["record_id_in_scansioni_disco"])){
-				$lettura->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco, PDO::PARAM_INT); 
+			if (isset($campi["record_id_in_deposito"])){
+				$lettura->bindValue('record_id_in_deposito', $this->record_id_in_deposito, PDO::PARAM_INT); 
 			}
 			if (isset($campi["ultima_modifica_record"])){
 				$lettura->bindValue('ultima_modifica_record', $this->ultima_modifica_record ); 
@@ -542,8 +542,8 @@ Class Video extends DatabaseHandler {
 		if (isset($campi["record_id_in_album"])){
 			$this->set_record_id_in_album($campi["record_id_in_album"]); 
 		}
-		if (isset($campi["record_id_in_scansioni_disco"])){
-			$this->set_record_id_in_scansioni_disco($campi["record_id_in_scansioni_disco"]); 
+		if (isset($campi["record_id_in_deposito"])){
+			$this->set_record_id_in_deposito($campi["record_id_in_deposito"]); 
 		}
 		if (isset($campi["ultima_modifica_record"])){
 			$this->set_ultima_modifica_record($campi["ultima_modifica_record"]); 
@@ -573,8 +573,8 @@ Class Video extends DatabaseHandler {
 			if (isset($campi["record_id_in_album"])){
 				$aggiorna->bindValue('record_id_in_album', $this->record_id_in_album, PDO::PARAM_INT); 
 			}
-			if (isset($campi["record_id_in_scansioni_disco"])){
-				$aggiorna->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco, PDO::PARAM_INT); 
+			if (isset($campi["record_id_in_deposito"])){
+				$aggiorna->bindValue('record_id_in_deposito', $this->record_id_in_deposito, PDO::PARAM_INT); 
 			}
 			if (isset($campi["ultima_modifica_record"])){
 				$aggiorna->bindValue('ultima_modifica_record', $this->ultima_modifica_record); 
@@ -644,8 +644,8 @@ Class Video extends DatabaseHandler {
 		if (isset($campi["record_id_in_album"])){
 			$this->set_record_id_in_album($campi["record_id_in_album"]);
 		}
-		if (isset($campi["record_id_in_scansioni_disco"])){
-			$this->set_record_id_in_scansioni_disco($campi["record_id_in_scansioni_disco"]);
+		if (isset($campi["record_id_in_deposito"])){
+			$this->set_record_id_in_deposito($campi["record_id_in_deposito"]);
 		}
 		if (isset($campi["ultima_modifica_record"])){
 			$this->set_ultima_modifica_record($campi["ultima_modifica_record"]);
@@ -671,8 +671,8 @@ Class Video extends DatabaseHandler {
 		if (isset($campi["record_id_in_album"])){
 			$cancella->bindValue('record_id_in_album', $this->record_id_in_album, PDO::PARAM_INT); 
 		}
-		if (isset($campi["record_id_in_scansioni_disco"])){
-			$cancella->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco, PDO::PARAM_INT); 
+		if (isset($campi["record_id_in_deposito"])){
+			$cancella->bindValue('record_id_in_deposito', $this->record_id_in_deposito, PDO::PARAM_INT); 
 		}
 		if (isset($campi["ultima_modifica_record"])){ 
 			$cancella->bindValue('ultima_modifica_record', $this->ultima_modifica_record); 

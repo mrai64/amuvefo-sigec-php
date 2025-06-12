@@ -51,7 +51,7 @@ include_once(ABSPATH . 'aa-model/fotografie-oop.php');
 include_once(ABSPATH . 'aa-model/fotografie-dettagli-oop.php');
 include_once(ABSPATH . 'aa-model/video-oop.php');
 include_once(ABSPATH . 'aa-model/video-dettagli-oop.php');
-include_once(ABSPATH . 'aa-model/scansioni-disco-oop.php');
+include_once(ABSPATH . 'aa-model/deposito-oop.php');
 include_once(ABSPATH . 'aa-model/didascalie-oop.php');
 
 /**
@@ -235,9 +235,9 @@ function leggi_ricerca(int $ricerca_id) {
 		$campi = [];
 		$query = 'SELECT a.*, s.tinta_rgb '
 		. ' FROM ' . Album::nome_tabella . ' a, '
-		.   ScansioniDisco::nome_tabella . ' s '
+		.   Deposito::nome_tabella . ' s '
 		. ' WHERE a.record_cancellabile_dal = :record_cancellabile_dal '
-		. ' AND a.record_id_in_scansioni_disco = s.record_id '
+		. ' AND a.record_id_in_deposito = s.record_id '
 		. " AND a.record_id IN ("
 		. implode(', ' , $album_list)
 		. ") ORDER BY a.record_id ";
@@ -425,14 +425,14 @@ function get_album_list(array $dati_input) : array {
 	$dbh    = New DatabaseHandler();
 	$alb_h  = New Album($dbh);
 	$adet_h = New AlbumDettagli($dbh);
-	$scan_h = New ScansioniDisco($dbh);
+	$dep_h = New Deposito($dbh);
 	$dida_h = New Didascalie($dbh);
 	
 	$termini_ricerca = strtolower($dati_input['valore']);
 	$termini_ricerca = preg_replace('/[^a-zA-Z0-9\']/u', ' ', $termini_ricerca);
 	$termini_ricerca = explode(' ', $termini_ricerca, 5);
 	$album_id=[];
-	// Album - contiene gli stessi dati di deposito scansioni_disco
+	// Album - contiene gli stessi dati di deposito deposito
 	
 	// Dettagli Album
 	$query = 'SELECT DISTINCT record_id_padre '
@@ -463,8 +463,8 @@ function get_album_list(array $dati_input) : array {
 		$album_id[]=$ret_adet['data'][$i]['record_id_padre'];
 	}
 	
-	// deposito scansioni_disco - album
-	$query = 'SELECT record_id FROM ' . ScansioniDisco::nome_tabella
+	// deposito deposito - album
+	$query = 'SELECT record_id FROM ' . Deposito::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. " AND nome_file = '/' ";
 	foreach ($termini_ricerca as $termine) {
@@ -482,20 +482,20 @@ function get_album_list(array $dati_input) : array {
 	$campi=[];
 	$campi['query'] = $query;
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-	$ret_scan = $scan_h->leggi($campi);
-	if (isset($ret_scan['error']))	{
+	$ret_dep = $dep_h->leggi($campi);
+	if (isset($ret_dep['error']))	{
 		//dbg 
 		$ret = '<p style="font-family:monospace">Errore in ' . __FUNCTION__ 
-		. ' [2] <br> Si è verificato un errore nella ricerca in ' . ScansioniDisco::nome_tabella
+		. ' [2] <br> Si è verificato un errore nella ricerca in ' . Deposito::nome_tabella
 		. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
-		. '<br>input: ' . str_ireplace(';', '; ', serialize($ret_scan));
+		. '<br>input: ' . str_ireplace(';', '; ', serialize($ret_dep));
 		echo $ret;
 		return[];
 	}
-	// da scansioni disco all'elenco album 
+	// da Deposito all'elenco album 
 	$lista_deposito_id = [];
-	for ($i=0; $i < count($ret_scan['data']); $i++) { 
-		$lista_deposito_id[]=$ret_scan['data'][$i]['record_id'];
+	for ($i=0; $i < count($ret_dep['data']); $i++) { 
+		$lista_deposito_id[]=$ret_dep['data'][$i]['record_id'];
 	}
 	// non vuoto
 	if (count($lista_deposito_id) > 0){
@@ -504,7 +504,7 @@ function get_album_list(array $dati_input) : array {
 		$lista_deposito_id=array_unique($lista_deposito_id);
 		$query = 'SELECT record_id FROM ' . Album::nome_tabella 
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
-		. ' AND record_id_in_scansioni_disco IN ('
+		. ' AND record_id_in_deposito IN ('
 		. implode(', ', $lista_deposito_id)
 		.') ';
 		$campi=[];
@@ -577,7 +577,7 @@ function get_fotografie_list(array $dati_input = []): array{
 //$alb_h  = New Album($dbh);
 	$foto_h = New Fotografie($dbh);
 	$fdet_h = New FotografieDettagli($dbh);
-	$scan_h = New ScansioniDisco($dbh);
+	$dep_h = New Deposito($dbh);
 	$dida_h = New Didascalie($dbh);
 	
 	// Dettagli fotografie 
@@ -611,8 +611,8 @@ function get_fotografie_list(array $dati_input = []): array{
 		$fotografie_id[]=$ret_fdet['data'][$i]['record_id_padre'];
 	}
 	
-	// deposito scansioni_disco - fotografie jpg psd tif
-	$query = 'SELECT record_id FROM ' . ScansioniDisco::nome_tabella
+	// deposito deposito - fotografie jpg psd tif
+	$query = 'SELECT record_id FROM ' . Deposito::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. " AND nome_file <> '/' "
 	. " AND estensione in ('jpg', 'psd', 'tif' ) ";
@@ -632,20 +632,20 @@ function get_fotografie_list(array $dati_input = []): array{
 	$campi=[];
 	$campi['query'] = $query;
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-	$ret_scan = $scan_h->leggi($campi);
-	if (isset($ret_scan['error']))	{
+	$ret_dep = $dep_h->leggi($campi);
+	if (isset($ret_dep['error']))	{
 		//dbg 
 		$ret = '<p style="font-family:monospace">Errore in ' . __FUNCTION__ 
-		. ' Si è verificato un errore nella ricerca in ' . ScansioniDisco::nome_tabella
+		. ' Si è verificato un errore nella ricerca in ' . Deposito::nome_tabella
 		. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
-		. '<br>input: ' . str_ireplace(';', '; ', serialize($ret_scan));
+		. '<br>input: ' . str_ireplace(';', '; ', serialize($ret_dep));
 		echo $ret;
 		return[];
 	}
-	// da scansioni disco all'elenco fotografie 
+	// da Deposito all'elenco fotografie 
 	$lista_deposito_id = [];
-	for ($i=0; $i < count($ret_scan['data']); $i++) { 
-		$lista_deposito_id[]=$ret_scan['data'][$i]['record_id'];
+	for ($i=0; $i < count($ret_dep['data']); $i++) { 
+		$lista_deposito_id[]=$ret_dep['data'][$i]['record_id'];
 	}
 	// non vuoto 
 	if (count($lista_deposito_id) > 0){
@@ -655,7 +655,7 @@ function get_fotografie_list(array $dati_input = []): array{
 		$lista_deposito_id = array_unique($lista_deposito_id);
 		$query = 'SELECT record_id FROM ' . Fotografie::nome_tabella 
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
-		. ' AND record_id_in_scansioni_disco IN ('
+		. ' AND record_id_in_deposito IN ('
 		. implode(', ', $lista_deposito_id)
 		.') ';
 		$campi=[];
@@ -726,7 +726,7 @@ function get_video_list(array $dati_input = []): array{
 	$dbh    = New DatabaseHandler();
 	$vid_h  = New Video($dbh);
 	$vdet_h = New VideoDettagli($dbh);
-	$scan_h = New ScansioniDisco($dbh);
+	$dep_h = New Deposito($dbh);
 	$dida_h = New Didascalie($dbh);
 	
 	// Dettagli Video 
@@ -757,8 +757,8 @@ function get_video_list(array $dati_input = []): array{
 	for ($i=0; $i < count($ret_vdet['data']); $i++) {
 		$video_id[]=$ret_vdet['data'][$i]['record_id_padre'];
 	}
-	// deposito scansioni_disco - video
-	$query = 'SELECT record_id FROM ' . ScansioniDisco::nome_tabella
+	// deposito deposito - video
+	$query = 'SELECT record_id FROM ' . Deposito::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. " AND nome_file <> '/' "
 	. " AND estensione IN ('mp4', 'mov', 'mkv', 'avi') ";
@@ -778,20 +778,20 @@ function get_video_list(array $dati_input = []): array{
 	$campi=[];
 	$campi['query']= $query;
 	$campi['record_cancellabile_dal']= $dbh->get_datetime_forever();
-	$ret_scan = $scan_h->leggi($campi);
-	if (isset($ret_scan['error']))	{
+	$ret_dep = $dep_h->leggi($campi);
+	if (isset($ret_dep['error']))	{
 		//dbg 
 		$ret = '<p style="font-family:monospace">Errore in ' . __FUNCTION__ 
-		. ' Si è verificato un errore nella ricerca in ' . ScansioniDisco::nome_tabella
+		. ' Si è verificato un errore nella ricerca in ' . Deposito::nome_tabella
 		. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
-		. '<br>input: ' . str_ireplace(';', '; ', serialize($ret_scan));
+		. '<br>input: ' . str_ireplace(';', '; ', serialize($ret_dep));
 		echo $ret;
 		return[];
 	}
-	// da scansioni disco all'elenco album 
+	// da Deposito all'elenco album 
 	$lista_deposito_id = [];
-	for ($i=0; $i < count($ret_scan['data']); $i++) { 
-		$lista_deposito_id[]=$ret_scan['data'][$i]['record_id'];
+	for ($i=0; $i < count($ret_dep['data']); $i++) { 
+		$lista_deposito_id[]=$ret_dep['data'][$i]['record_id'];
 	}
 	// non vuoto 
 	if (count($lista_deposito_id) > 0){
@@ -800,7 +800,7 @@ function get_video_list(array $dati_input = []): array{
 		$lista_deposito_id=array_unique($lista_deposito_id);
 		$query = 'SELECT record_id FROM ' . Video::nome_tabella 
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
-		. ' AND record_id_in_scansioni_disco IN ('
+		. ' AND record_id_in_deposito IN ('
 		. implode(', ', $lista_deposito_id)
 		.') ';
 		$campi=[];
@@ -1168,9 +1168,9 @@ function get_html_album( array $album_list = [] ) :string {
 	// test $album_list
 	$query = 'SELECT a.*, s.tinta_rgb '
 	. ' FROM ' . Album::nome_tabella . ' a, '
-	.   ScansioniDisco::nome_tabella . ' s '
+	.   Deposito::nome_tabella . ' s '
 	. ' WHERE a.record_cancellabile_dal = :record_cancellabile_dal '
-	. ' AND a.record_id_in_scansioni_disco = s.record_id '
+	. ' AND a.record_id_in_deposito = s.record_id '
 	. " AND a.record_id IN ("
 	. implode(', ' , $album_list)
 	. ") ORDER BY a.record_id ";

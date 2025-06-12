@@ -45,7 +45,7 @@ include_once(ABSPATH . 'aa-model/database-handler-oop.php');
 include_once(ABSPATH . 'aa-model/video-oop.php');
 include_once(ABSPATH . 'aa-model/video-dettagli-oop.php');
 include_once(ABSPATH . 'aa-model/album-oop.php');
-include_once(ABSPATH . 'aa-model/scansioni-disco-oop.php');
+include_once(ABSPATH . 'aa-model/deposito-oop.php');
 include_once(ABSPATH . 'aa-model/chiavi-oop.php');
 
 include_once(ABSPATH . 'aa-controller/controller-base.php');
@@ -392,7 +392,7 @@ function leggi_video_seguente(int $video_id) : int {
 function carica_video_da_album( int $album_id) : array{
 	$dbh    = New DatabaseHandler();
 	$alb_h  = New Album($dbh);
-	$scan_h = new ScansioniDisco($dbh);
+	$dep_h  = new Deposito($dbh);
 	$vid_h  = new Video($dbh);
 
 	// verifica album_id 
@@ -422,41 +422,40 @@ function carica_video_da_album( int $album_id) : array{
 	$album    = $ret_alb['data'][0];
 	// echo '<br>album: ' . serialize($album); 
 	//
-	// album in scansioni_disco 
-	$scansioni_disco_id = $album['record_id_in_scansioni_disco'];
-	$scan_h->set_record_id($scansioni_disco_id);
+	// album in deposito 
+	$deposito_id = $album['record_id_in_deposito'];
+	$dep_h->set_record_id($deposito_id);
 	$campi=[];
-	$campi['query'] = ' SELECT * FROM ' . ScansioniDisco::nome_tabella 
+	$campi['query'] = ' SELECT * FROM ' . Deposito::nome_tabella 
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND record_id = :record_id';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-	$campi['record_id']               = $scan_h->get_record_id();
-	$ret_scan = $scan_h->leggi($campi);
-	if (isset($ret_scan['error'])){
+	$campi['record_id']               = $dep_h->get_record_id();
+	$ret_dep = $dep_h->leggi($campi);
+	if (isset($ret_dep['error'])){
 		$ret = '<p>' . __FILE__ .' '. __FUNCTION__
-		. '<br>Si è verificato un errore nella lettura di ' . ScansioniDisco::nome_tabella
-		. '<br>' . $ret_scan['message']
+		. '<br>Si è verificato un errore nella lettura di ' . Deposito::nome_tabella
+		. '<br>' . $ret_dep['message']
 		. '<br>Campi: ' . serialize($campi) . '</p>';
 		echo $ret;
 		exit(1);
 	}
-	if ($ret_scan['numero']==0){
+	if ($ret_dep['numero']==0){
 		$ret = '<p>' . __FILE__ .' '. __FUNCTION__
-		. '<br>Si è verificato un errore nella lettura di ' . ScansioniDisco::nome_tabella
+		. '<br>Si è verificato un errore nella lettura di ' . Deposito::nome_tabella
 		. '<br>Campi: ' . serialize($campi) . '</p>';
 		echo $ret;
 		exit(1);
 	}
-	$album_in_scansioni = $ret_scan['data'][0];
-	// echo '<br>scansioni_disco: ' . serialize($album_in_scansioni); 
+	$album_in_deposito = $ret_dep['data'][0];
 	// 
-	// video in scansioni_disco 
+	// video in deposito 
 	// estensioni 
 	$estensioni_video = "( 'mp4', 'm4v', 'mov', 'mkv' )";
 	// 
-	// lettura in scansioni disco 
+	// lettura in Deposito 
 	$campi=[];
-	$campi['query']= 'SELECT * FROM ' . ScansioniDisco::nome_tabella
+	$campi['query']= 'SELECT * FROM ' . Deposito::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND livello1 = :livello1    AND livello2 = :livello2 '
 	. ' AND livello3 = :livello3    AND livello4 = :livello4 '
@@ -465,36 +464,36 @@ function carica_video_da_album( int $album_id) : array{
 	. " AND estensione IN " . $estensioni_video
 	. ' ORDER BY record_id ';
 	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-	$campi['livello1'] = $album_in_scansioni['livello1'];
-	$campi['livello2'] = $album_in_scansioni['livello2'];
-	$campi['livello3'] = $album_in_scansioni['livello3'];
-	$campi['livello4'] = $album_in_scansioni['livello4'];
-	$campi['livello5'] = $album_in_scansioni['livello5'];
-	$campi['livello6'] = $album_in_scansioni['livello6'];
-	$ret_scan=[];
-	$ret_scan=$scan_h->leggi($campi);
-	if (isset($ret_scan['error'])){
+	$campi['livello1'] = $album_in_deposito['livello1'];
+	$campi['livello2'] = $album_in_deposito['livello2'];
+	$campi['livello3'] = $album_in_deposito['livello3'];
+	$campi['livello4'] = $album_in_deposito['livello4'];
+	$campi['livello5'] = $album_in_deposito['livello5'];
+	$campi['livello6'] = $album_in_deposito['livello6'];
+	$ret_dep=[];
+	$ret_dep=$dep_h->leggi($campi);
+	if (isset($ret_dep['error'])){
 		$ret = '<p>' . __FUNCTION__
-		. '<br>Si è verificato un errore nella lettura di ' . ScansioniDisco::nome_tabella
-		. '<br>' . $ret_scan['message']
+		. '<br>Si è verificato un errore nella lettura di ' . Deposito::nome_tabella
+		. '<br>' . $ret_dep['message']
 		. '<br>Campi: ' . serialize($campi) . '</p>';
 		echo $ret;
 		exit(1);
 	}
-	if ($ret_scan['numero']==0){
+	if ($ret_dep['numero']==0){
 		$ret = [
 			'ok' => true,
-			'message' => "Non si sono trovati file video per l'album in scansioni_disco. "
+			'message' => "Non si sono trovati file video per l'album in deposito. "
 			. ' campi: ' . serialize($campi) 
 		];
 		return $ret;
 	}
 	// 
 	// vai di loop 
-	$video_trovati=$ret_scan['data'];
+	$video_trovati=$ret_dep['data'];
 	// echo '<hr><br>record_trovati: ' , serialize($video_trovati);
 	$new_video=[];
-	$new_video['disco']              = $album_in_scansioni['disco'];
+	$new_video['disco']              = $album_in_deposito['disco'];
 	$new_video['record_id_in_album'] = $album_id;
 	if ($album['percorso_completo'][0] != '/'){
 		$album['percorso_completo']='/'.$album['percorso_completo'];
@@ -508,7 +507,7 @@ function carica_video_da_album( int $album_id) : array{
 	for ($i=0; $i < count($video_trovati); $i++) { 
 		$new_video['titolo_video'] = $video_trovati[$i]['nome_file'];
 		$new_video['percorso_completo'] = $album['percorso_completo'] . $video_trovati[$i]['nome_file'];
-		$new_video['record_id_in_scansioni_disco'] = $video_trovati[$i]['record_id'];
+		$new_video['record_id_in_deposito'] = $video_trovati[$i]['record_id'];
 		$ret_video = $vid_h->aggiungi($new_video);
 		if (isset($ret_video['error'])){
 			$ret = '<p>' . __FUNCTION__
@@ -527,15 +526,13 @@ function carica_video_da_album( int $album_id) : array{
 } // carica_video_da_album()
 
 /**
- * CREATE aggiungi dettaglio video 
- * TODO diventa aggiungi_video_dettaglio(id, key, val)
+ * CREATE aggiungi record in tabella video_dettagli 
  * TODO e deve gestire anche la condizione di "dato già presente"
  */
 function aggiungi_video_dettaglio(int $video_id, string $chiave, string $valore)  : array {
 	$dbh    = new DatabaseHandler();
 	$vdet_h = new VideoDettagli($dbh); 
 	$consultatore_id = (isset($_COOKIE['consultatore_id'])) ? $_COOKIE['consultatore_id'] : 0;
-	global $aggiunti; // ! Che è???
 
 	$vdet_h->set_record_id_padre($video_id);
 	$vdet_h->set_chiave($chiave);
@@ -699,21 +696,6 @@ function carica_dettagli_video_da_video(int $video_id){
 	
 	// aaaa mm gg luogo manifestazione-soggetto durata sigla_autore
 	//            luogo manifestazione-soggetto durata sigla_autore
-	/**
-	 * sostituito dalla ricerca luogo e chiave 
-	 * 
-		// luogo/comune 
-		$luogo = get_luogo($nome_file);
-		if ($luogo > ''){
-			echo '<br>Luogo:'.$luogo;
-			$ret_det   = aggiungi_video_dettaglio( $video_id, 'luogo/comune', $luogo);
-			// sfilo 
-			$nome_file = str_replace($luogo, '', $nome_file);
-			$nome_file = trim($nome_file);
-		} // luogo/comune 
-	 * 
-	 * 
-	 */
 	// luogo/comune
 	// luogo-area-geografica
 	// luogo-nazione
@@ -721,7 +703,7 @@ function carica_dettagli_video_da_video(int $video_id){
 	if (isset($kv['chiave']) && $kv['chiave'] > ""){
 		if (isset($kv['luogo']) && $kv['luogo'] > ""){
 			echo '<br>'.$kv['chiave'].': '.$kv['luogo'];
-			$ret_det   = carico_dettaglio( $video_id, $kv['chiave'], $kv['luogo']);
+			$ret_det   = aggiungi_video_dettaglio( $video_id, $kv['chiave'], $kv['luogo']);
 			$aggiunti[] = "'".$kv['chiave']."': ".$kv['luogo'];
 			}
 	}
@@ -730,24 +712,13 @@ function carica_dettagli_video_da_video(int $video_id){
 
 	//            luogo manifestazione-soggetto durata sigla_autore
 	//                  manifestazione-soggetto durata sigla_autore
-	/**
-	 * 
-	 * 
-		$sigla_autore = get_autore_sigla_6($nome_file);
-		if ($sigla_autore>''){
-			$ret_det   = aggiungi_video_dettaglio( $video_id, 'codice/autore/athesis', $sigla_autore);
-			// sfilo 
-			$nome_file = str_replace($sigla_autore, '', $nome_file);
-			$nome_file = trim($nome_file);
-		} // codice/autore/sigla 
-	 * 
-	 */
+
 	// codice/autore/athesis
 	$ret = get_autore_e_sigla($nome_file);
 	$autore = $ret['autore'];
 	$sigla_autore = $ret['sigla_6'];
 	if ($autore >''){
-		$ret_det   = carico_dettaglio( $video_id, 'nome/autore', $autore );
+		$ret_det   = aggiungi_video_dettaglio( $video_id, 'nome/autore', $autore );
 	}
 	// valori predefiniti se manca 
 	if ($sigla_autore==''){
@@ -765,7 +736,7 @@ function carica_dettagli_video_da_video(int $video_id){
 			str_contains($video_file_maiuscole, '10VIDEO') => 'AAA010',
 		};
 	}
-	$ret_det   = carico_dettaglio( $video_id, 'codice/autore/athesis', $sigla_autore);
+	$ret_det   = aggiungi_video_dettaglio( $video_id, 'codice/autore/athesis', $sigla_autore);
 	// codice/autore/athesis
 	//                  manifestazione-soggetto durata sigla_autore
 
@@ -798,14 +769,3 @@ function carica_dettagli_video_da_video(int $video_id){
 	exit(0);
 } // carica_dettagli_video_da_video()
 
-/** TEST
- * 
- * https://archivio.athesis77.it/aa-controller/video-controller.php?id=14&test=carica_dettagli_video_da_video
- */
-	if (isset($_GET['test']) && 
-	    isset($_GET['id'])   && 
-			$_GET['test']=='carica_dettagli_video_da_video'){
-		carica_dettagli_video_da_video($_GET['id']);
-		exit(0);
-	}
-//

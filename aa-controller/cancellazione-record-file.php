@@ -34,10 +34,10 @@ function remove_record_from( string $nome_tabella, string $ultimo_backup) : arra
 		'chiavi_elenco',
 		'chiavi_valori_vocabolario',
 		'consultatori_calendario',
+		'deposito',
 		'fotografie',
 		'fotografie_dettagli',
 		'richieste',
-		'scansioni_disco',
 		'video',
 		'video_dettagli',
 		'zona_intro'
@@ -752,8 +752,8 @@ function remove_record_tutti(){
 	$zona_intro = remove_record_from('zona_intro', $ultimo_backup);
 	echo '<p>Cartelle: '. $zona_intro['message'] .'</p>';
 
-	$scansioni_disco    = remove_record_from('scansioni_disco', $ultimo_backup);
-	echo '<p>Deposito: '. $scansioni_disco['message'] .'</p>';
+	$deposito    = remove_record_from('deposito', $ultimo_backup);
+	echo '<p>Deposito: '. $deposito['message'] .'</p>';
 
 	exit(0); 					
 } // remove_record_tutti
