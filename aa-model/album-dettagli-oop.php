@@ -39,12 +39,12 @@
  *   set_ultima_modifica_record 
  *   set_record_cancellabile_dal 
  * CHECKER 
- *   is_datetime 
+ * 
  * CRUD
  *   aggiungi CREATE
  *   leggi    READ 
- *   modifica UPDATE
- *   elimina  DELETE 
+ *   modifica UPDATE + soft delete
+ *   elimina  DELETE fisico
  * OTHERS
  * 
  */

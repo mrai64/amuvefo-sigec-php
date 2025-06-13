@@ -18,68 +18,99 @@
 if (!defined('ABSPATH')){
   include_once('../_config.php');
 }
-if (session_status() !== PHP_SESSION_ACTIVE){
-	@session_start();
-	$abilitazione = get_set_abilitazione();
-	$_SESSION['messaggio'] = "Non risulta presente un consultatore "
-	. '<br>' . serialize($_COOKIE);
-	header("Location: ".URLBASE."consultatori.php/accesso/?p=3&return_to=".urlencode($_SERVER['REQUEST_URI']) );
-	exit(0);
-}
-if (!isset($_SESSION['abilitazione'])){
-	$_SESSION['messaggio'] = "Non risulta presente un consultatore "
-	. '<br>' . serialize($_COOKIE);
-	header("Location: ".URLBASE."consultatori.php/accesso/?p=3&return_to=".urlencode($_SERVER['REQUEST_URI']) );
-	exit(0);
-}
+include_once(ABSPATH.'aa-model/database-handler-oop.php'); //    Class DatabaseHandler
+include_once(ABSPATH.'aa-model/abilitazioni-elenco-oop.php'); // Class Abilitazioni
 
- // legge se l'abilitazione è sufficiente tramite la tabella abilitazioni 
-include(ABSPATH."aa-model/database-handler.php"); // fornisce $con connessione archivio 
-$url_pagina = $_SERVER['REQUEST_URI']; 
-// in localhost la pagina ha qualcosa in più che non è in tabella abilitazioni
-$url_pagina = str_replace( URLZERO, '', $url_pagina);
+/**
+ * Se ci sono problemi richiama una pagina impostando un messaggio 
+ * se va tutto bene esce con true.
+ * In input tutti campi "globali" $_SERVER $_COOKIE $_SESSION   
+ * 
+ * @return bool
+ */
+function controllo_abilitazione() : bool {
+	$dbh   = New DatabaseHandler();
+	$abi_h = New Abilitazioni($dbh);
 
-$operazione = ""; // in uso nei router 
-if (str_contains($url_pagina, '/modifica/')){
-	$operazione = 'modifica';
-}
-if (str_contains($url_pagina, '/backup/')){
-	$operazione = 'backup';
-}
+	$torna_al_via = 'Location: ' . URLBASE . 'consultatori.php/accesso/?'
+	. 'p=§'
+	. '&return_to=' . urlencode( $_SERVER['REQUEST_URI']);
 
-$leggi  = "SELECT * FROM abilitazioni_elenco "
-. " WHERE (record_cancellabile_dal = '".FUTURO."' ) "
-. "   AND url_pagina = '$url_pagina' ";
-if ($operazione){
-	$leggi .= " AND operazione = '$operazione' ";
-}
-$record_letti = mysqli_query($con, $leggi);
+	if (session_status() !== PHP_SESSION_ACTIVE){
+		@session_start();
+		$abilitazione = get_set_abilitazione();
+		$_SESSION['messaggio'] = "Non risulta presente un consultatore "
+		. '<br>' . $dbh->esponi($_COOKIE);
+		header( str_replace('§', '1', $torna_al_via) );
+		exit(0);
+	}
+	if (!isset($_SESSION['abilitazione'])){
+		$_SESSION['messaggio'] = "Non risulta presente un consultatore "
+		. '<br>' . $dbh->esponi($_COOKIE);
+		header( str_replace('§', '2', $torna_al_via) );
+		exit(0);
+	}
 
-// non trovato - si torna con avviso
-if (mysqli_num_rows($record_letti) < 1) {
-	$_SESSION["messaggio"] = "Non è stata trovata la pagina $url_pagina in elenco abilitazioni ";
-	header("Location: ".URLBASE."consultatori.php/accesso/?p=5&redirect_to=".urlencode($_SERVER['REQUEST_URI']) );
-	exit(0);
-}
+	// in localhost la pagina ha qualcosa in più che non è in tabella abilitazioni
+	$url_pagina = $_SERVER['REQUEST_URI']; 
+	$url_pagina = str_replace( URLZERO, '', $url_pagina);
 
-// trovato - verifica abilitazione 
-// può essere "1 lettura" ma anche "'1 lettura'"
-$cookie_abilitazione = get_set_abilitazione();
+	$operazione = ''; // in uso nei router 
+	if (str_contains($url_pagina, '/modifica/')){
+		$operazione = 'modifica';
+	}
+	if (str_contains($url_pagina, '/backup/')){
+		$operazione = 'backup';
+	}
 
-$abilitazione = mysqli_fetch_array($record_letti);
-$abilitazione_richiesta = str_replace("'", '', $abilitazione['abilitazione']);
-// if ($_COOKIE["abilitazione"] < $abilitazione_richiesta["abilitazione"]){
-if (strncmp($cookie_abilitazione, $abilitazione_richiesta, 2) < 0){ // A < B 
-	$_SESSION["messaggio"] = "Non c'è abilitazione "
-	. "sufficiente per accedere alla pagina: $url_pagina. "
-	. '<br>c::' . $cookie_abilitazione . ':: vs. a::' . $abilitazione_richiesta .'::' ;
-	header("Location: ".URLBASE."consultatori.php/accesso/?p=6&redirect_to=".urlencode($_SERVER['REQUEST_URI']) );
-	exit(0);
-}
-unset($abilitazione);
-unset($abilitazione_richiesta);
-unset($cookie_abilitazione);
-unset($record_letti);
-unset($letti);
-unset($con);
-// tutto ok e continua...
+	$abi_h->set_url_pagina($url_pagina);
+	$abi_h->set_operazione($operazione);
+
+	$campi=[];
+	$campi['query'] = 'SELECT * FROM ' . Abilitazioni::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+	. ' AND url_pagina = :url_pagina ';
+	$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+	$campi['url_pagina'] = $abi_h->get_url_pagina();
+	if ($operazione > ''){
+		$campi['query'] .= ' AND operazione = :operazione ';
+		$campi['operazione'] = $abi_h->get_operazione();
+	}
+	$campi['query'] .= ' ORDER BY record_id DESC '; // dovrebbe essere unico ma...
+
+	$ret_abi = $abi_h->leggi($campi);
+	if (isset($ret_abi['error'])){
+		// si esce con avviso 
+		$_SESSION['messaggio'] = 'Errore nella verifica abilitazione : '
+		. '<br>' . $ret_abi['message'];
+		header( str_replace('§', '3', $torna_al_via) );
+		exit(0);		
+	}
+	if ($ret_abi['numero'] < 1){
+		// si esce con avviso 
+		$_SESSION['messaggio'] = 'Errore nella verifica abilitazione : '
+		. '<br>Va inserito un record nella tabella ' . Abilitazioni::nome_tabella
+		. '<br>per url: ' . $url_pagina . ', operazione: ' . $operazione;
+		header( str_replace('§', '4', $torna_al_via) );
+		exit(0);
+	}
+
+	// trovato - verifica abilitazione 
+	$cookie_abilitazione = get_set_abilitazione();
+	$abilitazione        = $ret_abi['data'][0];
+	// può essere "1 lettura" ma anche "'1 lettura'"
+	$abilitazione_richiesta = str_replace("'", '', $abilitazione['abilitazione']);
+	// if ($_COOKIE["abilitazione"] < $abilitazione_richiesta["abilitazione"]){
+	if (strncmp($cookie_abilitazione, $abilitazione_richiesta, 2) < 0){ // A < B 
+		$_SESSION["messaggio"] = "Non c'è abilitazione "
+		. "sufficiente per accedere alla pagina: $url_pagina. "
+		. '<br>c::' . $cookie_abilitazione . ':: vs. a::' . $abilitazione_richiesta .'::' ;
+		header( str_replace('§', '6', $torna_al_via) );
+		exit(0);
+	}
+
+	return true; 
+} // controllo_abilitazione
+
+$passa = controllo_abilitazione();
+// se arriva qui tutto ok e si continua...

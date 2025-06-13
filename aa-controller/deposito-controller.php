@@ -203,36 +203,6 @@ function crea_query_sottocartelle(array $campi) : string {
 	return $sql;
 } // crea_query_sottocartelle()
 
-/**
- * collaudo della funzione - richiamo diretto della pagina
- * con $_GET['test']="crea_query_sottocartelle"
- */
-if (isset($_GET['test']) &&
-				 ($_GET['test'] == "crea_query_sottocartelle")){
-	echo "<p style='font-family: monospace;max-width:60rem;'>\n";
-	echo "test: " . __FILE__ . ' ' . "crea_query_sottocartelle"."<br />";
-	$campiTest=[];
-	echo "<br />Vuoto: ";
-	echo crea_query_sottocartelle($campiTest);
-	$campiTest['livello1'] = "VIDEO";
-	echo "<br /><br />livello1: ";
-	echo crea_query_sottocartelle($campiTest);
-	$campiTest['livello2'] = "BOARA PISANI";
-	echo "<br /><br />livello2: ";
-	echo crea_query_sottocartelle($campiTest);
-	$campiTest['livello3'] = "BOARA PISANI";
-	$campiTest['livello4'] = "BOARA PISANI";
-	$campiTest['livello5'] = "BOARA PISANI";
-	echo "<br /><br />livello5: ";
-	echo crea_query_sottocartelle($campiTest);
-	$campiTest['livello6'] = "BOARA PISANI";
-	echo "<br /><br />livello6: ";
-	echo crea_query_sottocartelle($campiTest);
-	echo "<br /><br />fine";
-	exit(0);
-}
-
-
 
 /**
  * Legge la cartella da deposito
@@ -247,16 +217,16 @@ if (isset($_GET['test']) &&
  */
 function leggi_cartella_per_id(int $deposito_id) {
 	$dbh  = New DatabaseHandler(); // nessun parametro dedicato
-	$scan = New Deposito($dbh);
+	$dep = New Deposito($dbh);
 	$alb_h = New Album($dbh);
 
 	// verifica record in deposito
-	$scan->set_record_id($deposito_id);
+	$dep->set_record_id($deposito_id);
 	$campi = [];
 	$campi['query'] = 'SELECT * FROM ' . Deposito::nome_tabella
 	. ' WHERE record_id = :record_id ';
-	$campi['record_id'] = $scan->get_record_id();
-	$ret = $scan->leggi($campi);
+	$campi['record_id'] = $dep->get_record_id();
+	$ret = $dep->leggi($campi);
 	if (isset($ret['error']) || $ret['numero'] == 0){
 		http_response_code(404);
 		echo ("Non trovato" . $ret['message'] );
@@ -274,7 +244,7 @@ function leggi_cartella_per_id(int $deposito_id) {
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. 'AND record_id_in_deposito = :record_id_in_deposito ';
 	$campi['record_cancellabile_dal']      = $dbh->get_datetime_forever();
-	$campi['record_id_in_deposito'] = $scan->get_record_id();
+	$campi['record_id_in_deposito'] = $dep->get_record_id();
 	$ret_album = $alb_h->leggi($campi);
 	if  (isset($ret_album['ok']) && $ret_album['numero'] > 0){
 		$album_id = $ret_album['data'][0]['record_id'];
@@ -308,7 +278,7 @@ function leggi_cartella_per_id(int $deposito_id) {
 	if (str_contains($campi['query'], ':livello6')){
 		$campi['livello6'] = $cartella_radice['livello6'];
 	}
-	$ret = $scan->leggi($campi);
+	$ret = $dep->leggi($campi);
 	if (isset($ret['error'])){
 		http_response_code(404);
 		exit("Errore in ricerca sottocartelle" . $ret['message']);
@@ -345,23 +315,9 @@ function leggi_cartella_per_id(int $deposito_id) {
 } // leggi_cartella_per_id
 
 /**
- * collaudo della funzione . richiamo diretto della pagina
- */
-if ( isset($_GET['test']) &&
-		 isset($_GET['id'])   &&
-		 $_GET['test'] == "leggi_cartella_per_id" ){
-	$deposito_id = (int) $_GET['id'];
-	leggi_cartella_per_id($deposito_id);
-	exit(0);
-}
-
-/**
  *
  */
 function leggi_cartella_per_percorso( string $percorso ){
-	//dbg echo '<p style="font-family:monospace;">input '. __FUNCTION__ .'<br>';
-	//dbg echo var_dump($percorso);
-	//dbg echo '</p>';
 
 	// input vuoto
 	if ($percorso == ''){
@@ -371,10 +327,6 @@ function leggi_cartella_per_percorso( string $percorso ){
 	$percorso = urldecode($percorso);
 	$percorso = htmlspecialchars(strip_tags($percorso));
 	$percorso = str_replace(URLBASE, '', $percorso);
-	
-	//dbg echo '<p style="font-family:monospace;">input '. __FUNCTION__ .'<br>';
-	//dbg echo var_dump($percorso);
-	//dbg echo '</p>';
 
 	if (!str_contains($percorso, '/')){
 		$spezzato = ["livello1" => $percorso, "livello2" => ''];
@@ -395,28 +347,19 @@ function leggi_cartella_per_percorso( string $percorso ){
 			$ind++;
 		}
 	}
-	//dbg echo "<p style='font-family:monospace;'>";
-	//dbg echo '<br>Campi:';
-	//dbg echo var_dump($campi);
+	
 	$campi['query'] = crea_query_cartella($campi);
-	//dbg echo 'query: ' . $campi['query'];
-	//dbg echo '</p>';
-
+	
 	// Ritorno a /museo.php
 	$torna_base = URLBASE.'museo.php';
 	$torna_sala = URLBASE.'deposito.php/cartella/'.$campi['livello1'].'/';
 
 
 	$dbh  = New DatabaseHandler();
-	$scan = New Deposito($dbh);
-	//dbg echo "<br>Ricerca cartella";
-	//dbg echo var_dump($campi);
+	$dep = New Deposito($dbh);
 
-	$ret = $scan->leggi($campi);
-	//dbg echo '<p style="cont-family:monospace;">'
-	//dbg . 'campi: ' . str_ireplace(';', '; ', serialize($campi))
-	//dbg . '<br>ret: ' . str_ireplace(';', '; ', serialize($ret))
-	//dbg .'</p>';
+	$ret = $dep->leggi($campi);
+
 	if (isset($ret['error'])){
 		http_response_code(404);
 		exit("<p style='font-family:monospace;'>$percorso non trovato. <br>" . $ret['message'] .'</p>');
@@ -450,10 +393,7 @@ function leggi_cartella_per_percorso( string $percorso ){
 		$campi['livello6'] = $cartella_radice['livello6'];
 	}
 
-	$ret = $scan->leggi($campi);
-	//dbg echo '<p>Lettura: <br>';
-	//dbg echo var_dump($ret);
-	//dbg echo '</p>';
+	$ret = $dep->leggi($campi);
 
 	if (isset($ret['error'])){
 		http_response_code(404);
@@ -486,19 +426,6 @@ function leggi_cartella_per_percorso( string $percorso ){
 } // leggi_cartella_per_percorso()
 
 /**
- * collaudo della funzione
- * https://www.fotomuseoathesis.it/aa-controller/deposito-controller.php?test=leggi_cartella_per_percorso&percorso=/6LOCA/
- */
-if (isset($_GET['test']) &&
-		isset($_GET['percorso']) &&
-		$_GET['test'] == "leggi_cartella_per_percorso" ){
-	echo "<p style='font-family:monospace;'> test leggi cartella per percorso </p>";
-	echo '<p>percorso:' . $_GET['percorso'] . '</p>';
-	leggi_cartella_per_percorso( $_GET['percorso'] );
-	exit(0);
-}
-
-/**
  * verifica_cartella_contiene_album
  *
  * una volta caricata deposito con la cartelle
@@ -511,7 +438,7 @@ if (isset($_GET['test']) &&
  */
 function verifica_cartella_contiene_album( int $deposito_id) : string {
 	$dbh    = New DatabaseHandler();
-	$dep_h = New Deposito($dbh);
+	$dep_h  = New Deposito($dbh);
 	$alb_h  = New Album($dbh);
 
 	$campi=[];
@@ -545,8 +472,6 @@ function verifica_cartella_contiene_album( int $deposito_id) : string {
 	. ' AND livello1 = :livello1  AND livello2 = :livello2 '
 	. ' AND livello3 = :livello3  AND livello4 = :livello4 '
 	. ' AND livello5 = :livello5  AND livello6 = :livello6 ';
-	//dbg echo '<br>Verifica deposito';
-	//dbg echo var_dump($campi);
 
 	$ret_alb = [];
 	$ret_alb = $dep_h->leggi($campi);
@@ -555,21 +480,6 @@ function verifica_cartella_contiene_album( int $deposito_id) : string {
 	}
 	return 'da caricare';
 }
-
-/**
- * test - id è record_id di deposito
- * https://archivio.athesis77.it/aa-controller/zona-intro-controller.php?id=66&test=verifica_cartella_contiene_album
- */
-if (isset($_GET['test']) &&
-		isset($_GET['id'])   &&
-		$_GET['test'] == 'verifica_cartella_contiene_album'){
-	echo '<pre style="max-width:50rem;">debug on'."\n";
-	echo verifica_cartella_contiene_album($_GET['id']);
-	echo '<br>fine';
-	exit(0);
-}
-
-
 
 /**
  * Espone un modulo per cambiare la tinta in un record di
@@ -631,8 +541,8 @@ function cambia_tinta_record(array $dati_input){
 	$ret_att=[];
 	switch ($tabella) {
 		case 'deposito':
-			$scan = New Deposito($dbh);
-			$ret_att = $scan->modifica($campi);
+			$dep = New Deposito($dbh);
+			$ret_att = $dep->modifica($campi);
 			break;
 		
 		default:
