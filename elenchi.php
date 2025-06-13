@@ -11,7 +11,7 @@
  * - abilitazioni_elenco 
  * - autori_elenco 
  * - chiavi_elenco 
- * - chiavi_valori_vocabolario 
+ * - vocabolario 
  * - richieste 
  * 
  * Operazioni gestite:

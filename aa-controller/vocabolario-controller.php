@@ -3,16 +3,16 @@
  * @source /aa-controller/vocabolario-controller.php
  * @author Massimo rainato <maxrainato@libero.it>
  * 
- * chiavi_valori_vocabolario controller
+ * vocabolario controller
  * 
- * Si occupa delle funzioni che riguardano la tabella chiavi_valori_vocabolario 
+ * Si occupa delle funzioni che riguardano la tabella vocabolario 
  * 
  * - get_elenco_generale 
  *   realizza il codice html per la pubblicazione dell'elenco
  *   di tutte le chiavi e del loro vocabolario 
  * - aggiungi_chiave_valore
  *   espone il modulo per chiedere il dato oppure 
- *   esegue l'inserimento in chiavi_valori_vocabolario 
+ *   esegue l'inserimento in vocabolario 
  * 
  * 
  */

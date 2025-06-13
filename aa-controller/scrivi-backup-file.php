@@ -30,7 +30,7 @@ $elenco_tabelle=[
 	'album_dettagli',
 	'autori_elenco',
 	'chiavi_elenco',
-	'chiavi_valori_vocabolario',
+	'vocabolario',
 	'consultatori_calendario',
 	'fotografie',
 	'fotografie_dettagli',
@@ -307,11 +307,11 @@ function get_backup_chiavi(string $ultimo_backup) : string {
 function get_backup_vocabolari(string $ultimo_backup) : string {
 	$dbh = New DatabaseHandler(); 
 	$ret = '';
-	$riempire = "INSERT INTO `chiavi_valori_vocabolario` (`record_id`, "
+	$riempire = "INSERT INTO `vocabolario` (`record_id`, "
 	. "`chiave`, `valore`, `ultima_modifica_record`, `record_cancellabile_dal`) "
 	. "VALUES (§1, '§2', '§3', '§4', '§5');";
 
-	$leggi = 'SELECT * FROM chiavi_valori_vocabolario ' 
+	$leggi = 'SELECT * FROM vocabolario ' 
 	. " WHERE ultima_modifica_record >= '$ultimo_backup' ";
 	try{
 	$lettura = $dbh->prepare($leggi);
@@ -326,7 +326,7 @@ function get_backup_vocabolari(string $ultimo_backup) : string {
 	}
 	// loop 
 	$ret .= "\n\n".'--'
-	. "\n". '-- Dump dei dati per la tabella `chiavi_valori_vocabolario`'
+	. "\n". '-- Dump dei dati per la tabella `vocabolario`'
 	. "\n". '--'."\n";
 	while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
 		$rigo = str_ireplace('§1', $record['record_id'], $riempire);
@@ -364,7 +364,7 @@ function get_backup_consultatori(string $ultimo_backup) : string {
 	}
 	// loop 
 	$ret .= "\n\n".'--'
-	. "\n". '-- Dump dei dati per la tabella `chiavi_valori_vocabolario`'
+	. "\n". '-- Dump dei dati per la tabella `vocabolario`'
 	. "\n". '--'."\n";
 	while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
 		$rigo = str_ireplace('§1', $record['record_id'], $riempire);

@@ -14,7 +14,7 @@
  * la creazione di liste option per le VIEW 
  * la creazione di liste per la verifica nei controller 
  * 
- * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-8-chiavi_valori_vocabolario/
+ * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-8-vocabolario/
  * 
  * metodi
  * GETTER
@@ -39,7 +39,7 @@
  */
 Class Vocabolario extends DatabaseHandler {
   public $conn;
-  public const nome_tabella = 'chiavi_valori_vocabolario';
+  public const nome_tabella = 'vocabolario';
   
   public $record_id; //         
   public $chiave; //            

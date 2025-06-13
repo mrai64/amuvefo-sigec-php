@@ -182,7 +182,7 @@ function carica_cartelle_in_deposito( int $cartella_id = 0){
 	 * intestazione pagina web
 	 */
 	$titolo_pagina = "Caricamento cartella in deposito";
-	$inizio_pagina = file_get_contents(ABSPATH.'aa-view/reload-5sec-view.php');
+	$inizio_pagina = file_get_contents(ABSPATH.'aa-view/intestazione-pagina-view.php');
 	$inizio_pagina = str_ireplace('<?=$titolo_pagina; ?>', $titolo_pagina, $inizio_pagina);
 	echo $inizio_pagina;
 	// si possono usare le classi di bootstrap 

@@ -32,7 +32,7 @@ function remove_record_from( string $nome_tabella, string $ultimo_backup) : arra
 		'album_dettagli',
 		'autori_elenco',
 		'chiavi_elenco',
-		'chiavi_valori_vocabolario',
+		'vocabolario',
 		'consultatori_calendario',
 		'deposito',
 		'fotografie',
@@ -727,7 +727,7 @@ function remove_record_tutti(){
 
 	// autori_elenco non cancellabile con questo processo 	
 	// chiavi_valori sono cancellabili solo se non sono usati in altre 6 tabelle
-	// chiavi_valori_vocabolario come sopra
+	// vocabolario come sopra
 
 	$consultatori_calendario=remove_record_from('consultatori_calendario', $ultimo_backup);
 	echo '<p>Consultatori_calendario: '.$consultatori_calendario['message'].'</p>';
@@ -758,11 +758,15 @@ function remove_record_tutti(){
 	exit(0); 					
 } // remove_record_tutti
 
-/** TEST 
- * https://archivio.athesis77.it/aa-controller/cancellazione-record-file.php
- * https://www.fotomuseoathesis.it/aa-controller/cancellazione-record-file.php
- * 
+/**
+ * Esposizione lavori in corso
  */
+$titolo_pagina = 'CANCELLAZIONE FISICA record | Amministrazione ';
+$inizio_pagina = file_get_contents(ABSPATH.'aa-view/intestazione-pagina-view.php'); // non viene aggiunto il js di reload
+$inizio_pagina = str_ireplace('<?=$titolo_pagina; ?>', $titolo_pagina, $inizio_pagina);
+echo $inizio_pagina;
+// si possono usare le classi bootstrap
+echo '<p class="fs-2 text-monospace"><strong>'.$titolo_pagina.'</strong></p>'."\n";
 
 remove_record_tutti();
 exit(0); 

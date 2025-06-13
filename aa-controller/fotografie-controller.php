@@ -76,7 +76,7 @@ function carica_fotografie_da_deposito_con_id( int $deposito_id ) : array {
 	 */
 	
 	$titolo_pagina = 'Caricamento fotografia da deposito ' . $deposito_id;
-	$inizio_pagina = file_get_contents(ABSPATH.'aa-view/reload-5sec-view.php');
+	$inizio_pagina = file_get_contents(ABSPATH.'aa-view/intestazione-pagina-view.php');
 	$inizio_pagina = str_ireplace('<?=$titolo_pagina; ?>', $titolo_pagina, $inizio_pagina);
 	echo $inizio_pagina;
 
@@ -771,7 +771,7 @@ function modifica_fotografie_dettagli_da_modulo(int $dettaglio_id = 0 , array $d
 	$fdet_h = New FotografieDettagli($dbh);
 
 	$titolo_pagina = 'Aggiornamento dettaglio fotografia ' . $dettaglio_id;
-	$inizio_pagina = file_get_contents(ABSPATH.'aa-view/reload-5sec-view.php');
+	$inizio_pagina = file_get_contents(ABSPATH.'aa-view/intestazione-pagina-view.php');
 	$inizio_pagina = str_ireplace('<?=$titolo_pagina; ?>', $titolo_pagina, $inizio_pagina);
 
 
@@ -1145,7 +1145,7 @@ function carica_dettagli_da_fotografia(int $fotografia_id ) {
 	 * Espone pagina
 	 */
 	$titolo_pagina = 'Caricamento dettagli | Foto Singola';
-	$inizio_pagina = file_get_contents(ABSPATH.'aa-view/reload-5sec-view.php');
+	$inizio_pagina = file_get_contents(ABSPATH.'aa-view/intestazione-pagina-view.php');
 	$inizio_pagina = str_ireplace('<?=$titolo_pagina; ?>', $titolo_pagina, $inizio_pagina);
 	echo $inizio_pagina;
 	// si possono usare le classi di bootstrap
