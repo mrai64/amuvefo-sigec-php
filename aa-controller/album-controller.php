@@ -104,8 +104,8 @@ include_once(ABSPATH . 'aa-controller/video-controller.php');
 	// jpg abbinato al tif, quando c'è
 	$fotografia_jpg  = str_ireplace('.psd', '.jpg', $fotografia_src);
 	$fotografia_jpg  = str_ireplace('.tif', '.jpg', $fotografia_jpg);
-	if (is_file(ABSPATH.$fotografia_jpg)) {
-		$fotografia_src=$fotografia_jpg;
+	if (is_file($fotografia_jpg)) {
+		$fotografia_src = $fotografia_jpg;
 	}
 	
 	// l'immagine viene "intarsiata" nella pagina per dissuadere lo scarico
