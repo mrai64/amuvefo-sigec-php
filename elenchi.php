@@ -11,12 +11,12 @@
  * - abilitazioni_elenco 
  * - autori_elenco 
  * - chiavi_elenco 
- * - chiavi_valori_vocabolario 
+ * - vocabolario 
  * - richieste 
  * 
  * Operazioni gestite:
  * - senza parametri 
- * /elenchi.php/elenco_chiavi 
+ * /elenchi.php/elenco-chiavi 
  * /elenchi.php/backup
  * - con parametri 
  * 
@@ -34,7 +34,7 @@ $richiesta=$pezzi['operazioni'][0];
 // check 1 - che richiesta è stata fatta? 
 switch($richiesta){
 	// queste si
-	case 'elenco_chiavi':
+	case 'elenco-chiavi':
 	case 'backup':
 	case 'elimina':
 		break;
@@ -49,7 +49,7 @@ switch($richiesta){
 	
 //
 // senza secondo parametro - richiesta abilitazione lettura
-if ($richiesta=='elenco_chiavi'){
+if ($richiesta=='elenco-chiavi'){
 	include_once(ABSPATH.'aa-controller/chiavi-controller.php'); 
 	$ret = get_chiavi_datalist();
 	echo $ret;

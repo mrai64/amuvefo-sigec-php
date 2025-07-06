@@ -43,8 +43,8 @@
  * OTHERS
  *
  */
-Class FotografieDettagli {
-	private $conn = false;
+Class FotografieDettagli extends DatabaseHandler {
+	public $conn;
 	public const nome_tabella = 'fotografie_dettagli';
 
 	public $record_id; //
@@ -62,7 +62,7 @@ Class FotografieDettagli {
 		$this->record_id_padre = 0; // chiave esterna - 0 non è valido
 		$this->chiave = ''; // invalido
 		$this->valore = ''; // invalido
-		$this->consultatore_id          = 0;  // 0 | $_COOKIE['id_calendario']
+		$this->consultatore_id = (isset($_COOKIE['consultatore_id'])) ? $_COOKIE['consultatore_id'] : 0;
 		$this->ultima_modifica_record   = $dbh->get_datetime_now();
 		$this->record_cancellabile_dal  = $dbh->get_datetime_forever();
 	} // __construct
@@ -101,6 +101,43 @@ Class FotografieDettagli {
 	public function get_record_cancellabile_dal() : string {
 		return $this->record_cancellabile_dal;
 	}
+
+	/**
+	 * Legge un record fotografie_dettagli, se presente
+	 * restituisce 'ok' e il record, altrimenti 'error' e un messaggio
+	 *
+	 * @param    int $dettaglio_id
+	 * @return array 'ok' + record | 'error' + message
+	 */
+	public function get_fotografie_dettagli_per_id( int $dettaglio_id ): array {
+		// dati obbligatori
+		$dbh = $this->conn; // a PDO object thru Database class
+
+		$this->set_record_id($dettaglio_id);
+		$campi = [];
+		$campi['query'] = 'SELECT * FROM ' . self::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+		. ' AND record_id = :record_id ';
+		$campi['record_id'] = $this->get_record_id();
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$ret_det = [];
+		$ret_det = $this->leggi($campi);
+		if (isset($ret_det['error'])){
+			return $ret_det;
+		}
+		if ($ret_det['numero'] < 1) {
+			$ret = [
+				'error'   => true,
+				'message' => "Non è stato trovato il dettaglio {$dettaglio_id}."
+			];
+			return $ret;
+		}
+		$ret = [
+			'ok'     => true,
+			'record' => $ret_det['data'][0]
+		];
+		return $ret;
+	} // get_fotografie_dettagli_per_id
 
 
 	// SETTER
@@ -156,8 +193,9 @@ Class FotografieDettagli {
 	 * @param  string datetime yyyy-mm-dd hh:mm:ss
 	 */
 	public function set_ultima_modifica_record( string $ultima_modifica_record ) {
+		$dbh = $this->conn;
 		// validazione
-		if ( !$this->conn->is_datetime( $ultima_modifica_record )){
+		if ( !$dbh->is_datetime( $ultima_modifica_record )){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__
 			. ' Must be datetime is : ' . $ultima_modifica_record );
 		}
@@ -168,8 +206,9 @@ Class FotografieDettagli {
 	 * @param  string datetime yyyy-mm-dd hh:mm:ss
 	 */
 	public function set_record_cancellabile_dal( string $record_cancellabile_dal ) {
+		$dbh = $this->conn;
 		// validazione
-		if ( !$this->conn->is_datetime( $record_cancellabile_dal )){
+		if ( !$dbh->is_datetime( $record_cancellabile_dal )){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__
 			. ' Must be datetime is : ' . $record_cancellabile_dal );
 		}
@@ -177,50 +216,42 @@ Class FotografieDettagli {
 	}
 
 	// CHECKER
-	/**
-	 *	@param  string datetime yyyy-mm-dd hh:mm:ss
-	 *	@return bool
-	 */
-	public function is_datetime( $datetime ){
-		return $this->conn->is_datetime($datetime);
-	}
 
 	// CRUD
 	/**
+	 * CREATE Aggiungi
+	 *
 	 * @param  array campi
 	 * @return array ret  'ok' + 'record_id' | 'error' + 'message'
 	 */
 	public function aggiungi( array $campi = []){
 		// record_id               viene assegnato automaticamente pertanto non è in elenco
 		// consultatore_id         viene assegnato automaticamente
-		// ultima_modifica_record        viene assegnato automaticamente
+		// ultima_modifica_record  viene assegnato automaticamente
 		// record_cancellabile_dal viene assegnato automaticamente
+		//                         ma anche no
 		$create = 'INSERT INTO ' . self::nome_tabella
 		. ' (  record_id_padre,  chiave,  valore ) VALUES '
-		. ' ( :record_id_padre, :chiave, :valore ) ';
+		. ' ( :record_id_padre, :chiave, :valore )  ';
 		if (isset($_COOKIE['consultatore_id'])){
 			$create = 'INSERT INTO ' . self::nome_tabella
 			. ' (  record_id_padre,  chiave,  valore,  consultatore_id ) VALUES '
-			. ' ( :record_id_padre, :chiave, :valore, :consultatore_id ) ';
+			. ' ( :record_id_padre, :chiave, :valore, :consultatore_id )  ';
+		}
+		if (isset($campi['record_cancellabile_dal'])){
+			$create = str_ireplace(') V', ',  record_cancellabile_dal) V', $create);
+			$create = str_ireplace(')  ', ', :record_cancellabile_dal)  ', $create);
 		}
 
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__
-				. " Inserimento record senza connessione archivio per: "
-				. self::nome_tabella
-			];
-			return $ret;
-		}
+
 		// validazione
 		if (!isset($campi['record_id_padre'])){
 			$ret = [
-				"error"=> true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__
-				. " FotografieDettagli::record_id_padre deve essere intero unsigned. "
+				'error'   => true,
+				'message' => __CLASS__ . ' ' . __FUNCTION__
+				. ' FotografieDettagli::record_id_padre deve essere intero unsigned. '
 			];
 			return $ret;
 		}
@@ -228,9 +259,9 @@ Class FotografieDettagli {
 
 		if (!isset($campi['chiave'])){
 			$ret = [
-				"error"=> true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__
-				. " FotografieDettagli::chiave deve essere valorizzato. "
+				'error'   => true,
+				'message' => __CLASS__ . ' ' . __FUNCTION__
+				. ' FotografieDettagli::chiave deve essere valorizzato. '
 			];
 			return $ret;
 		}
@@ -238,18 +269,19 @@ Class FotografieDettagli {
 
 		if (!isset($campi['valore'])){
 			$ret = [
-				"error"=> true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__
-				. " FotografieDettagli::valore deve essere valorizzato. O lo volete cancellare? "
+				'error'   => true,
+				'message' => __CLASS__ . ' ' . __FUNCTION__
+				. ' FotografieDettagli::valore deve essere valorizzato. O lo volete cancellare? '
 			];
 			return $ret;
 		}
 		$this->set_valore($campi['valore']);
-
 		if (isset($_COOKIE['consultatore_id'])){
 			$this->set_consultatore_id($_COOKIE['consultatore_id']);
 		}
-
+		if (isset($campi['record_cancellabile_dal'])){
+			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']);
+		}
 		// azione
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try{
@@ -260,6 +292,9 @@ Class FotografieDettagli {
 			if (isset($_COOKIE['consultatore_id'])){
 				$aggiungi->bindValue('consultatore_id', $this->consultatore_id, PDO::PARAM_INT);
 			}
+			if (isset($campi['record_cancellabile_dal'])){
+				$aggiungi->bindValue('record_cancellabile_dal', $this->record_cancellabile_dal);
+			}
 			$aggiungi->execute();
 			$record_id = $dbh->lastInsertID();
 			$dbh->commit();
@@ -267,24 +302,24 @@ Class FotografieDettagli {
 		} catch(\Throwable $th ){
 			$dbh->rollBack();
 			$ret = [
-				"record_id" => 0,
-				"error"   => true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__
-				. ' ' . $th->getMessage()
-				. " campi: " . serialize($campi)
+				'record_id'=> 0,
+				'error'    => true,
+				'message'  => __CLASS__ . ' ' . __FUNCTION__
+				. ' Errore: ' . $th->getMessage()
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $create
 			];
 			return $ret;
 		} // try catch
 
 		$ret = [
-			"ok"=> true,
-			"record_id" => $record_id,
-			"message" => __CLASS__ . ' ' . __FUNCTION__
-			. " Inserimento record effettuato, nuovo id: " . $record_id
+			'ok'        => true,
+			'record_id' => $record_id,
+			'message'   => __CLASS__ . ' ' . __FUNCTION__
+			. ' Inserimento record effettuato, nuovo id: ' . $record_id
 		];
 		return $ret;
-	} //aggiungi
+	} // aggiungi
 
 
 	/**
@@ -294,22 +329,13 @@ Class FotografieDettagli {
 	public function leggi(array $campi ) : array {
 		// campi obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__
-				. " lettura record senza connessione archivio per: "
-				. self::nome_tabella
-			];
-			return $ret;
-		}
 
 		if (!isset($campi['query'])){
 			$ret = [
 				"error"=> true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__
 				. "Deve essere definita l'istruzione SELECT in ['query']: "
-				. serialize($campi)
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -326,7 +352,7 @@ Class FotografieDettagli {
 		if (isset($campi['valore'])){
 			$this->set_valore($campi['valore']);
 		}
-		// consultatore_id se presente è un campo come gli altri 
+		// consultatore_id se presente è un campo come gli altri
 		if (isset($campi['consultatore_id'])){
 			$this->set_consultatore_id($campi['consultatore_id']);
 		}
@@ -367,18 +393,13 @@ Class FotografieDettagli {
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__
 				. ' ' . $th->getMessage()
-				. " campi: " . serialize($campi)
+				. " campi: " . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $read
 			];
 			return $ret;
 		}
-		$numero = 0; // può esserci un $limite
-		$dati_di_ritorno = []; // è sempre un array
-		/*while( $record = $lettura->fetch() && ($conteggio < $limite) ){
-			if ( $record === false ){
-				break;
-				}
-		*/
+		$numero = 0; // limite
+		$dati_di_ritorno = [];
 		while( $record = $lettura->fetch(PDO::FETCH_ASSOC) ){
 			$dati_di_ritorno[] = $record;
 			$numero++;
@@ -403,21 +424,13 @@ Class FotografieDettagli {
 	public function modifica(array $campi = []){
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true,
-				"message" => __CLASS__ . ' ' . __FUNCTION__
-				. " Modifica senza connessione archivio per: "
-				. self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['update'])){
 			$ret = [
 				"error"=> true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__
 				. " Aggiornamento record senza UPDATE: "
-				. serialize($campi)
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -433,7 +446,7 @@ Class FotografieDettagli {
 		if (isset($campi['valore'])){
 			$this->set_valore($campi['valore']);
 		}
-		// non posso modificare d'ufficio il campo 
+		// non posso modificare d'ufficio il campo
 		// $campi['update'] per aggiungere consultatore_id
 		// lasciando libera la scrittura esterna
 		if (isset($campi['consultatore_id'])){
@@ -482,7 +495,7 @@ Class FotografieDettagli {
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__
 				. ' ' . $th->getMessage()
-				. ' campi: '          . serialize($campi)
+				. ' campi: '          . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $update
 			];
 			return $ret;
@@ -508,21 +521,13 @@ Class FotografieDettagli {
 	public function elimina(array $campi = []){
 		// campi obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true,
-				"message" => "La cancellazione di record "
-				. "non si può fare senza connessione archivio "
-				. "per: " . self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['delete'])){
 			$ret = [
 				"error"=> true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__
 				. "Deve essere definita l'istruzione DELETE in ['delete']: "
-				. serialize($campi)
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -586,7 +591,7 @@ Class FotografieDettagli {
 					'error' => true,
 					'message' => __CLASS__ . ' ' . __FUNCTION__
 					. ' ' . $e->getMessage()
-					. ' campi: ' . serialize($campi)
+					. ' campi: ' . $dbh::esponi($campi)
 					. ' istruzione SQL: ' . $cancellazione
 			];
 			return $ret;

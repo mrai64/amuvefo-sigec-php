@@ -6,8 +6,8 @@
 	<title><?= $video['titolo_video']; ?> | Video Singolo | AMUVEFO</title>
 	<meta name='robots' content='noindex, nofollow' />
 	<!-- jquery --><script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-	<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" >
-	<!-- icone --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
+	<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" >
+	<!-- icone --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet" >
 </head>
 <body>
 <div class="container">
@@ -66,9 +66,9 @@
 								echo '<td scope="row">'.$dettaglio['chiave'].'</td>'."\n";
 								echo '<td>'.$dettaglio['valore'].'</td>'."\n";
 								if (get_set_abilitazione() > SOLALETTURA ){
-									echo '<td><a href="'.URLBASE.'video.php/modifica_dettaglio/'.$dettaglio['record_id'].'?video='.$dettaglio['record_id_padre'].'" '
+									echo '<td><a href="'.URLBASE.'video.php/modifica-dettaglio/'.$dettaglio['record_id'].'?video='.$dettaglio['record_id_padre'].'" '
 									. 'title="modifica dettaglio"><i class="h2 bi bi-pencil-square"></i></a>'
-									. '<a href="'.URLBASE.'video.php/elimina_dettaglio/'.$dettaglio['record_id'].'?video='.$dettaglio['record_id_padre'].'" '
+									. '<a href="'.URLBASE.'video.php/elimina-dettaglio/'.$dettaglio['record_id'].'?video='.$dettaglio['record_id_padre'].'" '
 									. 'title="elimina dettaglio"><i class="h2 bi bi-eraser-fill"></i></a></td>'."\n";
 									
 								} else {
@@ -103,7 +103,7 @@
 	</footer>
 </div>
 <!-- bootstrap+popper jQuery(sopra) --> 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 	$(document).ready(function(){
 		$("#video").on('contextmenu', 

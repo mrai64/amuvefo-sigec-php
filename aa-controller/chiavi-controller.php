@@ -11,7 +11,7 @@
  * 
  * - get_chiavi_datalist 
  * 
- * - elenco_chiavi
+ * - elenco-chiavi
  * 
  * - aggiungi_chiavi_ricerca
  * 
@@ -159,13 +159,6 @@ function modifica_chiave_ricerca(int $chiave_id, array $dati_input){
     require_once(ABSPATH.'aa-view/chiavi-ricerca-modifica-view.php');
     exit(0);
   }
-
-  // per la view 
-  $chiave=[];
-  $chiave['record_id']  =$campi['record_id'];
-  $chiave['chiave']     =$campi['chiave'];
-  $chiave['url_manuale']=$campi['url_manuale'];
-  $chiave['unico']      =$campi['unico'];  
 
   // validazione 
   $key_h->set_record_id($chiave_id);

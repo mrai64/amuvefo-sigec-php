@@ -1,16 +1,17 @@
 <?php
 /**
  * nomefile:	aa-registro.php
- * funzione:	crea una registrazione delle attività a uso di 
- *          	analisi post-evento
+ * funzione:	crea una registrazione delle attività a uso di
+ *          	analisi post-evento. Obsoleto se si possono usare strumenti di
+ *          	debug migliori.
  *
  * 2024-05-07	massimo	prima versione mutuata da precedenti progetti
- *           	       	lo scopo è creare un registro alla prima chiamata 
+ *           	       	lo scopo è creare un registro alla prima chiamata
  *           	       	che in seguito è aggiornabile con la funzione scrivi_registro
  *
  * DaFare
- * cambiare in una classe registro, 
- * attributo nomefile 
+ * cambiare in una classe registro,
+ * attributo nomefile
  * con funzione pubblica registro->scrivi
  *   e funzione pubblica registro->mostra (ora assente)
  */
@@ -26,7 +27,7 @@ if (empty($_SESSION)) {
  */
 
 if (!isset($parametri_get)) {
-	function trim_str($val){ 
+	function trim_str($val){
 		return trim($val);
 	} //trim_str
 
@@ -60,7 +61,7 @@ $file_registro = $cartella_registro . date("d-H-i-s") . '-' . substr($microsecon
 try{
 	$fr_aperto = fopen($file_registro, "a", false);
 } catch (Exception $e){
-	throw new Exception("Aprendo {$file_registro} si è verificato un problema, questo: " . $e->error() . PHP_EOL );
+	throw new Exception("Aprendo {$file_registro} si è verificato un problema, questo: " . $e->getMessage() . PHP_EOL );
 }
 
 fwrite($fr_aperto, 'nome file: ' . $file_registro . PHP_EOL);
@@ -71,7 +72,7 @@ fwrite($fr_aperto, '_GET: ' . PHP_EOL );
 foreach( $parametri_get as $vk => $v){
 	fwrite($fr_aperto, '_GET: ' . $vk .': ' . $v . PHP_EOL );
 }
-// Elenco parametri POST 
+// Elenco parametri POST
 fwrite($fr_aperto, '_POST: ' . PHP_EOL );
 foreach( $parametri_post    as $vk => $v){
 	if ("string" === gettype($v)) {
@@ -82,7 +83,7 @@ foreach( $parametri_post    as $vk => $v){
 		fwrite($fr_aperto, '_POST: ' . $vk .': ' . var_export($v) . PHP_EOL );
 	}
 }
-//	Elenco parametri SERVER 
+//	Elenco parametri SERVER
 fwrite($fr_aperto, '_SERVER: ' . PHP_EOL );
 foreach( $parametri_server  as $vk => $v){
 	fwrite($fr_aperto, '_SERVER: ' . $vk .': ' . $v . PHP_EOL );
@@ -92,7 +93,7 @@ fwrite($fr_aperto, '_COOKIE: ' . PHP_EOL );
 foreach( $parametri_cookie  as $vk => $v){
 	fwrite($fr_aperto, '_COOKIE: ' . $vk .': ' . $v . PHP_EOL );
 }
-//	Elenco parametri SESSION 
+//	Elenco parametri SESSION
 if (count($_SESSION) > 0) {
 	fwrite($fr_aperto, '_SESSION: ' . PHP_EOL );
 	foreach( $_SESSION  as $vk => $v){
@@ -101,16 +102,16 @@ if (count($_SESSION) > 0) {
 }
 fwrite($fr_aperto, '- - - -'. PHP_EOL );
 fclose($fr_aperto);
-/** 
- * scrivi_registro 
+/**
+ * scrivi_registro
  */
 function scrivi_registro( $messaggio = ''){
-	global $file_registro; // nome 
+	global $file_registro; // nome
 	
 	try{
 		$fr_aperto = fopen($file_registro, "a", false);
 	} catch (Exception $e){
-		throw new Exception("Aprendo {$file_registro} si è verificato un problema, questo: " . $e->error() . PHP_EOL );
+		throw new Exception("Aprendo {$file_registro} si è verificato un problema, questo: " . $e->getMessage());
 	}
 	
 	fwrite($fr_aperto, date(DATE_ATOM) . ' '. substr($messaggio, 0, 1000) . PHP_EOL);

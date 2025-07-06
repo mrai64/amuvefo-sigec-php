@@ -38,8 +38,8 @@
  * elimina    Delete
  * 
  */
-Class Ricerche{
-  private $conn = false; // a Database Handler 
+Class Ricerche extends DatabaseHandler {
+  public $conn; // a Database Handler 
 
 	public const nome_tabella  = 'ricerche';
   // in archivio 
@@ -186,6 +186,7 @@ Class Ricerche{
    * CREATE 
    */
   public function aggiungi(array $campi = [] ):array{
+    $dbh = $this->conn; // a PDO object thru Database class
     /**
      * record_id
      * ultimo aggiornamento_record
@@ -199,7 +200,7 @@ Class Ricerche{
 				'error'   => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Serve il campo richiesta: '
-				. str_ireplace(';', '; ', serialize($campi))
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -212,7 +213,7 @@ Class Ricerche{
 				'error'   => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Serve il campo richiesta: '
-				. str_ireplace(';', '; ', serialize($campi))
+				. $dbh::esponi($campi)
 			];
 			return $ret;
     }
@@ -225,16 +226,6 @@ Class Ricerche{
     if (isset($_COOKIE['consultatore_id'])){
       $this->set_consultatore_id($_COOKIE['consultatore_id']);
     }
-		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Inserimento record senza connessione archivio per: " 
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
 		
 		$create = ' INSERT INTO ' . self::nome_tabella 
 		. ' (  richiesta,  risultato,  consultatore_id ) VALUES '
@@ -279,26 +270,17 @@ Class Ricerche{
    * @return array 'ok' + numero + data[] | 'error' + message 
    */
   public function leggi(array $campi = []) : array{
+    $dbh = $this->conn; // a PDO object thru Database class
     if (!isset($campi['query'])){
       $ret = [
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . "Deve essere definita l'istruzione SELECT in ['query']: " 
-        . str_ireplace(';', '; ', serialize($campi))
+        . $dbh::esponi($campi)
       ];
       return $ret;
     }
     // dati obbligatori
-    $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => __CLASS__ . ' ' . __FUNCTION__ 
-        . "Deve essere attiva la connessione all'archivio per: " 
-        . self::nome_tabella 
-      ];
-      return $ret;
-    }
 
     $read = $campi['query'];
     if (isset($campi['record_id'])){
@@ -359,7 +341,7 @@ Class Ricerche{
         'message' => __CLASS__ . ' ' . __FUNCTION__ 
         . ' ' . $th->getMessage() 
         . ' istruzione SQL: ' . $read
-        . ' campi: ' . str_ireplace(';', '; ', serialize($campi))
+        . ' campi: ' . $dbh::esponi($campi)
       ];
       return $ret;
     } // try catch
@@ -370,15 +352,7 @@ Class Ricerche{
    */
   public function modifica(array $campi=[]) : array{
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => __CLASS__ . ' ' . __FUNCTION__ 
-        . " Modifica record senza connessione archivio per: " 
-        . self::nome_tabella 
-      ];
-      return $ret;
-    }
+
     if (!isset($campi['update'])){
       $ret = [
         "error"=> true, 
@@ -451,7 +425,7 @@ Class Ricerche{
         "error" => true,
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . '<br>' . $th->getMessage() 
-        . '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
+        . '<br>campi: ' . $dbh::esponi($campi)
         . '<br>istruzione SQL: ' . $update
       ];
       return $ret;
@@ -464,27 +438,18 @@ Class Ricerche{
    * @return array 'ok' + message | 'error' + message
    */
   public function elimina(array $campi) : array {
+    $dbh = $this->conn; // a PDO object thru Database class
     if (!isset($campi['delete'])){
       $ret = [
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . "Deve essere definita l'istruzione DELETE in ['delete']: " 
-        . str_ireplace(';', '; ', serialize($campi))
+        . $dbh::esponi($campi)
       ];
       return $ret;
     }
     // dati obbligatori
-    $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => __CLASS__ . ' ' . __FUNCTION__ 
-        . "Deve essere attiva la connessione all'archivio per: " 
-        . self::nome_tabella 
-      ];
-      return $ret;
-    }
-  
+
     $delete = $campi['delete'];
     if (isset($campi['record_id'])){
       $this->set_record_id($campi['record_id']);
@@ -530,15 +495,11 @@ Class Ricerche{
         "error" => true,
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . '<br>' . $th->getMessage() 
-        . '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
+        . '<br>campi: ' . $dbh::esponi($campi)
         . '<br>istruzione SQL: ' . $delete
       ];
       return $ret;
     } // try catch
   } // elimina
-  
-  /**
-   * ALTRE FUNZIONI 
-   */
-  
+
 } // Ricerche

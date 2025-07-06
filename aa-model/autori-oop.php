@@ -20,8 +20,8 @@
  *   elimina  DELETE 
  * OTHERs
  */
-Class Autori {
-  private $conn = false; // PDO connection database 
+Class Autori extends DatabaseHandler {
+  public $conn; // PDO connection database 
   public const nome_tabella = 'autori_elenco'; 
 
   private $tabella = 'autori_elenco';
@@ -29,7 +29,7 @@ Class Autori {
   public $record_id; //         bigint(20) unsigned Auto+ PRIMARY
   public $cognome_nome; //      varchar(250) cognome, nome 
   public $detto; //             varchar(100) alias oppure cognome, nome
-  public $sigla_6; //           char(6) sigla simil-codice fiscale 
+  public $sigla_6; //           char(6) sigla simile al codice fiscale 
   public $fisica_giuridica; //  enum() 'F', 'G'
   public $url_autore; //        varchar(250) pagina biografia
   public $ultima_modifica_record; //  datetime a uso backup 
@@ -40,6 +40,7 @@ Class Autori {
   
   public function __construct(DatabaseHandler $dbh) {
     $this->conn = $dbh;
+
     $this->record_id        = 0; //  invalido 
     $this->cognome_nome     = ""; // invalido 
     $this->detto            = "";
@@ -148,11 +149,12 @@ Class Autori {
    * @param string datetime yyyy-mm-dd hh:mm:ss
    */
   public function set_ultima_modifica_record( string $ultima_modifica_record ){
-    if (!($this->conn->is_datetime($ultima_modifica_record))){
+  	$dbh = $this->conn; // a PDO object thru Database class
+    if (!($dbh->is_datetime($ultima_modifica_record))){
       throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-      . '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss '
-      . ' it is: '. $ultima_modifica_record 
-    );
+        . '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss '
+        . ' it is: '. $ultima_modifica_record 
+      );
     }
     $this->ultima_modifica_record = $ultima_modifica_record;
   }
@@ -168,14 +170,7 @@ Class Autori {
    */
   public function aggiungi(array $campi =[]) : array {
     $dbh = $this->conn;
-    if ($dbh === false){
-      $ret =[
-        'error' => true,
-        'message' => __CLASS__ . ' ' . __FUNCTION__ 
-        . "<br>Serve la connessione all'archivio" 
-      ];
-      return $ret;
-    }
+
     // record_id viene assegnato 
     // ultima_modifica_record viene assegnato 
     // tutti gli altri campi sono obbligatori 
@@ -218,16 +213,18 @@ Class Autori {
       $aggiungi->bindValue('url_autore',       $this->url_autore);
       $aggiungi->execute();
       $record_id = $dbh->lastInsertID();
+
     } catch( \Throwable $th ){
       $ret = [
         "record_id" => 0,
         "error"   => true,
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . '<br>' . $th->getMessage() 
-        . "<br> campi: " . serialize($campi)
+        . "<br> campi: " . $dbh::esponi($campi)
         . '<br> istruzione SQL: ' . $create 
       ];
       return $ret;
+
     } // try catch 
     $ret = [
       "ok"=> true, 
@@ -249,14 +246,7 @@ Class Autori {
    */
   public function leggi(array $campi = []) : array {
     $dbh = $this->conn;
-    if ($dbh === false){
-      $ret =[
-        'error' => true,
-        'message' => __CLASS__ . ' ' . __FUNCTION__ 
-        . "<br>Serve la connessione all'archivio" 
-      ];
-      return $ret;
-    }
+
     if (!isset($campi["query"])){
       $ret =[
         'error' => true,
@@ -318,20 +308,13 @@ Class Autori {
         "error"   => true,
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . '<br>' . $th->getMessage() 
-        . "<br> campi: " . serialize($campi)
+        . "<br> campi: " . $dbh::esponi($campi)
         . '<br> istruzione SQL: ' . $read 
       ];
       return $ret;      
     }
     $conteggio = 0;
     $lista_autori = [];
-    /* conteggio con limitatore 
-    $limitatore = isset($campi["limite"]) ? (int) $campi["limite"] : 100; // valore predefinito 
-    while($conteggio < $limitatore && $record = $lettura->fetch(PDO::FETCH_ASSOC) ){
-      $lista_autori[] =$record;
-      $conteggio++;
-    }
-    */
     while($record = $lettura->fetch(PDO::FETCH_ASSOC) ){
       $lista_autori[] =$record;
       $conteggio++;
@@ -350,23 +333,14 @@ Class Autori {
    * @param array $campi Deve contenere un campo
    */
   public function modifica(array $campi=[]) : array {
-
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => __CLASS__ . ' ' . __FUNCTION__ 
-        . "<br> Modifica senza connessione archivio per: " 
-        . $this->tabella 
-      ];
-      return $ret;
-    }
+
     if (!isset($campi["update"])){
       $ret = [
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . "<br> Aggiornamento record senza UPDATE: " 
-        . serialize($campi) 
+        . $dbh::esponi($campi) 
       ];
       return $ret;
     }
@@ -428,7 +402,7 @@ Class Autori {
       $ret = [
         "error" => true,
         "message" => __CLASS__ . ' ' . __FUNCTION__ . ' ' 
-        . $th->getMessage() . ' campi: ' . serialize($campi)
+        . $th->getMessage() . ' campi: ' . $dbh::esponi($campi)
         . ' istruzione SQL: ' . $update
       ];
       return $ret;
@@ -450,20 +424,12 @@ Class Autori {
    */
   public function elimina( array $campi = []) : array {
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => __CLASS__ . ' ' . __FUNCTION__ 
-        . " Cancellazione senza connessione archivio per: " 
-        . $this->tabella
-      ];
-      return $ret;
-    }
+
     if (!isset($campi["delete"])){
       $ret = [
         "error"=> true, 
         "message" => "Cancellazione record senza DELETE: " 
-        . serialize($campi) 
+        . $dbh::esponi($campi) 
       ];
       return $ret;
     }
@@ -518,7 +484,7 @@ Class Autori {
         "error" => true,
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . '<br>' . $th->getMessage() 
-        . '<br>campi: ' . serialize($campi)
+        . '<br>campi: ' . $dbh::esponi($campi)
         . '<br>istruzione SQL: ' . $delete
       ];
       return $ret;

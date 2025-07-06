@@ -18,17 +18,17 @@
  *   inserisce una richiesta per l'originale
  *   e ritorna alla pagina chiamante
  *
- * /video.php/aggiungi_dettaglio/{video_id}
+ * /video.php/aggiungi-dettaglio/{video_id}
  *   carica la scheda per aggiungere un dettaglio
  *   al video, e gestisce l'inserimento dello
  *   stesso
  * 
- * /video.php/modifica_dettaglio/{dettaglio_id}?video={video_id}
+ * /video.php/modifica-dettaglio/{dettaglio_id}?video={video_id}
  *   espone la scheda per modificare il record 
  *   di video_dettagli, e poi se presente $_POST
  *   aggiorna il record di video_dettagli 
  * 
- * /video.php/elimina_dettaglio/{dettaglio_id}?video={video_id}
+ * /video.php/elimina-dettaglio/{dettaglio_id}?video={video_id}
  *   cancellazione non fisica, viene aggiornato il 
  *   campo record_cancellabile_dal
  *
@@ -48,9 +48,9 @@ switch($richiesta){
 	case 'precedente':
 	case 'seguente':
 	case 'richiesta':
-	case 'aggiungi_dettaglio':
-	case 'modifica_dettaglio':
-	case 'elimina_dettaglio':
+	case 'aggiungi-dettaglio':
+	case 'modifica-dettaglio':
+	case 'elimina-dettaglio':
 		break;
 
 	default:
@@ -127,11 +127,11 @@ if (get_set_abilitazione() <= SOLALETTURA){
 /**
  * AGGIUNGI DETTAGLIO 
  */
-if ($richiesta=='aggiungi_dettaglio' && isset($_POST['chiave'])){
+if ($richiesta=='aggiungi-dettaglio' && isset($_POST['chiave'])){
 	aggiungi_dettaglio_video_da_modulo($video_id, $_POST);
 	exit(0);
 }
-if ($richiesta=='aggiungi_dettaglio'){
+if ($richiesta=='aggiungi-dettaglio'){
 	aggiungi_dettaglio_video_da_modulo($video_id, []);
 	exit(0);
 }
@@ -139,11 +139,11 @@ if ($richiesta=='aggiungi_dettaglio'){
 /**
  * MODIFICA DETTAGLIO 
  */
-if ($richiesta=='modifica_dettaglio' && isset($_POST['valore'])){
+if ($richiesta=='modifica-dettaglio' && isset($_POST['valore'])){
 	modifica_dettaglio_video_da_modulo($dettaglio_id, $_POST);
 	exit(0);
 }
-if ($richiesta=='modifica_dettaglio'){
+if ($richiesta=='modifica-dettaglio'){
 	modifica_dettaglio_video_da_modulo($dettaglio_id, []);
 	exit(0);
 }
@@ -151,7 +151,7 @@ if ($richiesta=='modifica_dettaglio'){
 /**
  * CANCELLA DETTAGLIO
  */
-if ($richiesta=='elimina_dettaglio'){
+if ($richiesta=='elimina-dettaglio'){
 	elimina_dettaglio_video_da_modulo($dettaglio_id);
 	exit(0);
 }

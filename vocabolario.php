@@ -21,6 +21,7 @@ $richiesta=$pezzi['operazioni'][0];
 switch($richiesta){
 	case 'elenco-generale':
 	case 'aggiungi':
+	case 'modifica':
 		break; 
 
 	// resto no 
@@ -50,13 +51,27 @@ if (isset($_POST['chiave'])){
 }
 // aggiunge un valore all'elenco delle chiavi
 if ($richiesta==='aggiungi' && isset($_POST['aggiungi_vocabolario'])){
-	aggiungi_chiave_valore($chiave, $_POST);
+	aggiungi_vocabolario($chiave, $_POST);
 	exit(0); // Qui non dovrebbe arrivarci, però.
 }
 // espone il modulo per chiedere il valore
 if ($richiesta==='aggiungi'){
-	aggiungi_chiave_valore($chiave, []);
+	aggiungi_vocabolario($chiave, []);
 	exit(0); // Qui non dovrebbe arrivarci, però.
+}
+
+// parametro 
+$vocabolario_id = 0;
+if (isset($pezzi['operazioni'][1])){
+	$vocabolario_id=$pezzi['operazioni'][1];
+}
+if ($richiesta === 'modifica' && isset($_POST['modifica_vocabolario'])){
+	modifica_vocabolario( $vocabolario_id, $_POST);
+	exit(0);
+}
+if ($richiesta === 'modifica'){
+	modifica_vocabolario( $vocabolario_id, []);
+	exit(0);
 }
 
 // Anche qui non dovrebbe arrivarci, però.
