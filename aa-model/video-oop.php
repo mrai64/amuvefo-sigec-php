@@ -7,7 +7,7 @@
  *
  *	dipendenze: DatabaseHandler connessione archivio PDO 
  *	dipendenze: Album 
- *	dipendenze: ScansioniDisco 
+ *	dipendenze: Deposito 
  *	dipendenze: VideoDettagli 
  *
  * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/video/
@@ -26,8 +26,9 @@
  * 
  * 
  */
-Class Video {
-	private $conn = false;
+Class Video extends DatabaseHandler {
+	public $conn;
+
 	public const nome_tabella  = 'video';
 	public const stato_da_fare    = '0 da fare';
 	public const stato_in_corso   = '1 in corso';
@@ -43,8 +44,8 @@ Class Video {
 	public $titolo_video; //                  varchar(250)
 	public $disco; //                         char(12)
 	public $percorso_completo; //             varchar(1500)
-	public $record_id_in_album; //            bigint(20) unsigned external key su scansioni_disco
-	public $record_id_in_scansioni_disco; //  bigint(20) unsigned external key su scansioni_disco
+	public $record_id_in_album; //            bigint(20) unsigned external key su deposito
+	public $record_id_in_deposito; //  bigint(20) unsigned external key su deposito
 	public $stato_lavori; //                  enum     DEF '0 da fare'
 	public $ultima_modifica_record; //        datetime DEF CURRENT TIME
 	public $record_cancellabile_dal; //       datetime DEF '9999-12-31 23:59:59'
@@ -58,7 +59,7 @@ Class Video {
 		$this->disco = '';
 		$this->percorso_completo       = ''; // invalido 
 		$this->record_id_in_album      = 0; // invalido 
-		$this->record_id_in_scansioni_disco = 0; // invalido 
+		$this->record_id_in_deposito = 0; // invalido 
 		$this->stato_lavori            = self::stato_da_fare;
 		$this->ultima_modifica_record  = $dbh->get_datetime_now();
 		$this->record_cancellabile_dal = $dbh->get_datetime_forever();
@@ -94,8 +95,8 @@ Class Video {
 	/**
 	 * @return int unsigned 
 	 */
-	public function get_record_id_in_scansioni_disco(){
-		return $this->record_id_in_scansioni_disco;
+	public function get_record_id_in_deposito(){
+		return $this->record_id_in_deposito;
 	}
 	/**
 	 * @return string datetime 
@@ -135,14 +136,14 @@ Class Video {
 	
 	public function set_disco( string $disco ){
 		// ritaglio a misura 
-		$disco = htmlspecialchars(strip_tags($disco));
+		$disco = (strip_tags($disco));
 		$disco = mb_substr($disco, 0, 12);
 		$this->disco = $disco;
 	}
 	
 	public function set_percorso_completo( string $percorso_completo ){
 		// ritaglio a misura 
-		$percorso_completo = htmlspecialchars(strip_tags($percorso_completo));
+		$percorso_completo = (strip_tags($percorso_completo));
 		$percorso_completo = mb_substr($percorso_completo, 0, 1500);
 		$this->percorso_completo = $percorso_completo;
 	}
@@ -155,12 +156,12 @@ Class Video {
 		$this->record_id_in_album = $record_id_in_album;
 	}
 
-	public function set_record_id_in_scansioni_disco( int $record_id_in_scansioni_disco){
-		if ($record_id_in_scansioni_disco < 1){
+	public function set_record_id_in_deposito( int $record_id_in_deposito){
+		if ($record_id_in_deposito < 1){
 			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. ' Must be unsigned integer ' . $record_id_in_scansioni_disco);
+			. ' Must be unsigned integer ' . $record_id_in_deposito);
 		}
-		$this->record_id_in_scansioni_disco = $record_id_in_scansioni_disco;
+		$this->record_id_in_deposito = $record_id_in_deposito;
 	}
 
 	/**
@@ -265,10 +266,7 @@ Class Video {
 	 */
 	public function check_record_id( int $record_id ){
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. " Non si può verificare la presenza senza connessione all'archivio. ");
-		}
+
 		$leggi = 'SELECT 1 FROM video '  
 		. ' WHERE record_id = :record_id ';
 		try {
@@ -294,19 +292,20 @@ Class Video {
 		// ultima_modifica_record        viene assegnato automaticamente 
 		// record_cancellabile_dal viene assegnato automaticamente 
 		// stato_lavori         viene assegnato automaticamente 
+		$dbh = $this->conn; // a PDO object thru Database class
 	
 		$create = 'INSERT INTO video '  
 		. ' (  titolo_video,   disco,  percorso_completo,'
-		. '    record_id_in_album,  record_id_in_scansioni_disco ) VALUES '
+		. '    record_id_in_album,  record_id_in_deposito ) VALUES '
 		. ' ( :titolo_video,  :disco, :percorso_completo, '
-		. '   :record_id_in_album, :record_id_in_scansioni_disco ) ';
+		. '   :record_id_in_album, :record_id_in_deposito ) ';
 
 		// campi necessari 
 		if (!isset($campi['titolo_video'])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo titolo_video: " . serialize($campi) 
+				. " Serve campo titolo_video: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -316,7 +315,7 @@ Class Video {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo disco: " . serialize($campi) 
+				. " Serve campo disco: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -326,7 +325,7 @@ Class Video {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo percorso_completo: " . serialize($campi) 
+				. " Serve campo percorso_completo: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -336,38 +335,30 @@ Class Video {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo record_id_in_album: " . serialize($campi) 
+				. " Serve campo record_id_in_album: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
 		$this->set_record_id_in_album($campi['record_id_in_album']);
 
-		if (!isset($campi['record_id_in_scansioni_disco'])){
+		if (!isset($campi['record_id_in_deposito'])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo record_id_in_scansioni_disco: " . serialize($campi) 
+				. " Serve campo record_id_in_deposito: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
-		$this->set_record_id_in_scansioni_disco($campi['record_id_in_scansioni_disco']);
+		$this->set_record_id_in_deposito($campi['record_id_in_deposito']);
 
-		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Inserimento record senza connessione archivio per: " . self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		try{
 			$aggiungi = $dbh->prepare($create);
 			$aggiungi->bindValue('titolo_video',            $this->titolo_video);
 			$aggiungi->bindValue('disco',                        $this->disco);
 			$aggiungi->bindValue('percorso_completo',            $this->percorso_completo);
 			$aggiungi->bindValue('record_id_in_album',           $this->record_id_in_album);
-			$aggiungi->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco);
+			$aggiungi->bindValue('record_id_in_deposito', $this->record_id_in_deposito);
 			$aggiungi->execute();
 			$record_id = $dbh->lastInsertID();
 		} catch(\Throwable $th ){
@@ -376,7 +367,7 @@ Class Video {
 				"error"   => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. " campi: " . serialize($campi)
+				. " campi: " . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $create 
 			];
 			return $ret;      
@@ -394,11 +385,11 @@ Class Video {
 
 	/**
 	 * 1. dev'essere presente un $campi[query] con istruzione sql 
-	 * e tutti i campi che nell'istruzione sono marcati :nomecampo
+	 * e tutti i campi che nell'istruzione sono marcati :nome_campo
 	 * 2. sono gestite le casistiche semplici, senza lettura limitata 
 	 * e senza lettura a 'partire da', qualora servano il suggerimento è di aggiungere
 	 * in $campi[] un indicatore di direzione avanti/indietro e una serie 
-	 * di campi "da_nomecampo", stabilito un criterio di ordinamento che può 
+	 * di campi "da_nome_campo", stabilito un criterio di ordinamento che può 
 	 * per esempio basarsi su titolo_video 
 	 * 
 	 * @param array $campi  
@@ -407,19 +398,13 @@ Class Video {
 	public function leggi(array $campi = []) : array {
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'    => true, 
-				'message'  => __CLASS__ . ' ' . __FUNCTION__ 
-				. '<br>Serve una connessione attiva per leggere in '
-				. self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if (!isset($campi["query"])){
 			$ret = [
 				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ . ' Errore: ' . "Deve essere definita l'istruzione SELECT in ['query']: " . serialize($campi)
+				"message" => __CLASS__ . ' ' . __FUNCTION__ 
+				. ' Errore: ' . "Deve essere definita l'istruzione SELECT in ['query']: " 
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -440,8 +425,8 @@ Class Video {
 		if (isset($campi["record_id_in_album"])){
 			$this->set_record_id_in_album($campi["record_id_in_album"]);
 		}
-		if (isset($campi["record_id_in_scansioni_disco"])){
-			$this->set_record_id_in_scansioni_disco($campi["record_id_in_scansioni_disco"]);
+		if (isset($campi["record_id_in_deposito"])){
+			$this->set_record_id_in_deposito($campi["record_id_in_deposito"]);
 		}
 		if (isset($campi["ultima_modifica_record"])){
 			$this->set_ultima_modifica_record($campi["ultima_modifica_record"]); 
@@ -469,8 +454,8 @@ Class Video {
 			if (isset($campi["record_id_in_album"])){
 				$lettura->bindValue('record_id_in_album', $this->record_id_in_album, PDO::PARAM_INT); 
 			}
-			if (isset($campi["record_id_in_scansioni_disco"])){
-				$lettura->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco, PDO::PARAM_INT); 
+			if (isset($campi["record_id_in_deposito"])){
+				$lettura->bindValue('record_id_in_deposito', $this->record_id_in_deposito, PDO::PARAM_INT); 
 			}
 			if (isset($campi["ultima_modifica_record"])){
 				$lettura->bindValue('ultima_modifica_record', $this->ultima_modifica_record ); 
@@ -487,7 +472,7 @@ Class Video {
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $read
 			];
 			return $ret;
@@ -523,8 +508,8 @@ Class Video {
 	 * ATTENZIONE: La modifica del campo "record_cancellabile_dal" viene 
 	 *             gestita come cancellazione logica, in attesa di una fase
 	 *             di scarico e cancellazione fisica.
-	 * Deve essere presente un $campi["update] con istruzione SQL e tutti i $campi[nomecampo]
-	 * che nell'istruzione SAL sono presenti come :nomecampo
+	 * Deve essere presente un $campi["update] con istruzione SQL e tutti i $campi[nome_campo]
+	 * che nell'istruzione SAL sono presenti come :nome_campo
 	 *
 	 * @param  array $campi 
 	 * @return array $ret 'ok' + 'message' | 'error' + 'message'
@@ -532,19 +517,12 @@ Class Video {
 	public function modifica( array $campi = []) {
 		// campi indispensabili 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Modifica senza connessione archivio per: " . self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi["update"])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Aggiornamento record senza UPDATE: " . serialize($campi) 
+				. " Aggiornamento record senza UPDATE: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -564,8 +542,8 @@ Class Video {
 		if (isset($campi["record_id_in_album"])){
 			$this->set_record_id_in_album($campi["record_id_in_album"]); 
 		}
-		if (isset($campi["record_id_in_scansioni_disco"])){
-			$this->set_record_id_in_scansioni_disco($campi["record_id_in_scansioni_disco"]); 
+		if (isset($campi["record_id_in_deposito"])){
+			$this->set_record_id_in_deposito($campi["record_id_in_deposito"]); 
 		}
 		if (isset($campi["ultima_modifica_record"])){
 			$this->set_ultima_modifica_record($campi["ultima_modifica_record"]); 
@@ -595,8 +573,8 @@ Class Video {
 			if (isset($campi["record_id_in_album"])){
 				$aggiorna->bindValue('record_id_in_album', $this->record_id_in_album, PDO::PARAM_INT); 
 			}
-			if (isset($campi["record_id_in_scansioni_disco"])){
-				$aggiorna->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco, PDO::PARAM_INT); 
+			if (isset($campi["record_id_in_deposito"])){
+				$aggiorna->bindValue('record_id_in_deposito', $this->record_id_in_deposito, PDO::PARAM_INT); 
 			}
 			if (isset($campi["ultima_modifica_record"])){
 				$aggiorna->bindValue('ultima_modifica_record', $this->ultima_modifica_record); 
@@ -615,7 +593,7 @@ Class Video {
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $update
 			];
 			return $ret;
@@ -634,7 +612,7 @@ Class Video {
 	 *             fatta apposta per consentire di "cancellare logicamente"
 	 *             i record, vedi manuale tecnico amministrativo.
 	 * Deve essere presente un $campi["delete"] con istruzione SQL e tutti i 
-	 * $campi[nomecampo] che hanno nell'istruzione SQL :nomecampo 
+	 * $campi[nome_campo] che hanno nell'istruzione SQL :nome_campo 
 	 * 
 	 * @param  array  $campi 
 	 * @return array  $ret 'ok' + 'message' | 'error' + 'message' 
@@ -642,20 +620,12 @@ Class Video {
 	public function elimina( array $campi = []) : array {
 		// indispensabili 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Cancellazione senza connessione archivio per: " 
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi["delete"])){
 			$ret = [
 				"error"=> true, 
 				"message" => "Cancellazione record senza DELETE. " 
-				. ' campi : ' . serialize($campi) 
+				. ' campi : ' . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -674,8 +644,8 @@ Class Video {
 		if (isset($campi["record_id_in_album"])){
 			$this->set_record_id_in_album($campi["record_id_in_album"]);
 		}
-		if (isset($campi["record_id_in_scansioni_disco"])){
-			$this->set_record_id_in_scansioni_disco($campi["record_id_in_scansioni_disco"]);
+		if (isset($campi["record_id_in_deposito"])){
+			$this->set_record_id_in_deposito($campi["record_id_in_deposito"]);
 		}
 		if (isset($campi["ultima_modifica_record"])){
 			$this->set_ultima_modifica_record($campi["ultima_modifica_record"]);
@@ -701,8 +671,8 @@ Class Video {
 		if (isset($campi["record_id_in_album"])){
 			$cancella->bindValue('record_id_in_album', $this->record_id_in_album, PDO::PARAM_INT); 
 		}
-		if (isset($campi["record_id_in_scansioni_disco"])){
-			$cancella->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco, PDO::PARAM_INT); 
+		if (isset($campi["record_id_in_deposito"])){
+			$cancella->bindValue('record_id_in_deposito', $this->record_id_in_deposito, PDO::PARAM_INT); 
 		}
 		if (isset($campi["ultima_modifica_record"])){ 
 			$cancella->bindValue('ultima_modifica_record', $this->ultima_modifica_record); 
@@ -716,7 +686,7 @@ Class Video {
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. " campi: " . serialize($campi)
+				. " campi: " . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $delete
 			];
 			return $ret;
@@ -763,21 +733,13 @@ Class Video {
 	/**
 	 * restituisce il risultato di $this->leggi 
 	 * 
-	 * @param  in    $video_id 
+	 * @param  int   $video_id 
 	 * @return array 'ok' + data[] | 'error' + 'message'
 	 */
 	public function get_video_from_id(int $video_id) : array {
 		// dati obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. '<br>Serve una connessione attiva per leggere in '
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		// validazione
 		$this->set_record_id($video_id);
 

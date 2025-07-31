@@ -1,22 +1,26 @@
 <?php
 /**
- * @source /aa-model/scansioni-cartelle-oop.php 
+ * @source /aa-model/zona-intro-oop.php 
  * @author Massimo Rainato <maxrainato@libero.it>
  * 
- * La tabella scansioni_cartelle è un primo passo per l'archiviazione 
- * e dopo l'inserimento nel sito ftp raccoglie l'elenco delle carelle 
- * che vanno lavorate per caricar i record di cartelle e file nel deposito 
- * scansioni_disco. Da questo poi si caricano album, fotografie video e i loro dettagli 
- * caricabili in automatico
+ * La tabella zona_intro è un primo passo per l'archiviazione che,
+ * dopo l'inserimento nel sito tramite sftp[*], raccoglie l'elenco delle cartelle 
+ * che vanno lavorate e poi caricare nella tabella deposito. 
+ * Dalla tabella deposito in seguito si caricano album, 
+ * fotografie, video e i loro dettagli caricabili in automatico.
  * 
- * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-12-scansioni_cartelle/ 
+ * TODO [*] Consentire il caricamento delle cartelle tramite modulo, con definizione 
+ * TODO del posto in cui caricarle, anche più di uno, e contestuale 
+ * TODO caricamento del record in tabella zona_intro.
+ * 
+ * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-12-zona_intro/ 
  *
  */
 
-Class Cartelle {
-	private $conn = false; // connessione 
-	public const nomeTabella = 'scansioni_cartelle'; // self::nomeTabella oppure
-	// nuovi
+Class Cartelle extends DatabaseHandler {
+	public $conn; // connessione 
+	public const nome_tabella = 'zona_intro'; // self::nome_tabella oppure
+
 	public const stato_da_fare      = '0 da fare';
 	public const stato_in_corso     = '1 in corso';
 	public const stato_completati   = '2 completati';
@@ -26,21 +30,10 @@ Class Cartelle {
 		self::stato_completati
 	];
 
-	// da rimuovere 
-	public const statoDaFare        = 0; //             Cartelle::nomeTabella
-	public const statoLavoriInCorso = 1;
-	public const statoCompletato    = 2;
-	public const statiValidi = [
-		self::statoDaFare,
-		self::statoLavoriInCorso,
-		self::statoCompletato
-	];
-
-	// 
+	// elementi della tabella
 	public $record_id; //                bigint(20) unsigned AUTO+ PRIMARY
 	public $disco; //                    char(12) riferimento disco fisico MASTER
 	public $percorso_completo; //        varchar(2000) - esagerato, max: 1506 = 250 * 6 + 6 '/'
-	public $stato_scansione; //          int codice stato sostituire
 	public $stato_lavori; //             enum 
 	public $ultima_modifica_record; //   datetime data creazione record uso backup
 	public $record_cancellabile_dal; //  datetime DEF '9999-12-31 23:59:59'
@@ -54,7 +47,6 @@ Class Cartelle {
 		$this->record_id          = 0; //  invalido 
 		$this->disco              = ''; // invalido
 		$this->percorso_completo  = ''; // invalido 
-		$this->stato_scansione    = self::statoDaFare; // da fare 
 		$this->stato_lavori       = self::stato_da_fare; // da fare 
 		$this->ultima_modifica_record   = $dbh->get_datetime_now();
 		$this->record_cancellabile_dal  = $dbh->get_datetime_forever();
@@ -70,15 +62,9 @@ Class Cartelle {
 	public function get_percorso_completo() : string {
 		return $this->percorso_completo;
 	}
-	// rimuovere
-	public function get_stato_scansione() : int {
-		return $this->stato_scansione;
-	}
-
 	public function get_stato_lavori() : string {
 		return $this->stato_lavori;
 	}
-
 	public function get_ultima_modifica_record() : string {
 		return $this->ultima_modifica_record;
 	}
@@ -131,16 +117,6 @@ Class Cartelle {
 		$this->percorso_completo = $chiave;
 	}
 	
-	// rimuovere
-	public function set_stato_scansione( int $stato_scansione ) {
-		// validazione
-		if (!in_array($stato_scansione, self::statiValidi)){
-			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
-			. ' stato_scansione Cannot be out of valid set status. ' );
-		}
-		$this->stato_scansione = $stato_scansione;
-	}
-
 	public function set_stato_lavori(string $stato_lavori ){
 		if ( !in_array( $stato_lavori, self::stato_lavori_validi)){
 			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
@@ -153,7 +129,8 @@ Class Cartelle {
 	 * @param string datetime yyyy-mm-dd hh:mm:ss
 	 */
 	public function set_ultima_modifica_record( string $ultima_modifica_record ){
-		if (!($this->conn->is_datetime($ultima_modifica_record))){
+		$dbh = $this->conn;
+		if (!($dbh->is_datetime($ultima_modifica_record))){
 			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
 			. ' no for: '. $ultima_modifica_record 
 			. '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss ');
@@ -165,9 +142,11 @@ Class Cartelle {
 	 * @param string datetime yyyy-mm-dd hh:mm:ss
 	 */
 	public function set_record_cancellabile_dal( string $record_cancellabile_dal ){
-		if (!($this->conn->is_datetime($record_cancellabile_dal))){
+		$dbh = $this->conn;
+		if (!($dbh->is_datetime($record_cancellabile_dal))){
 			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. ' no for: '. $record_cancellabile_dal . '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss ');
+			. ' no for: '. $record_cancellabile_dal 
+			. '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss ');
 		}
 		$this->record_cancellabile_dal = $record_cancellabile_dal;
 	}
@@ -181,32 +160,23 @@ Class Cartelle {
 	 */
 	public function aggiungi(array $campi) : array {
 		// record_id               viene assegnato automaticamente 
-		// stato_scansione         viene assegnato automaticamente
 		// stato_lavori            viene assegnato automaticamente
 		// ultima_modifica_record  viene assegnato automaticamente 
 		// record_cancellabile_dal viene assegnato automaticamente 
-		$create = 'INSERT INTO ' . self::nomeTabella  
+		// 
+		$create = 'INSERT INTO ' . self::nome_tabella  
 		. ' (  disco,  percorso_completo ) VALUES '
-		. ' ( :disco, :percorso_completo ) ';
+		. ' ( :disco, :percorso_completo )  ';
 
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'=> true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' Inserimento record senza connessione archivio per: ' 
-				. self::nomeTabella
-			];
-			return $ret;
-		}
 
 		if (!isset($campi['disco']) || $campi['disco'] == ''){
 			$ret = [
 				'error'=> true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Inserimento non riuscito per campi mancanti : ' 
-				. self::nomeTabella
+				. self::nome_tabella
 				.' campi: ' . serialize($campi)
 			];
 			return $ret;
@@ -218,22 +188,39 @@ Class Cartelle {
 				'error'=> true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Inserimento non riuscito per campi mancanti : ' 
-				. self::nomeTabella
+				. self::nome_tabella
 				.' campi: ' . str_ireplace(';', '; ', serialize($campi))
 			];
 			return $ret;
 		}
 		$this->set_percorso_completo($campi['percorso_completo']);
+		// Se viene inserito per il backup un record già cancellabile 
+		// aggiungo il campo alla create
+		if (isset($campi['record_cancellabile_dal'])){
+			$create = str_ireplace(') V', '  record_cancellabile_dal) V', $create);
+			$create = str_ireplace(')  ', ' :record_cancellabile_dal)  ', $create);
+			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']);
+		}
 
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }		
 		try {
 			$aggiungi = $dbh->prepare($create);
 			$aggiungi->bindValue('disco',             $this->get_disco());
-			$aggiungi->bindValue('percorso_completo', $this->get_percorso_completo());
+			$aggiungi->bindValue('percorso_completo', $this->get_percorso_completo());	
+			if (isset($campi['record_cancellabile_dal'])){
+				$aggiungi->bindValue('record_cancellabile_dal', $this->get_record_cancellabile_dal());
+			}	
 			// eseguo insert 
 			$aggiungi->execute();
 			$record_id = $dbh->lastInsertId();
 			$dbh->commit();
+			$ret = [
+				'ok'        => true, 
+				'record_id' => $record_id,
+				'message'   => __CLASS__ . ' ' . __FUNCTION__ 
+				. ' Inserimento record effettuato, nuovo id: ' . $record_id 
+			];
+			return $ret;
 
 		} catch (\Throwable $th) {
 			$dbh->rollBack();
@@ -248,15 +235,6 @@ Class Cartelle {
 			];
 			return $ret;
 		} // try catch
-
-		$ret = [
-			'ok'        => true, 
-			'record_id' => $record_id,
-			'message'   => __CLASS__ . ' ' . __FUNCTION__ 
-			. ' Inserimento record effettuato, nuovo id: ' . $record_id 
-		];
-		return $ret;
-
 	} // aggiungi 
 	
 	
@@ -269,14 +247,7 @@ Class Cartelle {
 	public function leggi(array $campi) : array {
 		// controllo parametri indispensabili 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'=> true, 
-				'message' => 'Lettura record senza connessione archivio per: ' 
-				. self::nomeTabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['query'])){
 			$ret = [
 				'error'=> true, 
@@ -296,9 +267,6 @@ Class Cartelle {
 		}
 		if (isset($campi['percorso_completo'])) {
 			$this->set_percorso_completo($campi['percorso_completo']);
-		}
-		if (isset($campi['stato_scansione'])) {
-			$this->set_stato_scansione($campi['stato_scansione']);
 		}
 		if (isset($campi['stato_lavori'])) {
 			$this->set_stato_lavori($campi['stato_lavori']);
@@ -320,9 +288,6 @@ Class Cartelle {
 			}
 			if (isset($campi['percorso_completo'])){
 				$lettura->bindValue('percorso_completo', $this->percorso_completo);  
-			}
-			if (isset($campi['stato_scansione'])){
-				$lettura->bindValue('stato_scansione', $this->stato_scansione, PDO::PARAM_INT);  
 			}
 			if (isset($campi['stato_lavori'])){
 				$lettura->bindValue('stato_lavori', $this->stato_lavori ); 
@@ -375,15 +340,7 @@ Class Cartelle {
 	public function modifica(array $campi ) : array {
 		// dati obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'=> true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' Modifica senza connessione archivio per: ' 
-				. self::nomeTabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['update'])){
 			$ret = [
 				'error'=> true, 
@@ -402,9 +359,6 @@ Class Cartelle {
 		}
 		if (isset($campi['percorso_completo'])) {
 			$this->set_percorso_completo($campi['percorso_completo']);
-		}
-		if (isset($campi['stato_scansione'])) {
-			$this->set_stato_scansione($campi['stato_scansione']);
 		}
 		if (isset($campi['stato_lavori'])){
 			$this->set_stato_lavori($campi['stato_lavori']); 
@@ -428,9 +382,6 @@ Class Cartelle {
 			if (isset($campi['percorso_completo'])){
 				$aggiorna->bindValue('percorso_completo', $this->percorso_completo);  
 			}
-			if (isset($campi['stato_scansione'])){
-				$aggiorna->bindValue('stato_scansione', $this->stato_scansione, PDO::PARAM_INT); // gli altri campi sono tipo string 
-			}
 			if (isset($campi['stato_lavori'])){
 				$aggiorna->bindValue('stato_lavori', $this->stato_lavori); 
 			}
@@ -449,7 +400,7 @@ Class Cartelle {
 			$ret = [
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' ' . $th->getMessage()
+				. ' Errore: ' . $th->getMessage()
 				. ' campi: ' . str_ireplace(';', '; ', serialize($campi))
 				. ' istruzione SQL: ' . $update
 			];
@@ -476,15 +427,7 @@ Class Cartelle {
 	public function elimina(array $campi = []) : array {
 		// campi obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => 'La cancellazione di record '
-				. 'non si può fare senza connessione archivio '
-				. 'per: ' . self::nomeTabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['delete'])){
 			$ret = [
 				'error'   => true, 
@@ -504,9 +447,6 @@ Class Cartelle {
 		}
 		if (isset($campi['percorso_completo'])) {
 			$this->set_percorso_completo($campi['percorso_completo']);
-		}
-		if (isset($campi['stato_scansione'])) {
-			$this->set_stato_scansione($campi['stato_scansione']);
 		}
 		if (isset($campi['stato_lavori'])){
 			$this->set_stato_lavori($campi['stato_lavori']); 
@@ -530,9 +470,6 @@ Class Cartelle {
 			}
 			if (isset($campi['percorso_completo'])){
 				$cancella->bindValue('percorso_completo', $this->percorso_completo);  
-			}
-			if (isset($campi['stato_scansione'])){
-				$cancella->bindValue('stato_scansione', $this->stato_scansione, PDO::PARAM_INT); // gli altri campi sono tipo string 
 			}
 			if (isset($campi['stato_lavori'])){
 				$cancella->bindValue('stato_lavori', $this->stato_lavori); 

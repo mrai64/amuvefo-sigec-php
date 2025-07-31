@@ -82,10 +82,10 @@ function get_data_evento(string $titolo) : string {
 	$campi=[];
 	$campi["chiave"]='data/evento';
 	$campi["record_cancellabile_dal"]=$dbh->get_datetime_forever(); // record valido
-	$campi["query"] = 'SELECT valore FROM chiavi_valori_vocabolario '
-	. 'WHERE chiave = :chiave '
-	. 'AND record_cancellabile_dal = :record_cancellabile_dal '
-	. 'ORDER BY valore ';
+	$campi["query"] = 'SELECT valore FROM ' . Vocabolario::nome_tabella
+	. ' WHERE chiave = :chiave '
+	. ' AND record_cancellabile_dal = :record_cancellabile_dal '
+	. ' ORDER BY valore ';
 	$ret_valori = $vh->leggi($campi);
 	if ( isset($ret_valori['error']) || $ret_valori['numero'] == 0){
 		return "";
@@ -126,8 +126,8 @@ function get_luogo(string $titolo) : array {
 	 * fare una query alla volta e concatenare i risultati. Qui le chiavi sono in ordine
 	 * alfabetico: area-geografica, comune, nazione, provincia
 	 */
-	$campi["query"] = 'SELECT valore, LENGTH(valore), chiave '
-	. ' FROM chiavi_valori_vocabolario '
+	$campi["query"] = 'SELECT valore, LENGTH(valore), chiave FROM '
+	. Vocabolario::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND chiave LIKE :chiave '
 	. ' ORDER BY 2 DESC, 1 ASC, 3 ASC ';
@@ -162,7 +162,7 @@ function get_luogo_comune(string $titolo) : string {
 	$campi["chiave"]='luogo/comune';
 	$campi["record_cancellabile_dal"]=$dbh->get_datetime_forever(); // record valido
 	$campi["query"] = 'SELECT valore, LENGTH(valore), chiave '
-	. ' FROM chiavi_valori_vocabolario '
+	. ' FROM ' . Vocabolario::nome_tabella
 	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. " AND chiave = :chiave "
 	. ' ORDER BY 2 DESC, 1 ASC ';
@@ -199,8 +199,8 @@ function get_luogo_localita(string $titolo) : string {
 	$campi["chiave"]='luogo/area-geografica';
 	$campi["record_cancellabile_dal"]=$dbh->get_datetime_forever(); // record valido
 	$campi["query"] = 'SELECT valore, LENGTH(valore) '
-	. ' FROM chiavi_valori_vocabolario '
-	. ' WHERE (record_cancellabile_dal = :record_cancellabile_dal ) '
+	. ' FROM ' . Vocabolario::nome_tabella
+	. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 	. ' AND chiave = :chiave '
 	. ' ORDER BY 2 DESC, 1 ASC ';
 	$ret_valori = $vh->leggi($campi);
@@ -235,7 +235,7 @@ function get_ente_societa(string $titolo) : string {
 	$campi["chiave"]='nome/ente-societa';
 	$campi["record_cancellabile_dal"]=$dbh->get_datetime_forever(); // record valido
 	$campi["query"] = 'SELECT valore, LENGTH(valore) '
-	. ' FROM chiavi_valori_vocabolario '
+	. ' FROM '. Vocabolario::nome_tabella
 	. ' WHERE (record_cancellabile_dal = :record_cancellabile_dal ) '
 	. ' AND chiave = :chiave '
 	. ' ORDER BY 2 DESC, 1 ASC ';

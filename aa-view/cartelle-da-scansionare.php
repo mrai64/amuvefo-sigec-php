@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Aggiunta Cartella | AMUVEFO </title>
 		<meta name='robots' content='noindex, nofollow' />
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 	</head>
 	<body>
 		<div class="container">
@@ -29,7 +29,7 @@
 							</p>
 						</div>
 						<div class="card-body">
-							<form action="<?=URLBASE; ?>cartelle.php/aggiungi-cartella/0" method="POST">
+							<form action="<?=URLBASE; ?>zona_intro.php/aggiungi-cartella/0" method="POST">
 								<!-- era /95-archiviazione-cartella-aggiungi.php -->
 								<div class="mb-3">
 									<label for="disco" class="form-label">Disco</label>
@@ -92,7 +92,7 @@
 		<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
 	</footer>
 		<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 		<!-- Carica -->
 		<script src="<?=URLBASE; ?>aa-view/cartelle-da-scansionare.js"></script>
 	</body>

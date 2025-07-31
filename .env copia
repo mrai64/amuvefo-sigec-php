@@ -1,0 +1,13 @@
+# ENV configuration INI file
+# Per sito localhost 
+DB_NAME=Sql1515403_4
+DB_USER=Sql1515403
+DB_PASSWORD=23o860s7no
+DB_HOST=127.0.0.1:8889
+DB_CHARSET=utf8mb4
+#
+URLBASE=http://localhost:8888/AMUVEFO-sigec-php/
+BASEURL=http://localhost:8888/AMUVEFO-sigec-php/
+ABSPATH=/Users/massimorainato/Sites/AMUVEFO-sigec-php/
+#
+FUTURO=9999-12-31 23:59:59

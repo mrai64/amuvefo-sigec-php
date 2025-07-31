@@ -8,7 +8,7 @@
  *	dipendenze: DatabaseHandler connessione archivio PDO 
  *	dipendenze: Album 
  *	dipendenze: Descrizioni tabella di lunghi testi TODO
- *	dipendenze: ScansioniDisco 
+ *	dipendenze: Deposito 
  *	dipendenze: FotografieDettagli 
  *
  * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/fotografie/
@@ -27,8 +27,9 @@
  * 
  * 
  */
-Class Fotografie {
-	private $conn = false;
+Class Fotografie extends DatabaseHandler {
+	public $conn;
+
 	public const nome_tabella  = 'fotografie';
 	public const stato_da_fare    = '0 da fare';
 	public const stato_in_corso   = '1 in corso';
@@ -44,8 +45,8 @@ Class Fotografie {
 	public $titolo_fotografia; //             varchar(250)
 	public $disco; //                         char(12)
 	public $percorso_completo; //             varchar(1500)
-	public $record_id_in_album; //            bigint(20) unsigned external key su scansioni_disco
-	public $record_id_in_scansioni_disco; //  bigint(20) unsigned external key su scansioni_disco
+	public $record_id_in_album; //            bigint(20) unsigned external key su deposito
+	public $record_id_in_deposito; //  bigint(20) unsigned external key su deposito
 	public $stato_lavori; //                  enum 
 	public $ultima_modifica_record; //              datetime DEF CURRENT TIME
 	public $record_cancellabile_dal; //       datetime DEF '9999-12-31 23:59:59'
@@ -58,7 +59,7 @@ Class Fotografie {
 		$this->disco                    = '';
 		$this->percorso_completo        = '';
 		$this->record_id_in_album       = 0; // invalido 
-		$this->record_id_in_scansioni_disco = 0; // invalido 
+		$this->record_id_in_deposito = 0; // invalido 
 		$this->stato_lavori             = self::stato_da_fare;
 		$this->ultima_modifica_record   = $dbh->get_datetime_now();
 		$this->record_cancellabile_dal  = $dbh->get_datetime_forever();
@@ -93,8 +94,8 @@ Class Fotografie {
 	/**
 	 * @return int unsigned 
 	 */
-	public function get_record_id_in_scansioni_disco() : int {
-		return $this->record_id_in_scansioni_disco;
+	public function get_record_id_in_deposito() : int {
+		return $this->record_id_in_deposito;
 	}
 	public function get_stato_lavori() : string {
 		return $this->stato_lavori;
@@ -132,14 +133,14 @@ Class Fotografie {
 	
 	public function set_disco( string $disco ){
 		// ritaglio a misura 
-		$disco = htmlspecialchars(strip_tags($disco));
+		$disco = (strip_tags($disco));
 		$disco = mb_substr($disco, 0, 12);
 		$this->disco = $disco;
 	}
 	
 	public function set_percorso_completo( string $percorso_completo ){
 		// ritaglio a misura 
-		$percorso_completo = htmlspecialchars(strip_tags($percorso_completo));
+		$percorso_completo = (strip_tags($percorso_completo));
 		if ($percorso_completo[0] != '/') { 
 			$percorso_completo = '/'.$percorso_completo; 
 		}
@@ -155,12 +156,12 @@ Class Fotografie {
 		$this->record_id_in_album = $record_id_in_album;
 	}
 
-	public function set_record_id_in_scansioni_disco( int $record_id_in_scansioni_disco){
-		if ($record_id_in_scansioni_disco < 1){
+	public function set_record_id_in_deposito( int $record_id_in_deposito){
+		if ($record_id_in_deposito < 1){
 			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. ' Must be unsigned integer, is: ' . $record_id_in_scansioni_disco);
+			. ' Must be unsigned integer, is: ' . $record_id_in_deposito);
 		}
-		$this->record_id_in_scansioni_disco = $record_id_in_scansioni_disco;
+		$this->record_id_in_deposito = $record_id_in_deposito;
 	}
 
 	public function set_stato_lavori(string $stato_lavori ){
@@ -187,7 +188,8 @@ Class Fotografie {
 	 * @param string datetime yyyy-mm-dd hh:mm:ss
 	 */
 	public function set_record_cancellabile_dal( string $record_cancellabile_dal ){
-		if (!($this->conn->is_datetime($record_cancellabile_dal))){
+		$dbh = $this->conn;
+		if (!($dbh->is_datetime($record_cancellabile_dal))){
 			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
 			. ' no for: '. $record_cancellabile_dal . '. Must be a valid datetime format yyyy-mm-dd hh:mm:ss ');
 		}
@@ -195,16 +197,7 @@ Class Fotografie {
 	}
 	
 	// IS / CHECKER
-	/**
-	 * Il record è "valido" in che senso? 
-	 * Sono i record che hanno il campo record_cancellabile_dal == '9999-12-31 23:59:59'
-	 *
-	 * @return bool 
-	 */
-	public function check_FUTURO(){
-		return ($this->record_cancellabile_dal == $this->conn->get_datetime_forever() );
-	}
-	
+
 	/**
 	 * Only to check if present, nothing about valid rec / logically deleted rec 
 	 * or other things 
@@ -214,10 +207,7 @@ Class Fotografie {
 	 */
 	public function check_record_id( int $record_id ){
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. " Non si può verificare la presenza senza connessione all'archivio. ");
-		}
+
 		$leggi = 'SELECT 1 FROM ' . self::nome_tabella   
 		. ' WHERE record_id = :record_id ';
 		try {
@@ -242,20 +232,22 @@ Class Fotografie {
 		// record_id               viene assegnato automaticamente pertanto non è in elenco 
 		// ultima_modifica_record  viene assegnato automaticamente 
 		// record_cancellabile_dal viene assegnato automaticamente 
+		//                         ma non sempre 
 		// stato_lavori            viene assegnato automaticamente 
-	
+		
+		$dbh = $this->conn; // a PDO object thru Database class
 		$create = 'INSERT INTO ' . self::nome_tabella 
 		. ' (  titolo_fotografia,   disco,  percorso_completo,'
-		. '    record_id_in_album,  record_id_in_scansioni_disco ) VALUES '
+		. '    record_id_in_album,  record_id_in_deposito ) VALUES '
 		. ' ( :titolo_fotografia,  :disco, :percorso_completo, '
-		. '   :record_id_in_album, :record_id_in_scansioni_disco ) ';
+		. '   :record_id_in_album, :record_id_in_deposito ) ';
 
 		// campi necessari 
 		if (!isset($campi['titolo_fotografia'])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo titolo_fotografia: " . serialize($campi) 
+				. " Serve campo titolo_fotografia: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -265,7 +257,7 @@ Class Fotografie {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo disco: " . serialize($campi) 
+				. " Serve campo disco: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -275,7 +267,7 @@ Class Fotografie {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo percorso_completo: " . serialize($campi) 
+				. " Serve campo percorso_completo: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -285,23 +277,22 @@ Class Fotografie {
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo record_id_in_album: " . serialize($campi) 
+				. " Serve campo record_id_in_album: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
 		$this->set_record_id_in_album($campi['record_id_in_album']);
 
-		if (!isset($campi['record_id_in_scansioni_disco'])){
+		if (!isset($campi['record_id_in_deposito'])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Serve campo record_id_in_scansioni_disco: " . serialize($campi) 
+				. " Serve campo record_id_in_deposito: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
-		$this->set_record_id_in_scansioni_disco($campi['record_id_in_scansioni_disco']);
+		$this->set_record_id_in_deposito($campi['record_id_in_deposito']);
 
-		$dbh = $this->conn; // a PDO object thru Database class
 		if ($dbh === false){
 			$ret = [
 				"error"=> true, 
@@ -317,7 +308,7 @@ Class Fotografie {
 			$aggiungi->bindValue('disco',                        $this->disco);
 			$aggiungi->bindValue('percorso_completo',            $this->percorso_completo);
 			$aggiungi->bindValue('record_id_in_album',           $this->record_id_in_album);
-			$aggiungi->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco);
+			$aggiungi->bindValue('record_id_in_deposito', $this->record_id_in_deposito);
 			$aggiungi->execute();
 			$record_id = $dbh->lastInsertID();
 			$dbh->commit();
@@ -331,7 +322,7 @@ Class Fotografie {
 				"error"   => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. " campi: " . serialize($campi)
+				. " campi: " . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $create 
 			];
 			return $ret;      
@@ -354,20 +345,13 @@ Class Fotografie {
 	public function leggi(array $campi) : array {
 		// dati obbligatori
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ . ' ' . __LINE__
-				. "Deve essere attiva la connessione all'archivio per " . self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['query'])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. "Deve essere definita l'istruzione SELECT in ['query']: " 
-				. 'campi: ' . serialize($campi)
+				. 'campi: ' . $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -388,8 +372,8 @@ Class Fotografie {
 		if (isset($campi['record_id_in_album'])){
 			$this->set_record_id_in_album($campi['record_id_in_album']);
 		}
-		if (isset($campi['record_id_in_scansioni_disco'])){
-			$this->set_record_id_in_scansioni_disco($campi['record_id_in_scansioni_disco']);
+		if (isset($campi['record_id_in_deposito'])){
+			$this->set_record_id_in_deposito($campi['record_id_in_deposito']);
 		}
 		if (isset($campi['stato_lavori'])){
 			$this->set_stato_lavori($campi['stato_lavori']); 
@@ -417,8 +401,8 @@ Class Fotografie {
 			if (isset($campi['record_id_in_album'])){
 				$lettura->bindValue('record_id_in_album', $this->record_id_in_album, PDO::PARAM_INT); 
 			}
-			if (isset($campi['record_id_in_scansioni_disco'])){
-				$lettura->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco, PDO::PARAM_INT); 
+			if (isset($campi['record_id_in_deposito'])){
+				$lettura->bindValue('record_id_in_deposito', $this->record_id_in_deposito, PDO::PARAM_INT); 
 			}
 			if (isset($campi['stato_lavori'])){
 				$lettura->bindValue('stato_lavori', $this->stato_lavori ); 
@@ -435,26 +419,19 @@ Class Fotografie {
 				"error" => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $read
 			];
 			return $ret;
 		}
 		$numero = 0;
 		$dati_di_ritorno = [];
-		/* senza limitatore */ 
+
 		while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
 			$dati_di_ritorno[] = $record;
 			$numero++;
 		}    
-		/* con limitatore 
-		$limite_record = isset($campi['limite']) ? $campi['limite'] : 100;
-		$limite_record = 100; // TODO: fa parte della gestione paginazione
-		while(($record = $lettura->fetch(PDO::FETCH_ASSOC)) && ($numero < $limite_record)){
-			$dati_di_ritorno[] = $record;
-			$numero++;
-		}
-		*/
+
 		// Può dare ok anche per un risultato "vuoto", è compito del chiamante valutare se sia un errore
 		$ret = [
 			'ok'     => true,
@@ -478,20 +455,12 @@ Class Fotografie {
 	public function modifica( array $campi = []) {
 		// campi indispensabili 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Modifica senza connessione archivio per: " 
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['update'])){
 			$ret = [
 				"error"=> true, 
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Aggiornamento record senza UPDATE: " . serialize($campi) 
+				. " Aggiornamento record senza UPDATE: " . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -511,8 +480,8 @@ Class Fotografie {
 		if (isset($campi['record_id_in_album'])){
 			$this->set_record_id_in_album($campi['record_id_in_album']); 
 		}
-		if (isset($campi['record_id_in_scansioni_disco'])){
-			$this->set_record_id_in_scansioni_disco($campi['record_id_in_scansioni_disco']); 
+		if (isset($campi['record_id_in_deposito'])){
+			$this->set_record_id_in_deposito($campi['record_id_in_deposito']); 
 		}
 		if (isset($campi['stato_lavori'])){
 			$this->set_stato_lavori($campi['stato_lavori']); 
@@ -543,8 +512,8 @@ Class Fotografie {
 			if (isset($campi['record_id_in_album'])){
 				$aggiorna->bindValue('record_id_in_album', $this->record_id_in_album, PDO::PARAM_INT); 
 			}
-			if (isset($campi['record_id_in_scansioni_disco'])){
-				$aggiorna->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco, PDO::PARAM_INT); 
+			if (isset($campi['record_id_in_deposito'])){
+				$aggiorna->bindValue('record_id_in_deposito', $this->record_id_in_deposito, PDO::PARAM_INT); 
 			}
 			if (isset($campi['stato_lavori'])){
 				$aggiorna->bindValue('stato_lavori', $this->stato_lavori); 
@@ -566,7 +535,7 @@ Class Fotografie {
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage()
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $update
 			];
 			return $ret;
@@ -585,7 +554,7 @@ Class Fotografie {
 	 *             fatta apposta per consentire di "cancellare logicamente"
 	 *             i record, vedi manuale tecnico amministrativo.
 	 * Deve essere presente un $campi['delete'] con istruzione SQL e tutti i 
-	 * $campi['nomecampo'] che hanno nell'istruzione SQL :nomecampo 
+	 * $campi['nome_campo'] che hanno nell'istruzione SQL :nome_campo 
 	 * 
 	 * @param  array  $campi 
 	 * @return array  $ret 'ok' + 'message' | 'error' + 'message' 
@@ -593,19 +562,12 @@ Class Fotografie {
 	public function elimina( array $campi = []) : array {
 		// indispensabili 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Cancellazione senza connessione archivio per: " . self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['delete'])){
 			$ret = [
 				"error"=> true, 
 				"message" => "Cancellazione record senza DELETE. " 
-				. ' campi : ' . serialize($campi) 
+				. ' campi : ' . $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -624,8 +586,8 @@ Class Fotografie {
 		if (isset($campi['record_id_in_album'])){
 			$this->set_record_id_in_album($campi['record_id_in_album']);
 		}
-		if (isset($campi['record_id_in_scansioni_disco'])){
-			$this->set_record_id_in_scansioni_disco($campi['record_id_in_scansioni_disco']);
+		if (isset($campi['record_id_in_deposito'])){
+			$this->set_record_id_in_deposito($campi['record_id_in_deposito']);
 		}
 		if (isset($campi['stato_lavori'])){
 			$this->set_stato_lavori($campi['stato_lavori']); 
@@ -655,8 +617,8 @@ Class Fotografie {
 			if (isset($campi['record_id_in_album'])){
 				$cancella->bindValue('record_id_in_album', $this->record_id_in_album, PDO::PARAM_INT); 
 			}
-			if (isset($campi['record_id_in_scansioni_disco'])){
-				$cancella->bindValue('record_id_in_scansioni_disco', $this->record_id_in_scansioni_disco, PDO::PARAM_INT); 
+			if (isset($campi['record_id_in_deposito'])){
+				$cancella->bindValue('record_id_in_deposito', $this->record_id_in_deposito, PDO::PARAM_INT); 
 			}
 			if (isset($campi['stato_lavori'])){
 				$cancella->bindValue('stato_lavori', $this->stato_lavori); 
@@ -678,7 +640,7 @@ Class Fotografie {
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage()
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $delete
 			];
 			return $ret;
@@ -689,35 +651,6 @@ Class Fotografie {
 		];
 		return $ret;
 	} // elimina
-	
-	/**
-	 * Validi? e gli altri? 
-	 * Estrae un elenco di record validi (record_cancellabile_dal = '9999-12-31 23:59:59')
-	 * in formato istruzione SQL INSERT INTO per ripristinare i dati qualora servisse 
-	 * ATTENZIONE: è presente una "chiave esterna", occorre essere sicuri che al 
-	 * momento del caricamento o anche in seguito ma con certezza la chiave esterna sia valida. 
-	 * 
-	 */
-	public function get_elenco_validi( array $campi = []) {
-		$ret = [ 
-			"error" => true,
-			"message" => "La funzione non è stata realizzata"
-		];
-		return $ret;
-	} // get_elenco_validi
-	
-	/**
-	 *	Crea una lista di istruzioni SQL per il caricamento dei record cancellabili
-	 *	prima della cancellazione fisica, poi questo elenco deve diventare un
-	 *	file con estensione sql che va scaricato dalla pagina / controller. 
-	 */
-	public function get_elenco_cancellabili( array $campi = []) {
-		$ret = [ 
-			"error" => true,
-			"message" => "La funzione non è stata realizzata"
-		];
-		return $ret;
-	} // get_elenco_cancellabili
 
 	/**
 	 * SET_STATO_LAVORI 
@@ -728,15 +661,7 @@ Class Fotografie {
 	public function set_stato_lavori_in_fotografie(int $record_id, string $stato_lavori) : array {
 		// campi obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => "L'aggiornamento dello stato_lavori "
-				. 'non si può fare senza connessione archivio '
-				. 'per: ' . self::nome_tabella  
-			];
-			return $ret;
-		}
+
 		$this->set_record_id($record_id);
 		$this->set_stato_lavori($stato_lavori);
 		$update = ' UPDATE ' . self::nome_tabella
@@ -744,7 +669,6 @@ Class Fotografie {
 		. ' WHERE record_id = :record_id ';
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }		
 		try {
-			//code...
 			$aggiorna=$dbh->prepare($update);		
 			$aggiorna->bindValue('stato_lavori', $this->get_stato_lavori()); 
 			$aggiorna->bindValue('record_id', $this->get_record_id()); 
@@ -781,49 +705,98 @@ Class Fotografie {
 	public function get_fotografia_from_id(int $fotografia_id) : array{
 		// dati obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. '<br>Serve una connessione attiva per leggere in '
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		// validazione
 		$this->set_record_id($fotografia_id);
-		$read = 'SELECT * FROM ' . self::nome_tabella
-		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal  '
-		. ' AND record_id = :record_id '
-		. ' LIMIT 1 ';
-		try {
-			$lettura=$dbh->prepare($read);
-			$lettura->bindValue('record_cancellabile_dal', $dbh->get_datetime_forever() ); 
-			$lettura->bindValue('record_id',               $fotografia_id, PDO::PARAM_INT); 
-			$lettura->execute();
-
-		} catch( \Throwable $th ){
-			$ret = [
-				'error'   => true,
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. '<br>' . $th->getMessage() 
-				. '<br>fotografia_id: ' . $fotografia_id
-				. '<br>istruzione SQL: ' . $read
-			];
-			return $ret;
+		$campi=[];
+		$campi['query'] = 'SELECT * FROM ' . self::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+		. ' AND record_id = :record_id ';
+		$campi['record_cancellabile_dal']=$dbh->get_datetime_forever();
+		$campi['record_id']=$this->get_record_id();
+		$ret_foto = $this->leggi($campi);
+		if (isset($ret_foto['error'])){
+			return $ret_foto;
 		}
-		$numero = 0;
-		$dati_di_ritorno = [];
-		while ($record = $lettura->fetch(PDO::FETCH_ASSOC)) {
-			$dati_di_ritorno[] = $record;
-			$numero++;
-		}    
+		if ($ret_foto['numero'] < 1){
+      $ret = [
+        'error'   => true,
+        'message' => "La fotografa {$fotografia_id } non è stata trovata."
+      ];
+      return $ret;
+		}
 		$ret = [
-			'ok'     => true,
-			'numero' => $numero,
-			'data'   => $dati_di_ritorno 
+			'ok'    => true,
+			'record'=> $ret_foto['data'][0]
 		];
 		return $ret;
 	} // get_fotografia_from_id
+
+	public function get_fotografia_da_fare() : array {
+		// dati obbligatori 
+		$dbh = $this->conn; // a PDO object thru Database class
+
+		// validazione
+		$campi=[];
+		$campi['query'] = 'SELECT * FROM ' . self::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal  '
+		. ' AND stato_lavori = :stato_lavori '
+		. ' ORDER BY record_id ';
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$campi['record_id'] = $this->get_record_id();
+		$ret_foto = $this->leggi($campi);
+		if (isset($ret_foto['error'])){
+			return $ret_foto;
+		}
+		if ($ret_foto['numero'] < 1){
+      $ret = [
+        'error'   => true,
+        'message' => "Una fotografia 'da fare' non è stata trovata."
+      ];
+      return $ret;
+		}
+		$ret = [
+			'ok'    => true,
+			'record'=> $ret_foto['data'][0]
+		];
+		return $ret;
+	} // get_fotografia_da_fare
+
+	/**
+	 * Verifica quante fotografie sono memorizzate con lo stesso deposito_id
+	 * In fotografie 
+	 * 
+	 * @param   int $deposito_id
+	 * @return array 'ok' + data | 'error' + message
+	 */
+	public function get_fotografia_from_deposito_id( int $deposito_id) : array {
+		// dati obbligatori 
+		$dbh = $this->conn; // a PDO object thru Database class
+
+		// validazione
+		$this->set_record_id_in_deposito($deposito_id);
+		$campi=[];
+		$campi['query'] = 'SELECT * FROM ' . self::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal  '
+		. ' AND record_id_in_deposito = :record_id_in_deposito '
+		. ' ORDER BY record_id ';
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$campi['record_id_in_deposito'] = $this->get_record_id_in_deposito();
+		$ret_foto = $this->leggi($campi);
+		if (isset($ret_foto['error'])){
+			return $ret_foto;
+		}
+		if ($ret_foto['numero'] < 1){
+      $ret = [
+        'error'   => true,
+				'numero'  => 0,
+        'message' => "Non è stata trovata nessuna fotografia "
+				. "con deposito_id ". $deposito_id
+      ];
+      return $ret;
+		}
+		return $ret_foto;
+
+	} // get_fotografia_from_deposito_id
 	
 } // Fotografie

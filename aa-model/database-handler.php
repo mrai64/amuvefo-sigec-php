@@ -3,6 +3,7 @@
  *	nomefile: database-handler.php
  *	funzione: creare un oggetto connessione mysql, che sarà propagato
  *	          al php seguente per eseguire operazioni su un solo database
+ * !TODO VA ELIMINATO 
  */
 // impostazione errori riportati
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);

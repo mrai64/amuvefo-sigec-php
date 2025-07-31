@@ -1,21 +1,28 @@
 <?php
 /**
- * @source /aa-model/scansioni-disco-oop.php 
+ * @source /aa-model/deposito-oop.php 
  * @author Massimo Rainato <maxrainato@libero.it>
  * 
- * Accesso CRUD alla tabella scansioni_disco.
- * scansioni_disco contiene un insieme delimitato di file 
+ * TODO La tabella deposito di fatto e di nome deve diventare 
+ * TODO il Deposito delle cartelle, fotografie, video che compongono l'archivio 
+ * TODO visibile, che viene caricato partendo dalla scansione di cartelle 
+ * TODO nuove o in aggiornamento.
+ * TODO deposito deve diventare deposito 
+ * TODO deposito deve diventare deposito 
+ * 
+ * Accesso CRUD alla tabella deposito.
+ * deposito contiene un insieme delimitato di file 
  * e cartelle, ricavati dalla scansione del disco online.
  * Non tutti i file che sono nella cartella vanno a finire 
  * in questo archivio, per esempio 
  * non ci vanno i file Thumbs.db per l'estensione db 
  * o i .DS_Store i ._nomefile.jpg perché iniziano con il '.'  
  * 
- * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-13-scansioni_disco/ Documentation for table scansioni_disco and class ScansioniDisco
+ * @see https://archivio.athesis77.it/tech/3-archivi-tabelle/3-13-deposito/ 
  * 
  * dipendenze: Classe DatabaseHandler / PDO (mysql) 
  *
- * SELECT * FROM `scansioni_disco` 
+ * SELECT * FROM `deposito` 
  * WHERE record_cancellabile_dal = '9999-12-31 23:59:59' 
  * order by `disco`,`livello1`,`livello2`,`livello3`,
  * `livello4`,`livello5`,`livello6`,`nome_file`,
@@ -23,9 +30,10 @@
  *
  */
 
-Class ScansioniDisco {
-	private $conn = false; // connessione 
-	public const nome_tabella     = 'scansioni_disco';
+Class Deposito extends DatabaseHandler {
+	public $conn; // connessione 
+
+	public const nome_tabella     = 'deposito';
 	public const stato_da_fare    = '0 da fare';
 	public const stato_in_corso   = '1 in corso';
 	public const stato_completati = '2 completati';
@@ -34,7 +42,6 @@ Class ScansioniDisco {
 		self::stato_in_corso,
 		self::stato_completati
 	];
-	private $limite_record = 20; // TODO predefinito per paginazione 
 
 	// 
 	public $record_id; //                bigint 20 assegnato primary key
@@ -51,15 +58,14 @@ Class ScansioniDisco {
 	public $codice_verifica; //          char(32) md5 del contenuto a uso verifiche future
 	public $tinta_rgb; //                char(6) codice colore personalizzabile
 	public $stato_lavori; //             enum uso interno
-	public $ultima_modifica_record;         // datetime data creazione record uso backup
-	public $record_cancellabile_dal;  // datetime per selezionare e cancellare 
+	public $ultima_modifica_record; //   datetime data creazione record uso backup
+	public $record_cancellabile_dal; //  datetime per selezionare e cancellare 
 	
 	/**
 	* @param database PDO db connection 
 	*/
 	public function __construct(DatabaseHandler $dbh){
 		$this->conn             = $dbh;
-		$this->limite_record    = 20; 
 
 		$this->record_id        = 0;  // invalido 
 		$this->disco            = '';
@@ -140,7 +146,7 @@ Class ScansioniDisco {
 	
 	public function set_disco( string $disco ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($disco));
+		$chiave = (strip_tags($disco));
 		$chiave = trim(mb_substr($chiave, 0, 12));
 		$chiave = strtoupper($chiave);
 		if ($chiave == ''){
@@ -152,7 +158,7 @@ Class ScansioniDisco {
 	
 	public function set_livello1( string $livello1 ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($livello1));
+		$chiave = (strip_tags($livello1));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		if ($chiave == ''){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
@@ -163,42 +169,42 @@ Class ScansioniDisco {
 	
 	public function set_livello2( string $livello2 ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($livello2));
+		$chiave = (strip_tags($livello2));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		$this->livello2 = $chiave;
 	}
 	
 	public function set_livello3( string $livello3 ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($livello3));
+		$chiave = (strip_tags($livello3));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		$this->livello3 = $chiave;
 	}
 	
 	public function set_livello4( string $livello4 ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($livello4));
+		$chiave = (strip_tags($livello4));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		$this->livello4 = $chiave;
 	}
 	
 	public function set_livello5( string $livello5 ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($livello5));
+		$chiave = (strip_tags($livello5));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		$this->livello5 = $chiave;
 	}
 	
 	public function set_livello6( string $livello6 ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($livello6));
+		$chiave = (strip_tags($livello6));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		$this->livello6 = $chiave;
 	}
 	
 	public function set_nome_file( string $nome_file ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($nome_file));
+		$chiave = (strip_tags($nome_file));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		if ($chiave == ""){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
@@ -209,7 +215,7 @@ Class ScansioniDisco {
 	
 	public function set_estensione( string $estensione ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($estensione));
+		$chiave = (strip_tags($estensione));
 		$chiave = trim(mb_substr($chiave, 0, 6));
 		$chiave = strtolower($chiave);
 		$this->estensione = $chiave;
@@ -229,7 +235,7 @@ Class ScansioniDisco {
 	
 	public function set_codice_verifica( string $codice_verifica ) {
 		// validazione
-		$chiave = htmlspecialchars(strip_tags($codice_verifica));
+		$chiave = (strip_tags($codice_verifica));
 		$chiave = trim(mb_substr($codice_verifica, 0, 32));
 		if ($chiave == ""){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
@@ -295,30 +301,23 @@ Class ScansioniDisco {
 		stato_lavori            viene assegnato automaticamente 
 		ultima_modifica_record  viene assegnato automaticamente 
 		record_cancellabile_dal viene assegnato automaticamente
+		                        ma non sempre
 		*/
 		$create = 'INSERT INTO ' . self::nome_tabella 
 		. ' (  disco,  livello1,  livello2,  livello3,  livello4,  livello5,  livello6,'
 		. '  nome_file,  estensione,  modificato_il,  codice_verifica,  tinta_rgb ) VALUE '
-		. " ( :disco, :livello1, :livello2, :livello3, :livello4, :livello5, :livello6,"
-		. " :nome_file, :estensione, :modificato_il, :codice_verifica, :tinta_rgb ) ";
+		. ' ( :disco, :livello1, :livello2, :livello3, :livello4, :livello5, :livello6,'
+		. ' :nome_file, :estensione, :modificato_il, :codice_verifica, :tinta_rgb )  '; // lasciare i due spazi
 		// campi necessari
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Inserimento record senza connessione archivio per: " 
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['disco']) || $campi['disco'] == ''){
 			$ret = [
 				'error'=> true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Inserimento non riuscito per campi mancanti : ' 
 				. ' istruzione sql: ' . $create
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -329,7 +328,7 @@ Class ScansioniDisco {
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Inserimento non riuscito per campi mancanti : ' 
 				. ' istruzione sql: ' . $create
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -364,6 +363,12 @@ Class ScansioniDisco {
 		if (isset($campi['tinta_rgb'])){
 			$this->set_tinta_rgb($campi['tinta_rgb']);
 		}
+		// inserimento record già cancellabile per uso backup 
+		if (isset($campi['record_cancellabile_dal'])){
+			$create .= str_ireplace(') V', '  record_cancellabile_dal) V', $create);
+			$create .= str_ireplace(')  ', ' :record_cancellabile_dal)  ', $create);
+			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']);
+		}
 		if (!$dbh->inTransaction()) { $dbh->beginTransaction(); }
 		try {
 			$aggiungi = $dbh->prepare($create); 
@@ -379,10 +384,18 @@ Class ScansioniDisco {
 			$aggiungi->bindValue('modificato_il',   $this->modificato_il   );
 			$aggiungi->bindValue('codice_verifica', $this->codice_verifica );
 			$aggiungi->bindValue('tinta_rgb',       $this->tinta_rgb       );
-		// eseguo insert 
+			if (isset($campi['record_cancellabile_dal'])){
+				$aggiungi->bindValue('record_cancellabile_dal', $this->get_record_cancellabile_dal());
+			}
+			// eseguo insert 
 			$aggiungi->execute();
 			$record_id = $dbh->lastInsertId();
 			$dbh->commit();
+			$ret = [
+				'ok' => true, 
+				'record_id' => $record_id
+			];
+			return $ret; 
 
 		} catch (\Throwable $th) {
 			$dbh->rollBack(); 
@@ -390,18 +403,13 @@ Class ScansioniDisco {
 			$ret = [
 				"record_id" => 0, 
 				'error'     => true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' ' . $th->getMessage() 
-				. ' istruzione SQL: ' . $create 
-				. ' campi: ' . serialize($campi)
+				'message'   => __CLASS__ . ' ' . __FUNCTION__ 
+				. ' Errore: ' . $th->getMessage() 
+				. ' Per istruzione SQL: ' . $create 
+				. ' campi: ' . $dbh::esponi($campi)
 			];
 			return $ret; 
 		}
-		$ret = [
-			'ok' => true, 
-			'record_id' => $record_id
-		];
-		return $ret; 
 	} // aggiungi 
 	
 	
@@ -413,20 +421,13 @@ Class ScansioniDisco {
 	public function leggi(array $campi) : array {
 		// controllo parametri indispensabili 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'=> true, 
-				'message' => 'Lettura record senza connessione archivio per: ' 
-				. self::nome_tabella
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['query'])){
 			$ret = [
 				'error'=> true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. "Deve essere definita l'istruzione SELECT in ['query']: " 
-				. serialize($campi)
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -479,9 +480,7 @@ Class ScansioniDisco {
 		if (isset($campi['record_cancellabile_dal'])){
 			$this->set_record_cancellabile_dal($campi['record_cancellabile_dal']);
 		}
-		// paginazione
 		try {
-			//code...
 			$lettura = $dbh->prepare($read);
 			if (isset($campi['record_id'])){
 				$lettura->bindValue('record_id', $this->get_record_id(), PDO::PARAM_INT); // gli altri campi sono tipo string 
@@ -529,7 +528,6 @@ Class ScansioniDisco {
 			if (isset($campi['record_cancellabile_dal'])){
 				$lettura->bindValue('record_cancellabile_dal', $this->get_record_cancellabile_dal()); 
 			}
-			// campi per paginazione 
 			$lettura->execute();
 			
 		} catch (\Throwable $th) {
@@ -538,7 +536,7 @@ Class ScansioniDisco {
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi) . '<br>'
+				. ' campi: ' . $dbh::esponi($campi) . '<br>'
 				. ' istruzione SQL: ' . $read
 			];
 			return $ret;
@@ -596,22 +594,13 @@ Class ScansioniDisco {
 	public function modifica(array $campi = []) : array {
 		// dati obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'=> true, 
-				'message' => __CLASS__ . ' ' . __FUNCTION__ 
-				. ' Modifica senza connessione archivio per: ' 
-				. self::nome_tabella
-			];
-			return $ret;
-		}
-		
+
 		if (!isset($campi['update'])){
 			$ret = [
 				'error'=> true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Aggiornamento record senza UPDATE: ' 
-				. serialize($campi) 
+				. $dbh::esponi($campi) 
 			];
 			return $ret;
 		}
@@ -700,7 +689,7 @@ Class ScansioniDisco {
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage()
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $update
 			];
 			return $ret;
@@ -724,21 +713,13 @@ Class ScansioniDisco {
 	public function elimina(array $campi) : array {
 		// campi obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => 'La cancellazione di record '
-				. 'non si può fare senza connessione archivio '
-				. 'per: ' . self::nome_tabella  
-			];
-			return $ret;
-		}
+
 		if (!isset($campi['delete'])){
 			$ret = [
 				'error'   => true, 
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. " Deve essere definita l'istruzione DELETE in ['delete']: " 
-				. serialize($campi)
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -828,7 +809,7 @@ Class ScansioniDisco {
 				'error' => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage()
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $delete
 			];
 			return $ret;
@@ -849,18 +830,10 @@ Class ScansioniDisco {
 	 * @param  int   $record_id
 	 * @param  string $stato_lavori 
 	 */
-	public function set_stato_lavori_in_scansioni_disco(int $record_id, string $stato_lavori) : array {
+	public function set_stato_lavori_in_deposito(int $record_id, string $stato_lavori) : array {
 		// campi obbligatori 
 		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				'error'   => true, 
-				'message' => "L'aggiornamento dello stato_lavori "
-				. 'non si può fare senza connessione archivio '
-				. 'per: ' . self::nome_tabella  
-			];
-			return $ret;
-		}
+
 		$this->set_record_id($record_id);
 		$this->set_stato_lavori($stato_lavori);
 		$update = ' UPDATE ' . self::nome_tabella
@@ -893,7 +866,7 @@ Class ScansioniDisco {
 			'message' => 'Aggiornamento eseguito'
 		];
 		return $ret;
-	} // set_stato_lavori_in_scansioni_disco
+	} // set_stato_lavori_in_deposito
 
 	/**
 	 * @param  string 'folder/folder/folder/' 
@@ -902,16 +875,12 @@ Class ScansioniDisco {
 	
 	public function get_record_id_da_percorso(string $percorso) : int {
 		$dbh    = $this->conn;
-		if ($dbh === false){
-			throw new Exception(__CLASS__ .' '. __FUNCTION__ 
-			. ' no connection. ');
-		}
 
 		if ($percorso == ''){
 			return 0;
 		}
 
-		if (substr_count($percorso, "/") == 0 ||
+		if (substr_count($percorso, '/') == 0 ||
 		    substr_count($percorso, '/') >  6){
 			return 0;
 		}
@@ -921,11 +890,12 @@ Class ScansioniDisco {
 		$livello4='';
 		$livello5='';
 		$livello6='';
+		// 
 		@list($livello1, $livello2, $livello3, $livello4, $livello5, $livello6 ) = explode('/', $percorso);
 		$campi=[];
 		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
 		if ($livello1 > ''){
-			$campi['query'] = 'SELECT * FROM scansioni_disco '
+			$campi['query'] = 'SELECT * FROM deposito '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 			. " AND nome_file = '/' "
 			. ' AND livello1 = :livello1 '
@@ -933,73 +903,154 @@ Class ScansioniDisco {
 			$campi['livello1'] = $livello1;
 		}
 		if ($livello2 > ''){
-			$campi['query'] = 'SELECT * FROM scansioni_disco '
+			$campi['query'] = 'SELECT * FROM deposito '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 			. " AND nome_file = '/' "
-			. ' AND livello1 = :livello1 '
-			. '   AND livello2 = :livello2 '
-			. "   AND livello3 = '' ";
+			. ' AND livello1 = :livello1 AND livello2 = :livello2 '
+			. " AND livello3 = '' ";
 			$campi['livello2'] = $livello2;
 		}
 		if ($livello3 > ''){
-			$campi['query'] = 'SELECT * FROM scansioni_disco '
+			$campi['query'] = 'SELECT * FROM deposito '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 			. " AND nome_file = '/' "
-			. ' AND livello1 = :livello1 '
-			. '   AND livello2 = :livello2 '
-			. '   AND livello3 = :livello3 '
-			. "   AND livello4 = '' ";
+			. ' AND livello1 = :livello1 AND livello2 = :livello2 '
+			. ' AND livello3 = :livello3 '
+			. " AND livello4 = '' ";
 			$campi['livello3'] = $livello3;
 		}
 		if ($livello4 > ''){
-			$campi['query'] = 'SELECT * FROM scansioni_disco '
+			$campi['query'] = 'SELECT * FROM deposito '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
-			. " AND nome_file = '/' "
-			. ' AND livello1 = :livello1 '
-			. '   AND livello2 = :livello2 '
-			. '   AND livello3 = :livello3 '
-			. '   AND livello4 = :livello4 '
-			. "   AND livello5 = '' ";
+			. "AND nome_file = '/' "
+			. 'AND livello1 = :livello1 AND livello2 = :livello2 '
+			. 'AND livello3 = :livello3 AND livello4 = :livello4 '
+			. "AND livello5 = '' ";
 			$campi['livello4'] = $livello4;
 		}
 		if ($livello5 > ''){
-			$campi['query'] = 'SELECT * FROM scansioni_disco '
+			$campi['query'] = 'SELECT * FROM deposito '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
-			. " AND nome_file = '/' "
-			. ' AND livello1 = :livello1 '
-			. '   AND livello2 = :livello2 '
-			. '   AND livello3 = :livello3 '
-			. '   AND livello4 = :livello4 '
-			. '   AND livello5 = :livello5 '
-			. "   AND livello6 = '' ";
+			. "AND nome_file = '/' "
+			. 'AND livello1 = :livello1 AND livello2 = :livello2 '
+			. 'AND livello3 = :livello3 AND livello4 = :livello4 '
+			. 'AND livello5 = :livello5 '
+			. "AND livello6 = '' ";
 			$campi['livello5'] = $livello5;
 		}
 		if ($livello6 > ''){
-			$campi['query'] = 'SELECT * FROM scansioni_disco '
+			$campi['query'] = 'SELECT * FROM deposito '
 			. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
-			. " AND nome_file = '/' "
-			. ' AND livello1 = :livello1 '
-			. '   AND livello2 = :livello2 '
-			. '   AND livello3 = :livello3 '
-			. '   AND livello4 = :livello4 '
-			. '   AND livello5 = :livello5 '
-			. '   AND livello6 = :livello6 ';
+			. "AND nome_file = '/' "
+			. 'AND livello1 = :livello1 AND livello2 = :livello2 '
+			. 'AND livello3 = :livello3 AND livello4 = :livello4 '
+			. 'AND livello5 = :livello5 AND livello6 = :livello6 '
+			. 'ORDER BY record_id ';
 			$campi['livello6'] = $livello6;
 		}
-		$ret_scan = $this->leggi($campi);
-		if (isset($ret_scan['error'])){
-			echo __CLASS__ . ' ' . __FUNCTION__ . ' '; 
-			echo '<br>';
-			echo var_dump($campi);
-			echo '<br><br>';
-			echo var_dump($ret_scan);
+		$ret_dep = $this->leggi($campi);
+		if (isset($ret_dep['error'])){
+			echo __CLASS__ . ' ' . __FUNCTION__ 
+			.'<br>Errore: '. $ret_dep['error']
+			.'<br>Campi:'. $dbh::esponi($campi)
+			.'<br>'. $dbh::esponi($ret_dep);
 			exit(1);
 		}
-		if (isset($ret_scan['numero']) && $ret_scan['numero'] > 0){
-			return $ret_scan['data'][0]['record_id'];
+		if (isset($ret_dep['numero']) && $ret_dep['numero'] > 0){
+			return $ret_dep['data'][0]['record_id'];
 		}
-		return 0;
+		return 0; // non trovato 
 	} // get_record_id_da_percorso
 
+	/**
+	 * get_deposito_per_id()
+	 * Verifica se è presente un record in tabella e restituisce
+	 * 'ok' e il record oppure 'error' e 'message'
+	 * 
+	 * @param    int $deposito_id 
+	 * @return array 'ok' + record | 'error' + message
+	 */
+	public function get_deposito_per_id(int $deposito_id = 0) : array{
+		$dbh    = $this->conn;
 
-} // class ScansioniDisco
+		$this->set_record_id($deposito_id);
+		$campi =[];
+		$campi['query'] = 'SELECT + FROM ' . self::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+		. ' AND record_id 0 :record_id ';
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$campi['record_id'] = $this->get_record_id();
+		$ret_dep = [];
+		$ret_dep= $this->leggi($campi);
+		if (isset($ret_dep['error'])){
+			return $ret_dep;
+		}
+		if ($ret_dep['numero'] < 1){
+			$ret = [
+				'error'  => true,
+				'message'=> 'Record '. $deposito_id . ' non trovato in tabella.'
+			];
+			return $ret;
+		}
+		$ret =[
+			'ok'     => true,
+			'record' => $ret_dep['data'][0]
+		];
+		return $ret;
+	} // get_deposito_per_id
+
+	/**
+	 * Riceve un record di deposito che referenzia un album,
+	 * e va a rintracciare in deposito le fotografie che sono 
+	 * contenute nello stesso album 
+	 * 
+	 * @param  array $album da deposito non da album
+	 * @return array 'ok' + data | 'error' + message 
+	 */
+	public function get_deposito_foto_da_album( array $album = [] ) : array {
+		$dbh    = $this->conn;
+
+		// sempre malfidenti 
+		if (!isset($album['disco']) || !isset($album['livello1'])){
+			$ret = [
+				'error'  => true,
+				'message'=> "I campi in input non sono corretti "
+				. '<br>'. $dbh::esponi($album)
+			];
+			return $ret;
+		}
+		$campi=[];
+		$campi['query']='SELECT * FROM ' . Deposito::nome_tabella
+		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
+		. ' AND livello1 = :livello1  AND livello2 = :livello2 '
+		. ' AND livello3 = :livello3  AND livello4 = :livello4 '
+		. ' AND livello5 = :livello5  AND livello6 = :livello6 '
+		. " AND nome_file <> '/' "
+		. " AND estensione in ('jpg','jpeg','psd','tif') "
+		. ' ORDER BY nome_file ';
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$campi['livello1'] = $album['livello1'];
+		$campi['livello2'] = $album['livello2'];
+		$campi['livello3'] = $album['livello3'];
+		$campi['livello4'] = $album['livello4'];
+		$campi['livello5'] = $album['livello5'];
+		$campi['livello6'] = $album['livello6'];
+		$ret_dep = [];
+		$ret_dep = $this->leggi($campi);
+		if (isset($ret_dep['error'])){
+			return $ret_dep;
+		}
+		if ($ret_dep['numero'] < 1 ){
+			$ret = [
+				'error'  => true,
+				'message'=> "Non sono stati rintracciate fotografie in album."
+				. '<br>'. $dbh::esponi($album)
+			];
+			return $ret;
+		}
+		// TODO Si può verificare se le foto ci sono ancora in 
+		// TODO disco
+		return $ret_dep;
+	}
+
+} // class Deposito

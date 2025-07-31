@@ -29,8 +29,8 @@
  * - modifica (compresa cancellazione non fisica)
  * - elimina 
  */
-Class Chiavi {
-  private $conn = false;
+Class Chiavi extends DatabaseHandler {
+  public $conn;
   public const nome_tabella = 'chiavi_elenco';
   public const genere_chiave_validi = [
     'unico',
@@ -90,11 +90,8 @@ Class Chiavi {
 	 */
 	public function get_chiavi_option_list() : string {
 		$dbh = $this->conn; 
-		if ($dbh === false){
-			$ret = '<option value="--">--</option>'."\n";
-			return $ret;
-		}
-		$campi=[];
+
+    $campi=[];
 		$campi['query']= 'SELECT chiave FROM ' . self::nome_tabella 
 		. ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
 		. ' ORDER BY chiave, record_id ';
@@ -120,10 +117,7 @@ Class Chiavi {
    */
   public function get_chiavi_datalist() : string {
 		$dbh = $this->conn; 
-		if ($dbh === false){
-      throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
-      . ' To get table value must have a db connection.' );
-		}
+
     // si può usare $this->leggi solo con $query 
     $campi=[];
     $campi['query'] = 'SELECT chiave FROM ' . self::nome_tabella
@@ -159,15 +153,11 @@ Class Chiavi {
    */
   public function get_chiave_record_per_chiave( string $chiave_cercata = '') : array {
 		$dbh = $this->conn; 
-		if ($dbh === false){
-      throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
-      . ' To get table value "must have" a db connection.' );
-		}
     $this->set_chiave($chiave_cercata);
 
     $campi = [];
     $campi['query'] = 'SELECT * FROM ' . self::nome_tabella 
-    . ' WHERE record_cancellabile_da = :record_cancellabile_dal '
+    . ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
     . ' AND chiave = :chiave '
     . ' ORDER BY record_id ';
     $campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
@@ -197,15 +187,12 @@ Class Chiavi {
    */
   public function get_chiave_record_per_id( int $chiave_id_cercata = 0) : array{
 		$dbh = $this->conn; 
-		if ($dbh === false){
-      throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
-      . ' To get table value "must have" a db connection.' );
-		}
+
     $this->set_record_id($chiave_id_cercata);
 
     $campi = [];
     $campi['query'] = 'SELECT * FROM ' . self::nome_tabella 
-    . ' WHERE record_cancellabile_da = :record_cancellabile_dal '
+    . ' WHERE record_cancellabile_dal = :record_cancellabile_dal '
     . ' AND record_id = :record_id ';
     $campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
     $campi['record_id'] = $this->get_record_id();
@@ -267,8 +254,9 @@ Class Chiavi {
    * @param  string datetime yyyy-mm-dd hh:mm:ss 
    */
   public function set_ultima_modifica_record( string $ultima_modifica_record ) {
+    $dbh = $this->conn; // a PDO object thru Database class
     // validazione
-    if ( !$this->conn->is_datetime( $ultima_modifica_record )){
+    if ( !$dbh->is_datetime( $ultima_modifica_record )){
       throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
       . ' Must be datetime is : ' . $ultima_modifica_record );
     }
@@ -279,8 +267,9 @@ Class Chiavi {
    * @param  string datetime yyyy-mm-dd hh:mm:ss 
    */
   public function set_record_cancellabile_dal( string $record_cancellabile_dal ) {
+  	$dbh = $this->conn; // a PDO object thru Database class
     // validazione
-    if ( !$this->conn->is_datetime( $record_cancellabile_dal )){
+    if ( !$dbh->is_datetime( $record_cancellabile_dal )){
       throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
       . ' Must be datetime is : ' . $record_cancellabile_dal );
     }
@@ -305,16 +294,8 @@ Class Chiavi {
 
     // dati obbligatori
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => __CLASS__ . ' ' . __FUNCTION__ 
-        . " Inserimento record senza connessione archivio per: " 
-        . self::nome_tabella 
-      ];		
-      return $ret;
-    }	
-		if (!isset($campi['chiave']) || $campi['chiave'] == ''){
+
+    if (!isset($campi['chiave']) || $campi['chiave'] == ''){
       $ret = [
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
@@ -347,7 +328,7 @@ Class Chiavi {
         'record_id' => 0,
         'message' => __CLASS__ . ' ' . __FUNCTION__ 
         . ' Si è verificato un errore: ' . $th->getMessage() 
-				. ' campi: ' . serialize($campi)
+				. ' campi: ' . $dbh::esponi($campi)
         . ' istruzione SQL: ' . $create 
       ];	
       return $ret;
@@ -370,21 +351,13 @@ Class Chiavi {
   public function leggi(array $campi ) : array {
     // campi obbligatori 
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => __CLASS__ . ' ' . __FUNCTION__ 
-        . " lettura record senza connessione archivio per: " 
-        . self::nome_tabella
-      ];
-      return $ret;
-    }
+
     if (!isset($campi['query'])){
       $ret = [
         "error" => true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . "Deve essere definita l'istruzione SELECT in ['query']: " 
-        . serialize($campi)
+        . $dbh::esponi($campi)
       ];
       return $ret;
     }
@@ -430,7 +403,7 @@ Class Chiavi {
         'error'   => true,
         'message' => __CLASS__ . ' ' . __FUNCTION__ . ' ' 
         . ' Si è verificato un errore: ' . $th->getMessage() 
-        . " campi: " . serialize($campi)
+        . " campi: " . $dbh::esponi($campi)
         . ' istruzione SQL: ' . $read
       ];
       return $ret;
@@ -462,21 +435,13 @@ Class Chiavi {
   public function modifica(array $campi) : array {
     // dati obbligatori 
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        'error'   => true, 
-        'message' => __CLASS__ . ' ' . __FUNCTION__ 
-        . ' Modifica senza connessione archivio per: ' 
-        . self::nome_tabella 
-      ];
-      return $ret;
-    }
+
     if (!isset($campi['update'])){
       $ret = [
         'error'   => true, 
         'message' => __CLASS__ . ' ' . __FUNCTION__ 
         . " Aggiornamento record senza UPDATE: " 
-        . serialize($campi) 
+        . $dbh::esponi($campi) 
       ];
       return $ret;
     }
@@ -530,7 +495,7 @@ Class Chiavi {
         "error" => true,
         "message" => __CLASS__ . ' ' . __FUNCTION__ . ' ' 
         . $th->getMessage() 
-        . ' campi: '          . serialize($campi)
+        . ' campi: '          . $dbh::esponi($campi)
         . ' istruzione SQL: ' . $update
       ];
       return $ret;
@@ -555,21 +520,13 @@ Class Chiavi {
   public function elimina(array $campi) : array {
     // campi obbligatori 
     $dbh = $this->conn; // a PDO object thru Database class
-    if ($dbh === false){
-      $ret = [
-        "error"=> true, 
-        "message" => "La cancellazione di record "
-        . "non si può fare senza connessione archivio "
-        . "per: " . self::nome_tabella 
-      ];
-      return $ret;
-    }
+
     if (!isset($campi['delete'])){
       $ret = [
         "error"=> true, 
         "message" => __CLASS__ . ' ' . __FUNCTION__ 
         . "Deve essere definita l'istruzione DELETE in ['delete']: " 
-        . serialize($campi)
+        . $dbh::esponi($campi)
       ];
       return $ret;
     }
@@ -614,7 +571,7 @@ Class Chiavi {
           'error' => true,
           'message' => __CLASS__ . ' ' . __FUNCTION__  
           . $e->getMessage() 
-          . ' campi: ' . serialize($campi) 
+          . ' campi: ' . $dbh::esponi($campi) 
           . ' istruzione SQL: ' . $cancellazione 
       ];
       return $ret;

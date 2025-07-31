@@ -11,8 +11,8 @@
  * dipendenze: video
  * 
  */
-Class Didascalie{
-  private $conn = false;
+Class Didascalie extends DatabaseHandler {
+  public $conn;
 
 	public const nome_tabella  = 'didascalie';
 	public const tabelle_padre_validi = [
@@ -149,12 +149,14 @@ Class Didascalie{
 	 * @return  array $ret ok + messaggio oppure error + messaggio 
 	 */
 	public function aggiungi( array $campi = []) : array {
+		$dbh = $this->conn; // a PDO object thru Database class
+
 		if (!isset($campi['didascalia'])) {
 			$ret = [
 				'error'   => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Serve il campo didascalia: '
-				. str_ireplace(';', '; ', serialize($campi))
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -165,7 +167,7 @@ Class Didascalie{
 				'error'   => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Serve il campo tabella_padre: '
-				. str_ireplace(';', '; ', serialize($campi))
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
@@ -176,23 +178,12 @@ Class Didascalie{
 				'error'   => true,
 				'message' => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' Serve il campo record_id_padre: '
-				. str_ireplace(';', '; ', serialize($campi))
+				. $dbh::esponi($campi)
 			];
 			return $ret;
 		}
 		$this->set_record_id_padre($campi['record_id_padre']);
 
-		$dbh = $this->conn; // a PDO object thru Database class
-		if ($dbh === false){
-			$ret = [
-				"error"=> true, 
-				"message" => __CLASS__ . ' ' . __FUNCTION__ 
-				. " Inserimento record senza connessione archivio per: " 
-				. self::nome_tabella 
-			];
-			return $ret;
-		}
-		
 		$create = ' INSERT INTO ' . self::nome_tabella 
 		. ' (  didascalia,  tabella_padre,  record_id_padre ) VALUES '
 		. ' ( :didascalia, :tabella_padre, :record_id_padre ) ';
@@ -225,7 +216,7 @@ Class Didascalie{
 				"error"   => true,
 				"message" => __CLASS__ . ' ' . __FUNCTION__ 
 				. ' ' . $th->getMessage() 
-				. " campi: " . serialize($campi)
+				. " campi: " . $dbh::esponi($campi)
 				. ' istruzione SQL: ' . $create 
 			];
 			return $ret;      
@@ -237,26 +228,18 @@ Class Didascalie{
 	 * @return array $ret ok + numero + data[] oppure error + message
 	 */
 public function leggi(array $campi) : array {
+	$dbh = $this->conn; // a PDO object thru Database class
+
 	if (!isset($campi['query'])){
 		$ret = [
 			"error"=> true, 
 			"message" => __CLASS__ . ' ' . __FUNCTION__ 
 			. "Deve essere definita l'istruzione SELECT in ['query']: " 
-			. str_ireplace(';', '; ', serialize($campi))
+			. $dbh::esponi($campi)
 		];
 		return $ret;
 	}
 	// dati obbligatori
-	$dbh = $this->conn; // a PDO object thru Database class
-	if ($dbh === false){
-		$ret = [
-			"error"=> true, 
-			"message" => __CLASS__ . ' ' . __FUNCTION__ 
-			. "Deve essere attiva la connessione all'archivio per: " 
-			. self::nome_tabella 
-		];
-		return $ret;
-	}
 
 	$read = $campi['query'];
 	if (isset($campi['record_id'])){
@@ -320,7 +303,7 @@ public function leggi(array $campi) : array {
 			'message' => __CLASS__ . ' ' . __FUNCTION__ 
 			. ' ' . $th->getMessage() 
 			. ' istruzione SQL: ' . $read
-			. ' campi: ' . str_ireplace(';', '; ', serialize($campi))
+			. ' campi: ' . $dbh::esponi($campi)
 		];
 		return $ret;
 	} // try catch
@@ -334,21 +317,13 @@ public function leggi(array $campi) : array {
  */
 public function modifica(array $campi=[]) : array {
 	$dbh = $this->conn; // a PDO object thru Database class
-	if ($dbh === false){
-		$ret = [
-			"error"=> true, 
-			"message" => __CLASS__ . ' ' . __FUNCTION__ 
-			. " Modifica record senza connessione archivio per: " 
-			. self::nome_tabella 
-		];
-		return $ret;
-	}
+
 	if (!isset($campi['update'])){
 		$ret = [
 			"error"=> true, 
 			"message" => __CLASS__ . ' ' . __FUNCTION__ 
 			. " Aggiornamento record senza UPDATE: " 
-			. serialize($campi) 
+			. $dbh::esponi($campi) 
 		];
 		return $ret;
 	}
@@ -409,7 +384,7 @@ public function modifica(array $campi=[]) : array {
 			"error" => true,
 			"message" => __CLASS__ . ' ' . __FUNCTION__ 
 			. '<br>' . $th->getMessage() 
-			. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
+			. '<br>campi: ' . $dbh::esponi($campi)
 			. '<br>istruzione SQL: ' . $update
 		];
 		return $ret;
@@ -422,26 +397,18 @@ public function modifica(array $campi=[]) : array {
  * con dbh->get_datetime_now()
  */
 public function elimina(array $campi) : array {
+	$dbh = $this->conn; // a PDO object thru Database class
+
 	if (!isset($campi['delete'])){
 		$ret = [
 			"error"=> true, 
 			"message" => __CLASS__ . ' ' . __FUNCTION__ 
 			. "Deve essere definita l'istruzione DELETE in ['delete']: " 
-			. str_ireplace(';', '; ', serialize($campi))
+			. $dbh::esponi($campi)
 		];
 		return $ret;
 	}
 	// dati obbligatori
-	$dbh = $this->conn; // a PDO object thru Database class
-	if ($dbh === false){
-		$ret = [
-			"error"=> true, 
-			"message" => __CLASS__ . ' ' . __FUNCTION__ 
-			. "Deve essere attiva la connessione all'archivio per: " 
-			. self::nome_tabella 
-		];
-		return $ret;
-	}
 
 	$delete = $campi['delete'];
 	if (isset($campi['record_id'])){
@@ -493,7 +460,7 @@ public function elimina(array $campi) : array {
 			"error" => true,
 			"message" => __CLASS__ . ' ' . __FUNCTION__ 
 			. '<br>' . $th->getMessage() 
-			. '<br>campi: ' . str_ireplace(';', '; ', serialize($campi))
+			. '<br>campi: ' . $dbh::esponi($campi)
 			. '<br>istruzione SQL: ' . $delete
 		];
 		return $ret;
@@ -506,6 +473,7 @@ public function elimina(array $campi) : array {
 	 * 
 	 * backup vedi controller dedicato
 	 */
+
 	/**
 	 * @param  string file_oggetto percorso completo 
 	 * @return array  'ok' + dati | 'error' + message

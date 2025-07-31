@@ -6,8 +6,8 @@
 		<title>Esplora Disco | <?=$cartella; ?> </title>
 		<meta name='robots' content='noindex, nofollow' />
 		<!-- jquery --><script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-		<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" >
-		<!-- icone --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" >
+		<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" >
+		<!-- icone --><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet" >
 	</head>
 	<body>
 		<!-- TODO Da revisionare, per la paginazione va aggiunto nel form un campo 
@@ -115,8 +115,8 @@
 												<td><a href="<?=URLBASE; ?>deposito.php/leggi/<?=$sottocartella["record_id"]; ?>"><i class="bi bi-archive" style="font-size:1rem;color: #<?=$tinta_rgb; ?>"></i></a>&nbsp;</td>
 												<td><a href="<?=URLBASE; ?>deposito.php/leggi/<?=$sottocartella["record_id"]; ?>" style="text-decoration: none;"><span style="font-size:1rem;color: #<?=$tinta_rgb; ?>"><?=$sottocartella_nome; ?></span></a></td>
 												<td nowrap>
-													<a href="<?=URLBASE; ?>deposito.php/cambio-tinta/<?=$sottocartella["record_id"]; ?>?t=scansioni_disco&back=<?=$url_sottocartella; ?>" 
-													class="btn btn-outline-primary btn-sm"><i class="bi bi-palette-fill"></i></a><!-- a href="<?=URLBASE; ?>deposito.php/richiesta<?=$sottocartella["record_id"]; ?>&t=scansioni_disco&back=<?=$url_sottocartella; ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-cart-plus-fill"></i></a -->
+													<a href="<?=URLBASE; ?>deposito.php/cambio-tinta/<?=$sottocartella["record_id"]; ?>?t=deposito&back=<?=$url_sottocartella; ?>" 
+													class="btn btn-outline-primary btn-sm"><i class="bi bi-palette-fill"></i></a><!-- a href="<?=URLBASE; ?>deposito.php/richiesta<?=$sottocartella["record_id"]; ?>&t=deposito&back=<?=$url_sottocartella; ?>" class="btn btn-outline-primary btn-sm"><i class="bi bi-cart-plus-fill"></i></a -->
 												</td>
 											</tr>
 										<?php 
@@ -163,6 +163,6 @@
 		</ul>
 		<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
 	</footer>
-	<!-- bootstrap lib --><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<!-- bootstrap lib --><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 	</body>
 </html>
