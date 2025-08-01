@@ -107,6 +107,39 @@ Class AlbumDettagli extends DatabaseHandler {
 		return $this->record_cancellabile_dal;
 	}
 	
+	/**
+	 * @param  int  album_id 
+	 * @return bool 
+	 * true : è presente per l'album una chiave avviso7
+	 * 
+	 * TODO Valutare se riscrivere la funzione strutturandola come l'interno di leggi()
+	 * TODO perché c'è uno strato in più. 
+	 * 
+	 * Nota: si può passare un array $campi che contiene $campi['record_id_padre']
+	 * ma dev'essere valutato nel contesto dell'applicazione, 
+	 * cioè se il $campi[] è già pronto per altre operazioni
+	 * e viene anticipato da questa funzione.  
+	 */
+	public function exist_warning( int $album_id = 0) : bool{
+		$dbh = $this->conn; // a PDO object thru Database class
+
+		$this->set_record_id_padre($album_id);
+		$this->set_chiave('avviso/%');
+		$campi = [];
+		$campi['query'] = 'SELECT COUNT(*) as num FROM ' . self::nome_tabella
+		. ' WHERE record_id_padre = :record_id_padre '
+		. ' AND record_id > 0 '
+		. ' AND chiave LIKE :chiave '
+		. ' AND record_cancellabile_dal = :record_cancellabile_dal ';
+		$campi['record_id_padre'] = $this->get_record_id_padre();
+		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
+		$alb_ret = $this->leggi($campi);
+		if (isset($alb_ret['error'])){
+			throw new Exception( __CLASS__ . ' ' . __FUNCTION__ 
+			. ' Rilevato per album '.$album_id.' un problema: ' . $alb_ret['message']); 
+		}
+		return (($alb_ret['data'][0]['num']) !== 0);
+	}
 	
 	// SETTER 
 	public function set_record_id( int $record_id ){
@@ -293,7 +326,7 @@ Class AlbumDettagli extends DatabaseHandler {
 
 	/**   
 	 * @param   array $campi - deve contenere un $campi['query'] con una istruzione SQL SELECT
-	 * @return  array $ret   'ok'|'error' + 'message'| data
+	 * @return  array $ret   'ok'|'error' + 'message'| data[]
 	 */
 	public function leggi(array $campi) : array {
 		// campi obbligatori 
