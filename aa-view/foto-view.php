@@ -149,15 +149,57 @@
 		</ul>
 		<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
 	</footer>
+<!-- Modal -->
+<div class="modal fade" id="warningModalCenter" tabindex="-1" role="dialog" aria-labelledby="warningModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="warningModalLongTitle">AVVISO</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Chiudi" id="closeWarning">
+					<span aria-hidden="true">&times;</span>
+				</button>
+      </div>
+      <div class="modal-body">
+				<h2 class="text-center text-danger"	><i class="bi bi-eye-slash-fill"></i></h2>
+        Attenzione questo contenuto è stato segnalato come potenzialmente offensivo.<br>
+				Cliccando su avanti si manleva l'associazione e l'autore dell'opera
+				da ogni responsabilità sulle eventuali conseguenze.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="warningBack">Rinuncio</button>
+        <button type="button" class="btn btn-primary" id="warningGo">Avanti INTENZIONALE</button>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 <!-- bootstrap+popper jQuery(sopra) --> 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 	$(document).ready(function(){
 		$("#foto").on('contextmenu', 
-		function(e){e.preventDefault();
-		}, false);
+			function(e){
+				e.preventDefault();
+			}, false);
 	});
 </script>
+<?php
+	if ($avvisi_presenti != ''){
+?><script>
+	$(document).ready(function() {
+		$('#closeWarning, #warningBack').click(function() {
+				history.back();
+		});
+		$('#warningGo').click(function() {
+				$('#warningModalCenter').modal('hide');
+		});
+		$(".modal").css("background-color", "black");
+		$('#warningModalCenter').modal({backdrop: "static"});
+		$('#warningModalCenter').modal('show');
+	});
+</script><?php
+
+	}
+?>
 </body>
 </html>

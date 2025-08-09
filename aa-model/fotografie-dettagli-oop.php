@@ -41,6 +41,7 @@
  *   modifica UPDATE
  *   elimina  DELETE
  * OTHERS
+ *   exist_warning
  *
  */
 Class FotografieDettagli extends DatabaseHandler {
@@ -604,6 +605,44 @@ Class FotografieDettagli extends DatabaseHandler {
 		];
 		return $ret;
 	} // elimina
+
+		/**
+	 * @param  int  fotografia_id
+	 * @return bool
+	 * true : è presente per l'album una chiave avviso/*
+	 *
+	 * versione 1 - imposta $campi e chiama la funzione leggi()
+	 * versione 2 - una versione specializzata della funzione leggi()
+	 * TODO - Versione che ritorna come leggi un array: errore + message, oppure ok + message
+	 * TODO allo scopo di mostrare anche il messaggio associato all'avviso.
+	 */
+	public function exist_warning( int $fotografia_id ) : bool {
+		$dbh = $this->conn; // a PDO object thru Database class
+		$num = 0;
+		$this->set_record_id_padre($fotografia_id);
+		$this->set_chiave('avviso/%');
+		$query = 'SELECT COUNT(*) as num FROM ' . self::nome_tabella
+		. ' WHERE record_id_padre = :record_id_padre '
+		. ' AND record_id > 0 '
+		. ' AND chiave LIKE :chiave '
+		. ' AND record_cancellabile_dal = :record_cancellabile_dal ';
+		try {
+			$lettura = $dbh->prepare($query);
+			$lettura->bindValue('record_id_padre', $this->get_record_id_padre(), PDO::PARAM_INT);
+			$lettura->bindValue('chiave',          $this->get_chiave());
+			$lettura->bindValue('record_cancellabile_dal', $dbh->get_datetime_forever());
+			$lettura->execute();
+			$num = $lettura->fetchColumn();
+			if (is_array($num)){
+				$num = $num[0];
+			}
+
+		} catch (\Throwable $th) {
+			throw new Exception( __CLASS__ . ' ' . __FUNCTION__
+			. ' Rilevato per fotografia '.$fotografia_id.' un problema: ' . $th->getMessage());
+		}
+		return ( $num > 0 );
+	} // exist_warning
 
 
 } // FotografieDettagli

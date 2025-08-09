@@ -107,40 +107,6 @@ Class AlbumDettagli extends DatabaseHandler {
 		return $this->record_cancellabile_dal;
 	}
 	
-	/**
-	 * @param  int  album_id 
-	 * @return bool 
-	 * true : è presente per l'album una chiave avviso7
-	 * 
-	 * TODO Valutare se riscrivere la funzione strutturandola come l'interno di leggi()
-	 * TODO perché c'è uno strato in più. 
-	 * 
-	 * Nota: si può passare un array $campi che contiene $campi['record_id_padre']
-	 * ma dev'essere valutato nel contesto dell'applicazione, 
-	 * cioè se il $campi[] è già pronto per altre operazioni
-	 * e viene anticipato da questa funzione.  
-	 */
-	public function exist_warning( int $album_id = 0) : bool{
-		$dbh = $this->conn; // a PDO object thru Database class
-
-		$this->set_record_id_padre($album_id);
-		$this->set_chiave('avviso/%');
-		$campi = [];
-		$campi['query'] = 'SELECT COUNT(*) as num FROM ' . self::nome_tabella
-		. ' WHERE record_id_padre = :record_id_padre '
-		. ' AND record_id > 0 '
-		. ' AND chiave LIKE :chiave '
-		. ' AND record_cancellabile_dal = :record_cancellabile_dal ';
-		$campi['record_id_padre'] = $this->get_record_id_padre();
-		$campi['record_cancellabile_dal'] = $dbh->get_datetime_forever();
-		$alb_ret = $this->leggi($campi);
-		if (isset($alb_ret['error'])){
-			throw new Exception( __CLASS__ . ' ' . __FUNCTION__ 
-			. ' Rilevato per album '.$album_id.' un problema: ' . $alb_ret['message']); 
-		}
-		return (($alb_ret['data'][0]['num']) !== 0);
-	}
-	
 	// SETTER 
 	public function set_record_id( int $record_id ){
 		if ($record_id < 1){
@@ -161,7 +127,7 @@ Class AlbumDettagli extends DatabaseHandler {
 	
 	public function set_chiave( string $chiave ) {
 		// validazione
-		$chiave = (strip_tags($chiave));
+		$chiave = strtolower(strip_tags($chiave));
 		$chiave = trim(mb_substr($chiave, 0, 250));
 		if ($chiave == ""){
 			throw new Exception(__CLASS__ . ' ' . __FUNCTION__ 
@@ -220,9 +186,12 @@ Class AlbumDettagli extends DatabaseHandler {
 
 	// CRUD 
 	/**
+	 * CREATE 
 	 * @param  array campi 
 	 * @param  array global $_COOKIE
 	 * @return array ret  'ok' + 'record_id' | 'error' + 'message' 
+	 * 
+	 * Nota: la funzione consente l'inserimento di record "già cancellabili"
 	 */
 	public function aggiungi( array $campi = []){
 		// record_id               viene assegnato automaticamente pertanto non è in elenco 
@@ -607,5 +576,41 @@ Class AlbumDettagli extends DatabaseHandler {
 		];
 		return $ret;
 	} // elimina
+
+	/**
+	 * @param  int  album_id 
+	 * @return bool 
+	 * true : è presente per l'album una chiave avviso/* 
+	 * 
+	 * versione 1 - imposta $campi e chiama la funzione leggi()
+	 * versione 2 - una versione specializzata della funzione leggi()
+	 */
+	public function exist_warning( int $album_id ) : bool {
+		$dbh = $this->conn; // a PDO object thru Database class
+		$num = 0;
+		$this->set_record_id_padre($album_id);
+		$this->set_chiave('avviso/%');
+		$query = 'SELECT COUNT(*) as num FROM ' . self::nome_tabella
+		. ' WHERE record_id_padre = :record_id_padre '
+		. ' AND record_id > 0 '
+		. ' AND chiave LIKE :chiave '
+		. ' AND record_cancellabile_dal = :record_cancellabile_dal ';
+		try {
+			$lettura = $dbh->prepare($query);
+			$lettura->bindValue('record_id_padre', $this->get_record_id_padre(), PDO::PARAM_INT);
+			$lettura->bindValue('chiave',          $this->get_chiave());
+			$lettura->bindValue('record_cancellabile_dal', $dbh->get_datetime_forever());
+			$lettura->execute();
+			$num = $lettura->fetchColumn();
+			if (is_array($num)){
+				$num = $num[0];
+			}
+
+		} catch (\Throwable $th) {
+			throw new Exception( __CLASS__ . ' ' . __FUNCTION__ 
+			. ' Rilevato per album '.$album_id.' un problema: ' . $th->getMessage()); 
+		}
+		return ( $num > 0 );
+	} // exist_warning
 
 } // AlbumDettagli

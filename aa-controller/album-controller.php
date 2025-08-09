@@ -51,6 +51,8 @@
  *   espone il modulo che serve per modificare un dettaglio
  *   elimina il dettaglio vecchio e inserisce il dettaglio
  *   modificato come nuovo.
+ * 
+ * . exist_warning
  *
  */
 if (!defined('ABSPATH')){
@@ -61,7 +63,9 @@ include_once(ABSPATH . 'aa-model/album-oop.php');
 include_once(ABSPATH . 'aa-model/album-dettagli-oop.php');
 include_once(ABSPATH . 'aa-model/vocabolario-oop.php');
 include_once(ABSPATH . 'aa-model/fotografie-oop.php');
+include_once(ABSPATH . 'aa-model/fotografie-dettagli-oop.php');
 include_once(ABSPATH . 'aa-model/video-oop.php');
+include_once(ABSPATH . 'aa-model/video-dettagli-oop.php');
 include_once(ABSPATH . 'aa-model/deposito-oop.php');
 include_once(ABSPATH . 'aa-model/richieste-oop.php');
 include_once(ABSPATH . 'aa-model/chiavi-oop.php');
@@ -88,10 +92,22 @@ include_once(ABSPATH . 'aa-controller/video-controller.php');
  * TODO Sostituire il tag img con figure e inserire come caption il titolo?
  */
  function get_item_foto_griglia(array $fotografia) : string {
+	$dbh    = New DatabaseHandler();
+	$fdet_h = New FotografieDettagli($dbh);
+	
 	$ret  = '<div class="float-start">'."\n";
 	$ret .= '<a href="'.URLBASE.'fotografie.php/leggi/'.$fotografia['record_id'].'" ';
 	$ret .=    'title="'.$fotografia['titolo_fotografia'].'" >'."\n";
 	
+	if ($fdet_h->exist_warning( $fotografia['record_id'])){
+		$ret .= '<img src="'.URLBASE.'aa-img/aa-righe-alternate.png" '
+	  		 . ' style="min-width:200px; min-height:200px; max-width:200px; max-height:200px;" '
+		     . 'loading="lazy" class="d-block w-100">'. PHP_EOL
+				 . '</a>'  . PHP_EOL
+				 . '</div>'. PHP_EOL;
+		return $ret;
+	}
+
 	$fotografia_src  = str_ireplace('//' , '/' , ABSPATH.$fotografia['percorso_completo']);
 	// se si espone direttamente
 	// $fotografia_src  = $fotografia['percorso_completo'];
@@ -224,7 +240,7 @@ function leggi_album_per_id(int $album_id){
 	$det_h  = New AlbumDettagli($dbh);
 	$foto_h = New Fotografie($dbh);
 	$vid_h  = New Video($dbh);
-	$dep_h = New Deposito($dbh);
+	$dep_h  = New Deposito($dbh);
 	$dida_h = New Didascalie($dbh);
 
 	// 1. lettura album_id in album
@@ -262,6 +278,13 @@ function leggi_album_per_id(int $album_id){
 		$aggiungi_dettaglio = '#sololettura';
 	}
 	
+	// verifica se in album ci sono avvisi
+	$avvisi_presenti = '';
+	if ($det_h->exist_warning( $album['record_id'])){
+		// Si espone una manina temporaneamente, poi sarà un modale 
+		$avvisi_presenti = '<i class="bi bi-exclamation-triangle text-danger"></i>';
+	}
+
 	// compone il link per andare all'album superiore
 	$torna_su='';
 

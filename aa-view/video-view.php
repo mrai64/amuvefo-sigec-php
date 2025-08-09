@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?= $video['titolo_video']; ?> | Video Singolo | AMUVEFO</title>
+	<title><?=$video['titolo_video']; ?> | Video Singolo | AMUVEFO</title>
 	<meta name='robots' content='noindex, nofollow' />
 	<!-- jquery --><script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 	<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" >
@@ -18,17 +18,20 @@
 	</div>
 	<div class="row">
 		<div class="col-2">
-			<a href="<?= $torna_all_album; ?>" title="[Torna all'album]" ><i class="h2 bi bi-arrow-up-left-square" ></i></a>
+			<a href="<?=$torna_all_album; ?>" title="[Torna all'album]" ><i class="h2 bi bi-arrow-up-left-square" ></i></a>
+			&nbsp;|&nbsp;
 			<?php
 			if (get_set_abilitazione() > SOLALETTURA){
-				echo '<a href="'. $richiesta_originali . '" title="[Richiesta foto]" ><i class="h2 bi bi-bookmark-check"></i></a>'."\n";
+				echo '<a href="'. $richiesta_originali . '" title="[Richiesta video]" ><i class="h2 bi bi-bookmark-check"></i></a>'."\n";
+			} else {
+				echo '<a href="#" title="[NO Richiesta video]" ><i class="h2 bi bi-bookmark-check text-secondary"></i></a>'."\n";
 			}
 			?>
-		&nbsp;|&nbsp; 
-		<a href='/ricerca.php'><i class="bi bi-search"></i></a>
+		&nbsp;|&nbsp;
+		<a href='/ricerca.php' title="ricerca"><i class="bi bi-search"></i></a>
 		</div>
 		<div class="col-10 h3">
-			Siete in: <?= $siete_in; ?>
+			Siete in: <?=$siete_in; ?>
 		</div>
 	</div>
 	<div class="row">
@@ -44,11 +47,11 @@
 				<li><hr class="dropdown-divider"></li>
 				<li><a href="<?=URLBASE; ?>ingresso.php" class="dropdown-item">Accesso non anonimo</a></li>
 			</ul>
-			<a href="<?= $video_precedente; ?>" title="[prev in album]"><i class="h2 bi bi-arrow-left-square-fill"></i></a>
-			<a href="<?= $video_seguente;   ?>" title="[next in album]"><i class="h2 bi bi-arrow-right-square-fill"></i></a>
+			<a href="<?=$video_precedente; ?>" title="[prev in album]"><i class="h2 bi bi-arrow-left-square-fill"></i></a>
+			<a href="<?=$video_seguente;   ?>" title="[next in album]"><i class="h2 bi bi-arrow-right-square-fill"></i></a>
 		</div>
 		<div class="col-5">
-				<table class="table table-striped border-secondary"> 
+				<table class="table table-striped border-secondary">
 					<thead>
 						<tr>
 							<th scope="col">Chiave ricerca</th>
@@ -88,27 +91,59 @@
 	</div>
 	<footer class="py-3 " style="z-index: -1;">
 		<ul class="nav justify-content-center border-top pb-3 ">
-			<li class="nav-item"><a href="<?=URLBASE; ?>ricerca.php" 
+			<li class="nav-item"><a href="<?=URLBASE; ?>ricerca.php"
 			class="nav-link px-2 text-body-secondary">Ricerca avanzata</a></li>
-			<li class="nav-item"><a href="<?=URLBASE; ?>man/" 
+			<li class="nav-item"><a href="<?=URLBASE; ?>man/"
 			class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
-			<li class="nav-item"><a href="<?=URLBASE; ?>man/" 
+			<li class="nav-item"><a href="<?=URLBASE; ?>man/"
 			class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
-			<li class="nav-item"><a href="https://athesis77.it/" 
+			<li class="nav-item"><a href="https://athesis77.it/"
 			class="nav-link px-2 text-body-secondary">Associazione</a></li>
-			<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" 
+			<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/"
 			class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
 		</ul>
 		<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
 	</footer>
+<!-- Modal -->
+<div class="modal fade" id="warningModalCenter" tabindex="-1" role="dialog" aria-labelledby="warningModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="warningModalLongTitle">AVVISO</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Chiudi" id="closeWarning">
+					<span aria-hidden="true">&times;</span>
+				</button>
+      </div>
+      <div class="modal-body">
+				<h2 class="text-center text-danger"	><i class="bi bi-eye-slash-fill"></i></h2>
+        Attenzione questo contenuto è stato segnalato come potenzialmente offensivo.<br>
+				Cliccando su avanti si manleva l'associazione e l'autore dell'opera da ogni responsabilità sulle conseguenze.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="warningBack">Rinuncio</button>
+        <button type="button" class="btn btn-primary" id="warningGo">Avanti INTENZIONALE</button>
+      </div>
+    </div>
+  </div>
 </div>
-<!-- bootstrap+popper jQuery(sopra) --> 
+</div>
+<!-- bootstrap+popper jQuery(sopra) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 	$(document).ready(function(){
-		$("#video").on('contextmenu', 
-		function(e){e.preventDefault();
+		$("#video").on('contextmenu',
+		function(e){
+			e.preventDefault();
 		}, false);
+		$('#closeWarning, #warningBack').click(function() {
+				history.back();
+		});
+		$('#warningGo').click(function() {
+				$('#warningModalCenter').modal('hide');
+		});
+		$(".modal").css("background-color", "black");
+		$('#warningModalCenter').modal({backdrop: "static"});
+		<?=(isset($avvisi_presenti) && ($avvisi_presenti != '')) ? '$("#warningModalCenter").modal(\'show\');' : ''; ?>		
 	});
 </script>
 </body>
