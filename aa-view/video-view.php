@@ -109,10 +109,8 @@
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="warningModalLongTitle">AVVISO</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Chiudi" id="closeWarning">
-					<span aria-hidden="true">&times;</span>
-				</button>
+        <h1 class="modal-title" id="warningModalLongTitle">AVVISO</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi" id="closeWarning"></button>
       </div>
       <div class="modal-body">
 				<h2 class="text-center text-danger"	><i class="bi bi-eye-slash-fill"></i></h2>
@@ -120,8 +118,8 @@
 				Cliccando su avanti si manleva l'associazione e l'autore dell'opera da ogni responsabilità sulle conseguenze.
       </div>
       <div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="warningGo">Avanti INTENZIONALE</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal" id="warningBack">Rinuncio</button>
-        <button type="button" class="btn btn-primary" id="warningGo">Avanti INTENZIONALE</button>
       </div>
     </div>
   </div>
