@@ -3,7 +3,7 @@
 Italian version of that is on [LEGGIMI.md](./LEGGIMI.md)
 
 AMUVEFO is for *Athesis MUseo VEneto FOtografia*, Athesis' photographic venetian museum
-SIGEC is for *Sistema Generale di Catalogazione*, Generic archiving system 
+SIGEC is for *Sistema Generale di Catalogazione*, Generic archiving system
 PHP is for ...you know.
 
 AMUVEFO-SIGEC was built for my photo social club, tailored on our needs.
@@ -55,4 +55,3 @@ an [MVC](https://en.wikipedia.org/wiki/Model–view–controller) to separate ho
 
 Why not use the trendy nodejs? well, to apply i need use a
 cloud-based platform to create a PWA, but cost should be incontrollable.
-

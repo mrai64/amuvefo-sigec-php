@@ -1,14 +1,16 @@
 # AMUVEFO-sigec-php
-English version of that doc is on [README.md](./README.md). 
 
-AMUVEFO sta per Athesis MUseo Veneto FOtografia.
-SIGEC sta per SIstema GEnerale di archiviazione e Catalogazione
-PHP sta per ..si sa.
+English version of that doc is on [README.md](./README.md).
 
-AMVEFO-SIGEC è stato realizzato per il mio photo club,
+AMUVEFO sta per **A**thesis **MU**seo **VE**neto **FO**tografia.
+SIGEC sta per **SI**stema **GE**nerale di archiviazione e **C**atalogazione
+PHP sta per... Si sa.
+
+AMUVEFO-SIGEC è stato realizzato per il *mio* photo club,
 su misura per le nostre necessità. Ma dovendo essere il più
 possibile flessibile (a ogni incontro le richieste CAMBIANO),
-ho adottato un sistema chiavi-valori.
+ho adottato un sistema chiavi-valori. Le richieste del Comitato di gestione
+hanno valutato una simulazione di edificio, una Biblioteca fotografica.
 
 La nostra Biblioteca virtuale ha delle Sale tematiche, contenenti armadi,
 ripiani, Faldoni, Scatole che forniscono un ordine gerarchico bibliotecario
@@ -24,16 +26,16 @@ non era possibile come su localhost intervenire nello
 spazio web per gestirlo.
 
 Dovendo farlo funzionare per dei giovanotti d'un tempo,
-e farlo mantenere a loro, all'interno del sistema molti
+e farlo mantenere anche a loro, all'interno del sistema molti
 elementi sono scritti in italiano. Misto all'inglese del php
-può creare confuzione ma si è preferito questo.
+può creare confusione ma si è preferito questo.
 
 ## Generalità
 
 Fondamentalmente il nostro *patrimonio* è fatto di immagini e/o video
 raccolti in album, così ho creato degli archivi chiamati *tabella album*,
 *tabella fotografie*, *tabella video*. Ho aggiunto degli altri archivi per memorizzare,
-abbinati agli elementi delle tabelle principali, le coppie di 
+abbinati agli elementi delle tabelle principali, le coppie di
 chiave-valore: *album_dettagli*, *fotografie_dettagli*, *video_dettagli*.
 Non tutto quello che è nei dischi finisce in archivio a far parte
 dell'AMUVEFO-SIGEC, così devo prima fare un elenco delle cartelle,
@@ -66,5 +68,6 @@ V per le pagine vista
 C comanda il traffico tra le V ed M, andata e ritorno, o solo andata.
 
 Perché non usare il moderno e più popolare nodejs? Per usarlo
-avrei dovuto adottare una piattaforma cloud e i costi potevano
-non essere controllabili o sostenibili per un foto club.
+avrei dovuto adottare una *piattaforma cloud* e i costi di un
+sistema di servizi a pagamento potevano
+non essere controllabili o insostenibili per un foto club.
