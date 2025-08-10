@@ -3,11 +3,10 @@
  *	@source /museo.php
  *  @author Massimo Rainato <maxrainato@libero.it>
  * 
- * Questa è la terza pagina cui si accede all'archivio,
- * la prima è di benvenuto, la seconda di inserimento 
- * accredito, la terza questa che mostra la facciata con le "sale"
- * utilizzabili. Per chi può anche altri link alla parte amministrativa
- * e al disco online
+ * A seguito delle richieste del comitato, questa è diventata la pagina di accesso
+ * all'archivio (splashpage). Una parte dei collegamenti è per definizione sempre accessibile
+ * trattandosi di aree di consultazione, il rimanente viene abilitato in base
+ * al ruolo assegnato al consultatore non anonimo che si è autenticato (login). 
  */
 if (!defined('ABSPATH')){
   include_once('./_config.php');
@@ -26,7 +25,7 @@ if ($ingresso === false){
 $ingresso = str_replace('<?=URLBASE; ?>', URLBASE, $ingresso);
 
 // applicazione dei link in base al contenuto di _COOKIE['abilitazione']
-// abilitazione lettura
+// abilitazione lettura (tutti)
 $ingresso = str_replace('#originali_athesis',             'https://www.athesis77.it/',              $ingresso);
 // quello più lungo ha la precedenza
 $ingresso = str_replace('#consultazione_autori_fondi',    URLBASE.'deposito.php/cartella/2AUTOF/',  $ingresso);
@@ -79,6 +78,19 @@ if (strncmp($cookie_abilitazione, $abilitazione_modificaplus, 2) > 0){ // A > B
 	$ingresso = str_replace('#laboratorio_prove',           URLBASE.'amministrazione.php', $ingresso);
 }
 
-// tutto pronto, si espone
-echo $ingresso;
-exit(0);
+// lettura dei contatori - non posso eseguirla ogni volta uguale
+if (isset($_SESSION['contatori'])){
+	$ingresso = str_ireplace('#contatori', $_SESSION['contatori'], $ingresso);
+	// tutto pronto, si espone
+	echo $ingresso;
+	exit(0);
+}
+
+// carica $_SESSION['contatori']
+include_once(ABSPATH.'aa-controller/contatori-controller.php');
+$_SESSION['contatori'] = lettura_contatori();
+	$ingresso = str_ireplace('#contatori', $_SESSION['contatori'], $ingresso);
+	// tutto pronto, si espone
+	echo $ingresso;
+	exit(0);
+//
