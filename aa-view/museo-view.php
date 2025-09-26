@@ -114,8 +114,10 @@
   <footer class="py-3">
     <p class="text-center">
       #contatori <br>
-      La consultazione è consigliata a schermi di risoluzione FullHD<br>
+      Si consiglia l'uso di schermi FullHD<br>
       L'accesso è soggetto a <a class="map-point" href="<?=URLBASE; ?>man/termini-di-servizio-e-condizioni-duso/" >Termini e Condizioni</a>
+      . .
+      <a href="<?=URLBASE; ?>man">[ Manuale ]</a>
     </p>   
   </footer>
   <script>
