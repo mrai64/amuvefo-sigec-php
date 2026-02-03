@@ -123,14 +123,23 @@ include_once(ABSPATH . 'aa-controller/video-controller.php');
 	if (is_file($fotografia_jpg)) {
 		$fotografia_src = $fotografia_jpg;
 	}
+	[$w, $h, $t, $a ] = getimagesize($fotografia_src);
 	
 	// l'immagine viene "intarsiata" nella pagina per dissuadere lo scarico
 	$fotografia_src  = 'data:image/jpeg;base64,'.base64_encode(file_get_contents($fotografia_src));
 	$ret .= '<img src="'.$fotografia_src.'" ';
+
 	// se si espone direttamente la foto jpg
 	// $ret .= '<img src="'.URLBASE.$fotografia['percorso_completo'].'" ';
-	$ret .=       'style="min-width:200px; min-height:200px; max-width:200px; max-height:200px;" ';
-	$ret .=       'loading="lazy"  class="d-block w-100" />' . PHP_EOL;
+
+	// aggiustamento dell'esposizione orizzontale-quadrata verticale
+	// $ret .=       'style="max-width:200px; max-height:200px;" ';
+	if ($w >= $h) {
+		$ret .= ' style="max-width:200px;" ';
+	} else {
+		$ret .= ' style="max-height:200px;" ';
+	}
+	$ret .=       'loading="lazy"  class="d-block " />' . PHP_EOL;
 	$ret .= '</a>' . PHP_EOL;
 	$ret .= '</div>' . PHP_EOL;
 	return $ret;
@@ -153,8 +162,8 @@ function get_carousel_foto(array $fotografia) : string{
 	}
 
 	$ret = "\n".'    <div class="carousel-item active">'
-	     . "\n".'      <img src="'.URLBASE.$fotografia_src.'" class="d-block w-100" '
-			       .'alt="'.$fotografia['titolo_fotografia'].'">'
+	     . "\n".'      <img src="'.URLBASE.$fotografia_src.'" class="d-block w-100 mw-100 h-75 mh-100" '
+			       .'alt="'.$fotografia['titolo_fotografia'].'" lazy >'
 			 . "\n".'    </div>';
 	return $ret;
 } // get_carousel_foto
