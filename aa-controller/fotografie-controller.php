@@ -546,6 +546,12 @@ function leggi_fotografie_per_id( int $fotografia_id){
 			$leggimi       = $didascalia['didascalia'];
 		}
 	} // lettura didascalia_id e leggimi dalla tabella didascalie
+	
+	// presenti avviso/* ? 
+	$avvisi_presenti = '';
+	if ($fdet_h->exist_warning($fotografia_id)){
+		$avvisi_presenti = 'presenti';
+	}
 
 	// dettagli
 	$campi=[];

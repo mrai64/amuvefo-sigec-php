@@ -51,6 +51,8 @@
  *   espone il modulo che serve per modificare un dettaglio
  *   elimina il dettaglio vecchio e inserisce il dettaglio
  *   modificato come nuovo.
+ * 
+ * . exist_warning
  *
  */
 if (!defined('ABSPATH')){
@@ -61,7 +63,9 @@ include_once(ABSPATH . 'aa-model/album-oop.php');
 include_once(ABSPATH . 'aa-model/album-dettagli-oop.php');
 include_once(ABSPATH . 'aa-model/vocabolario-oop.php');
 include_once(ABSPATH . 'aa-model/fotografie-oop.php');
+include_once(ABSPATH . 'aa-model/fotografie-dettagli-oop.php');
 include_once(ABSPATH . 'aa-model/video-oop.php');
+include_once(ABSPATH . 'aa-model/video-dettagli-oop.php');
 include_once(ABSPATH . 'aa-model/deposito-oop.php');
 include_once(ABSPATH . 'aa-model/richieste-oop.php');
 include_once(ABSPATH . 'aa-model/chiavi-oop.php');
@@ -88,10 +92,22 @@ include_once(ABSPATH . 'aa-controller/video-controller.php');
  * TODO Sostituire il tag img con figure e inserire come caption il titolo?
  */
  function get_item_foto_griglia(array $fotografia) : string {
-	$ret  = '<div class="float-start">'."\n";
-	$ret .= '<a href="'.URLBASE.'fotografie.php/leggi/'.$fotografia['record_id'].'" ';
-	$ret .=    'title="'.$fotografia['titolo_fotografia'].'" >'."\n";
+	$dbh    = New DatabaseHandler();
+	$fdet_h = New FotografieDettagli($dbh);
 	
+	$ret  = '<div class="float-start">' . PHP_EOL;
+	$ret .= '<a href="'.URLBASE.'fotografie.php/leggi/'.$fotografia['record_id'].'" ';
+	$ret .=    'title="'.$fotografia['titolo_fotografia'].'" >' . PHP_EOL;
+	
+	if ($fdet_h->exist_warning( $fotografia['record_id'])){
+		$ret .= '<img src="'.URLBASE.'aa-img/aa-righe-alternate.png" '
+	  		 . ' style="min-width:200px; min-height:200px; max-width:200px; max-height:200px;" '
+		     . 'loading="lazy" class="d-block w-100">'. PHP_EOL
+				 . '</a>'  . PHP_EOL
+				 . '</div>'. PHP_EOL;
+		return $ret;
+	}
+
 	$fotografia_src  = str_ireplace('//' , '/' , ABSPATH.$fotografia['percorso_completo']);
 	// se si espone direttamente
 	// $fotografia_src  = $fotografia['percorso_completo'];
@@ -107,16 +123,25 @@ include_once(ABSPATH . 'aa-controller/video-controller.php');
 	if (is_file($fotografia_jpg)) {
 		$fotografia_src = $fotografia_jpg;
 	}
+	[$w, $h, $t, $a ] = getimagesize($fotografia_src);
 	
 	// l'immagine viene "intarsiata" nella pagina per dissuadere lo scarico
 	$fotografia_src  = 'data:image/jpeg;base64,'.base64_encode(file_get_contents($fotografia_src));
 	$ret .= '<img src="'.$fotografia_src.'" ';
+
 	// se si espone direttamente la foto jpg
 	// $ret .= '<img src="'.URLBASE.$fotografia['percorso_completo'].'" ';
-	$ret .=       'style="min-width:200px; min-height:200px; max-width:200px; max-height:200px;" ';
-	$ret .=       'loading="lazy"  class="d-block w-100" />'."\n";
-	$ret .= '</a>'."\n";
-	$ret .= '</div>'."\n";
+
+	// aggiustamento dell'esposizione orizzontale-quadrata verticale
+	// $ret .=       'style="max-width:200px; max-height:200px;" ';
+	if ($w >= $h) {
+		$ret .= ' style="max-width:200px;" ';
+	} else {
+		$ret .= ' style="max-height:200px;" ';
+	}
+	$ret .=       'loading="lazy"  class="d-block " />' . PHP_EOL;
+	$ret .= '</a>' . PHP_EOL;
+	$ret .= '</div>' . PHP_EOL;
 	return $ret;
 } // get_item_foto_griglia()
 
@@ -137,8 +162,8 @@ function get_carousel_foto(array $fotografia) : string{
 	}
 
 	$ret = "\n".'    <div class="carousel-item active">'
-	     . "\n".'      <img src="'.URLBASE.$fotografia_src.'" class="d-block w-100" '
-			       .'alt="'.$fotografia['titolo_fotografia'].'">'
+	     . "\n".'      <img src="'.URLBASE.$fotografia_src.'" class="d-block w-100 mw-100 h-75 mh-100" '
+			       .'alt="'.$fotografia['titolo_fotografia'].'" lazy >'
 			 . "\n".'    </div>';
 	return $ret;
 } // get_carousel_foto
@@ -159,20 +184,20 @@ function get_carousel_foto(array $fotografia) : string{
  */
  function get_item_video_griglia(array $video) : string {
 	
-	$ret  = '<div class="float-start" style="width:200px;height:200px;max-width:200px;max-height:200px;" >'."\n";
-	$ret .= '<a href="'.URLBASE.'video.php/leggi/'.$video['record_id'].'" title="'.$video['titolo_video'].'" >'."\n";
+	$ret  = '<div class="float-start" style="width:200px;height:200px;max-width:200px;max-height:200px;" >' . PHP_EOL;
+	$ret .= '<a href="'.URLBASE.'video.php/leggi/'.$video['record_id'].'" title="'.$video['titolo_video'].'" >' . PHP_EOL;
 	// preload none - serve a stoppare troppo tempo per caricare GB
-	// $ret .= '<video controls preload="none" >'."\n";
-	// $ret .= '<source src="'.URLBASE.$video['percorso_completo'].'" type="video/mp4">'."\n";
-	// $ret .= '</video>'."\n";
+	// $ret .= '<video controls preload="none" >' . PHP_EOL;
+	// $ret .= '<source src="'.URLBASE.$video['percorso_completo'].'" type="video/mp4">' . PHP_EOL;
+	// $ret .= '</video>' . PHP_EOL;
 	// niente - non si ridimensiona
 	// $ret .= file_get_contents(ABSPATH.'aa-img/SMPTE_Color_Bars.svg'); // 800 byte
 	//
 	$ret .= '<img src="'.URLBASE.'aa-img/video-segnalino.png" ';
 	$ret .=       'style="min-width:200px; min-height:200px; max-width:200px; max-height:200px;" ';
-	$ret .=       'loading="lazy"  class="d-block w-100" />'."\n";
-	$ret .= '</a>'."\n";
-	$ret .= '</div>'."\n";
+	$ret .=       'loading="lazy"  class="d-block w-100" />' . PHP_EOL;
+	$ret .= '</a>' . PHP_EOL;
+	$ret .= '</div>' . PHP_EOL;
 	return $ret;
 } // get_item_video_griglia()
 
@@ -183,16 +208,16 @@ function get_carousel_foto(array $fotografia) : string{
  * @return string $html - porzione di codice
  */
  function get_item_dettagli(array $dettaglio) : string {
-	$ret  = "\t".'<tr>'."\n"
-	. "\t\t".'<td scope="row">'.$dettaglio['chiave'].'</td>'."\n"
-	. "\t\t".'<td>'.$dettaglio['valore'].'</td>'."\n";
+	$ret  = "\t".'<tr>' . PHP_EOL
+	. "\t\t".'<td scope="row">'.$dettaglio['chiave'].'</td>' . PHP_EOL
+	. "\t\t".'<td>'.$dettaglio['valore'].'</td>' . PHP_EOL;
 	if (get_set_abilitazione() > SOLALETTURA ){
 		$ret .= "\t\t".'<td>'
 		. '<a href="'.URLBASE.'album.php/modifica-dettaglio/'.$dettaglio['record_id'].'" '
 		. 'title="modifica dettaglio"><i class="h2 bi bi-pencil-square"></i></a>'
 		. '<a href="'.URLBASE.'album.php/elimina-dettaglio/'.$dettaglio['record_id'].'" '
 		. 'title="elimina dettaglio"><i class="h2 bi bi-eraser-fill"></i></a>'
-		. '</td>'."\n";
+		. '</td>' . PHP_EOL;
 
 	} else {
 		$ret .= "\t\t".'<td>'
@@ -200,9 +225,9 @@ function get_carousel_foto(array $fotografia) : string{
 		. 'title="modifica dettaglio"><i class="h2 bi bi-pencil-square"></i></a>'
 		. '<a href="#sololettura" '
 		. 'title="elimina dettaglio"><i class="h2 bi bi-eraser-fill"></i></a>'
-		. '</td>'."\n";
+		. '</td>' . PHP_EOL;
 	}
-	$ret .= "\t".'</tr>'."\n";
+	$ret .= "\t".'</tr>' . PHP_EOL;
 	return $ret;
 } // get_item_dettagli()
 
@@ -224,7 +249,7 @@ function leggi_album_per_id(int $album_id){
 	$det_h  = New AlbumDettagli($dbh);
 	$foto_h = New Fotografie($dbh);
 	$vid_h  = New Video($dbh);
-	$dep_h = New Deposito($dbh);
+	$dep_h  = New Deposito($dbh);
 	$dida_h = New Didascalie($dbh);
 
 	// 1. lettura album_id in album
@@ -262,6 +287,13 @@ function leggi_album_per_id(int $album_id){
 		$aggiungi_dettaglio = '#sololettura';
 	}
 	
+	// verifica se in album ci sono avvisi
+	$avvisi_presenti = '';
+	if ($det_h->exist_warning( $album['record_id'])){
+		// Si espone una manina temporaneamente, poi sarà un modale 
+		$avvisi_presenti = '<i class="bi bi-exclamation-triangle text-danger"></i>';
+	}
+
 	// compone il link per andare all'album superiore
 	$torna_su='';
 
@@ -491,7 +523,7 @@ function carica_album_da_deposito( int $deposito_id) : array {
 	 */
 
 	// si possono usare le classi bootstrap
-	echo '<p class="fs-2 text-monospace"><strong>'. __FUNCTION__ .'</strong></p>'."\n";
+	echo '<p class="fs-2 text-monospace"><strong>'. __FUNCTION__ .'</strong></p>' . PHP_EOL;
 
 	// 1. va a prendere "il primo" o quello passato in input
 	if ($deposito_id == 0){
@@ -770,7 +802,7 @@ function carica_richiesta_album(int $album_id){
 
 	if (get_set_abilitazione() <= SOLALETTURA ){
 		http_response_code(404);
-		echo '<pre style="color: red;"><strong>Operazione non consentita</strong></pre>'."\n";
+		echo '<pre style="color: red;"><strong>Operazione non consentita</strong></pre>' . PHP_EOL;
 		exit(1);
 	}
 
@@ -1110,7 +1142,7 @@ function carica_album_dettagli_foto_video(int $deposito_id){
 	$inizio_pagina = str_ireplace('<?=$titolo_pagina; ?>', $titolo_pagina, $inizio_pagina);
 	echo $inizio_pagina;
 	// si possono usare le classi bootstrap
-	echo '<p class="fs-2 text-monospace"><strong>'.$titolo_pagina.'</strong></p>'."\n";
+	echo '<p class="fs-2 text-monospace"><strong>'.$titolo_pagina.'</strong></p>' . PHP_EOL;
 
 	// 1. legge deposito e carica album
 	$ret_a = carica_album_da_deposito($deposito_id);
@@ -1122,7 +1154,7 @@ function carica_album_dettagli_foto_video(int $deposito_id){
 			http_response_code(404);
 			echo '<h2 style="font-family:monospace;">avviso</h2>'
 			. '<p style="font-family:monospace;">FINE '
-			.$ret_a['message'].'</p>'."\n";
+			.$ret_a['message'].'</p>' . PHP_EOL;
 			exit(1);
 		}
 
@@ -1139,14 +1171,14 @@ function carica_album_dettagli_foto_video(int $deposito_id){
 	// ritorna senza assegnare un codice interno ?
 	if (!isset($ret_a['record_id'])){
 			echo '<p style="font-family:monospace;color:red;">' .  __FUNCTION__
-			. '<br />' . $dbh->esponi($ret_a). '</p>'."\n";
+			. '<br />' . $dbh->esponi($ret_a). '</p>' . PHP_EOL;
 			exit(1);
 	} // ret_a ma senza record_id
 
 	$album_id=$ret_a['record_id'];
 	echo '<p class="fs-3 text-monospace"> '. __FUNCTION__ .'</p>'
 	. '<p class="text-monospace">Caricato album_id: ' . $album_id
-	. '<br />Passo ai dettagli</p>'."\n";
+	. '<br />Passo ai dettagli</p>' . PHP_EOL;
 	
 	// cambio stato dell'album '...' > 'in corso'
 	$ret_cambio_stato = [];
@@ -1156,13 +1188,13 @@ function carica_album_dettagli_foto_video(int $deposito_id){
 	. '<br>ret_cambio_stato : ' . $dbh->esponi($ret_cambio_stato).'</p>';
 
 	// 2. Aggiunta dettagli album da album
-	echo '<p class="text-monospace">Carica dettagli da album </p>'."\n";
+	echo '<p class="text-monospace">Carica dettagli da album </p>' . PHP_EOL;
 	$ret_a=[];
 	$ret_a = aggiungi_dettagli_album_da_album($album_id);
 	echo '<p class="text-monospace">' . $dbh->esponi($ret_a). '</p>';
 	
 	if (isset($ret_a['error'])){
-		echo '<div class="alert alert-danger" role="alert">'."\n"
+		echo '<div class="alert alert-danger" role="alert">' . PHP_EOL
 		. '<p>Inserimento dettagli per album non riuscito.'
 		. '<br />'. $ret_a['message'] . '</p>'
 		. '</div>'. "\n";
@@ -1171,7 +1203,7 @@ function carica_album_dettagli_foto_video(int $deposito_id){
 
 	// carica fotografie dell'album da deposito
 	// fotografie-controller
-	echo '<p class="text-monospace;">Carica foto da album '.$album_id.'</p>'."\n";
+	echo '<p class="text-monospace;">Carica foto da album '.$album_id.'</p>' . PHP_EOL;
 	$ret_f = carica_fotografie_da_album($album_id);
 	//  cartella senza immagini - possono anche esserci 0 fotografie
 	if (isset($ret_f['ok']) && $ret_f['numero'] > 0 ){
@@ -1183,13 +1215,13 @@ function carica_album_dettagli_foto_video(int $deposito_id){
 		echo "\n".'</ol>';
 	}
 	if (isset($ret_f['message']) && str_contains($ret_f['message'], 'Non ci sono')){
-		echo '<div class="alert alert-danger" role="alert">'."\n"
+		echo '<div class="alert alert-danger" role="alert">' . PHP_EOL
 		. '<p>Inserimento foto per album non effettuato.'
 		. '<br />'. $ret_f['message'] . '</p>'
 		. '</div>'. "\n";
 	
 	} elseif (isset($ret_f['error'])){
-		echo '<div class="alert alert-danger" role="alert">'."\n"
+		echo '<div class="alert alert-danger" role="alert">' . PHP_EOL
 		. '<p>Inserimento foto per album non riuscito.'
 		. '<br />'. $ret_f['message']
 		. '<br />'. $dbh->esponi($ret_f). '</p>'
@@ -1197,25 +1229,25 @@ function carica_album_dettagli_foto_video(int $deposito_id){
 		exit(1);
 
 	} // carica_fotografie_da_album
-	echo '<p style="font-family:monospace;color: red;">Carica foto da album - fine</p>'."\n";
+	echo '<p style="font-family:monospace;color: red;">Carica foto da album - fine</p>' . PHP_EOL;
 
 	// carica video dell'album da deposito
 	// video-controller
-	echo '<pre style="color: red;">Carica video da album </pre>'."\n";
+	echo '<pre style="color: red;">Carica video da album </pre>' . PHP_EOL;
 	$ret_v = carica_video_da_album($album_id);
 	if (isset($ret_v['message']) && str_contains($ret_v['message'], 'Non ci sono')){
-		echo '<pre style="color: red;"><strong>Inserimento video per album non effettuato</strong></pre>'."\n";
-		echo '<p style="color: red;">'.$ret_f['message'].'</p>'."\n";
+		echo '<pre style="color: red;"><strong>Inserimento video per album non effettuato</strong></pre>' . PHP_EOL;
+		echo '<p style="color: red;">'.$ret_f['message'].'</p>' . PHP_EOL;
 	} elseif (isset($ret_v['error'])){
 		http_response_code(404);
-		echo '<pre style="color: red;"><strong>Inserimento video per album non riuscito</strong></pre>'."\n";
-		echo '<p style="color: red;">'.$ret_v['message'].'</p>'."\n";
+		echo '<pre style="color: red;"><strong>Inserimento video per album non riuscito</strong></pre>' . PHP_EOL;
+		echo '<p style="color: red;">'.$ret_v['message'].'</p>' . PHP_EOL;
 		echo var_dump($ret_v);
 		exit(1);
 	}
 	
 	// cambio stato dell'album 'in corso'
-	echo '<pre style="color: red;">Cambio stato lavori all album in 2 completati </pre>'."\n";
+	echo '<pre style="color: red;">Cambio stato lavori all album in 2 completati </pre>' . PHP_EOL;
 	$alb_h->set_stato_lavori_album($album_id, Album::stato_completati);
 
 	// ricarica 5 secondi

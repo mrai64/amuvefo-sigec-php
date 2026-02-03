@@ -11,7 +11,7 @@
 </head>
 <body>
 <div class="container">
-<div class="row">
+	<div class="row">
 		<?php // messaggio
 			include(ABSPATH.'aa-controller/mostra-messaggio-sessione.php');
 		?>
@@ -21,7 +21,7 @@
 			<a href="<?=URLBASE; ?>museo.php"><i class="fs-2 bi bi-house-up"></i></a>
 			&nbsp; <a href='<?=$torna_sala; ?>'><i class="fs-2 bi bi-arrow-left-square"></i></a>
 			&nbsp;|&nbsp; <a href='<?=URLBASE; ?>ricerca.php'><i class="fs-2 bi bi-search"></i></a>
-			&nbsp;|&nbsp; 
+			&nbsp;|&nbsp;
 			<?php
 			if (get_set_abilitazione() > SOLALETTURA){
 				echo '<a href="'. $richieste_originali .'" '
@@ -46,7 +46,7 @@
 	</div>
 	<div class="row">
 		<div class="col-9">
-			<?php // didascalia - 
+			<?php // didascalia -
 				if (get_set_abilitazione() > SOLALETTURA){
 					if ($didascalia_id > 0){
 						// modifica
@@ -69,7 +69,7 @@
 					echo nl2br($leggimi);
 					echo '</div>'.PHP_EOL;
 				}
-			?> 
+			?>
 		</div>
 	</div>
 	<div class="overflow-auto" style="max-height: 45vh;">
@@ -77,7 +77,7 @@
 			<a data-bs-toggle="collapse" href="#fotoList" aria-expanded="false" aria-controls="Lista fotografie dell'album"><i class="fs-4 bi bi-eye-fill"></i></a>
 		</p>
 		<div id="fotoList" class="collapse.show grid clearfix">
-			<?=$float_foto; ?> 
+			<?=$float_foto; ?>
 		</div><!-- griglia foto -->
 	</div>
 	<div class="overflow-auto" style="max-height: 30vh;">
@@ -85,15 +85,15 @@
 			<a data-bs-toggle="collapse" href="#videoList" aria-expanded="false" aria-controls="Lista video dell'album"><i class="fs-4 bi bi-eye-fill"></i></a>
 		</p>
 		<div id="videoList" class="grid clearfix overflow-visible">
-			<?=$float_video; ?> 
+			<?=$float_video; ?>
 		</div><!-- griglia video -->
 	</div>
   <div  class="row">
 		<p class="fs-2">Dati dettagli
-			<a href="#dettagliList" data-bs-toggle="collapse" aria-expanded="false" aria-controls="Lista dettagli album"><i class="fs-4 bi bi-eye-fill"></i></a>	
+			<a href="#dettagliList" data-bs-toggle="collapse" aria-expanded="false" aria-controls="Lista dettagli album"><i class="fs-4 bi bi-eye-fill"></i></a>
 		</p>
 		<div id="dettagliList" class="collapse">
-			<table class="table table-striped border-secondary"> 
+			<table class="table table-striped border-secondary">
 				<thead>
 					<tr>
 						<th class="col-3" scope="col">Chiave ricerca</th>
@@ -110,7 +110,7 @@
 		</div>
 	</div><!-- dettagli album -->
 	<div class="overflow-auto">
-		<p class="fs-2">Carosello 
+		<p class="fs-2">Carosello
 			<a data-bs-toggle="collapse" href="#carosello" aria-expanded="false" aria-controls="Carosello foto dell'album"><i class="fs-4 bi bi-eye-fill"></i></a>
 		</p>
 	</div>
@@ -120,20 +120,58 @@
 </div>
 <footer class="py-3 " style="z-index: -1;">
 	<ul class="nav justify-content-center border-top pb-3 ">
-		<li class="nav-item"><a href="<?=URLBASE; ?>ricerca.php" 
+		<li class="nav-item"><a href="<?=URLBASE; ?>ricerca.php"
 		class="nav-link px-2 text-body-secondary">Ricerca</a></li>
-		<li class="nav-item"><a href="<?=URLBASE; ?>man/" 
+		<li class="nav-item"><a href="<?=URLBASE; ?>man/"
 		class="nav-link px-2 text-body-secondary" target="_blank">Manuale</a></li>
-		<li class="nav-item"><a href="<?=URLBASE; ?>man/" 
+		<li class="nav-item"><a href="<?=URLBASE; ?>man/"
 		class="nav-link px-2 text-body-secondary">D&R FAQ</a></li>
-		<li class="nav-item"><a href="https://athesis77.it/" 
+		<li class="nav-item"><a href="https://athesis77.it/"
 		class="nav-link px-2 text-body-secondary">Associazione</a></li>
-		<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" 
+		<li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/"
 		class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
 	</ul>
 	<p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
 </footer>
-<!-- bootstrap no jQuery --> 
+<!-- Modal -->
+<div class="modal fade" id="warningModalCenter" tabindex="-1" role="dialog" aria-labelledby="warningModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title" id="warningModalLongTitle">AVVISO</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi" id="closeWarning"></button>
+      </div>
+      <div class="modal-body">
+				<h2 class="text-center text-danger"	><i class="bi bi-eye-slash-fill"></i></h2>
+        Attenzione questo contenuto è stato segnalato come potenzialmente offensivo.<br>
+				Cliccando su avanti si manleva l'associazione e l'autore dell'opera da ogni responsabilità sulle conseguenze.
+      </div>
+      <div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="warningGo">Avanti INTENZIONALE</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="warningBack">Rinuncio</button>
+      </div>
+    </div>
+  </div>
+</div>
+<?php
+	if ($avvisi_presenti != ''){
+?><script>
+	$(document).ready(function() {
+		$('#closeWarning, #warningBack').click(function() {
+				history.back();
+		});
+		$('#warningGo').click(function() {
+				$('#warningModalCenter').modal('hide');
+		});
+		$(".modal").css("background-color", "black");
+		$('#warningModalCenter').modal({backdrop: "static"});
+		$('#warningModalCenter').modal('show');
+	});
+</script><?php
+
+	}
+?>
+<!-- bootstrap no jQuery -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
