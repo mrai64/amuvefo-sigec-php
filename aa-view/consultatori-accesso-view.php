@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Accesso Archivio Athesis| AMUVEFO</title>
+    <title>Accesso Foto Museo Athesis | Associazione Culturale Athesis APS - Boara Pisani PD</title>
     <meta name='robots' content='noindex, nofollow' />
 		<!-- jquery --><script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 		<!-- bootstrap --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -57,13 +57,17 @@
           <input type="password" class="form-control" name="accesso_password" id="accessoPassword" placeholder="Password" value="info@athesis77.it" required>
           <label for="accesso_password">Password</label>
         </div>
-        <p>Lasciando i valori preimpostati potete accedere con abilitazione 
-          di sola lettura, consultazione. Se invece dovete fare lavori
-          di amministrazione o modifica, potete inserire la e-mail e password 
-          che sono state concordate con il comitato di gestione.</p>
-          <p>L'accesso personalizzato con email e password è necessario 
-          anche per chi vuole richiedere copie in alta risoluzione 
-          delle immagini stesse.</p>
+        <p>La piattaforma è nata per una consultazione nominale, accademica.
+          <br />Per consentire una visione pubblica mantenendo la struttura
+          attuale, si è deciso di inserire del valori nel modulo che consentano
+          di procedere senza modifiche cliccando sul pulsante di accesso.
+          <br />Per altre esigenze consultate il manuale 
+          e contattate il comitato di gestione presso Associazione Culturale Athesis APS.<br />
+          Avvisi legali<br >
+          Le opere sono riprodotte a fini culturali e divulgativi secondo
+          l'art.70 L. 633/1941 s.m.i.<br />
+          I contenuti diffusi dal sito non possono essere utilizzati al fine
+          di addestrare sistemi di intelligenza artificiale.</p>
         <div class="form-check text-start my-3">
           <input class="form-check-input" type="checkbox" 
           value="okCookie" checked 
@@ -96,7 +100,7 @@
       <li class="nav-item"><a href="https://athesis77.it/" class="nav-link px-2 text-body-secondary">Associazione</a></li>
       <li class="nav-item"><a href="https://www.athesis77.it/associazione/presentazione/" class="nav-link px-2 text-body-secondary">Chi siamo</a></li>
     </ul>
-    <p class="text-center text-body-secondary">&copy; 2024 Associazione Culturale Athesis APS - Boara Pisani PD</p>
+    <p class="text-center text-body-secondary">&copy; 2024-<?= date('Y'); ?> Associazione Culturale Athesis APS - Boara Pisani PD</p>
   </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
   </body>
